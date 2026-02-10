@@ -1,5 +1,5 @@
 import React from 'react'
-import { Archive, ChevronRight, Hexagon, LayoutGrid } from 'lucide-react'
+import { Archive, ChevronRight, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
 
 interface SidebarProps {
   allSlotsExpanded: boolean
@@ -17,7 +17,14 @@ export function Sidebar({
   onNavigateToWorkspace 
 }: SidebarProps) {
   return (
-    <aside className="workspace-sidebar" style={{ borderRight: 'none' }}>
+    <aside className="workspace-sidebar" style={{ 
+      borderRight: 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      position: 'sticky',
+      top: 0
+    }}>
       <div className="workspace-sidebar-header" style={{ borderBottom: 'none' }}>
         <h2 className="workspace-sidebar-title">
           My Slots
@@ -35,7 +42,11 @@ export function Sidebar({
         </button>
       </div>
       
-      <nav className="workspace-sidebar-nav">
+      <nav className="workspace-sidebar-nav" style={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      }}>
         <div>
           <div 
             className="tree-node" 
@@ -360,6 +371,105 @@ export function Sidebar({
           </div>
         </div>
       </nav>
+      
+      {/* Support Section - Glassy Tone on Tone */}
+      <div style={{
+        marginTop: 'auto',
+        padding: '16px'
+      }}>
+        <div style={{
+          backgroundColor: 'hsl(var(--background) / 0.5)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRadius: '12px',
+          padding: '16px',
+          border: '1px solid hsl(var(--border) / 0.5)',
+          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)'
+        }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: '500',
+            marginBottom: '6px'
+          }} className="text-foreground">
+            Need Help?
+          </div>
+          
+          <div style={{
+            fontSize: '11px',
+            marginBottom: '14px',
+            lineHeight: '1.4',
+            fontWeight: '400'
+          }} className="text-muted-foreground">
+            Explore guides and resources
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <button
+              onClick={() => window.open('/user-guide', '_blank')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                width: '100%',
+                padding: '8px 10px',
+                backgroundColor: 'transparent',
+                border: '1px solid hsl(var(--border) / 0.3)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '400',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              className="text-foreground"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--accent) / 0.5)'
+                e.currentTarget.style.borderColor = 'hsl(var(--border))'
+                e.currentTarget.style.boxShadow = '0 0 12px 0 hsl(var(--primary) / 0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.borderColor = 'hsl(var(--border) / 0.3)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <BookOpen size={14} className="text-muted-foreground" />
+              <span style={{ flex: 1, textAlign: 'left' }}>User Guide</span>
+            </button>
+            
+            <button
+              onClick={() => window.open('/platform-overview', '_blank')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                width: '100%',
+                padding: '8px 10px',
+                backgroundColor: 'transparent',
+                border: '1px solid hsl(var(--border) / 0.3)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '400',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              className="text-foreground"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--accent) / 0.5)'
+                e.currentTarget.style.borderColor = 'hsl(var(--border))'
+                e.currentTarget.style.boxShadow = '0 0 12px 0 hsl(var(--primary) / 0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.borderColor = 'hsl(var(--border) / 0.3)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <FileText size={14} className="text-muted-foreground" />
+              <span style={{ flex: 1, textAlign: 'left' }}>Platform Overview</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

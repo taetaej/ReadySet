@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { MoreVertical, Edit, Trash2, Info } from 'lucide-react'
+import { Avatar } from './common/Avatar'
 
 interface SlotHeaderProps {
   slotId: number
@@ -62,45 +63,11 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
             {/* 광고주 프로필 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: slotData.advertiser === '삼성전자' ? '#1f77b4' :
-                                 slotData.advertiser === 'LG전자' ? '#ff7f0e' :
-                                 slotData.advertiser === '현대자동차' ? '#2ca02c' :
-                                 slotData.advertiser === '네이버' ? '#d62728' :
-                                 slotData.advertiser === '카카오' ? '#9467bd' :
-                                 slotData.advertiser === '쿠팡' ? '#8c564b' :
-                                 slotData.advertiser === 'SK텔레콤' ? '#e377c2' :
-                                 slotData.advertiser === 'KT' ? '#7f7f7f' :
-                                 slotData.advertiser === 'LG유플러스' ? '#bcbd22' :
-                                 slotData.advertiser === '롯데마트' ? '#17becf' :
-                                 slotData.advertiser === '이마트' ? '#ff9896' :
-                                 slotData.advertiser === '홈플러스' ? '#98df8a' :
-                                 slotData.advertiser === 'CJ올리브영' ? '#ffbb78' :
-                                 slotData.advertiser === '신세계백화점' ? '#c5b0d5' :
-                                 slotData.advertiser === '현대백화점' ? '#c49c94' :
-                                 slotData.advertiser === '갤러리아백화점' ? '#f7b6d3' :
-                                 slotData.advertiser === 'AK플라자' ? '#c7c7c7' :
-                                 slotData.advertiser === '롯데백화점' ? '#dbdb8d' :
-                                 slotData.advertiser === 'GS25' ? '#9edae5' :
-                                 slotData.advertiser === 'CU' ? '#393b79' :
-                                 slotData.advertiser === '세븐일레븐' ? '#637939' :
-                                 slotData.advertiser === '이디야커피' ? '#8c6d31' :
-                                 slotData.advertiser === '스타벅스' ? '#843c39' :
-                                 slotData.advertiser === '투썸플레이스' ? '#7b4173' :
-                                 slotData.advertiser === '맥도날드' ? '#5254a3' : '#6b6ecf',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: '600',
-                flexShrink: 0
-              }}>
-                {slotData.advertiser.charAt(0)}
-              </div>
+              <Avatar 
+                name={slotData.advertiser}
+                type="advertiser"
+                size={32}
+              />
               <div>
                 <div style={{ fontSize: '14px', fontWeight: '500' }}>{slotData.advertiser}</div>
                 <div className="text-muted-foreground" style={{ fontSize: '11px' }}>ID: {slotData.advertiserId}</div>

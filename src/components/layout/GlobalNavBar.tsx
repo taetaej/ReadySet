@@ -1,5 +1,6 @@
-import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star } from 'lucide-react'
+import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { Avatar } from '../common/Avatar'
 
 interface GlobalNavBarProps {
   isDarkMode: boolean
@@ -9,8 +10,10 @@ interface GlobalNavBarProps {
 export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps) {
   const [showNotificationLayer, setShowNotificationLayer] = useState(false)
   const [showGradeTooltip, setShowGradeTooltip] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const notificationRef = useRef<HTMLDivElement>(null)
   const gradeRef = useRef<HTMLDivElement>(null)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   // 외부 클릭 시 알림 레이어 닫기
   useEffect(() => {
@@ -20,6 +23,9 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       }
       if (gradeRef.current && !gradeRef.current.contains(event.target as Node)) {
         setShowGradeTooltip(false)
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false)
       }
     }
 
@@ -72,11 +78,11 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
   const currentGradeIndex = grades.findIndex(grade => grade.name === currentGrade.name)
   const nextGrade = currentGradeIndex < grades.length - 1 ? grades[currentGradeIndex + 1] : null
 
-  // 예시 광고주 프로필 이미지 데이터
+  // 예시 광고주 프로필 이미지 데이터 (다양한 색상)
   const advertiserProfiles = [
-    { id: 1, name: '삼성전자', avatar: 'https://via.placeholder.com/32/3B82F6/FFFFFF?text=S' },
-    { id: 2, name: 'LG전자', avatar: 'https://via.placeholder.com/32/EF4444/FFFFFF?text=L' },
-    { id: 3, name: '현대자동차', avatar: 'https://via.placeholder.com/32/10B981/FFFFFF?text=H' }
+    { id: 1, name: '삼성전자' },
+    { id: 2, name: '카카오' },
+    { id: 3, name: '네이버' }
   ]
 
   // 예시 알림 목록 데이터 (최근 10개)
@@ -209,23 +215,17 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               <div
                 key={profile.id}
                 style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  backgroundColor: profile.avatar.includes('3B82F6') ? '#3B82F6' : 
-                                   profile.avatar.includes('EF4444') ? '#EF4444' : '#10B981',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
-                  fontWeight: '600',
+                  marginLeft: index > 0 ? '-6px' : '0', // 간격 2px 더 넓힘 (-8px → -6px)
+                  zIndex: advertiserProfiles.length - index,
                   border: '2px solid hsl(var(--primary))',
-                  marginLeft: index > 0 ? '-8px' : '0',
-                  zIndex: advertiserProfiles.length - index
+                  borderRadius: `${24 * 0.3}px` // Softer squircle
                 }}
               >
-                {profile.name.charAt(0)}
+                <Avatar 
+                  name={profile.name}
+                  type="advertiser"
+                  size={24}
+                />
               </div>
             ))}
             
@@ -514,36 +514,33 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
           </button>
 
           {/* 프로필 영역 */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px',
-            cursor: 'pointer',
-            padding: '8px 12px',
-            borderRadius: '12px',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-          }}>
+          <div 
+            ref={profileRef}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px',
+              cursor: 'pointer',
+              padding: '8px 12px',
+              borderRadius: '12px',
+              transition: 'all 0.2s',
+              position: 'relative'
+            }}
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+          >
             {/* 프로필 이미지 */}
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: 'hsl(var(--primary))',
-              color: 'hsl(var(--primary-foreground))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}>
-              김
-            </div>
+            <Avatar 
+              name="Shin Jia"
+              type="user"
+              size={36}
+              userId="USER001"
+            />
             
             {/* 이름/역할 */}
             <div style={{ textAlign: 'left' }}>
@@ -552,7 +549,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                 fontWeight: '500',
                 lineHeight: '1.2'
               }} className="text-foreground">
-                김마케터
+                Shin Jia
               </div>
               <div style={{ 
                 fontSize: '12px', 
@@ -565,6 +562,58 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             
             {/* 화살표 아이콘 */}
             <ChevronDown size={16} className="text-muted-foreground" />
+
+            {/* 프로필 메뉴 */}
+            {showProfileMenu && (
+              <div 
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '8px',
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  padding: '4px',
+                  minWidth: '180px',
+                  boxShadow: '0 12px 24px 0 rgb(0 0 0 / 0.15)',
+                  zIndex: 1000
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => {
+                    console.log('로그아웃')
+                    setShowProfileMenu(false)
+                    // 실제 로그아웃 로직 추가
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                  className="text-foreground"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <LogOut size={16} />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
