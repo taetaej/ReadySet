@@ -46,23 +46,8 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
               borderRadius: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              backgroundColor: slotData.visibility === 'Internal' 
-                ? 'hsl(var(--muted))' 
-                : slotData.visibility === 'Private'
-                ? 'hsl(262.1 83.3% 57.8% / 0.1)'
-                : 'hsl(142.1 76.2% 36.3% / 0.1)',
-              color: slotData.visibility === 'Internal'
-                ? 'hsl(var(--muted-foreground))'
-                : slotData.visibility === 'Private'
-                ? 'hsl(262.1 83.3% 57.8%)'
-                : 'hsl(142.1 76.2% 36.3%)',
-              border: slotData.visibility === 'Internal'
-                ? 'none'
-                : `1px solid ${
-                  slotData.visibility === 'Private'
-                    ? 'hsl(262.1 83.3% 57.8% / 0.3)'
-                    : 'hsl(142.1 76.2% 36.3% / 0.3)'
-                }`
+              backgroundColor: 'hsl(var(--muted))',
+              color: 'hsl(var(--muted-foreground))'
             }}>
               {slotData.visibility}
             </span>
