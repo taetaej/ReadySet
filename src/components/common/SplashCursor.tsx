@@ -22,7 +22,7 @@ export function SplashCursor() {
       // 애니메이션 후 제거
       setTimeout(() => {
         setSplashes(prev => prev.filter(splash => splash.id !== newSplash.id))
-      }, 1000)
+      }, 1500)
     }
 
     document.addEventListener('click', handleClick)

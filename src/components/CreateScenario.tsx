@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight, X, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { AppLayout } from './layout/AppLayout'
+import { getDarkMode, setDarkMode } from '../utils/theme'
 import { 
   ScenarioStep1,
   ScenarioStep2RatioFinder,
@@ -18,9 +19,7 @@ interface CreateScenarioProps {
 export function CreateScenario({ slotData }: CreateScenarioProps) {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return document.documentElement.classList.contains('dark')
-  })
+  const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const [formData, setFormData] = useState<ScenarioFormData>({
     scenarioName: '',
     description: '',
@@ -64,11 +63,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
 
   // 다크모드 적용
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
+    setDarkMode(isDarkMode)
   }, [isDarkMode])
   
   // 유효성 검사 활성화 감지 (사용자가 입력을 시작하면 활성화)
@@ -244,6 +239,12 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     }
   }
 
+  const handleToggleDarkMode = () => {
+    const newMode = !isDarkMode
+    setIsDarkMode(newMode)
+    setDarkModeUtil(newMode)
+  }
+
   return (
     <AppLayout
       currentView="createScenario"
@@ -254,7 +255,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
         { label: '새 시나리오 생성' }
       ]}
       isDarkMode={isDarkMode}
-      onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+      onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
         allSlotsExpanded: allSlotsExpanded,
         expandedFolders: expandedFolders,

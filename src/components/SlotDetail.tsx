@@ -944,11 +944,26 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                   const progressPercentage = getProgressPercentage(scenario.processStep, scenario.totalSteps)
                   const isSelected = selectedScenarios.includes(scenario.id)
                   
+                  const isClickable = scenario.status === 'Completed'
+                  const handleRowClick = () => {
+                    if (isClickable) {
+                      const resultPath = scenario.type === 'Ratio Finder' 
+                        ? '/reachcaster/scenario/ratio-finder/result'
+                        : '/reachcaster/scenario/reach-predictor/result'
+                      navigate(resultPath, { state: { scenarioData: scenario } })
+                    }
+                  }
+
                   return (
-                    <tr key={scenario.id} style={{ 
-                      backgroundColor: isSelected ? 'hsl(var(--muted) / 0.3)' : undefined 
-                    }}>
-                      <td>
+                    <tr 
+                      key={scenario.id} 
+                      style={{ 
+                        backgroundColor: isSelected ? 'hsl(var(--muted) / 0.3)' : undefined,
+                        cursor: isClickable ? 'pointer' : 'default'
+                      }}
+                      onClick={handleRowClick}
+                    >
+                      <td onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           className="checkbox-custom"
@@ -964,7 +979,13 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           #{scenario.id}
                         </span>
                       </td>
-                      <td style={{ fontWeight: '500' }}>{scenario.name}</td>
+                      <td style={{ 
+                        fontWeight: '500',
+                        color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                        opacity: isClickable ? 1 : 0.6
+                      }}>
+                        {scenario.name}
+                      </td>
                       <td>
                         <span style={{
                           padding: '4px 10px',
@@ -1011,7 +1032,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           <span>{scenario.endDate}</span>
                         </div>
                       </td>
-                      <td>
+                      <td onClick={(e) => e.stopPropagation()}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {/* Processing 상태: 프로그레스바 뱃지 */}
                           {scenario.status === 'Processing' ? (
@@ -1074,7 +1095,10 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 </span>
                                 {scenario.status === 'Error' && (
                                   <button
-                                    onClick={() => handleRetry(scenario.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleRetry(scenario.id)
+                                    }}
                                     style={{
                                       background: 'none',
                                       border: 'none',
