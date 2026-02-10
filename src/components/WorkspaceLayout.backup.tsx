@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Trash2, X, ChevronDown, Filter, LayoutGrid, List } from 'lucide-react'
+import { Search, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Trash2, X, ChevronDown, Filter, ArrowUpDown } from 'lucide-react'
 import { CreateFolder } from './CreateFolder'
 import { EditFolder } from './EditFolder'
 import { SlotCard } from './SlotCard'
-import { SlotListItem } from './SlotListItem'
 import { PageHeader } from './PageHeader'
 import { SlotDetail } from './SlotDetail'
 import { AppLayout } from './layout/AppLayout'
-import { WelcomeSection } from './WelcomeSection'
 
 export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: 'workspace' | 'createFolder' | 'editFolder' | 'slotDetail' }) {
   console.log('SlotBoardLayout 컴포넌트 렌더링됨')
@@ -17,31 +15,31 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   
   // 샘플 Slot 데이터
   const sampleFolders = [
-    { id: 'SLT001', title: '삼성 갤럭시 S24 캠페인', advertiser: '삼성전자', advertiserId: 'ADV001', visibility: 'Internal', results: 5, modified: '2024-01-15', description: '삼성 갤럭시 S24 출시를 위한 마케팅 캠페인입니다.', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT002', title: 'LG 올레드 TV 런칭 캠페인 - 2024년 상반기 프리미엄 라인업 출시 기념', advertiser: 'LG전자', advertiserId: 'ADV002', visibility: 'Private', results: 3, modified: '2024-01-14', description: 'LG 올레드 TV 신제품 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
-    { id: 'SLT003', title: '현대 아이오닉 6 마케팅', advertiser: '현대자동차', advertiserId: 'ADV003', visibility: 'Shared', results: 12, modified: '2024-01-13', description: '현대 아이오닉 6 전기차 마케팅 프로젝트', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT004', title: '네이버 쇼핑 프로모션 - 연말 대규모 할인 이벤트 및 브랜드 파트너십 확대 전략', advertiser: '네이버', advertiserId: 'ADV004', visibility: 'Internal', results: 8, modified: '2024-01-12', description: '네이버 쇼핑 연말 프로모션 기획', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } },
-    { id: 'SLT005', title: '카카오톡 광고 캠페인', advertiser: '카카오', advertiserId: 'ADV005', visibility: 'Private', results: 6, modified: '2024-01-11', description: '카카오톡 광고 플랫폼 홍보 캠페인', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT006', title: '쿠팡 로켓배송 홍보', advertiser: '쿠팡', advertiserId: 'ADV006', visibility: 'Shared', results: 15, modified: '2024-01-10', description: '쿠팡 로켓배송 서비스 홍보', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT007', title: 'SK텔레콤 5G 서비스 런칭', advertiser: 'SK텔레콤', advertiserId: 'ADV007', visibility: 'Internal', results: 9, modified: '2024-01-09', description: 'SK텔레콤 5G 서비스 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 0 } },
-    { id: 'SLT008', title: 'KT 인터넷 서비스 프로모션', advertiser: 'KT', advertiserId: 'ADV008', visibility: 'Private', results: 7, modified: '2024-01-08', description: 'KT 인터넷 서비스 프로모션', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 0 } },
-    { id: 'SLT009', title: 'LG유플러스 모바일 요금제', advertiser: 'LG유플러스', advertiserId: 'ADV009', visibility: 'Shared', results: 11, modified: '2024-01-07', description: 'LG유플러스 모바일 요금제 홍보', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT010', title: '롯데마트 온라인 쇼핑몰', advertiser: '롯데마트', advertiserId: 'ADV010', visibility: 'Internal', results: 4, modified: '2024-01-06', description: '롯데마트 온라인 쇼핑몰 프로모션', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 1 } },
-    { id: 'SLT011', title: '이마트 트레이더스 멤버십', advertiser: '이마트', advertiserId: 'ADV011', visibility: 'Private', results: 13, modified: '2024-01-05', description: '이마트 트레이더스 멤버십 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT012', title: '홈플러스 배송 서비스', advertiser: '홈플러스', advertiserId: 'ADV012', visibility: 'Shared', results: 8, modified: '2024-01-04', description: '홈플러스 배송 서비스 홍보', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
-    { id: 'SLT013', title: 'CJ올리브영 뷰티 페스티벌', advertiser: 'CJ올리브영', advertiserId: 'ADV013', visibility: 'Internal', results: 16, modified: '2024-01-03', description: 'CJ올리브영 뷰티 페스티벌 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT014', title: '신세계백화점 VIP 이벤트', advertiser: '신세계백화점', advertiserId: 'ADV014', visibility: 'Private', results: 6, modified: '2024-01-02', description: '신세계백화점 VIP 이벤트', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 0 } },
-    { id: 'SLT015', title: '현대백화점 면세점 프로모션', advertiser: '현대백화점', advertiserId: 'ADV015', visibility: 'Shared', results: 10, modified: '2024-01-01', description: '현대백화점 면세점 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } },
-    { id: 'SLT016', title: '갤러리아백화점 럭셔리 브랜드', advertiser: '갤러리아백화점', advertiserId: 'ADV016', visibility: 'Internal', results: 14, modified: '2023-12-31', description: '갤러리아백화점 럭셔리 브랜드 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT017', title: 'AK플라자 패션 위크', advertiser: 'AK플라자', advertiserId: 'ADV017', visibility: 'Private', results: 7, modified: '2023-12-30', description: 'AK플라자 패션 위크 이벤트', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 1 } },
-    { id: 'SLT018', title: '롯데백화점 크리스마스 세일', advertiser: '롯데백화점', advertiserId: 'ADV018', visibility: 'Shared', results: 12, modified: '2023-12-29', description: '롯데백화점 크리스마스 세일', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT019', title: 'GS25 편의점 신상품', advertiser: 'GS25', advertiserId: 'ADV019', visibility: 'Internal', results: 5, modified: '2023-12-28', description: 'GS25 편의점 신상품 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 0 } },
-    { id: 'SLT020', title: 'CU 편의점 멤버십', advertiser: 'CU', advertiserId: 'ADV020', visibility: 'Private', results: 9, modified: '2023-12-27', description: 'CU 편의점 멤버십 캠페인', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT021', title: '세븐일레븐 도시락 프로모션', advertiser: '세븐일레븐', advertiserId: 'ADV021', visibility: 'Shared', results: 11, modified: '2023-12-26', description: '세븐일레븐 도시락 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT022', title: '이디야커피 신메뉴 런칭', advertiser: '이디야커피', advertiserId: 'ADV022', visibility: 'Internal', results: 8, modified: '2023-12-25', description: '이디야커피 신메뉴 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
-    { id: 'SLT023', title: '스타벅스 시즌 한정 메뉴', advertiser: '스타벅스', advertiserId: 'ADV023', visibility: 'Private', results: 15, modified: '2023-12-24', description: '스타벅스 시즌 한정 메뉴 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
-    { id: 'SLT024', title: '투썸플레이스 케이크 페스티벌', advertiser: '투썸플레이스', advertiserId: 'ADV024', visibility: 'Shared', results: 6, modified: '2023-12-23', description: '투썸플레이스 케이크 페스티벌', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 0 } },
-    { id: 'SLT025', title: '맥도날드 해피밀 캠페인', advertiser: '맥도날드', advertiserId: 'ADV025', visibility: 'Internal', results: 13, modified: '2023-12-22', description: '맥도날드 해피밀 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } }
+    { title: '삼성 갤럭시 S24 캠페인', advertiser: '삼성전자', advertiserId: 'ADV001', visibility: 'Internal', results: 5, modified: '2024-01-15', description: '삼성 갤럭시 S24 출시를 위한 마케팅 캠페인입니다.', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: 'LG 올레드 TV 런칭 캠페인 - 2024년 상반기 프리미엄 라인업 출시 기념', advertiser: 'LG전자', advertiserId: 'ADV002', visibility: 'Private', results: 3, modified: '2024-01-14', description: 'LG 올레드 TV 신제품 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
+    { title: '현대 아이오닉 6 마케팅', advertiser: '현대자동차', advertiserId: 'ADV003', visibility: 'Shared', results: 12, modified: '2024-01-13', description: '현대 아이오닉 6 전기차 마케팅 프로젝트', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '네이버 쇼핑 프로모션 - 연말 대규모 할인 이벤트 및 브랜드 파트너십 확대 전략', advertiser: '네이버', advertiserId: 'ADV004', visibility: 'Internal', results: 8, modified: '2024-01-12', description: '네이버 쇼핑 연말 프로모션 기획', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } },
+    { title: '카카오톡 광고 캠페인', advertiser: '카카오', advertiserId: 'ADV005', visibility: 'Private', results: 6, modified: '2024-01-11', description: '카카오톡 광고 플랫폼 홍보 캠페인', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '쿠팡 로켓배송 홍보', advertiser: '쿠팡', advertiserId: 'ADV006', visibility: 'Shared', results: 15, modified: '2024-01-10', description: '쿠팡 로켓배송 서비스 홍보', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: 'SK텔레콤 5G 서비스 런칭', advertiser: 'SK텔레콤', advertiserId: 'ADV007', visibility: 'Internal', results: 9, modified: '2024-01-09', description: 'SK텔레콤 5G 서비스 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 0 } },
+    { title: 'KT 인터넷 서비스 프로모션', advertiser: 'KT', advertiserId: 'ADV008', visibility: 'Private', results: 7, modified: '2024-01-08', description: 'KT 인터넷 서비스 프로모션', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 0 } },
+    { title: 'LG유플러스 모바일 요금제', advertiser: 'LG유플러스', advertiserId: 'ADV009', visibility: 'Shared', results: 11, modified: '2024-01-07', description: 'LG유플러스 모바일 요금제 홍보', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '롯데마트 온라인 쇼핑몰', advertiser: '롯데마트', advertiserId: 'ADV010', visibility: 'Internal', results: 4, modified: '2024-01-06', description: '롯데마트 온라인 쇼핑몰 프로모션', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 1 } },
+    { title: '이마트 트레이더스 멤버십', advertiser: '이마트', advertiserId: 'ADV011', visibility: 'Private', results: 13, modified: '2024-01-05', description: '이마트 트레이더스 멤버십 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '홈플러스 배송 서비스', advertiser: '홈플러스', advertiserId: 'ADV012', visibility: 'Shared', results: 8, modified: '2024-01-04', description: '홈플러스 배송 서비스 홍보', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
+    { title: 'CJ올리브영 뷰티 페스티벌', advertiser: 'CJ올리브영', advertiserId: 'ADV013', visibility: 'Internal', results: 16, modified: '2024-01-03', description: 'CJ올리브영 뷰티 페스티벌 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '신세계백화점 VIP 이벤트', advertiser: '신세계백화점', advertiserId: 'ADV014', visibility: 'Private', results: 6, modified: '2024-01-02', description: '신세계백화점 VIP 이벤트', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 0 } },
+    { title: '현대백화점 면세점 프로모션', advertiser: '현대백화점', advertiserId: 'ADV015', visibility: 'Shared', results: 10, modified: '2024-01-01', description: '현대백화점 면세점 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } },
+    { title: '갤러리아백화점 럭셔리 브랜드', advertiser: '갤러리아백화점', advertiserId: 'ADV016', visibility: 'Internal', results: 14, modified: '2023-12-31', description: '갤러리아백화점 럭셔리 브랜드 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: 'AK플라자 패션 위크', advertiser: 'AK플라자', advertiserId: 'ADV017', visibility: 'Private', results: 7, modified: '2023-12-30', description: 'AK플라자 패션 위크 이벤트', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 1 } },
+    { title: '롯데백화점 크리스마스 세일', advertiser: '롯데백화점', advertiserId: 'ADV018', visibility: 'Shared', results: 12, modified: '2023-12-29', description: '롯데백화점 크리스마스 세일', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: 'GS25 편의점 신상품', advertiser: 'GS25', advertiserId: 'ADV019', visibility: 'Internal', results: 5, modified: '2023-12-28', description: 'GS25 편의점 신상품 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 0 } },
+    { title: 'CU 편의점 멤버십', advertiser: 'CU', advertiserId: 'ADV020', visibility: 'Private', results: 9, modified: '2023-12-27', description: 'CU 편의점 멤버십 캠페인', solutions: { reachCaster: 0, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '세븐일레븐 도시락 프로모션', advertiser: '세븐일레븐', advertiserId: 'ADV021', visibility: 'Shared', results: 11, modified: '2023-12-26', description: '세븐일레븐 도시락 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '이디야커피 신메뉴 런칭', advertiser: '이디야커피', advertiserId: 'ADV022', visibility: 'Internal', results: 8, modified: '2023-12-25', description: '이디야커피 신메뉴 런칭 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 0, metricHub: 1 } },
+    { title: '스타벅스 시즌 한정 메뉴', advertiser: '스타벅스', advertiserId: 'ADV023', visibility: 'Private', results: 15, modified: '2023-12-24', description: '스타벅스 시즌 한정 메뉴 프로모션', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 1 } },
+    { title: '투썸플레이스 케이크 페스티벌', advertiser: '투썸플레이스', advertiserId: 'ADV024', visibility: 'Shared', results: 6, modified: '2023-12-23', description: '투썸플레이스 케이크 페스티벌', solutions: { reachCaster: 0, budgetOptimizer: 0, metricHub: 0 } },
+    { title: '맥도날드 해피밀 캠페인', advertiser: '맥도날드', advertiserId: 'ADV025', visibility: 'Internal', results: 13, modified: '2023-12-22', description: '맥도날드 해피밀 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } }
   ]
 
   const [allSlotsExpanded, setAllSlotsExpanded] = useState(true) // 기본적으로 모든 Slot 펼쳐진 상태
@@ -60,15 +58,15 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   const [selectedFolders, setSelectedFolders] = useState<string[]>([]) // 선택된 Slot들
   const [searchExpanded, setSearchExpanded] = useState(false) // 검색 필드 확장 상태
   const [searchQuery, setSearchQuery] = useState('') // 검색 쿼리
-  const [viewType, setViewType] = useState<'grid' | 'list'>('grid') // Grid/List 뷰 타입
   
   // 필터 & 정렬 상태
   const [filterOpen, setFilterOpen] = useState(false)
   const [advertiserFilter, setAdvertiserFilter] = useState<string[]>([])
   const [visibilityFilter, setVisibilityFilter] = useState<string[]>([])
   const [advertiserSearchQuery, setAdvertiserSearchQuery] = useState('')
-  const [sortField, setSortField] = useState<'id' | 'title' | 'advertiser' | 'results' | 'created' | 'modified'>('modified')
+  const [sortField, setSortField] = useState<'title' | 'advertiser' | 'created' | 'modified'>('modified')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [sortOpen, setSortOpen] = useState(false)
 
   // 토스트 자동 닫기
   useEffect(() => {
@@ -229,35 +227,20 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   }
 
   const toggleFolderSelection = (folderTitle: string) => {
-    setSelectedFolders(prev => {
-      const newSelection = prev.includes(folderTitle)
+    setSelectedFolders(prev => 
+      prev.includes(folderTitle)
         ? prev.filter(title => title !== folderTitle)
         : [...prev, folderTitle]
-      
-      // 체크박스 선택 시 자동으로 관리모드 진입
-      if (newSelection.length > 0 && !isManagementMode) {
-        setIsManagementMode(true)
-      }
-      // 모든 체크박스 해제 시 관리모드 해제
-      if (newSelection.length === 0 && isManagementMode) {
-        setIsManagementMode(false)
-      }
-      
-      return newSelection
-    })
+    )
   }
 
   const selectAllFolders = () => {
     const allCurrentFolderTitles = currentFolders.map(folder => folder.title)
     setSelectedFolders(allCurrentFolderTitles)
-    if (!isManagementMode) {
-      setIsManagementMode(true)
-    }
   }
 
   const deselectAllFolders = () => {
     setSelectedFolders([])
-    setIsManagementMode(false)
   }
 
   const deleteSelectedFolders = () => {
@@ -312,18 +295,12 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       let aVal: any
       let bVal: any
       
-      if (sortField === 'id') {
-        aVal = a.id
-        bVal = b.id
-      } else if (sortField === 'title') {
+      if (sortField === 'title') {
         aVal = a.title
         bVal = b.title
       } else if (sortField === 'advertiser') {
         aVal = a.advertiser
         bVal = b.advertiser
-      } else if (sortField === 'results') {
-        aVal = a.results
-        bVal = b.results
       } else if (sortField === 'created') {
         // 생성일시는 샘플 데이터에 없어서 modified 사용
         aVal = a.modified
@@ -577,9 +554,6 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       {/* 워크스페이스 메인 화면 */}
       {currentView === 'workspace' && (
         <>
-          {/* Welcome Section */}
-          <WelcomeSection userName="Jia Shin" />
-
           {/* Page Header */}
           <PageHeader 
             title="SlotBoard"
@@ -596,49 +570,15 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
           <section className="workspace-search-section" style={{ 
             borderBottom: 'none',
             backgroundColor: 'transparent',
-            paddingTop: '8px',
-            paddingBottom: '16px'
+            paddingTop: '16px',
+            paddingBottom: '24px'
           }}>
-            {/* 좌측: Grid/List 토글 + Slot 개수 표시 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '8px' }}>
-              {/* Grid/List 뷰 토글 */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-                overflow: 'hidden'
-              }}>
-                <button
-                  onClick={() => setViewType('grid')}
-                  className="btn btn-ghost btn-sm"
-                  style={{
-                    borderRadius: 0,
-                    border: 'none',
-                    backgroundColor: viewType === 'grid' ? 'hsl(var(--muted))' : 'transparent',
-                    padding: '8px 12px'
-                  }}
-                >
-                  <LayoutGrid size={16} />
-                </button>
-                <button
-                  onClick={() => setViewType('list')}
-                  className="btn btn-ghost btn-sm"
-                  style={{
-                    borderRadius: 0,
-                    border: 'none',
-                    backgroundColor: viewType === 'list' ? 'hsl(var(--muted))' : 'transparent',
-                    padding: '8px 12px'
-                  }}
-                >
-                  <List size={16} />
-                </button>
-              </div>
-              
-              {/* Slot 개수 */}
+            {/* 좌측: Slot 개수 표시 */}
+            <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
               <span style={{ 
-                fontSize: '14px', 
-                color: 'hsl(var(--muted-foreground))'
+                fontSize: '18px', 
+                fontWeight: '600',
+                color: 'hsl(var(--primary))'
               }}>
                 {filteredAndSortedFolders.length} Slots
               </span>
@@ -689,7 +629,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                   </button>
                 </>
               )}
-
+              
               {/* 일반 모드일 때만 보이는 검색/정렬/필터 버튼들 */}
               {!isManagementMode && (
                 <>
@@ -766,6 +706,148 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                             <X size={14} className="text-muted-foreground" />
                           </button>
                         )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 정렬 */}
+                  <div style={{ position: 'relative' }}>
+                    <button
+                      onClick={() => setSortOpen(!sortOpen)}
+                      className="btn btn-ghost btn-md"
+                      style={{ 
+                        border: '1px solid hsl(var(--border))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '0 12px',
+                        backgroundColor: (sortField !== 'modified' || sortOrder !== 'desc') 
+                          ? 'hsl(var(--primary) / 0.1)' 
+                          : 'transparent'
+                      }}
+                    >
+                      <ArrowUpDown size={16} />
+                      <span>정렬</span>
+                    </button>
+
+                    {/* 정렬 드롭다운 */}
+                    {sortOpen && (
+                      <div className="dropdown" style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '4px',
+                        width: '180px',
+                        zIndex: 1000,
+                        padding: '4px'
+                      }}>
+                        <button
+                          onClick={() => {
+                            setSortField('title')
+                            setSortOrder('asc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'title' && sortOrder === 'asc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          Slot명 A→Z
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSortField('title')
+                            setSortOrder('desc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'title' && sortOrder === 'desc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          Slot명 Z→A
+                        </button>
+                        <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
+                        <button
+                          onClick={() => {
+                            setSortField('advertiser')
+                            setSortOrder('asc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'advertiser' && sortOrder === 'asc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          광고주 A→Z
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSortField('advertiser')
+                            setSortOrder('desc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'advertiser' && sortOrder === 'desc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          광고주 Z→A
+                        </button>
+                        <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
+                        <button
+                          onClick={() => {
+                            setSortField('modified')
+                            setSortOrder('desc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'modified' && sortOrder === 'desc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          수정일 최신순
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSortField('modified')
+                            setSortOrder('asc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'modified' && sortOrder === 'asc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          수정일 오래된순
+                        </button>
+                        <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
+                        <button
+                          onClick={() => {
+                            setSortField('created')
+                            setSortOrder('desc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'created' && sortOrder === 'desc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          생성일 최신순
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSortField('created')
+                            setSortOrder('asc')
+                            setSortOpen(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: sortField === 'created' && sortOrder === 'asc' ? 'hsl(var(--muted))' : 'transparent'
+                          }}
+                        >
+                          생성일 오래된순
+                        </button>
                       </div>
                     )}
                   </div>
@@ -924,6 +1006,15 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                       </div>
                     )}
                   </div>
+
+                  {/* Slot 관리 버튼 - 일반 모드일 때만 표시 */}
+                  <button 
+                    onClick={toggleManagementMode}
+                    className="btn btn-ghost btn-md"
+                    style={{ border: '1px solid hsl(var(--border))' }}
+                  >
+                    Slot 관리
+                  </button>
                 </>
               )}
             </div>
@@ -931,226 +1022,27 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
           {/* Content */}
           <div className="workspace-content">
-            {/* Grid View */}
-            {viewType === 'grid' && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '20px'
-              }}>
-                {currentFolders.map((folder, index) => (
-                  <SlotCard
-                    key={index}
-                    slot={folder}
-                    isManagementMode={isManagementMode}
-                    isSelected={selectedFolders.includes(folder.title)}
-                    contextMenuOpen={contextMenuOpen === folder.title}
-                    onSlotClick={handleFolderClick}
-                    onContextMenuToggle={(slotTitle) => {
-                      setContextMenuOpen(contextMenuOpen === slotTitle ? null : slotTitle)
-                    }}
-                    onContextMenuAction={handleContextMenu}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* List View */}
-            {viewType === 'list' && (
-              <div style={{
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}>
-                {/* Table Header */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '40px 100px 1fr 150px 120px 100px 120px 40px',
-                  alignItems: 'center',
-                  gap: '16px',
-                  padding: '12px 24px',
-                  backgroundColor: 'hsl(var(--muted))',
-                  borderBottom: '1px solid hsl(var(--border))',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }} className="text-muted-foreground">
-                  <div></div>
-                  
-                  {/* ID - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'id') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('id')
-                        setSortOrder('asc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    ID
-                    {sortField === 'id' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Slot - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'title') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('title')
-                        setSortOrder('asc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    Slot
-                    {sortField === 'title' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
-                  
-                  {/* 광고주 - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'advertiser') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('advertiser')
-                        setSortOrder('asc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    광고주
-                    {sortField === 'advertiser' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
-                  
-                  <div>가시성</div>
-                  
-                  {/* 결과 수 - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'results') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('results')
-                        setSortOrder('desc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    결과 수
-                    {sortField === 'results' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
-                  
-                  {/* 수정일 - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'modified') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('modified')
-                        setSortOrder('desc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    수정일
-                    {sortField === 'modified' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
-                  
-                  <div></div>
-                </div>
-
-                {/* List Items */}
-                {currentFolders.map((folder, index) => (
-                  <SlotListItem
-                    key={index}
-                    slot={folder}
-                    isSelected={selectedFolders.includes(folder.title)}
-                    contextMenuOpen={contextMenuOpen === folder.title}
-                    onSlotClick={handleFolderClick}
-                    onCheckboxChange={(slot, checked) => {
-                      toggleFolderSelection(slot.title)
-                    }}
-                    onContextMenuToggle={(slotTitle) => {
-                      setContextMenuOpen(contextMenuOpen === slotTitle ? null : slotTitle)
-                    }}
-                    onContextMenuAction={handleContextMenu}
-                  />
-                ))}
-              </div>
-            )}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '20px'
+            }}>
+              {/* Sample Folder Cards */}
+              {currentFolders.map((folder, index) => (
+                <SlotCard
+                  key={index}
+                  slot={folder}
+                  isManagementMode={isManagementMode}
+                  isSelected={selectedFolders.includes(folder.title)}
+                  contextMenuOpen={contextMenuOpen === folder.title}
+                  onSlotClick={handleFolderClick}
+                  onContextMenuToggle={(slotTitle) => {
+                    setContextMenuOpen(contextMenuOpen === slotTitle ? null : slotTitle)
+                  }}
+                  onContextMenuAction={handleContextMenu}
+                />
+              ))}
+            </div>
             
             {/* 페이지네이션 */}
             {renderPagination()}

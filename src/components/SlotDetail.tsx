@@ -576,32 +576,6 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
               New Scenario
             </button>
           </div>
-
-          {/* 뷰 모드 토글 */}
-          <div style={{ display: 'flex', gap: '4px', padding: '4px', backgroundColor: 'hsl(var(--muted))', borderRadius: '6px' }}>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`btn btn-sm ${viewMode === 'list' ? 'btn-secondary' : 'btn-ghost'}`}
-              style={{ 
-                backgroundColor: viewMode === 'list' ? 'hsl(var(--background))' : 'transparent',
-                boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-              }}
-            >
-              <List size={16} />
-              List
-            </button>
-            <button
-              onClick={() => setViewMode('gantt')}
-              className={`btn btn-sm ${viewMode === 'gantt' ? 'btn-secondary' : 'btn-ghost'}`}
-              style={{ 
-                backgroundColor: viewMode === 'gantt' ? 'hsl(var(--background))' : 'transparent',
-                boxShadow: viewMode === 'gantt' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-              }}
-            >
-              <Calendar size={16} />
-              Timeline
-            </button>
-          </div>
         </div>
 
         {/* 버튼 섹션 */}
@@ -611,16 +585,46 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <div style={{ 
-            fontSize: '14px',
-            color: 'hsl(var(--muted-foreground))'
-          }}>
-            {filteredScenarios.length} Scenarios
-            {selectedScenarios.length > 0 && (
-              <span style={{ marginLeft: '12px', color: 'hsl(var(--primary))' }}>
-                ({selectedScenarios.length}개 선택됨)
-              </span>
-            )}
+          {/* 좌측: 뷰 토글 + Scenario 개수 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* 뷰 모드 토글 */}
+            <div style={{ display: 'flex', gap: '4px', padding: '4px', backgroundColor: 'hsl(var(--muted))', borderRadius: '6px' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`btn btn-sm ${viewMode === 'list' ? 'btn-secondary' : 'btn-ghost'}`}
+                style={{ 
+                  backgroundColor: viewMode === 'list' ? 'hsl(var(--background))' : 'transparent',
+                  boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  padding: '8px'
+                }}
+              >
+                <List size={16} />
+              </button>
+              <button
+                onClick={() => setViewMode('gantt')}
+                className={`btn btn-sm ${viewMode === 'gantt' ? 'btn-secondary' : 'btn-ghost'}`}
+                style={{ 
+                  backgroundColor: viewMode === 'gantt' ? 'hsl(var(--background))' : 'transparent',
+                  boxShadow: viewMode === 'gantt' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  padding: '8px'
+                }}
+              >
+                <Calendar size={16} />
+              </button>
+            </div>
+            
+            {/* Scenario 개수 */}
+            <div style={{ 
+              fontSize: '14px',
+              color: 'hsl(var(--muted-foreground))'
+            }}>
+              {filteredScenarios.length} Scenarios
+              {selectedScenarios.length > 0 && (
+                <span style={{ marginLeft: '12px', color: 'hsl(var(--primary))' }}>
+                  ({selectedScenarios.length}개 선택됨)
+                </span>
+              )}
+            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

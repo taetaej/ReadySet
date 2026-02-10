@@ -1,4 +1,5 @@
 import { Archive, Clock, MoreVertical, Edit, Trash2, CheckCircle } from 'lucide-react'
+import { Avatar } from './common/Avatar'
 
 interface SlotData {
   title: string
@@ -165,46 +166,12 @@ export function SlotCard({
         {/* 광고주와 가시성 뱃지 - 상단 영역 하단에 배치 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* 광고주 프로필 동그라미 */}
-            <div style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              backgroundColor: slot.advertiser === '삼성전자' ? '#1f77b4' :
-                               slot.advertiser === 'LG전자' ? '#ff7f0e' :
-                               slot.advertiser === '현대자동차' ? '#2ca02c' :
-                               slot.advertiser === '네이버' ? '#d62728' :
-                               slot.advertiser === '카카오' ? '#9467bd' :
-                               slot.advertiser === '쿠팡' ? '#8c564b' :
-                               slot.advertiser === 'SK텔레콤' ? '#e377c2' :
-                               slot.advertiser === 'KT' ? '#7f7f7f' :
-                               slot.advertiser === 'LG유플러스' ? '#bcbd22' :
-                               slot.advertiser === '롯데마트' ? '#17becf' :
-                               slot.advertiser === '이마트' ? '#ff9896' :
-                               slot.advertiser === '홈플러스' ? '#98df8a' :
-                               slot.advertiser === 'CJ올리브영' ? '#ffbb78' :
-                               slot.advertiser === '신세계백화점' ? '#c5b0d5' :
-                               slot.advertiser === '현대백화점' ? '#c49c94' :
-                               slot.advertiser === '갤러리아백화점' ? '#f7b6d3' :
-                               slot.advertiser === 'AK플라자' ? '#c7c7c7' :
-                               slot.advertiser === '롯데백화점' ? '#dbdb8d' :
-                               slot.advertiser === 'GS25' ? '#9edae5' :
-                               slot.advertiser === 'CU' ? '#393b79' :
-                               slot.advertiser === '세븐일레븐' ? '#637939' :
-                               slot.advertiser === '이디야커피' ? '#8c6d31' :
-                               slot.advertiser === '스타벅스' ? '#843c39' :
-                               slot.advertiser === '투썸플레이스' ? '#7b4173' :
-                               slot.advertiser === '맥도날드' ? '#5254a3' : '#6b6ecf',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '10px',
-              fontWeight: '600',
-              flexShrink: 0
-            }}>
-              {slot.advertiser.charAt(0)}
-            </div>
+            {/* 광고주 프로필 */}
+            <Avatar 
+              name={slot.advertiser}
+              type="advertiser"
+              size={20}
+            />
             <span style={{ fontSize: '14px' }} className="text-muted-foreground">
               {slot.advertiser}
             </span>
