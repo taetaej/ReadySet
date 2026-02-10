@@ -6,6 +6,33 @@ export const getThemeValue = (variable: string): string => {
   return ''
 }
 
+// 다크모드 관리 유틸리티
+export const getDarkMode = (): boolean => {
+  if (typeof window === 'undefined') return true
+  const stored = localStorage.getItem('darkMode')
+  if (stored !== null) {
+    return stored === 'true'
+  }
+  // 기본값: 다크모드
+  return true
+}
+
+export const setDarkMode = (isDark: boolean): void => {
+  if (typeof window === 'undefined') return
+  localStorage.setItem('darkMode', String(isDark))
+  if (isDark) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+}
+
+export const toggleDarkMode = (): boolean => {
+  const newMode = !getDarkMode()
+  setDarkMode(newMode)
+  return newMode
+}
+
 // Shadcn 스타일 기반 테마 객체 (CSS 변수 사용)
 export const theme = {
   // CSS 변수를 hsl 형태로 반환

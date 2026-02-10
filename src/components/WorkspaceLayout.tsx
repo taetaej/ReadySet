@@ -9,6 +9,7 @@ import { PageHeader } from './PageHeader'
 import { SlotDetail } from './SlotDetail'
 import { AppLayout } from './layout/AppLayout'
 import { WelcomeSection } from './WelcomeSection'
+import { getDarkMode, setDarkMode } from '../utils/theme'
 
 export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: 'workspace' | 'createFolder' | 'editFolder' | 'slotDetail' }) {
   console.log('SlotBoardLayout 컴포넌트 렌더링됨')
@@ -47,7 +48,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   const [allSlotsExpanded, setAllSlotsExpanded] = useState(true) // 기본적으로 모든 Slot 펼쳐진 상태
   const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'lg', 'hyundai', 'samsung-reachcaster']) // 기본적으로 모든 폴더 펼쳐진 상태
   const [contextMenuOpen, setContextMenuOpen] = useState<string | null>(null)
-  const [isDarkMode, setIsDarkMode] = useState(true)
+  const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const [currentView, setCurrentView] = useState<'workspace' | 'createFolder' | 'editFolder' | 'slotDetail'>(initialView)
   const [editingFolder, setEditingFolder] = useState<any>(null)
   const [selectedSlot, setSelectedSlot] = useState<any>(initialView === 'slotDetail' ? sampleFolders[0] : null)
@@ -107,11 +108,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
   // 다크모드 토글
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
+    setDarkMode(isDarkMode)
   }, [isDarkMode])
 
   // 모든 Slot 펼치기/접기 토글
@@ -191,6 +188,13 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   const handleDeleteCancel = () => {
     setShowDeleteDialog(false)
     setDeletingFolder(null)
+  }
+
+  // 다크모드 토글 핸들러
+  const handleToggleDarkMode = () => {
+    const newMode = !isDarkMode
+    setIsDarkMode(newMode)
+    setDarkMode(newMode)
   }
 
   // 뷰 전환 핸들러
@@ -523,7 +527,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
           : []
       }
       isDarkMode={isDarkMode}
-      onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+      onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
         allSlotsExpanded,
         expandedFolders,
