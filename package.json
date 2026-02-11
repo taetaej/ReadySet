@@ -5,6 +5,8 @@
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
     "date-fns": "^4.1.0",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.6",
     "frappe-gantt": "^1.0.4",
     "frappe-gantt-react": "^0.2.2",
     "lucide-react": "^0.263.1",
