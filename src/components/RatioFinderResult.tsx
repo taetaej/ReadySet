@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Scale } from 'lucide-react'
+import { Info, Scale, ThumbsUp } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import { AppLayout } from './layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
@@ -40,11 +40,73 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
+  const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
+  const [showBestRatio, setShowBestRatio] = useState(false)
+  
+  const chartRef = useRef<any>(null)
   
   const simulationData = generateSimulationData()
   const maxReachIndex = simulationData.reduce((maxIdx, curr, idx, arr) => 
     curr.reach > arr[maxIdx].reach ? idx : maxIdx, 0
   )
+
+  // 차트가 렌더링된 후 Best Ratio 마커 위치 계산
+  useEffect(() => {
+    const calculatePosition = () => {
+      if (chartRef.current) {
+        const chartInstance = chartRef.current.getEchartsInstance()
+        if (chartInstance) {
+          try {
+            // 막대의 중심 좌표를 픽셀 좌표로 변환
+            const pointInPixel = chartInstance.convertToPixel({ seriesIndex: 0 }, [maxReachIndex, 100])
+            if (pointInPixel && Array.isArray(pointInPixel)) {
+              setBestRatioPosition({ x: pointInPixel[0], y: pointInPixel[1] })
+              // 위치 설정 후 애니메이션 트리거
+              setTimeout(() => setShowBestRatio(true), 50)
+            }
+          } catch (error) {
+            console.error('Failed to calculate best ratio position:', error)
+          }
+        }
+      }
+    }
+
+    // 초기화
+    setShowBestRatio(false)
+    
+    // 차트가 완전히 렌더링될 때까지 대기
+    const timer = setTimeout(calculatePosition, 500)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [maxReachIndex, isDarkMode])
+
+  // 윈도우 리사이즈 시 위치 재계산
+  useEffect(() => {
+    const handleResize = () => {
+      setShowBestRatio(false)
+      if (chartRef.current) {
+        const chartInstance = chartRef.current.getEchartsInstance()
+        if (chartInstance) {
+          setTimeout(() => {
+            try {
+              const pointInPixel = chartInstance.convertToPixel({ seriesIndex: 0 }, [maxReachIndex, 100])
+              if (pointInPixel && Array.isArray(pointInPixel)) {
+                setBestRatioPosition({ x: pointInPixel[0], y: pointInPixel[1] })
+                setTimeout(() => setShowBestRatio(true), 50)
+              }
+            } catch (error) {
+              console.error('Failed to recalculate position:', error)
+            }
+          }, 100)
+        }
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [maxReachIndex])
 
   const toggleAllSlots = () => {
     setAllSlotsExpanded(!allSlotsExpanded)
@@ -74,11 +136,11 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     // 컬러 정의
     const colors = {
       tvc: isDarkMode ? '#f5f5f5' : '#1a1a1a',
-      tvcFaded: isDarkMode ? 'rgba(245, 245, 245, 0.25)' : 'rgba(26, 26, 26, 0.25)',
-      digital: '#00FFE5',
-      digitalFaded: 'rgba(0, 255, 229, 0.25)',
-      reach: '#FF0055',
-      reachShadow: 'rgba(255, 0, 85, 0.5)'
+      tvcFaded: isDarkMode ? 'rgba(245, 245, 245, 0.4)' : 'rgba(26, 26, 26, 0.4)',
+      digital: '#00FF9D',
+      digitalFaded: 'rgba(0, 255, 157, 0.4)',
+      reach: '#B794F6',
+      reachShadow: 'rgba(183, 148, 246, 0.5)'
     }
 
     return {
@@ -256,33 +318,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           })),
           label: {
             show: false
-          },
-          markPoint: maxReachIndex !== null ? {
-            symbol: 'pin',
-            symbolSize: 50,
-            symbolOffset: [0, '-50%'],
-            data: [
-              {
-                name: 'Best Ratio',
-                coord: [maxReachIndex, 105],
-                value: 'Best',
-                itemStyle: {
-                  color: isDarkMode ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-                  borderColor: isDarkMode ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-                  borderWidth: 0
-                },
-                label: {
-                  show: true,
-                  formatter: 'Best',
-                  color: isDarkMode ? 'hsl(var(--background))' : 'hsl(var(--background))',
-                  fontFamily: 'Paperlogy, sans-serif',
-                  fontSize: 10,
-                  fontWeight: 600,
-                  position: 'inside'
-                }
-              }
-            ]
-          } : undefined
+          }
         },
         {
           name: '통합 도달률',
@@ -321,6 +357,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   }
 
   const selectedData = selectedBarIndex !== null ? simulationData[selectedBarIndex] : null
+
+  // 차트 옵션 메모이제이션
+  const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex])
 
   return (
     <AppLayout
@@ -467,22 +506,80 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
       {/* 차트 영역 - workspace-content 스타일 */}
       <div className="workspace-content">
-        <div style={{ marginBottom: '32px' }}>
+        <div style={{ marginBottom: '48px', position: 'relative' }}>
           <h2 style={{
             fontSize: '20px',
             fontWeight: '600',
-            marginBottom: '24px',
+            marginBottom: '40px',
             fontFamily: 'Paperlogy, sans-serif'
           }} className="text-foreground">
-            매체 비중별 통합 도달률 분석
+            Digital/TVC 비중별 통합 도달률 시뮬레이션
           </h2>
-          <ReactECharts
-            option={getChartOption()}
-            style={{ height: '500px', width: '100%' }}
-            onEvents={{
-              click: onChartClick
-            }}
-          />
+          
+          {/* 차트 컨테이너 */}
+          <div style={{ position: 'relative', marginTop: '24px' }}>
+            <ReactECharts
+              ref={chartRef}
+              option={chartOption}
+              style={{ height: '500px', width: '100%' }}
+              opts={{ renderer: 'svg' }}
+              notMerge={false}
+              lazyUpdate={true}
+              onEvents={{
+                click: onChartClick
+              }}
+            />
+            
+            {/* Best Ratio 말풍선 마커 오버레이 */}
+            {bestRatioPosition && showBestRatio && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: `${bestRatioPosition.x}px`,
+                  top: `${bestRatioPosition.y - 60}px`,
+                  transform: 'translateX(-50%)',
+                  pointerEvents: 'none',
+                  zIndex: 10
+                }}
+              >
+                {/* 말풍선 */}
+                <div
+                  style={{
+                    backgroundColor: isDarkMode ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
+                    color: isDarkMode ? 'hsl(var(--background))' : 'hsl(var(--background))',
+                    padding: '6px 14px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    fontFamily: 'Paperlogy, sans-serif',
+                    whiteSpace: 'nowrap',
+                    position: 'relative',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <ThumbsUp size={14} strokeWidth={2.5} />
+                  Best Ratio
+                  {/* 말풍선 꼬리 (아래 방향 삼각형) */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-6px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 0,
+                      height: 0,
+                      borderLeft: '6px solid transparent',
+                      borderRight: '6px solid transparent',
+                      borderTop: `6px solid ${isDarkMode ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))'}`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 상세 데이터 테이블 */}
@@ -521,7 +618,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
                   통합 도달률
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: '#7B2FFF' }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#B794F6' }}>
                   {selectedData.reach}%
                 </div>
               </div>
@@ -547,7 +644,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
                   Digital 예산
                 </div>
-                <div style={{ fontSize: '20px', fontWeight: '600', color: '#00FF94' }}>
+                <div style={{ fontSize: '20px', fontWeight: '600', color: '#00FF9D' }}>
                   ₩{(selectedData.digitalBudget / 1000000).toFixed(0)}M
                 </div>
               </div>
