@@ -189,7 +189,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
         {/* 테이블 헤더 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+          gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
           backgroundColor: 'hsl(var(--muted))',
           borderBottom: '1px solid hsl(var(--border))',
           fontSize: '12px',
@@ -252,7 +252,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                 onClick={() => toggleCategory(category)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                  gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
                   borderBottom: '1px solid hsl(var(--border))',
                   cursor: 'pointer',
@@ -299,7 +299,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       onClick={() => toggleMedia(mediaKey)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                        gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                         backgroundColor: 'hsl(var(--card))',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
@@ -340,7 +340,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         key={idx}
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                          gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                           backgroundColor: 'hsl(var(--background))',
                           borderBottom: '1px solid hsl(var(--border))',
                           fontSize: '11px',
@@ -379,7 +379,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                 backgroundColor: 'hsl(var(--primary) / 0.1)',
                 borderTop: '2px solid hsl(var(--primary))',
                 fontSize: '13px',
