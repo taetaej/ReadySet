@@ -1,15 +1,16 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Scale, ThumbsUp } from 'lucide-react'
+import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import { AppLayout } from './layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
+import { DetailedDataTable } from './RatioFinderDetailTable'
 
 interface RatioFinderResultProps {
   scenarioData?: any
 }
 
-// 샘플 시뮬레이션 데이터 (10% 단위, 11개 조합)
+// 샘플 시뮬레이션 데이터 (10% 단위, 11개 조합) - 컴포넌트 외부로 이동
 const generateSimulationData = () => {
   const data = []
   for (let tvcRatio = 0; tvcRatio <= 100; tvcRatio += 10) {
@@ -40,17 +41,27 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
   const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
   const [showBestRatio, setShowBestRatio] = useState(false)
   
   const chartRef = useRef<any>(null)
   
-  const simulationData = generateSimulationData()
-  const maxReachIndex = simulationData.reduce((maxIdx, curr, idx, arr) => 
-    curr.reach > arr[maxIdx].reach ? idx : maxIdx, 0
+  // 시뮬레이션 데이터를 useMemo로 한 번만 생성
+  const simulationData = useMemo(() => generateSimulationData(), [])
+  const maxReachIndex = useMemo(() => 
+    simulationData.reduce((maxIdx, curr, idx, arr) => 
+      curr.reach > arr[maxIdx].reach ? idx : maxIdx, 0
+    ), [simulationData]
   )
 
-  // 차트가 렌더링된 후 Best Ratio 마커 위치 계산
+  // Optimal Point를 기본 선택 상태로 설정
+  useEffect(() => {
+    setSelectedBarIndex(maxReachIndex)
+  }, [maxReachIndex])
+
+  // 차트가 렌더링된 후 Optimal Point 마커 위치 계산
   useEffect(() => {
     const calculatePosition = () => {
       if (chartRef.current) {
@@ -65,7 +76,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               setTimeout(() => setShowBestRatio(true), 50)
             }
           } catch (error) {
-            console.error('Failed to calculate best ratio position:', error)
+            console.error('Failed to calculate optimal point position:', error)
           }
         }
       }
@@ -89,6 +100,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       if (chartRef.current) {
         const chartInstance = chartRef.current.getEchartsInstance()
         if (chartInstance) {
+          // 차트 리사이즈
+          chartInstance.resize()
+          
           setTimeout(() => {
             try {
               const pointInPixel = chartInstance.convertToPixel({ seriesIndex: 0 }, [maxReachIndex, 100])
@@ -144,6 +158,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     }
 
     return {
+      animation: false, // 애니메이션 비활성화
       backgroundColor: 'transparent',
       grid: {
         left: '3%',
@@ -197,7 +212,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           { name: 'Digital', itemStyle: { color: colors.digital } },
           { name: '통합 도달률', itemStyle: { color: colors.reach } }
         ],
-        bottom: 0,
+        bottom: 10,
+        right: 20,
+        orient: 'horizontal',
         textStyle: {
           color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
           fontFamily: 'Paperlogy, sans-serif',
@@ -356,10 +373,29 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     }
   }
 
+  const handleCopyLink = () => {
+    const url = window.location.href
+    navigator.clipboard.writeText(url)
+    setExportMenuOpen(false)
+    // TODO: 토스트 메시지 표시
+  }
+
+  const handleExportExcel = () => {
+    // TODO: Excel export 구현
+    console.log('Export to Excel')
+    setExportMenuOpen(false)
+  }
+
+  const handleExportPDF = () => {
+    // TODO: PDF export 구현
+    console.log('Export to PDF')
+    setExportMenuOpen(false)
+  }
+
   const selectedData = selectedBarIndex !== null ? simulationData[selectedBarIndex] : null
 
-  // 차트 옵션 메모이제이션
-  const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex])
+  // 차트 옵션 메모이제이션 - selectedBarIndex만 의존성에 포함
+  const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex, simulationData])
 
   return (
     <AppLayout
@@ -449,6 +485,98 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
           {/* 우측 액션 버튼들 */}
           <div className="slot-detail-header__actions" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            {/* Export 드롭다운 */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                className="btn btn-ghost btn-md"
+                style={{ padding: '8px' }}
+              >
+                <Share2 size={18} />
+              </button>
+              
+              {exportMenuOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '8px',
+                  width: '200px',
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                  zIndex: 1000,
+                  fontFamily: 'Paperlogy, sans-serif',
+                  overflow: 'hidden'
+                }}>
+                  <button
+                    onClick={handleCopyLink}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <Link2 size={16} />
+                    <span>Copy Link</span>
+                  </button>
+                  <button
+                    onClick={handleExportExcel}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FileSpreadsheet size={16} />
+                    <span>Export to Excel</span>
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FileText size={16} />
+                    <span>Export to PDF</span>
+                  </button>
+                </div>
+              )}
+            </div>
+            
             {/* Info 아이콘 - 시나리오 ID, 생성/완료 정보 툴팁 */}
             <div style={{ position: 'relative' }}>
               <button
@@ -506,18 +634,79 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
       {/* 차트 영역 - workspace-content 스타일 */}
       <div className="workspace-content">
-        <div style={{ marginBottom: '48px', position: 'relative' }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            marginBottom: '40px',
-            fontFamily: 'Paperlogy, sans-serif'
-          }} className="text-foreground">
-            Digital/TVC 비중별 통합 도달률 시뮬레이션
-          </h2>
+        <div style={{ marginBottom: '16px', position: 'relative' }}>
+          {/* 차트 타이틀과 모집단 정보 */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '40px'
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0
+            }} className="text-foreground">
+              Digital/TVC 통합 도달 시뮬레이션
+            </h2>
+            
+            {/* 모집단 정보 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              <Users size={16} className="text-muted-foreground" />
+              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                모집단: 46,039,423명
+              </span>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onMouseEnter={() => setPopulationTooltipOpen(true)}
+                  onMouseLeave={() => setPopulationTooltipOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Info size={14} className="text-muted-foreground" />
+                </button>
+                
+                {populationTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '140px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
+                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                      코리안클릭 (2026년 1월)
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           
           {/* 차트 컨테이너 */}
-          <div style={{ position: 'relative', marginTop: '24px' }}>
+          <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
             <ReactECharts
               ref={chartRef}
               option={chartOption}
@@ -530,7 +719,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               }}
             />
             
-            {/* Best Ratio 말풍선 마커 오버레이 */}
+            {/* Optimal Point 말풍선 마커 오버레이 */}
             {bestRatioPosition && showBestRatio && (
               <div
                 style={{
@@ -561,7 +750,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   }}
                 >
                   <ThumbsUp size={14} strokeWidth={2.5} />
-                  Best Ratio
+                  Optimal Point
                   {/* 말풍선 꼬리 (아래 방향 삼각형) */}
                   <div
                     style={{
@@ -583,14 +772,14 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         </div>
 
         {/* 상세 데이터 테이블 */}
-        <div>
+        <div style={{ marginTop: '24px' }}>
           <h2 style={{
             fontSize: '18px',
             fontWeight: '600',
             marginBottom: '16px',
             fontFamily: 'Paperlogy, sans-serif'
           }} className="text-foreground">
-            상세 데이터
+            선택 비중별 예상 성과
             {selectedData && (
               <span style={{ 
                 fontSize: '14px', 
@@ -603,91 +792,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </h2>
           
           {selectedData ? (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  통합 도달률
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: '#B794F6' }}>
-                  {selectedData.reach}%
-                </div>
-              </div>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  TVC 예산
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '600', color: isDarkMode ? '#f5f5f5' : '#1a1a1a' }}>
-                  ₩{(selectedData.tvcBudget / 1000000).toFixed(0)}M
-                </div>
-              </div>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  Digital 예산
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '600', color: '#00FF9D' }}>
-                  ₩{(selectedData.digitalBudget / 1000000).toFixed(0)}M
-                </div>
-              </div>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  평균 빈도
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '600' }} className="text-foreground">
-                  {selectedData.frequency.toFixed(1)}
-                </div>
-              </div>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  총 GRP
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '600' }} className="text-foreground">
-                  {selectedData.grp.toFixed(1)}
-                </div>
-              </div>
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }} className="text-muted-foreground">
-                  평균 CPM
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '600' }} className="text-foreground">
-                  ₩{selectedData.cpm.toFixed(0)}
-                </div>
-              </div>
-            </div>
+            <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
           ) : (
             <div style={{
               padding: '60px',

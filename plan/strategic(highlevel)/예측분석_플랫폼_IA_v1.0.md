@@ -8,22 +8,98 @@
 | 2026. 2. 02 | 신지아 | 정책서 기반 업데이트 | 정책서 v0.2 반영 | 1.1 |
 | 2026. 2. 06 | 신지아 | 구현 기반 업데이트 | 실제 구현 내용 반영 | 1.2 |
 | 2026. 2. 09 | AI | 시나리오 생성 페이지 상세 업데이트 | Reach Predictor Phase 1 구현 완료 | 1.3 |
+| 2026. 2. 12 | AI | 실제 구현 구조 반영 | 현재 프로젝트 파일 구조 기반 업데이트 | 1.4 |
 
 ---
 
 📢 본 문서는 예측/분석 고도화 프로젝트 정책서(v0.2)를 기반으로 작성된 정보 구조(IA) 가이드입니다.
 
-- 현재 버전: v1.3
+- 현재 버전: v1.4
 - 관리자: 신지아
 - 참고: 예측분석_고도화_프로젝트_정책서_v0.2.md
-- 최근 업데이트: Reach Predictor Phase 1 구현 완료 (2026.02.09)
+- 최근 업데이트: 실제 구현 구조 반영 (2026.02.12)
 
 ---
 
 ## 1. 전체 시스템 구조
 
 ```
-예측/분석 플랫폼
+예측/분석 플랫폼 (React SPA)
+├── 기술 스택
+│   ├── 프론트엔드: React 18.2.0 + TypeScript 5.0.2
+│   ├── 라우팅: React Router DOM 7.13.0
+│   ├── 빌드: Vite 4.4.5
+│   ├── UI 컴포넌트
+│   │   ├── Lucide React 0.263.1 (아이콘)
+│   │   ├── React Day Picker 9.13.0 (날짜 선택)
+│   │   └── 커스텀 컴포넌트 (shadcn 스타일)
+│   └── 차트/시각화
+│       ├── ECharts 6.0.0 (차트)
+│       └── Frappe Gantt 1.0.4 (타임라인)
+├── 프로젝트 구조
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/ (레이아웃 컴포넌트)
+│   │   │   │   ├── AppLayout.tsx (전체 레이아웃)
+│   │   │   │   ├── GlobalNavBar.tsx (GNB)
+│   │   │   │   ├── Sidebar.tsx (SNB)
+│   │   │   │   ├── Breadcrumb.tsx (경로 표시)
+│   │   │   │   ├── Footer.tsx (푸터)
+│   │   │   │   └── index.ts (export)
+│   │   │   ├── common/ (공통 컴포넌트)
+│   │   │   │   ├── Avatar.tsx (프로필 아바타)
+│   │   │   │   ├── SplashCursor.tsx (커서 효과)
+│   │   │   │   └── SplitText.tsx (텍스트 애니메이션)
+│   │   │   ├── scenario/ (시나리오 관련)
+│   │   │   │   ├── ScenarioStep1.tsx (기본 정보)
+│   │   │   │   ├── ScenarioStep2RatioFinder.tsx (Ratio Finder 설정)
+│   │   │   │   ├── ScenarioStep2ReachPredictor.tsx (Reach Predictor 설정)
+│   │   │   │   ├── ReachPredictorMediaDialog.tsx (매체 선택)
+│   │   │   │   ├── constants.ts (상수)
+│   │   │   │   ├── types.ts (타입 정의)
+│   │   │   │   ├── utils.ts (유틸리티)
+│   │   │   │   └── index.ts (export)
+│   │   │   ├── WorkspaceLayout.tsx (SlotBoard 메인)
+│   │   │   ├── CreateScenario.tsx (시나리오 생성)
+│   │   │   ├── CreateFolder.tsx (Slot 생성)
+│   │   │   ├── EditFolder.tsx (Slot 수정)
+│   │   │   ├── SlotCard.tsx (Slot 카드)
+│   │   │   ├── SlotHeader.tsx (Slot 헤더)
+│   │   │   ├── SlotDetail.tsx (Slot 상세)
+│   │   │   ├── SlotListItem.tsx (시나리오 목록 아이템)
+│   │   │   ├── RatioFinderResult.tsx (Ratio Finder 결과)
+│   │   │   ├── ReachPredictorResult.tsx (Reach Predictor 결과)
+│   │   │   ├── RatioFinderDetailTable.tsx (상세 테이블)
+│   │   │   ├── DateRangePicker.tsx (날짜 범위 선택)
+│   │   │   ├── PageHeader.tsx (페이지 헤더)
+│   │   │   └── WelcomeSection.tsx (환영 섹션)
+│   │   ├── styles/
+│   │   │   └── globals.css (전역 스타일)
+│   │   ├── utils/
+│   │   │   └── theme.ts (테마 관리)
+│   │   ├── App.tsx (라우팅 설정)
+│   │   ├── main.tsx (진입점)
+│   │   └── index.css (기본 스타일)
+│   ├── guide/ (개발 가이드)
+│   │   ├── Lucide_Icon_Guide.md
+│   │   ├── Q_Developer_Planning_Guide.md
+│   │   └── Screen_Specification_Guide.md
+│   ├── plan/ (기획 문서)
+│   │   ├── spec/
+│   │   │   └── Common_Layout_Spec.md
+│   │   └── strategic(highlevel)/
+│   │       ├── 예측분석_고도화_프로젝트_정책서_v0.1.md
+│   │       └── 예측분석_플랫폼_IA_v1.0.md (본 문서)
+│   └── public/
+│       └── favicon.svg
+├── 라우팅 구조 (React Router)
+│   ├── / → SlotBoard 메인 (WorkspaceLayout)
+│   ├── /slotboard → SlotBoard 메인
+│   ├── /reachcaster → Slot 상세 (WorkspaceLayout initialView="slotDetail")
+│   ├── /reachcaster/scenario/new → 시나리오 생성 (CreateScenario)
+│   ├── /reachcaster/scenario/ratio-finder/result → Ratio Finder 결과
+│   ├── /reachcaster/scenario/reach-predictor/result → Reach Predictor 결과
+│   └── /* → 루트로 리다이렉트
 ├── 인증 및 권한 관리
 │   ├── adly 메인 연동 로그인
 │   ├── 사용자 역할 관리 (Admin/Marketer/Agency/Client)
@@ -170,7 +246,161 @@
 └── 라우팅 구조
     ├── / 또는 /slotboard → SlotBoard 메인
     ├── /reachcaster → Slot 상세 (첫 번째 Slot 자동 로드)
-    └── /reachcaster/scenario/new → 시나리오 생성
+    ├── /reachcaster/scenario/new → 시나리오 생성
+    ├── /reachcaster/scenario/ratio-finder/result → Ratio Finder 결과
+    └── /reachcaster/scenario/reach-predictor/result → Reach Predictor 결과
+```
+
+## 1.1 컴포넌트 아키텍처
+
+### 레이아웃 컴포넌트 (src/components/layout/)
+```
+AppLayout
+├── 역할: 전체 페이지 레이아웃 래퍼
+├── 구성: GNB + Sidebar + 메인 콘텐츠 영역
+└── 사용: 모든 페이지에서 공통 사용
+
+GlobalNavBar (GNB)
+├── 역할: 상단 글로벌 네비게이션
+├── 구성: 로고, 솔루션 메뉴, 사용자 프로필
+└── 고정: 모든 페이지에서 동일
+
+Sidebar (SNB)
+├── 역할: 좌측 사이드 네비게이션
+├── 구성: 워크스페이스, Slot 트리, 빠른 네비게이션
+└── 상태: 확장/축소 가능
+
+Breadcrumb
+├── 역할: 현재 위치 표시
+├── 위치: GNB 하단
+└── 동적: 라우트에 따라 자동 생성
+
+Footer
+├── 역할: 하단 정보 표시
+└── 내용: 저작권, 링크 등
+```
+
+### 공통 컴포넌트 (src/components/common/)
+```
+Avatar
+├── 역할: 사용자/광고주 프로필 아바타
+├── 기능: 이니셜 표시, 색상 자동 생성
+└── 사용: Slot 카드, 헤더 등
+
+SplashCursor
+├── 역할: 커서 인터랙션 효과
+└── 기술: OGL (WebGL 라이브러리)
+
+SplitText
+├── 역할: 텍스트 애니메이션
+└── 사용: 환영 메시지 등
+```
+
+### 시나리오 컴포넌트 (src/components/scenario/)
+```
+CreateScenario (메인 컨테이너)
+├── 역할: 시나리오 생성 3단계 위자드
+├── 상태 관리: formData, validationActive, currentStep
+└── 하위 컴포넌트: Step1, Step2RatioFinder, Step2ReachPredictor
+
+ScenarioStep1
+├── 역할: 기본 정보 입력
+├── 입력: 시나리오명, 모듈, 브랜드, 기간, 타겟 GRP
+└── 유효성 검사: 필수 필드 실시간 검증
+
+ScenarioStep2RatioFinder
+├── 역할: Ratio Finder 상세 설정
+├── 입력: 총 예산, 시뮬레이션 단위, 매체 선택, 예산 배분
+└── 검증: 비중 합계 100% 검증
+
+ScenarioStep2ReachPredictor
+├── 역할: Reach Predictor 상세 설정
+├── 입력: 매체 설정, 리치커브 설정
+└── 검증: 예산 입력, 구간 수 제한
+
+ReachPredictorMediaDialog
+├── 역할: 매체 선택 다이얼로그
+├── 크기: 1000px × 700px
+├── 탭: TVC / DIGITAL
+└── 기능: 검색, 전체 선택, 상품 선택
+
+constants.ts
+├── sampleBrands: 브랜드 목록
+├── targetGrpOptions: 타겟 GRP 옵션
+└── mediaData: 매체 및 상품 데이터
+
+types.ts
+├── ScenarioFormData: 폼 데이터 타입
+├── ReachPredictorMedia: 매체 설정 타입
+└── 기타 인터페이스 정의
+
+utils.ts
+├── numberToKorean: 숫자 → 한글 변환
+├── formatNumber: 숫자 포맷팅
+└── 기타 유틸리티 함수
+```
+
+## 1.2 상태 관리 구조
+
+### CreateScenario 상태
+```typescript
+// 폼 데이터
+formData: ScenarioFormData {
+  scenarioName: string
+  description: string
+  moduleType: 'ratio-finder' | 'reach-predictor'
+  brand: string
+  industry: string
+  period: { start: string, end: string }
+  targetGrp: string[]
+  totalBudget?: number
+  simulationUnit?: string
+}
+
+// Ratio Finder 전용
+selectedMedia: string[]
+mediaRatios: { [key: string]: number }
+productRatios: { [mediaKey: string]: { [productKey: string]: number } }
+
+// Reach Predictor 전용
+reachPredictorMedia: ReachPredictorMedia[] {
+  id: string
+  category: 'DIGITAL' | 'TVC'
+  mediaName: string
+  productName: string
+  budget: string
+  impressions: string
+  period?: { start: string, end: string }
+  targetGrp?: string[]
+}
+
+// UI 상태
+currentStep: 1 | 2 | 3
+validationActive: boolean
+isSubmitting: boolean
+showToast: { type: 'success' | 'error', message: string } | null
+```
+
+## 1.3 데이터 흐름
+
+```
+사용자 입력
+    ↓
+Step 컴포넌트 (props로 formData, setFormData 전달)
+    ↓
+CreateScenario 상태 업데이트
+    ↓
+Configuration Summary 실시간 반영
+    ↓
+유효성 검사 (validationActive 시)
+    ↓
+다음 단계 진행 또는 차단
+    ↓
+Step 3: 최종 확인
+    ↓
+시나리오 생성 요청 (비동기)
+    ↓
+완료 시 Slot 상세로 이동 (/reachcaster)
 ```
 
 ## 2. 사용자 플로우 기반 IA
@@ -974,6 +1204,41 @@ Shared 폴더
 ---
 
 이 IA는 예측분석_고도화_프로젝트_정책서_v0.2에 정의된 모든 기능과 구조를 체계적으로 정리하여 개발팀이 시스템을 구현할 때 참고할 수 있는 정보 구조를 제공합니다.
+
+### 주요 업데이트 내용 (v1.3 → v1.4)
+
+- **실제 프로젝트 구조 반영**:
+  - 컴포넌트 파일 구조 확인 및 문서화
+  - src/components 디렉토리 구조 상세화
+  - src/components/layout: AppLayout, Breadcrumb, Footer, GlobalNavBar, Sidebar
+  - src/components/common: Avatar, SplashCursor, SplitText
+  - src/components/scenario: 시나리오 생성 관련 모듈화된 컴포넌트
+
+- **라우팅 구조 명확화**:
+  - React Router 기반 SPA 구조
+  - 주요 라우트: /, /slotboard, /reachcaster, /reachcaster/scenario/new
+  - 결과 페이지: /reachcaster/scenario/ratio-finder/result, /reachcaster/scenario/reach-predictor/result
+
+- **기술 스택 문서화**:
+  - React 18.2.0 + TypeScript
+  - React Router DOM 7.13.0
+  - UI 라이브러리: Lucide React (아이콘), React Day Picker (날짜 선택)
+  - 차트: ECharts, Frappe Gantt (타임라인)
+  - 빌드 도구: Vite 4.4.5
+
+- **컴포넌트 구조 상세화**:
+  - CreateScenario: 3단계 위자드 메인 컴포넌트
+  - ScenarioStep1: 기본 정보 입력 (시나리오명, 모듈, 브랜드, 기간, 타겟)
+  - ScenarioStep2RatioFinder: Ratio Finder 상세 설정
+  - ScenarioStep2ReachPredictor: Reach Predictor 상세 설정
+  - ReachPredictorMediaDialog: 매체 선택 다이얼로그
+
+- **파일 구조 정리**:
+  - guide/: 개발 가이드 문서 (Lucide Icon, Q Developer Planning, Screen Specification)
+  - plan/spec/: 공통 레이아웃 스펙
+  - plan/strategic(highlevel)/: 정책서 및 IA 문서
+  - src/styles/: 글로벌 CSS
+  - src/utils/: 유틸리티 함수 (theme.ts)
 
 ### 주요 업데이트 내용 (v1.2 → v1.3)
 
