@@ -99,6 +99,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       if (chartRef.current) {
         const chartInstance = chartRef.current.getEchartsInstance()
         if (chartInstance) {
+          // 차트 리사이즈
+          chartInstance.resize()
+          
           setTimeout(() => {
             try {
               const pointInPixel = chartInstance.convertToPixel({ seriesIndex: 0 }, [maxReachIndex, 100])

@@ -81,11 +81,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
         frequency: (Math.random() * 2 + 2.5).toFixed(2),
         grp: (Math.random() * 60 + 30).toFixed(2),
         cprp: Math.floor(Math.random() * 12000000) + 5000000,
-        reach1: (Math.random() * 12 + 12).toFixed(2),
-        reach2: (Math.random() * 6 + 6).toFixed(2),
-        reach3: (Math.random() * 4 + 5).toFixed(2),
-        reach4: (Math.random() * 3 + 4).toFixed(2),
-        reach5: (Math.random() * 2 + 3).toFixed(2)
+        reach1: '-', // TVC 채널 단위는 Reach 데이터 없음
+        reach2: '-',
+        reach3: '-',
+        reach4: '-',
+        reach5: '-'
       }))
     })
 
@@ -97,6 +97,10 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
   // Sub Total 계산
   const calculateMediaSubTotal = (category: string, media: string) => {
     const products = detailedData[category][media]
+    
+    // TVC 매체는 Reach 4+, 5+ 없음
+    const isTVC = category === 'TVC'
+    
     return {
       uv: products.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: products.reduce((sum: number, p: any) => sum + p.budget, 0),
@@ -105,11 +109,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
       frequency: (products.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / products.length).toFixed(2),
       grp: products.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
       cprp: Math.floor(products.reduce((sum: number, p: any) => sum + p.cprp, 0) / products.length),
-      reach1: (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach1), 0) / products.length).toFixed(2),
-      reach2: (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach2), 0) / products.length).toFixed(2),
-      reach3: (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach3), 0) / products.length).toFixed(2),
-      reach4: (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach4), 0) / products.length).toFixed(2),
-      reach5: (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach5), 0) / products.length).toFixed(2)
+      reach1: isTVC ? (Math.random() * 12 + 12).toFixed(2) : (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach1), 0) / products.length).toFixed(2),
+      reach2: isTVC ? (Math.random() * 6 + 6).toFixed(2) : (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach2), 0) / products.length).toFixed(2),
+      reach3: isTVC ? (Math.random() * 4 + 5).toFixed(2) : (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach3), 0) / products.length).toFixed(2),
+      reach4: isTVC ? '-' : (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach4), 0) / products.length).toFixed(2),
+      reach5: isTVC ? '-' : (products.reduce((sum: number, p: any) => sum + parseFloat(p.reach5), 0) / products.length).toFixed(2)
     }
   }
 
@@ -117,6 +121,10 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
   const calculateCategorySubTotal = (category: string) => {
     const mediaList = Object.keys(detailedData[category])
     const allProducts = mediaList.flatMap(media => detailedData[category][media])
+    
+    // TVC 카테고리는 Reach 4+, 5+ 없음
+    const isTVC = category === 'TVC'
+    
     return {
       uv: allProducts.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: allProducts.reduce((sum: number, p: any) => sum + p.budget, 0),
@@ -125,11 +133,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
       frequency: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / allProducts.length).toFixed(2),
       grp: allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
       cprp: Math.floor(allProducts.reduce((sum: number, p: any) => sum + p.cprp, 0) / allProducts.length),
-      reach1: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach1), 0) / allProducts.length).toFixed(2),
-      reach2: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach2), 0) / allProducts.length).toFixed(2),
-      reach3: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach3), 0) / allProducts.length).toFixed(2),
-      reach4: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach4), 0) / allProducts.length).toFixed(2),
-      reach5: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach5), 0) / allProducts.length).toFixed(2)
+      reach1: isTVC ? (Math.random() * 12 + 12).toFixed(2) : (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach1), 0) / allProducts.length).toFixed(2),
+      reach2: isTVC ? (Math.random() * 6 + 6).toFixed(2) : (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach2), 0) / allProducts.length).toFixed(2),
+      reach3: isTVC ? (Math.random() * 4 + 5).toFixed(2) : (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach3), 0) / allProducts.length).toFixed(2),
+      reach4: isTVC ? '-' : (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach4), 0) / allProducts.length).toFixed(2),
+      reach5: isTVC ? '-' : (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach5), 0) / allProducts.length).toFixed(2)
     }
   }
 
@@ -268,11 +276,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.frequency}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.grp}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.cprp)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.reach1}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.reach2}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.reach3}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.reach4}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.reach5}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach1}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach2}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach3}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach4}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach5}</div>
               </div>
 
               {/* 2depth: Media */}
@@ -315,11 +323,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.frequency}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.grp}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.cprp)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.reach1}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.reach2}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.reach3}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.reach4}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.reach5}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach1}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach2}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach3}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach4}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach5}</div>
                     </div>
 
                     {/* 3depth: Products */}
@@ -346,11 +354,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         <div style={{ padding: '8px', textAlign: 'right' }}>{product.frequency}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{product.grp}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.cprp)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.reach1}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.reach2}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.reach3}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.reach4}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.reach5}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach1 === '-' ? 'text-muted-foreground' : ''}>{product.reach1}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach2 === '-' ? 'text-muted-foreground' : ''}>{product.reach2}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach3 === '-' ? 'text-muted-foreground' : ''}>{product.reach3}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach4 === '-' ? 'text-muted-foreground' : ''}>{product.reach4}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach5 === '-' ? 'text-muted-foreground' : ''}>{product.reach5}</div>
                       </div>
                     ))}
                   </div>
