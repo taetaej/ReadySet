@@ -640,7 +640,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '40px'
+            marginBottom: '40px',
+            position: 'relative'
           }}>
             <h2 style={{
               fontSize: '20px',
@@ -651,12 +652,14 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               Digital/TVC 통합 도달 시뮬레이션
             </h2>
             
-            {/* 모집단 정보 */}
+            {/* 모집단 정보 - 절대 위치로 오른쪽 정렬 */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              fontFamily: 'Paperlogy, sans-serif'
+              fontFamily: 'Paperlogy, sans-serif',
+              position: 'absolute',
+              right: 0
             }}>
               <Users size={16} className="text-muted-foreground" />
               <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
@@ -792,7 +795,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </h2>
           
           {selectedData ? (
-            <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
+            <div style={{ overflowX: 'auto' }}>
+              <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
+            </div>
           ) : (
             <div style={{
               padding: '60px',
