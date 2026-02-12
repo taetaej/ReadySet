@@ -179,22 +179,25 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     <div style={{
       border: '1px solid hsl(var(--border))',
       borderRadius: '8px',
-      overflow: 'hidden',
       fontFamily: 'Paperlogy, sans-serif',
-      minWidth: '1600px' // 최소 폭 설정
+      overflowX: 'auto', // 테이블 자체에 가로 스크롤
+      overflowY: 'visible'
     }}>
-      {/* 테이블 헤더 */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
-        backgroundColor: 'hsl(var(--muted))',
-        borderBottom: '1px solid hsl(var(--border))',
-        fontSize: '12px',
-        fontWeight: '600',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
+        minWidth: '1600px' // 최소 폭 설정
       }}>
+        {/* 테이블 헤더 */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+          backgroundColor: 'hsl(var(--muted))',
+          borderBottom: '1px solid hsl(var(--border))',
+          fontSize: '12px',
+          fontWeight: '600',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10
+        }}>
             <div style={{ 
               padding: '12px 8px', 
               display: 'flex', 
@@ -236,8 +239,8 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 5+(%)</div>
           </div>
 
-      {/* 테이블 바디 */}
-      <div>
+        {/* 테이블 바디 */}
+        <div>
         {['DIGITAL', 'TVC'].map(category => {
           const isExpanded = expandedCategories.includes(category)
           const categorySubTotal = calculateCategorySubTotal(category)
@@ -400,6 +403,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             </div>
           )
         })()}
+        </div>
       </div>
     </div>
   )

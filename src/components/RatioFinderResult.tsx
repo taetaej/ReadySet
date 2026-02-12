@@ -795,9 +795,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </h2>
           
           {selectedData ? (
-            <div style={{ overflowX: 'auto' }}>
-              <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
-            </div>
+            <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
           ) : (
             <div style={{
               padding: '60px',
