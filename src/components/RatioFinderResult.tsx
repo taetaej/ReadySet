@@ -10,7 +10,7 @@ interface RatioFinderResultProps {
   scenarioData?: any
 }
 
-// 샘플 시뮬레이션 데이터 (10% 단위, 11개 조합)
+// 샘플 시뮬레이션 데이터 (10% 단위, 11개 조합) - 컴포넌트 외부로 이동
 const generateSimulationData = () => {
   const data = []
   for (let tvcRatio = 0; tvcRatio <= 100; tvcRatio += 10) {
@@ -48,16 +48,17 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   
   const chartRef = useRef<any>(null)
   
-  const simulationData = generateSimulationData()
-  const maxReachIndex = simulationData.reduce((maxIdx, curr, idx, arr) => 
-    curr.reach > arr[maxIdx].reach ? idx : maxIdx, 0
+  // 시뮬레이션 데이터를 useMemo로 한 번만 생성
+  const simulationData = useMemo(() => generateSimulationData(), [])
+  const maxReachIndex = useMemo(() => 
+    simulationData.reduce((maxIdx, curr, idx, arr) => 
+      curr.reach > arr[maxIdx].reach ? idx : maxIdx, 0
+    ), [simulationData]
   )
 
   // Optimal Point를 기본 선택 상태로 설정
   useEffect(() => {
-    if (selectedBarIndex === null) {
-      setSelectedBarIndex(maxReachIndex)
-    }
+    setSelectedBarIndex(maxReachIndex)
   }, [maxReachIndex])
 
   // 차트가 렌더링된 후 Optimal Point 마커 위치 계산
@@ -157,6 +158,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     }
 
     return {
+      animation: false, // 애니메이션 비활성화
       backgroundColor: 'transparent',
       grid: {
         left: '3%',
@@ -392,8 +394,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
   const selectedData = selectedBarIndex !== null ? simulationData[selectedBarIndex] : null
 
-  // 차트 옵션 메모이제이션
-  const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex])
+  // 차트 옵션 메모이제이션 - selectedBarIndex만 의존성에 포함
+  const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex, simulationData])
 
   return (
     <AppLayout

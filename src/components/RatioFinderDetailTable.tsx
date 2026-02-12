@@ -184,16 +184,23 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     }}>
       {/* 테이블 헤더 */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
-        backgroundColor: 'hsl(var(--muted))',
-        borderBottom: '1px solid hsl(var(--border))',
-        fontSize: '12px',
-        fontWeight: '600',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
+        overflowX: 'auto',
+        overflowY: 'visible'
       }}>
+        <div style={{
+          minWidth: '1600px' // 최소 폭 설정
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+            backgroundColor: 'hsl(var(--muted))',
+            borderBottom: '1px solid hsl(var(--border))',
+            fontSize: '12px',
+            fontWeight: '600',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10
+          }}>
         <div style={{ 
           padding: '12px 8px', 
           display: 'flex', 
@@ -399,6 +406,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             </div>
           )
         })()}
+        </div>
       </div>
     </div>
   )
