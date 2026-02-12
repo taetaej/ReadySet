@@ -182,7 +182,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
       overflow: 'hidden',
       fontFamily: 'Paperlogy, sans-serif'
     }}>
-      {/* 테이블 헤더 */}
+      {/* 가로 스크롤 컨테이너 */}
       <div style={{
         overflowX: 'auto',
         overflowY: 'visible'
@@ -190,6 +190,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
         <div style={{
           minWidth: '1600px' // 최소 폭 설정
         }}>
+          {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: '80px 1fr 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
@@ -201,49 +202,49 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             top: 0,
             zIndex: 10
           }}>
-        <div style={{ 
-          padding: '12px 8px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
-          <button
-            onClick={toggleAll}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'hsl(var(--foreground))',
-              fontSize: '11px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              transition: 'background-color 0.2s',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted-foreground) / 0.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          >
-            {isAllExpanded ? 'Collapse' : 'Expand'}
-          </button>
-        </div>
-        <div style={{ padding: '12px 8px' }}>구분 &gt; 매체 &gt; 상품/채널</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>UV</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>예산(원)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>노출(회)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>도달(회)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Freq.(회)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>GRPs</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>CPRP(원)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 1+(%)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 2+(%)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 3+(%)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 4+(%)</div>
-        <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 5+(%)</div>
-      </div>
+            <div style={{ 
+              padding: '12px 8px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}>
+              <button
+                onClick={toggleAll}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'hsl(var(--foreground))',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s',
+                  fontFamily: 'Paperlogy, sans-serif'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted-foreground) / 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                {isAllExpanded ? 'Collapse' : 'Expand'}
+              </button>
+            </div>
+            <div style={{ padding: '12px 8px' }}>구분 &gt; 매체 &gt; 상품/채널</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>UV</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>예산(원)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>노출(회)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>도달(회)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Freq.(회)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>GRPs</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>CPRP(원)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 1+(%)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 2+(%)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 3+(%)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 4+(%)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 5+(%)</div>
+          </div>
 
-      {/* 테이블 바디 */}
-      <div>
+          {/* 테이블 바디 */}
+          <div>
         {['DIGITAL', 'TVC'].map(category => {
           const isExpanded = expandedCategories.includes(category)
           const categorySubTotal = calculateCategorySubTotal(category)
@@ -406,6 +407,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             </div>
           )
         })()}
+          </div>
         </div>
       </div>
     </div>
