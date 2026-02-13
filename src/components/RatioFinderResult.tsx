@@ -683,63 +683,6 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           
           {/* 차트 컨테이너 */}
           <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
-            {/* 모집단 정보 - 차트 오른쪽 상단에 절대 위치 */}
-            <div style={{
-              position: 'absolute',
-              top: '-40px',
-              right: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontFamily: 'Paperlogy, sans-serif',
-              zIndex: 5
-            }}>
-              <Users size={16} className="text-muted-foreground" />
-              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
-                모집단: 46,039,423명
-              </span>
-              <div style={{ position: 'relative' }}>
-                <button
-                  onMouseEnter={() => setPopulationTooltipOpen(true)}
-                  onMouseLeave={() => setPopulationTooltipOpen(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Info size={14} className="text-muted-foreground" />
-                </button>
-                
-                {populationTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '8px',
-                    width: '140px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    fontSize: '12px'
-                  }}>
-                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
-                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
-                      코리안클릭 (2026년 1월)
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            
             <ReactECharts
               ref={chartRef}
               option={chartOption}
@@ -806,37 +749,97 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
         {/* 상세 데이터 테이블 */}
         <div style={{ marginTop: '24px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
-          <h3 style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            marginBottom: '16px',
-            fontFamily: 'Paperlogy, sans-serif',
-            display: 'flex',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
             alignItems: 'center',
-            gap: '12px',
-            color: 'hsl(var(--foreground))'
+            marginBottom: '16px'
           }}>
-            <span>Estimated Performance</span>
-            {selectedData && (
-              <span style={{ 
-                fontSize: '13px', 
-                fontWeight: '400',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }} className="text-muted-foreground">
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Smartphone size={14} />
-                  Digital {selectedData.digitalRatio}%
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              color: 'hsl(var(--foreground))'
+            }}>
+              <span>Estimated Performance</span>
+              {selectedData && (
+                <span style={{ 
+                  fontSize: '13px', 
+                  fontWeight: '400',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }} className="text-muted-foreground">
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Smartphone size={14} />
+                    Digital {selectedData.digitalRatio}%
+                  </span>
+                  <span>:</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Tv size={14} />
+                    TVC {selectedData.tvcRatio}%
+                  </span>
                 </span>
-                <span>:</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Tv size={14} />
-                  TVC {selectedData.tvcRatio}%
-                </span>
+              )}
+            </h3>
+            
+            {/* 모집단 정보 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              <Users size={16} className="text-muted-foreground" />
+              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                모집단: 46,039,423명
               </span>
-            )}
-          </h3>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onMouseEnter={() => setPopulationTooltipOpen(true)}
+                  onMouseLeave={() => setPopulationTooltipOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Info size={14} className="text-muted-foreground" />
+                </button>
+                
+                {populationTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '140px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
+                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                      코리안클릭 (2026년 1월)
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           
           {selectedData ? (
             <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
