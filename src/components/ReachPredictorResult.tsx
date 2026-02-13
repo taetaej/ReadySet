@@ -485,14 +485,16 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       </div>
 
       {/* Content Area */}
-      <div className="workspace-content">
-        {/* 차트 및 스코어카드 영역 */}
+      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'visible' }}>
+        {/* 차트 및 스코어카드 영역 - 뷰포트 너비에 맞춤 */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '380px 1fr',
           gap: '24px',
           marginBottom: '32px',
-          maxWidth: '100%'
+          width: '100%',
+          maxWidth: '100vw',
+          boxSizing: 'border-box'
         }}>
           {/* 스코어카드 - 벤토 박스 유지 */}
           <div style={{ minWidth: 0 }}>
@@ -510,7 +512,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
           
           {/* 리치커브 차트 - 벤토 박스 없이 */}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, maxWidth: '100%' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
