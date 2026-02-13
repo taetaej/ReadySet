@@ -16,9 +16,10 @@ interface ReachPredictorScoreCardsProps {
     grp?: number
     cprp?: number
   }
+  isDarkMode?: boolean
 }
 
-export function ReachPredictorScoreCards({ data }: ReachPredictorScoreCardsProps) {
+export function ReachPredictorScoreCards({ data, isDarkMode = false }: ReachPredictorScoreCardsProps) {
   const scoreCards: ScoreCard[] = [
     {
       title: 'Reach1+',
@@ -62,8 +63,12 @@ export function ReachPredictorScoreCards({ data }: ReachPredictorScoreCardsProps
         <div
           key={index}
           style={{
-            backgroundColor: card.highlighted ? 'hsl(240, 5%, 96%)' : 'hsl(var(--card))',
-            border: `1px solid ${card.highlighted ? 'hsl(240, 5%, 90%)' : 'hsl(var(--border))'}`,
+            backgroundColor: card.highlighted 
+              ? (isDarkMode ? 'hsl(240, 5%, 15%)' : 'hsl(240, 5%, 96%)') 
+              : 'hsl(var(--card))',
+            border: `1px solid ${card.highlighted 
+              ? (isDarkMode ? 'hsl(240, 5%, 25%)' : 'hsl(240, 5%, 90%)') 
+              : 'hsl(var(--border))'}`,
             borderRadius: '12px',
             padding: '18px',
             display: 'flex',
@@ -89,9 +94,9 @@ export function ReachPredictorScoreCards({ data }: ReachPredictorScoreCardsProps
             marginBottom: '16px'
           }}>
             <div style={{
-              fontSize: '12px',
-              fontWeight: '500',
-              color: 'hsl(var(--muted-foreground))',
+              fontSize: '13px',
+              fontWeight: '600',
+              color: 'hsl(var(--foreground))',
               fontFamily: 'Paperlogy, sans-serif'
             }}>
               {card.title}
@@ -113,7 +118,7 @@ export function ReachPredictorScoreCards({ data }: ReachPredictorScoreCardsProps
           {/* 값 */}
           <div>
             <div style={{
-              fontSize: '30px',
+              fontSize: '36px',
               fontWeight: '700',
               color: 'hsl(var(--foreground))',
               fontFamily: 'Paperlogy, sans-serif',
@@ -121,9 +126,14 @@ export function ReachPredictorScoreCards({ data }: ReachPredictorScoreCardsProps
               alignItems: 'baseline',
               gap: '4px'
             }}>
-              <span>{card.value}</span>
               <span style={{
-                fontSize: '15px',
+                borderBottom: '3px solid #00ff9d',
+                paddingBottom: '2px'
+              }}>
+                {card.value}
+              </span>
+              <span style={{
+                fontSize: '16px',
                 fontWeight: '500',
                 color: 'hsl(var(--muted-foreground))'
               }}>

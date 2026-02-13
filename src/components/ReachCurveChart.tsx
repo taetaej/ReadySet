@@ -101,8 +101,8 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
             const cy = parseFloat(circle.getAttribute('cy') || '0')
             const fill = circle.getAttribute('fill')
             
-            // 검은색 원(optimal point) 찾기
-            if (fill && (fill.includes('#18181b') || fill.includes('#09090b'))) {
+            // optimal point 찾기 (다크모드: 흰색, 라이트모드: 검은색)
+            if (fill && (fill.includes('#ffffff') || fill.includes('#18181b') || fill.includes('#09090b'))) {
               // SVG 좌표를 컨테이너 기준 상대 좌표로 변환
               const relativeX = cx + (svgRect.left - containerRect.left)
               const relativeY = cy + (svgRect.top - containerRect.top)
@@ -190,7 +190,7 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
   }
 
   return (
-    <div style={{ position: 'relative' }} ref={chartContainerRef}>
+    <div style={{ position: 'relative', outline: 'none' }} ref={chartContainerRef}>
       <ResponsiveContainer width="100%" height={400}>
         <ComposedChart data={chartData} margin={{ top: 60, right: 40, bottom: 20, left: 0 }}>
           <CartesianGrid 
@@ -263,14 +263,14 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={isOptimal ? 5 : 4}
-                  fill={isOptimal ? (isDarkMode ? '#18181b' : '#09090b') : '#00ff9d'}
-                  stroke={isOptimal ? (isDarkMode ? '#18181b' : '#09090b') : '#00ff9d'}
-                  strokeWidth={3}
+                  r={isOptimal ? 4 : 2.5}
+                  fill={isOptimal ? (isDarkMode ? '#ffffff' : '#09090b') : '#00ff9d'}
+                  stroke={isOptimal ? (isDarkMode ? '#ffffff' : '#09090b') : '#00ff9d'}
+                  strokeWidth={isOptimal ? 2 : 1.5}
                 />
               )
             }}
-            activeDot={{ r: 6, fill: '#00ff9d', stroke: '#00ff9d' }}
+            activeDot={{ r: 5, fill: '#00ff9d', stroke: '#00ff9d', strokeWidth: 2 }}
           />
         </ComposedChart>
       </ResponsiveContainer>

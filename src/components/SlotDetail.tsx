@@ -584,16 +584,24 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
     return (step / total) * 100
   }
 
-  // 타겟 GRP 아이콘
-  const getTargetIcon = (targetGrp: string) => {
+  // 타겟 GRP 아이콘 및 텍스트
+  const getTargetDisplay = (targetGrp: string) => {
     if (targetGrp === '전체') {
-      return <Users size={14} />
-    } else if (targetGrp.startsWith('여성')) {
-      return <User size={14} />
-    } else if (targetGrp.startsWith('남성')) {
-      return <User size={14} />
+      return {
+        icon: <Users size={14} />,
+        text: '전체'
+      }
+    } else {
+      // "여성(25~34세 외 3건)" 형식에서 숫자 추출
+      const match = targetGrp.match(/외\s*(\d+)건/)
+      const additionalCount = match ? parseInt(match[1]) : 0
+      const totalSegments = additionalCount + 1 // "외 n건"이므로 +1
+      
+      return {
+        icon: <User size={14} />,
+        text: `${totalSegments}개 세그먼트`
+      }
     }
-    return null
   }
 
   // 재시도 핸들러
@@ -638,7 +646,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: '600' }}>
-              Scenario
+              Reach Caster
             </h1>
             <button 
               onClick={() => navigate('/reachcaster/scenario/new')}
@@ -1103,20 +1111,26 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           alignItems: 'center',
                           gap: '4px'
                         }}>
-                          {getTargetIcon(scenario.targetGrp)}
-                          {scenario.targetGrp}
+                          {(() => {
+                            const display = getTargetDisplay(scenario.targetGrp)
+                            return (
+                              <>
+                                {display.icon}
+                                {display.text}
+                              </>
+                            )
+                          })()}
                         </span>
                       </td>
                       <td>
                         <div style={{ 
                           display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
+                          flexDirection: 'column',
                           fontSize: '13px',
-                          color: 'hsl(var(--muted-foreground))'
+                          color: 'hsl(var(--muted-foreground))',
+                          lineHeight: '1.4'
                         }}>
-                          <span>{scenario.startDate}</span>
-                          <span>→</span>
+                          <span>{scenario.startDate} →</span>
                           <span>{scenario.endDate}</span>
                         </div>
                       </td>

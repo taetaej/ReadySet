@@ -131,7 +131,15 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   }, [maxReachIndex])
 
   const toggleAllSlots = () => {
-    setAllSlotsExpanded(!allSlotsExpanded)
+    const newExpanded = !allSlotsExpanded
+    setAllSlotsExpanded(newExpanded)
+    
+    // 모든 폴더 펼치기/접기
+    if (newExpanded) {
+      setExpandedFolders(['samsung', 'samsung-reachcaster', 'lg', 'hyundai'])
+    } else {
+      setExpandedFolders([])
+    }
   }
 
   const toggleFolder = (folderId: string) => {
@@ -661,16 +669,17 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       {/* 차트 영역 - workspace-content 스타일 */}
       <div className="workspace-content">
         <div style={{ marginBottom: '16px', position: 'relative' }}>
-          {/* 차트 타이틀 */}
-          <h2 style={{
+          {/* 차트 소제목 */}
+          <h3 style={{
             fontSize: '20px',
             fontWeight: '600',
             fontFamily: 'Paperlogy, sans-serif',
             margin: 0,
-            marginBottom: '40px'
-          }} className="text-foreground">
-            Digital/TVC 통합 도달 시뮬레이션
-          </h2>
+            marginBottom: '16px',
+            color: 'hsl(var(--foreground))'
+          }}>
+            Digital - TVC Ratio Analysis
+          </h3>
           
           {/* 차트 컨테이너 */}
           <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
@@ -797,16 +806,17 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
         {/* 상세 데이터 테이블 */}
         <div style={{ marginTop: '24px' }}>
-          <h2 style={{
-            fontSize: '18px',
+          <h3 style={{
+            fontSize: '20px',
             fontWeight: '600',
             marginBottom: '16px',
             fontFamily: 'Paperlogy, sans-serif',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
-          }} className="text-foreground">
-            <span>기대 성과</span>
+            gap: '12px',
+            color: 'hsl(var(--foreground))'
+          }}>
+            <span>Estimated Performance</span>
             {selectedData && (
               <span style={{ 
                 fontSize: '13px', 
@@ -826,7 +836,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 </span>
               </span>
             )}
-          </h2>
+          </h3>
           
           {selectedData ? (
             <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />

@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, HelpCircle } from 'lucide-react'
+import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, HelpCircle, SearchCheck } from 'lucide-react'
 import { AppLayout } from './layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
 import { targetGrpOptions } from './scenario/constants'
 import { ReachCurveChart } from './ReachCurveChart'
 import { ReachPredictorScoreCards } from './ReachPredictorScoreCards'
+import { ReachPredictorDetailTable } from './ReachPredictorDetailTable'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -23,6 +24,14 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
     period: { start: '2024-01-15', end: '2024-02-15' },
     targetGrp: ['M2024', 'M2529', 'M3034', 'M3539', 'F2024', 'F2529', 'F3034', 'F3539'],
     targetGrpArray: ['남성 25~29세', '남성 30~34세', '남성 35~39세', '여성 25~29세', '여성 30~34세', '여성 35~39세', '여성 40~44세', '여성 45~49세'],
+    curveSettings: {
+      budgetCap: 1800000000,
+      minInterval: 300000000,
+      maxInterval: 1800000000,
+      intervalType: 'amount',
+      intervalAmount: 150000000,
+      intervalCount: null
+    },
     reachPredictorMedia: [
       // DIGITAL - Google Ads (개별 설정 케이스)
       {
@@ -144,9 +153,18 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
+  const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
 
   const toggleAllSlots = () => {
-    setAllSlotsExpanded(!allSlotsExpanded)
+    const newExpanded = !allSlotsExpanded
+    setAllSlotsExpanded(newExpanded)
+    
+    // 모든 폴더 펼치기/접기
+    if (newExpanded) {
+      setExpandedFolders(['samsung', 'samsung-reachcaster', 'lg', 'hyundai'])
+    } else {
+      setExpandedFolders([])
+    }
   }
 
   const toggleFolder = (folderId: string) => {
@@ -256,17 +274,20 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     display: 'flex',
                     alignItems: 'center',
                     color: 'hsl(var(--muted-foreground))',
-                    transition: 'color 0.2s'
+                    transition: 'color 0.2s',
+                    opacity: 0.6
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = 'hsl(var(--foreground))'
+                    e.currentTarget.style.opacity = '1'
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                    e.currentTarget.style.opacity = '0.6'
                   }}
                   title="매체/상품 상세 보기"
                 >
-                  <HelpCircle size={14} />
+                  <SearchCheck size={14} />
                 </button>
               </div>
               <span>•</span>
@@ -284,17 +305,20 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'hsl(var(--muted-foreground))',
-                    transition: 'color 0.2s'
+                    transition: 'color 0.2s',
+                    opacity: 0.6
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = 'hsl(var(--foreground))'
+                    e.currentTarget.style.opacity = '1'
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                    e.currentTarget.style.opacity = '0.6'
                   }}
                   title="타겟 GRP 상세 보기"
                 >
-                  <Info size={14} />
+                  <SearchCheck size={14} />
                 </button>
               </div>
               <span>•</span>
@@ -461,17 +485,6 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
 
       {/* Content Area */}
       <div className="workspace-content">
-        {/* 차트 타이틀 */}
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: '600',
-          fontFamily: 'Paperlogy, sans-serif',
-          margin: 0,
-          marginBottom: '40px'
-        }} className="text-foreground">
-          통합 도달 예측
-        </h2>
-
         {/* 차트 및 스코어카드 영역 */}
         <div style={{
           display: 'grid',
@@ -482,49 +495,81 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           {/* 스코어카드 - 벤토 박스 유지 */}
           <div>
             <h3 style={{
-              fontSize: '16px',
+              fontSize: '20px',
               fontWeight: '600',
               fontFamily: 'Paperlogy, sans-serif',
               margin: 0,
               marginBottom: '32px',
               color: 'hsl(var(--foreground))'
             }}>
-              Total Summary
+              Key Metrics Summary
             </h3>
-            <ReachPredictorScoreCards />
+            <ReachPredictorScoreCards isDarkMode={isDarkMode} />
           </div>
           
           {/* 리치커브 차트 - 벤토 박스 없이 */}
           <div>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              marginBottom: '16px',
-              color: 'hsl(var(--foreground))'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '16px'
             }}>
-              Reach Curve
-            </h3>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                fontFamily: 'Paperlogy, sans-serif',
+                margin: 0,
+                color: 'hsl(var(--foreground))'
+              }}>
+                Reach Curve Analysis
+              </h3>
+              <button
+                onClick={() => setCurveSettingsDialogOpen(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: 'hsl(var(--muted-foreground))',
+                  transition: 'color 0.2s',
+                  opacity: 0.6
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))'
+                  e.currentTarget.style.opacity = '1'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                  e.currentTarget.style.opacity = '0.6'
+                }}
+                title="리치커브 설정 보기"
+              >
+                <SearchCheck size={14} />
+              </button>
+            </div>
             <ReachCurveChart isDarkMode={isDarkMode} />
           </div>
         </div>
 
-        {/* 테이블 영역 (추후 추가) */}
-        <div style={{
-          backgroundColor: 'hsl(var(--card))',
-          border: '1px solid hsl(var(--border))',
-          borderRadius: '12px',
-          padding: '24px',
-          minHeight: '400px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'hsl(var(--muted-foreground))',
-          fontSize: '14px',
-          fontFamily: 'Paperlogy, sans-serif'
-        }}>
-          상세 분석 테이블 영역 (추후 구현)
+        {/* 기대 성과 테이블 영역 */}
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            fontFamily: 'Paperlogy, sans-serif',
+            margin: 0,
+            marginBottom: '16px',
+            color: 'hsl(var(--foreground))'
+          }}>
+            Estimated Performance
+          </h3>
+          <ReachPredictorDetailTable 
+            selectedData={scenarioData}
+            isDarkMode={isDarkMode}
+          />
         </div>
       </div>
 
@@ -827,6 +872,288 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             <div className="dialog-footer">
               <button
                 onClick={() => setTargetGrpTooltipOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 리치커브 설정 다이얼로그 */}
+      {curveSettingsDialogOpen && (
+        <div className="dialog-overlay" onClick={() => setCurveSettingsDialogOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '600px' }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">리치커브 상세 설정</h3>
+              <p className="dialog-description">
+                시나리오 생성 시 설정된 리치커브 분석 파라미터입니다
+              </p>
+            </div>
+            
+            <div style={{ padding: '24px' }}>
+              {/* 예산 상한 */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  marginBottom: '8px',
+                  color: 'hsl(var(--foreground))'
+                }}>
+                  예산 상한 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                </label>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    color: 'hsl(var(--foreground))',
+                    textAlign: 'right'
+                  }}>
+                    {(scenarioData?.curveSettings?.budgetCap || 1800000000).toLocaleString('ko-KR')}
+                  </div>
+                  <span style={{
+                    fontSize: '14px',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    원
+                  </span>
+                </div>
+              </div>
+
+              {/* 리치커브 상세 설정 */}
+              <div style={{
+                padding: '20px',
+                backgroundColor: 'hsl(var(--muted) / 0.1)',
+                borderRadius: '8px',
+                border: '1px solid hsl(var(--border))'
+              }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  marginBottom: '16px',
+                  color: 'hsl(var(--foreground))'
+                }}>
+                  리치커브 상세 설정 <span style={{ 
+                    fontSize: '11px', 
+                    fontWeight: '400',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>(선택)</span>
+                </div>
+                
+                {/* 구간 */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    marginBottom: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}>
+                    구간
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))',
+                      textAlign: 'right'
+                    }}>
+                      {(scenarioData?.curveSettings?.minInterval || 300000000).toLocaleString('ko-KR')}
+                    </div>
+                    <span style={{
+                      fontSize: '13px',
+                      color: 'hsl(var(--muted-foreground))'
+                    }}>
+                      원
+                    </span>
+                    <span style={{
+                      fontSize: '13px',
+                      color: 'hsl(var(--muted-foreground))',
+                      padding: '0 4px'
+                    }}>
+                      →
+                    </span>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))',
+                      textAlign: 'right'
+                    }}>
+                      {(scenarioData?.curveSettings?.maxInterval || 1800000000).toLocaleString('ko-KR')}
+                    </div>
+                    <span style={{
+                      fontSize: '13px',
+                      color: 'hsl(var(--muted-foreground))'
+                    }}>
+                      원
+                    </span>
+                  </div>
+                </div>
+
+                {/* 구간 수 기준 */}
+                <div style={{
+                  padding: '14px',
+                  backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                    ? 'hsl(var(--background))' 
+                    : 'transparent',
+                  borderRadius: '6px',
+                  border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                    ? 'hsl(var(--primary))' 
+                    : 'hsl(var(--border))'}`,
+                  marginBottom: '12px',
+                  opacity: (scenarioData?.curveSettings?.intervalType || 'amount') === 'count' ? 1 : 0.5
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '12px'
+                  }}>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '50%',
+                      border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                        ? 'hsl(var(--primary))' 
+                        : 'hsl(var(--border))'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      {(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' && (
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: 'hsl(var(--primary))'
+                        }} />
+                      )}
+                    </div>
+                    <span style={{
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))'
+                    }}>
+                      구간 수 기준
+                    </span>
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    paddingLeft: '26px'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      color: 'hsl(var(--muted-foreground))',
+                      minWidth: '80px'
+                    }}>
+                      구간 수 (2~20):
+                    </span>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))'
+                    }}>
+                      {scenarioData?.curveSettings?.intervalCount ? `${scenarioData.curveSettings.intervalCount}개` : '-'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 구간별 금액 기준 */}
+                <div style={{
+                  padding: '14px',
+                  backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                    ? 'hsl(var(--background))' 
+                    : 'transparent',
+                  borderRadius: '6px',
+                  border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                    ? 'hsl(var(--primary))' 
+                    : 'hsl(var(--border))'}`,
+                  opacity: (scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' ? 1 : 0.5
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '12px'
+                  }}>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '50%',
+                      border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                        ? 'hsl(var(--primary))' 
+                        : 'hsl(var(--border))'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      {(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' && (
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: 'hsl(var(--primary))'
+                        }} />
+                      )}
+                    </div>
+                    <span style={{
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))'
+                    }}>
+                      구간별 금액 기준
+                    </span>
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    paddingLeft: '26px'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      color: 'hsl(var(--muted-foreground))',
+                      minWidth: '80px'
+                    }}>
+                      구간별 금액:
+                    </span>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))'
+                    }}>
+                      {scenarioData?.curveSettings?.intervalAmount 
+                        ? `${(scenarioData.curveSettings.intervalAmount).toLocaleString('ko-KR')}원` 
+                        : '150,000,000원'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setCurveSettingsDialogOpen(false)}
                 className="btn btn-primary btn-md"
               >
                 확인
