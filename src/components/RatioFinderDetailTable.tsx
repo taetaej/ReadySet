@@ -10,6 +10,13 @@ interface DetailedDataTableProps {
 export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTableProps) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['DIGITAL', 'TVC'])
   
+  // 선택된 비중 데이터
+  const tvcRatio = selectedData?.tvcRatio ?? 50
+  const digitalRatio = selectedData?.digitalRatio ?? 50
+  
+  console.log('DetailedDataTable - tvcRatio:', tvcRatio, 'digitalRatio:', digitalRatio)
+  console.log('selectedData:', selectedData)
+  
   // 모든 매체 키 생성
   const allMediaKeys = [
     ...['Google Ads', 'Meta', 'NAVER 보장형 DA'].map(m => `DIGITAL_${m}`),
@@ -143,27 +150,40 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
 
   // Grand Total 계산
   const calculateGrandTotal = () => {
-    const allProducts = [
-      ...Object.keys(detailedData.DIGITAL).flatMap(media => detailedData.DIGITAL[media]),
-      ...Object.keys(detailedData.TVC).flatMap(media => detailedData.TVC[media])
-    ]
+    // 실제로는 백엔드에서 내려올 값 - 샘플 데이터
     return {
-      uv: allProducts.reduce((sum: number, p: any) => sum + p.uv, 0),
-      budget: allProducts.reduce((sum: number, p: any) => sum + p.budget, 0),
-      impressions: allProducts.reduce((sum: number, p: any) => sum + p.impressions, 0),
-      reach: allProducts.reduce((sum: number, p: any) => sum + p.reach, 0),
-      frequency: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / allProducts.length).toFixed(2),
-      grp: allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
-      cprp: Math.floor(allProducts.reduce((sum: number, p: any) => sum + p.cprp, 0) / allProducts.length),
-      reach1: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach1), 0) / allProducts.length).toFixed(2),
-      reach2: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach2), 0) / allProducts.length).toFixed(2),
-      reach3: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach3), 0) / allProducts.length).toFixed(2),
-      reach4: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach4), 0) / allProducts.length).toFixed(2),
-      reach5: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.reach5), 0) / allProducts.length).toFixed(2)
+      budget: 1500000000,
+      impressions: 85000000,
+      reach: 32000000,
+      frequency: 3.45,
+      grp: 245.50,
+      cprp: 6500000,
+      reach1: 15.8,
+      reach2: 8.2,
+      reach3: 5.5,
+      reach4: 3.8,
+      reach5: 2.5
     }
   }
 
   const formatNumber = (num: number) => num.toLocaleString('ko-KR')
+  
+  // 단위를 포함한 포맷팅 함수
+  const formatWithUnit = (num: number, unit: string) => {
+    return (
+      <>
+        {formatNumber(num)}
+        <span style={{ 
+          fontSize: '10px', 
+          opacity: 0.5, 
+          marginLeft: '4px',
+          fontWeight: '400'
+        }}>
+          {unit}
+        </span>
+      </>
+    )
+  }
 
   const isAllExpanded = expandedCategories.length === 2 && expandedMedia.length === allMediaKeys.length
 
@@ -179,25 +199,29 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     <div style={{
       border: '1px solid hsl(var(--border))',
       borderRadius: '8px',
-      fontFamily: 'Paperlogy, sans-serif',
-      overflowX: 'auto', // 테이블 자체에 가로 스크롤
-      overflowY: 'visible'
+      overflow: 'hidden',
+      fontFamily: 'Paperlogy, sans-serif'
     }}>
+      {/* 가로 스크롤 컨테이너 */}
       <div style={{
-        minWidth: '1600px' // 최소 폭 설정
+        overflowX: 'auto',
+        overflowY: 'visible'
       }}>
-        {/* 테이블 헤더 */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
-          backgroundColor: 'hsl(var(--muted))',
-          borderBottom: '1px solid hsl(var(--border))',
-          fontSize: '12px',
-          fontWeight: '600',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10
+          minWidth: '1600px' // 최소 폭 설정
         }}>
+          {/* 테이블 헤더 */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+            backgroundColor: 'hsl(var(--muted))',
+            borderBottom: '1px solid hsl(var(--border))',
+            fontSize: '12px',
+            fontWeight: '600',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10
+          }}>
             <div style={{ 
               padding: '12px 8px', 
               display: 'flex', 
@@ -225,70 +249,75 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
               </button>
             </div>
             <div style={{ padding: '12px 8px' }}>구분 &gt; 매체 &gt; 상품/채널</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>UV</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>예산(원)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>노출(회)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>도달(회)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Freq.(회)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Budget</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Impression</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach (Count)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Avg. Frequency</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>GRPs</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>CPRP(원)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 1+(%)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 2+(%)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 3+(%)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 4+(%)</div>
-            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 5+(%)</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>CPRP</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 1+</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 2+</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 3+</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 4+</div>
+            <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach 5+</div>
           </div>
 
-        {/* 테이블 바디 */}
-        <div>
+          {/* 테이블 바디 */}
+          <div>
         {['DIGITAL', 'TVC'].map(category => {
           const isExpanded = expandedCategories.includes(category)
           const categorySubTotal = calculateCategorySubTotal(category)
+          
+          // 해당 카테고리의 비중이 0인지 확인
+          const categoryRatio = category === 'DIGITAL' ? digitalRatio : tvcRatio
+          const hasData = categoryRatio > 0
           
           return (
             <div key={category}>
               {/* 1depth: Category */}
               <div
-                onClick={() => toggleCategory(category)}
+                onClick={() => hasData && toggleCategory(category)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                  gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
                   borderBottom: '1px solid hsl(var(--border))',
-                  cursor: 'pointer',
+                  cursor: hasData ? 'pointer' : 'default',
                   fontSize: '13px',
                   fontWeight: '600',
-                  transition: 'background-color 0.2s'
+                  transition: 'background-color 0.2s',
+                  opacity: hasData ? 1 : 0.5
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.7)'}
+                onMouseEnter={(e) => hasData && (e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.7)')}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'}
               >
                 <div style={{ padding: '12px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ChevronRight 
-                    size={16} 
-                    style={{ 
-                      transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', 
-                      transition: 'transform 0.2s' 
-                    }} 
-                  />
+                  {hasData && (
+                    <ChevronRight 
+                      size={16} 
+                      style={{ 
+                        transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', 
+                        transition: 'transform 0.2s' 
+                      }} 
+                    />
+                  )}
                 </div>
                 <div style={{ padding: '12px 8px' }}>{category}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.uv)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.budget)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.impressions)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.reach)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.frequency}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{categorySubTotal.grp}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(categorySubTotal.cprp)}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach1}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach2}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach3}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach4}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={categorySubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{categorySubTotal.reach5}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.budget, '원') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.impressions, '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.reach, '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(parseFloat(categorySubTotal.frequency), '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? categorySubTotal.grp : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.cprp, '원') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach1 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach1), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach2 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach2), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach3 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach3), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach4 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach4), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach5 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach5), '%') : '-'}</div>
               </div>
 
-              {/* 2depth: Media */}
-              {isExpanded && Object.keys(detailedData[category]).map(media => {
+              {/* 2depth: Media - 비중이 0이면 표시하지 않음 */}
+              {hasData && isExpanded && Object.keys(detailedData[category]).map(media => {
                 const mediaKey = `${category}_${media}`
                 const isMediaExpanded = expandedMedia.includes(mediaKey)
                 const mediaSubTotal = calculateMediaSubTotal(category, media)
@@ -299,7 +328,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       onClick={() => toggleMedia(mediaKey)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                        gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                         backgroundColor: 'hsl(var(--card))',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
@@ -320,18 +349,17 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         />
                       </div>
                       <div style={{ padding: '10px 8px' }}>{media}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.uv)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.budget)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.impressions)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.reach)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.frequency}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.budget, '원')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.impressions, '회')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.reach, '회')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(mediaSubTotal.frequency), '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.grp}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatNumber(mediaSubTotal.cprp)}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach1}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach2}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach3}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach4}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach5}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.cprp, '원')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach1 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach1), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach2 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach2), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach3 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach3), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach4 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach4), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach5 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach5), '%') : '-'}</div>
                     </div>
 
                     {/* 3depth: Products */}
@@ -340,7 +368,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         key={idx}
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                          gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                           backgroundColor: 'hsl(var(--background))',
                           borderBottom: '1px solid hsl(var(--border))',
                           fontSize: '11px',
@@ -351,18 +379,17 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       >
                         <div style={{ padding: '8px' }}></div>
                         <div style={{ padding: '8px', paddingLeft: '48px' }} className="text-muted-foreground">{product.product}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.uv)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.budget)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.impressions)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.reach)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.frequency}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.budget, '원')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.impressions, '회')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.reach, '회')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(product.frequency), '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{product.grp}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatNumber(product.cprp)}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach1 === '-' ? 'text-muted-foreground' : ''}>{product.reach1}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach2 === '-' ? 'text-muted-foreground' : ''}>{product.reach2}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach3 === '-' ? 'text-muted-foreground' : ''}>{product.reach3}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach4 === '-' ? 'text-muted-foreground' : ''}>{product.reach4}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach5 === '-' ? 'text-muted-foreground' : ''}>{product.reach5}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.cprp, '원')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach1 === '-' ? 'text-muted-foreground' : ''}>{product.reach1 !== '-' ? formatWithUnit(parseFloat(product.reach1), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach2 === '-' ? 'text-muted-foreground' : ''}>{product.reach2 !== '-' ? formatWithUnit(parseFloat(product.reach2), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach3 === '-' ? 'text-muted-foreground' : ''}>{product.reach3 !== '-' ? formatWithUnit(parseFloat(product.reach3), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach4 === '-' ? 'text-muted-foreground' : ''}>{product.reach4 !== '-' ? formatWithUnit(parseFloat(product.reach4), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach5 === '-' ? 'text-muted-foreground' : ''}>{product.reach5 !== '-' ? formatWithUnit(parseFloat(product.reach5), '%') : '-'}</div>
                       </div>
                     ))}
                   </div>
@@ -379,7 +406,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '80px 300px 120px 120px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                 backgroundColor: 'hsl(var(--primary) / 0.1)',
                 borderTop: '2px solid hsl(var(--primary))',
                 fontSize: '13px',
@@ -388,21 +415,21 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             >
               <div style={{ padding: '12px 8px' }}></div>
               <div style={{ padding: '12px 8px' }}>Grand Total</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(grandTotal.uv)}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(grandTotal.budget)}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(grandTotal.impressions)}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(grandTotal.reach)}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.frequency}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.budget, '원')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.impressions, '회')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach, '회')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.frequency, '회')}</div>
               <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.grp}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatNumber(grandTotal.cprp)}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.reach1}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.reach2}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.reach3}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.reach4}</div>
-              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{grandTotal.reach5}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.cprp, '원')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach1, '%')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach2, '%')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach3, '%')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach4, '%')}</div>
+              <div style={{ padding: '12px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach5, '%')}</div>
             </div>
           )
         })()}
+          </div>
         </div>
       </div>
     </div>

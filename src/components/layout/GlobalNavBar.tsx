@@ -203,10 +203,10 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
         minWidth: '600px',
         height: '40px'
       }}>
-        {/* My Advertisers 섹션 */}
+        {/* Clients 섹션 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--primary-foreground))' }}>
-            My Advertisers
+            Clients
           </span>
           
           {/* 광고주 프로필 이미지들 (겹쳐서 표시) */}
@@ -274,7 +274,15 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
           }}
         >
           <Bell size={16} style={{ color: 'hsl(var(--primary-foreground))' }} />
-          <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))' }}>
+          <span style={{ 
+            fontSize: '13px', 
+            fontWeight: '500', 
+            color: 'hsl(var(--primary-foreground))',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '300px'
+          }}>
             Reach Caster: {notifications[0].scenarioType} &gt; {notifications[0].scenarioName} 생성이 완료되었습니다!
           </span>
 

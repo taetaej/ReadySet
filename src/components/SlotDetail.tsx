@@ -209,7 +209,95 @@ const sampleScenarios = [
     creator: '송하늘',
     creatorId: 'USER010',
     completedAt: '2024-04-16 11:20',
-    errorMessage: null
+    errorMessage: null,
+    reachPredictorMedia: [
+      {
+        id: '1',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Display_CPM',
+        budget: '150000000',
+        impressions: '50000000',
+        cpm: '3000',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '2',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Video_CPM',
+        budget: '200000000',
+        impressions: '',
+        cpm: '',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '3',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Search_CPC',
+        budget: '180000000',
+        impressions: '30000000',
+        cpm: '6000',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '4',
+        category: 'DIGITAL',
+        type: 'unlinked',
+        mediaName: '티빙',
+        budget: '120000000',
+        impressions: '25000000',
+        cpm: '4800'
+      },
+      {
+        id: '5',
+        category: 'DIGITAL',
+        type: 'unlinked',
+        mediaName: '블라인드',
+        budget: '80000000',
+        impressions: '',
+        cpm: ''
+      },
+      {
+        id: '6',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'CJ ENM',
+        productName: 'tvN',
+        budget: '300000000',
+        impressions: '15000000',
+        cpm: '20000'
+      },
+      {
+        id: '7',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'CJ ENM',
+        productName: 'tvN STORY',
+        budget: '150000000',
+        impressions: '',
+        cpm: ''
+      },
+      {
+        id: '8',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'JTBC',
+        productName: 'JTBC',
+        budget: '250000000',
+        impressions: '12000000',
+        cpm: '20833'
+      }
+    ],
+    period: { start: '2024-01-15', end: '2024-02-15' },
+    targetGrpArray: ['남성 25~29세', '남성 30~34세', '남성 35~39세', '여성 25~29세', '여성 30~34세', '여성 35~39세', '여성 40~44세', '여성 45~49세']
   },
   { 
     id: 11, 

@@ -1116,6 +1116,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
           setReachPredictorMedia([...reachPredictorMedia, ...mediaItems])
           setRpMediaSelectionDialog(false)
         }}
+        currentMedia={reachPredictorMedia}
       />
       
       {/* 토스트 알림 */}

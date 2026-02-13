@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X, Smartphone, Tv } from 'lucide-react'
 import { type ScenarioFormData, mediaData, numberToKorean } from './index'
 
 interface ScenarioStep2RatioFinderProps {
@@ -239,9 +239,14 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 color: selectedMediaCategory === 'DIGITAL' ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 cursor: 'pointer',
                 borderBottom: selectedMediaCategory === 'DIGITAL' ? '2px solid hsl(var(--foreground))' : 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
               }}
             >
+              <Smartphone size={16} />
               DIGITAL
             </button>
             <button
@@ -256,9 +261,14 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 color: selectedMediaCategory === 'TV' ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 cursor: 'pointer',
                 borderBottom: selectedMediaCategory === 'TV' ? '2px solid hsl(var(--foreground))' : 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
               }}
             >
+              <Tv size={16} />
               TVC
             </button>
           </div>

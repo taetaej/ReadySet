@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Calendar, Users, Monitor, Tv, ArrowRight, ChevronRight } from 'lucide-react'
+import { X, Calendar, Users, Smartphone, Tv, ArrowRight, ChevronRight } from 'lucide-react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import { type ReachPredictorMedia } from './types'
@@ -504,7 +504,7 @@ export function ScenarioStep2ReachPredictor({
                     gap: '4px'
                   }}>
                     {media.category === 'DIGITAL' ? (
-                      <Monitor size={18} style={{ color: 'hsl(var(--primary))' }} />
+                      <Smartphone size={18} style={{ color: 'hsl(var(--primary))' }} />
                     ) : (
                       <Tv size={18} style={{ color: 'hsl(var(--accent-foreground))' }} />
                     )}

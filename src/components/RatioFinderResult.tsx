@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText } from 'lucide-react'
+import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText, Smartphone, Tv } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import { AppLayout } from './layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
 import { DetailedDataTable } from './RatioFinderDetailTable'
+import { targetGrpOptions } from './scenario/constants'
 
 interface RatioFinderResultProps {
   scenarioData?: any
@@ -36,6 +37,12 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const location = useLocation()
   const scenarioData = propScenarioData || location.state?.scenarioData
   
+  // 기본 타겟 GRP 설정
+  const defaultTargetGrp = ['남성 25~29세', '남성 30~34세', '여성 25~29세']
+  const selectedTargetGrp = scenarioData?.targetGrp && Array.isArray(scenarioData.targetGrp) && scenarioData.targetGrp.length > 0
+    ? scenarioData.targetGrp 
+    : defaultTargetGrp
+  
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
@@ -43,6 +50,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
+  const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
   const [showBestRatio, setShowBestRatio] = useState(false)
   
@@ -369,7 +377,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
   const onChartClick = (params: any) => {
     if (params.componentType === 'series' && params.seriesType === 'bar') {
+      console.log('Chart clicked - dataIndex:', params.dataIndex)
       setSelectedBarIndex(params.dataIndex)
+      console.log('Selected data:', simulationData[params.dataIndex])
     }
   }
 
@@ -466,9 +476,25 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 <span>10%</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div 
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}
+              >
                 <span style={{ fontWeight: '500' }}>타겟 GRP:</span>
-                <span>{scenarioData?.targetGrp?.length || 3}개 세그먼트</span>
+                <span>{selectedTargetGrp.length}개 세그먼트</span>
+                <button
+                  onClick={() => setTargetGrpTooltipOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Info size={14} className="text-muted-foreground" />
+                </button>
               </div>
               <span>•</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -635,31 +661,29 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       {/* 차트 영역 - workspace-content 스타일 */}
       <div className="workspace-content">
         <div style={{ marginBottom: '16px', position: 'relative' }}>
-          {/* 차트 타이틀과 모집단 정보 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '40px',
-            position: 'relative'
-          }}>
-            <h2 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0
-            }} className="text-foreground">
-              Digital/TVC 통합 도달 시뮬레이션
-            </h2>
-            
-            {/* 모집단 정보 - 절대 위치로 오른쪽 정렬 */}
+          {/* 차트 타이틀 */}
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            fontFamily: 'Paperlogy, sans-serif',
+            margin: 0,
+            marginBottom: '40px'
+          }} className="text-foreground">
+            Digital/TVC 통합 도달 시뮬레이션
+          </h2>
+          
+          {/* 차트 컨테이너 */}
+          <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
+            {/* 모집단 정보 - 차트 오른쪽 상단에 절대 위치 */}
             <div style={{
+              position: 'absolute',
+              top: '-40px',
+              right: '40px',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontFamily: 'Paperlogy, sans-serif',
-              position: 'absolute',
-              right: 0
+              zIndex: 5
             }}>
               <Users size={16} className="text-muted-foreground" />
               <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
@@ -706,10 +730,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 )}
               </div>
             </div>
-          </div>
-          
-          {/* 차트 컨테이너 */}
-          <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
+            
             <ReactECharts
               ref={chartRef}
               option={chartOption}
@@ -780,16 +801,29 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
             fontSize: '18px',
             fontWeight: '600',
             marginBottom: '16px',
-            fontFamily: 'Paperlogy, sans-serif'
+            fontFamily: 'Paperlogy, sans-serif',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }} className="text-foreground">
-            선택 비중별 예상 성과
+            <span>기대 성과</span>
             {selectedData && (
               <span style={{ 
-                fontSize: '14px', 
+                fontSize: '13px', 
                 fontWeight: '400',
-                marginLeft: '12px'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }} className="text-muted-foreground">
-                (TVC {selectedData.tvcRatio}% / Digital {selectedData.digitalRatio}%)
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Smartphone size={14} />
+                  Digital {selectedData.digitalRatio}%
+                </span>
+                <span>:</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Tv size={14} />
+                  TVC {selectedData.tvcRatio}%
+                </span>
               </span>
             )}
           </h2>
@@ -810,6 +844,135 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           )}
         </div>
       </div>
+
+      {/* 타겟 GRP 다이얼로그 */}
+      {targetGrpTooltipOpen && (
+        <div className="dialog-overlay" onClick={() => setTargetGrpTooltipOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 타겟 GRP</h3>
+              <p className="dialog-description">
+                이 시나리오에 적용된 타겟 모수입니다
+              </p>
+            </div>
+            
+            <div style={{ padding: '24px' }}>
+              {/* 남성 */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid hsl(var(--border))'
+                }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>남성</span>
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '8px'
+                }}>
+                  {targetGrpOptions.male.map((target) => {
+                    const isSelected = selectedTargetGrp.includes(target)
+                    
+                    return (
+                      <label
+                        key={target}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          cursor: 'not-allowed',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: `1px solid ${isSelected ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                          backgroundColor: isSelected ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                          opacity: isSelected ? 1 : 0.5,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled
+                          className="checkbox-custom"
+                          style={{ cursor: 'not-allowed' }}
+                        />
+                        <span style={{ fontSize: '12px' }}>{target.replace('남성 ', '')}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* 여성 */}
+              <div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid hsl(var(--border))'
+                }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>여성</span>
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '8px'
+                }}>
+                  {targetGrpOptions.female.map((target) => {
+                    const isSelected = selectedTargetGrp.includes(target)
+                    
+                    return (
+                      <label
+                        key={target}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          cursor: 'not-allowed',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: `1px solid ${isSelected ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                          backgroundColor: isSelected ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                          opacity: isSelected ? 1 : 0.5,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled
+                          className="checkbox-custom"
+                          style={{ cursor: 'not-allowed' }}
+                        />
+                        <span style={{ fontSize: '12px' }}>{target.replace('여성 ', '')}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setTargetGrpTooltipOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   )
 }
