@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, HelpCircle, SearchCheck } from 'lucide-react'
+import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, HelpCircle, SearchCheck, Users } from 'lucide-react'
 import { AppLayout } from './layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
 import { targetGrpOptions } from './scenario/constants'
@@ -154,6 +154,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
+  const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
 
   const toggleAllSlots = () => {
     const newExpanded = !allSlotsExpanded
@@ -488,12 +489,13 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         {/* 차트 및 스코어카드 영역 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '40% 60%',
+          gridTemplateColumns: 'minmax(380px, 35%) 1fr',
           gap: '24px',
-          marginBottom: '32px'
+          marginBottom: '32px',
+          width: '100%'
         }}>
           {/* 스코어카드 - 벤토 박스 유지 */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <h3 style={{
               fontSize: '20px',
               fontWeight: '600',
@@ -508,7 +510,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
           
           {/* 리치커브 차트 - 벤토 박스 없이 */}
-          <div>
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -556,16 +558,76 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
 
         {/* 기대 성과 테이블 영역 */}
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            fontFamily: 'Paperlogy, sans-serif',
-            margin: 0,
-            marginBottom: '16px',
-            color: 'hsl(var(--foreground))'
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '16px'
           }}>
-            Estimated Performance
-          </h3>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              color: 'hsl(var(--foreground))'
+            }}>
+              Estimated Performance
+            </h3>
+            
+            {/* 모집단 정보 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              <Users size={16} className="text-muted-foreground" />
+              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                모집단: 46,039,423명
+              </span>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onMouseEnter={() => setPopulationTooltipOpen(true)}
+                  onMouseLeave={() => setPopulationTooltipOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Info size={14} className="text-muted-foreground" />
+                </button>
+                
+                {populationTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '140px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
+                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                      코리안클릭 (2026년 1월)
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
           <ReachPredictorDetailTable 
             selectedData={scenarioData}
             isDarkMode={isDarkMode}
