@@ -485,19 +485,19 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       </div>
 
       {/* Content Area */}
-      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'visible' }}>
+      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
         {/* 차트 및 스코어카드 영역 - 뷰포트 너비에 맞춤 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '380px 1fr',
+          gridTemplateColumns: '4fr 6fr',
           gap: '24px',
           marginBottom: '32px',
           width: '100%',
-          maxWidth: '100vw',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          overflow: 'visible'
         }}>
           {/* 스코어카드 - 벤토 박스 유지 */}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, width: '100%', height: 'fit-content' }}>
             <h3 style={{
               fontSize: '20px',
               fontWeight: '600',
@@ -512,7 +512,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
           
           {/* 리치커브 차트 - 벤토 박스 없이 */}
-          <div style={{ minWidth: 0, maxWidth: '100%' }}>
+          <div style={{ minWidth: 0, maxWidth: '100%', width: '100%' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -559,7 +559,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         </div>
 
         {/* 기대 성과 테이블 영역 */}
-        <div style={{ marginBottom: '32px' }}>
+        <div style={{ marginBottom: '32px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 

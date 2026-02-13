@@ -56,7 +56,9 @@ export function ReachPredictorScoreCards({ data, isDarkMode = false }: ReachPred
     <div style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(2, 1fr)',
+      gridTemplateRows: 'repeat(2, 1fr)',
       gap: '16px',
+      width: '100%',
       height: '360px'
     }}>
       {scoreCards.map((card, index) => (
@@ -70,12 +72,15 @@ export function ReachPredictorScoreCards({ data, isDarkMode = false }: ReachPred
               ? (isDarkMode ? 'hsl(240, 5%, 25%)' : 'hsl(240, 5%, 90%)') 
               : 'hsl(var(--border))'}`,
             borderRadius: '12px',
-            padding: '18px',
+            padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             transition: 'all 0.2s',
-            cursor: 'default'
+            cursor: 'default',
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)'

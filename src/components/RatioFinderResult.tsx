@@ -667,8 +667,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       </div>
 
       {/* 차트 영역 - workspace-content 스타일 */}
-      <div className="workspace-content">
-        <div style={{ marginBottom: '16px', position: 'relative' }}>
+      <div className="workspace-content" style={{ overflow: 'hidden' }}>
+        <div style={{ marginBottom: '16px', position: 'relative', width: '100%', maxWidth: '100%' }}>
           {/* 차트 소제목 */}
           <h3 style={{
             fontSize: '20px',
@@ -805,7 +805,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         </div>
 
         {/* 상세 데이터 테이블 */}
-        <div style={{ marginTop: '24px' }}>
+        <div style={{ marginTop: '24px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           <h3 style={{
             fontSize: '20px',
             fontWeight: '600',
@@ -848,10 +848,10 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
               fontFamily: 'Paperlogy, sans-serif'
-            }} className="text-muted-foreground">
-              차트에서 막대를 클릭하면 상세 데이터가 표시됩니다
-            </div>
-          )}
+              }} className="text-muted-foreground">
+                차트에서 막대를 클릭하면 상세 데이터가 표시됩니다
+              </div>
+            )}
         </div>
       </div>
 

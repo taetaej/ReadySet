@@ -233,16 +233,15 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
     <div style={{
       border: '1px solid hsl(var(--border))',
       borderRadius: '8px',
-      overflow: 'hidden',
-      fontFamily: 'Paperlogy, sans-serif'
+      fontFamily: 'Paperlogy, sans-serif',
+      width: '100%',
+      maxWidth: '100%',
+      overflowX: 'auto',
+      overflowY: 'visible'
     }}>
       <div style={{
-        overflowX: 'auto',
-        overflowY: 'visible'
+        minWidth: '1600px'
       }}>
-        <div style={{
-          minWidth: '1600px'
-        }}>
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
@@ -591,7 +590,6 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
         })()}
           </div>
         </div>
-      </div>
     </div>
   )
 }

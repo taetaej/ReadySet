@@ -202,6 +202,9 @@
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 64px);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .workspace-main-header {
@@ -228,6 +231,10 @@
     padding: 1.5rem;
     background-color: transparent;
     overflow-y: auto;
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .workspace-footer {
@@ -884,6 +891,10 @@
     padding: 1.5rem;
     border-bottom: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    box-sizing: border-box;
   }
 
   .slot-detail-header__main {
@@ -891,10 +902,15 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .slot-detail-header__info {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .slot-detail-header__actions {
@@ -909,6 +925,16 @@
     border-radius: 0.5rem;
     overflow: hidden;
     background-color: hsl(var(--card));
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* 테이블 스크롤 래퍼 - 테이블만 가로 스크롤 */
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    max-width: 100%;
+    width: 100%;
   }
 
   .data-table {

@@ -199,17 +199,16 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     <div style={{
       border: '1px solid hsl(var(--border))',
       borderRadius: '8px',
-      overflow: 'hidden',
-      fontFamily: 'Paperlogy, sans-serif'
+      fontFamily: 'Paperlogy, sans-serif',
+      width: '100%',
+      maxWidth: '100%',
+      overflowX: 'auto',
+      overflowY: 'visible'
     }}>
       {/* 가로 스크롤 컨테이너 */}
       <div style={{
-        overflowX: 'auto',
-        overflowY: 'visible'
+        minWidth: '1600px' // 최소 폭 설정
       }}>
-        <div style={{
-          minWidth: '1600px' // 최소 폭 설정
-        }}>
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
@@ -431,7 +430,6 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
         })()}
           </div>
         </div>
-      </div>
     </div>
   )
 }
