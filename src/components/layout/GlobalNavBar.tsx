@@ -500,14 +500,30 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       }}>
         {/* 왼쪽 로고 영역 */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h1 style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            margin: 0,
-            color: 'hsl(var(--foreground))'
-          }}>
-            ReadySet
-          </h1>
+          <a 
+            href="/slotboard"
+            style={{
+              textDecoration: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <h1 style={{
+              fontSize: '20px',
+              fontWeight: '700',
+              margin: 0,
+              color: 'hsl(var(--foreground))',
+              transition: 'opacity 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.7'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1'
+            }}
+            >
+              ReadySet
+            </h1>
+          </a>
         </div>
 
         {/* 오른쪽 프로필 영역 */}

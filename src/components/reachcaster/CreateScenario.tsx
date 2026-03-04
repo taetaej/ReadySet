@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight, X, Clock, CheckCircle, AlertCircle } from 'lucide-react'
-import { AppLayout } from './layout/AppLayout'
-import { getDarkMode, setDarkMode } from '../utils/theme'
+import { AppLayout } from '../layout/AppLayout'
+import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { 
   ScenarioStep1,
   ScenarioStep2RatioFinder,
@@ -10,7 +10,7 @@ import {
   ReachPredictorMediaDialog,
   type ScenarioFormData,
   type ReachPredictorMedia
-} from './scenario'
+} from '../scenario'
 
 interface CreateScenarioProps {
   slotData?: any

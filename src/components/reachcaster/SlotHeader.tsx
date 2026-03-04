@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { MoreVertical, Edit, Trash2, Info } from 'lucide-react'
-import { Avatar } from './common/Avatar'
+import { Avatar } from '../common/Avatar'
 
 interface SlotHeaderProps {
   slotId: number

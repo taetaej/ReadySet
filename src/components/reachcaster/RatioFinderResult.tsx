@@ -2,10 +2,10 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText, Smartphone, Tv } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
-import { AppLayout } from './layout/AppLayout'
-import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
+import { AppLayout } from '../layout/AppLayout'
+import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { DetailedDataTable } from './RatioFinderDetailTable'
-import { targetGrpOptions } from './scenario/constants'
+import { targetGrpOptions } from '../scenario/constants'
 
 interface RatioFinderResultProps {
   scenarioData?: any

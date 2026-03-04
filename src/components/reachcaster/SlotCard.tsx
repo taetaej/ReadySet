@@ -1,5 +1,5 @@
 import { Archive, Clock, MoreVertical, Edit, Trash2, CheckCircle } from 'lucide-react'
-import { Avatar } from './common/Avatar'
+import { Avatar } from '../common/Avatar'
 
 interface SlotData {
   title: string
