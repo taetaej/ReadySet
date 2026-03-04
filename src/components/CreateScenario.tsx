@@ -1033,11 +1033,6 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                               </div>
                             )}
                             {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                            {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
                               <div style={{
                                 fontSize: '11px',
                                 color: 'hsl(var(--foreground))',
