@@ -147,8 +147,10 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
         .every(m => m.impressions && parseInt(m.impressions) > 0)
       if (!unlinkedMediaValid) return false
       
-      // 리치커브 예산 상한 필수
-      if (!formData.reachCurve?.budgetCap || formData.reachCurve.budgetCap <= 0) return false
+      // 리치커브 구간 최소/최대값 필수
+      if (!formData.reachCurve?.detailSettings?.rangeMin || formData.reachCurve.detailSettings.rangeMin <= 0) return false
+      if (!formData.reachCurve?.detailSettings?.rangeMax || formData.reachCurve.detailSettings.rangeMax <= 0) return false
+      if (formData.reachCurve.detailSettings.rangeMin >= formData.reachCurve.detailSettings.rangeMax) return false
       
       // 구간별 금액 기준 선택 시 금액 입력 필수
       if (formData.reachCurve?.detailSettings?.criteriaType === 'amount') {
@@ -991,12 +993,12 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                           <span style={{ 
                             fontSize: '13px', 
                             fontWeight: '500',
-                            color: formData.reachCurve?.budgetCap ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                            color: (formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                           }}>
-                            {formData.reachCurve?.budgetCap ? '설정됨' : '—'}
+                            {(formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) ? '설정됨' : '—'}
                           </span>
                         </div>
-                        {formData.reachCurve?.budgetCap && (
+                        {(formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) && (
                           <div style={{
                             marginTop: '8px',
                             padding: '8px',
@@ -1012,40 +1014,25 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                               display: 'flex',
                               justifyContent: 'space-between'
                             }}>
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>예산 상한</span>
+                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간</span>
                               <span style={{ fontWeight: '500' }}>
-                                {formData.reachCurve.budgetCap.toLocaleString('ko-KR')} 원
+                                {formData.reachCurve.detailSettings.rangeMin.toLocaleString('ko-KR')} ~ {formData.reachCurve.detailSettings.rangeMax.toLocaleString('ko-KR')} 원
                               </span>
                             </div>
-                            {formData.reachCurve.detailSettings && (
-                              <>
-                                {(formData.reachCurve.detailSettings.rangeMin || formData.reachCurve.detailSettings.rangeMax) && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.rangeMin?.toLocaleString('ko-KR') || '—'} ~ {formData.reachCurve.detailSettings.rangeMax?.toLocaleString('ko-KR') || '—'} 원
-                                    </span>
-                                  </div>
-                                )}
-                                {formData.reachCurve.detailSettings.criteriaType === 'count' && formData.reachCurve.detailSettings.intervalCount && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간 수</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.intervalCount}개
-                                    </span>
-                                  </div>
-                                )}
-                                {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
+                            {formData.reachCurve.detailSettings.criteriaType === 'count' && formData.reachCurve.detailSettings.intervalCount && (
+                              <div style={{
+                                fontSize: '11px',
+                                color: 'hsl(var(--foreground))',
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}>
+                                <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간 수</span>
+                                <span style={{ fontWeight: '500' }}>
+                                  {formData.reachCurve.detailSettings.intervalCount}개
+                                </span>
+                              </div>
+                            )}
+                            {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
                                   <div style={{
                                     fontSize: '11px',
                                     color: 'hsl(var(--foreground))',
@@ -1056,9 +1043,18 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                                     <span style={{ fontWeight: '500' }}>
                                       {formData.reachCurve.detailSettings.intervalAmount.toLocaleString('ko-KR')} 원
                                     </span>
-                                  </div>
-                                )}
-                              </>
+                            {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
+                              <div style={{
+                                fontSize: '11px',
+                                color: 'hsl(var(--foreground))',
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}>
+                                <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간별 금액</span>
+                                <span style={{ fontWeight: '500' }}>
+                                  {formData.reachCurve.detailSettings.intervalAmount.toLocaleString('ko-KR')} 원
+                                </span>
+                              </div>
                             )}
                           </div>
                         )}
