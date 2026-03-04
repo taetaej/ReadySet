@@ -1037,12 +1037,6 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                                     fontSize: '11px',
                                     color: 'hsl(var(--foreground))',
                                     display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간별 금액</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.intervalAmount.toLocaleString('ko-KR')} 원
-                                    </span>
                             {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
                               <div style={{
                                 fontSize: '11px',
