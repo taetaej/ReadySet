@@ -1,5 +1,46 @@
 // Scenario 관련 유틸리티 함수
 
+// 리치커브 구간 생성 함수 (옵션 A: 마지막 구간을 예산 상한으로 제한)
+export const generateReachCurveIntervals = (
+  minBudget: number,
+  maxBudget: number,
+  intervalAmount: number
+): number[] => {
+  const intervals: number[] = []
+  let currentBudget = minBudget
+  
+  while (currentBudget < maxBudget) {
+    intervals.push(currentBudget)
+    currentBudget += intervalAmount
+  }
+  
+  // 마지막 구간을 예산 상한으로 추가 (중복 방지)
+  if (intervals[intervals.length - 1] !== maxBudget) {
+    intervals.push(maxBudget)
+  }
+  
+  return intervals
+}
+
+// 구간 수로부터 구간별 금액 계산
+export const calculateIntervalAmount = (
+  minBudget: number,
+  maxBudget: number,
+  intervalCount: number
+): number => {
+  return Math.ceil((maxBudget - minBudget) / intervalCount)
+}
+
+// 구간별 금액으로부터 실제 구간 수 계산
+export const calculateActualIntervalCount = (
+  minBudget: number,
+  maxBudget: number,
+  intervalAmount: number
+): number => {
+  const intervals = generateReachCurveIntervals(minBudget, maxBudget, intervalAmount)
+  return intervals.length
+}
+
 // 숫자를 한글로 변환
 export const numberToKorean = (num: number): string => {
   if (num === 0) return ''
@@ -40,3 +81,4 @@ export const numberToKorean = (num: number): string => {
   
   return result + '원'
 }
+

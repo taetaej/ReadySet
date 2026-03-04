@@ -28,7 +28,13 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     industry: '',
     period: { start: '', end: '' },
     targetGrp: [],
-    simulationUnit: ''
+    simulationUnit: '',
+    reachCurve: {
+      detailSettings: {
+        criteriaType: 'count',
+        intervalCount: 10
+      }
+    }
   })
   
   const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)

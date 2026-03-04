@@ -86,7 +86,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
               setFormData({ ...formData, scenarioName: e.target.value })
             }
           }}
-          placeholder="시나리오 이름을 입력하세요"
+          placeholder="시나리오명을 입력하세요."
           className="input"
           style={{ 
             width: '100%',
@@ -130,7 +130,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
               setFormData({ ...formData, description: e.target.value })
             }
           }}
-          placeholder="시나리오에 대한 설명을 입력하세요"
+          placeholder="시나리오에 대한 설명을 입력하세요."
           className="input"
           style={{ 
             width: '100%', 
@@ -264,7 +264,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
                 setBrandDropdownOpen(true)
               }}
               onFocus={() => setBrandDropdownOpen(true)}
-              placeholder="브랜드를 검색하세요"
+              placeholder="브랜드를 선택하세요."
               className="input"
               style={{ 
                 width: '100%',
@@ -576,7 +576,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
               ? '전체' 
               : formData.targetGrp.length > 0 
               ? `${formData.targetGrp.length}개 타겟 선택됨` 
-              : '타겟을 선택하세요'}
+              : '타겟 GRP를 선택하세요.'}
           </span>
           <ChevronRight size={16} />
         </button>
