@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Minus, Monitor, Tv } from 'lucide-react'
+import { Plus, Minus, Smartphone, Tv } from 'lucide-react'
 import { mediaData, unlinkedMedia } from './constants'
 import { ReachPredictorMedia } from './types'
 
@@ -7,14 +7,41 @@ interface ReachPredictorMediaDialogProps {
   open: boolean
   onClose: () => void
   onConfirm: (mediaItems: ReachPredictorMedia[]) => void
+  currentMedia?: ReachPredictorMedia[]
 }
 
-export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPredictorMediaDialogProps) {
+export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMedia = [] }: ReachPredictorMediaDialogProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProducts, setSelectedProducts] = useState<{
-    [key: string]: string[] // mediaName: [productNames]
+    [key: string]: string[]
   }>({})
   const [expandedMedia, setExpandedMedia] = useState<string[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // 다이얼로그가 열릴 때 기존 선택 상태 복원
+  if (open && !isInitialized) {
+    const initialSelected: { [key: string]: string[] } = {}
+    
+    currentMedia.forEach(media => {
+      const key = `${media.category}_${media.mediaName}`
+      if (media.type === 'unlinked') {
+        initialSelected[key] = ['default']
+      } else if (media.productName) {
+        if (!initialSelected[key]) {
+          initialSelected[key] = []
+        }
+        initialSelected[key].push(media.productName)
+      }
+    })
+    
+    setSelectedProducts(initialSelected)
+    setIsInitialized(true)
+  }
+  
+  // 다이얼로그가 닫힐 때 초기화 플래그 리셋
+  if (!open && isInitialized) {
+    setIsInitialized(false)
+  }
 
   if (!open) return null
 
@@ -27,7 +54,6 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
       const categoryTyped = category as 'DIGITAL' | 'TVC'
       
       if (products.includes('default')) {
-        // 미연동 매체 (상품 없음)
         newMediaItems.push({
           id: `unlinked_${Date.now()}_${Math.random()}`,
           category: categoryTyped,
@@ -38,7 +64,6 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
           cpm: ''
         })
       } else {
-        // 연동 매체 (상품 있음)
         products.forEach(product => {
           newMediaItems.push({
             id: `linked_${Date.now()}_${Math.random()}`,
@@ -56,15 +81,17 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
     
     onConfirm(newMediaItems)
     setSearchQuery('')
-    setSelectedProducts({})
-    setExpandedMedia([])
   }
 
   const handleCancel = () => {
     onClose()
     setSearchQuery('')
+  }
+  
+  const handleReset = () => {
     setSelectedProducts({})
     setExpandedMedia([])
+    setSearchQuery('')
   }
 
   const totalSelected = Object.values(selectedProducts).flat().filter(p => p !== 'default').length
@@ -90,26 +117,45 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
   // 전체 선택/해제
   const handleSelectAll = (category: 'DIGITAL' | 'TV') => {
     const filtered = filterMediaBySearch(category)
-    const data = category === 'DIGITAL' ? mediaData.DIGITAL : mediaData.TV
-    const allKeys = filtered.map(([mediaName]) => `${category === 'DIGITAL' ? 'DIGITAL' : 'TVC'}_${mediaName}`)
     
+    // 검색 결과에 해당하는 모든 상품 수집
+    const allFilteredProducts: { [key: string]: string[] } = {}
+    filtered.forEach(([mediaName, products]) => {
+      const key = `${category === 'DIGITAL' ? 'DIGITAL' : 'TVC'}_${mediaName}`
+      const filteredProducts = (products as string[]).filter(p => 
+        !searchQuery || p.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      if (filteredProducts.length > 0) {
+        allFilteredProducts[key] = filteredProducts
+      }
+    })
+    
+    // 모든 필터링된 상품이 선택되어 있는지 확인
+    const allKeys = Object.keys(allFilteredProducts)
     const allSelected = allKeys.every(key => {
-      const mediaName = key.split('_').slice(1).join('_')
-      const products = data[mediaName as keyof typeof data] as string[]
-      return products.every(p => selectedProducts[key]?.includes(p))
+      const filteredProducts = allFilteredProducts[key]
+      return filteredProducts.every(p => selectedProducts[key]?.includes(p))
     })
 
     if (allSelected) {
       // 전체 해제
       const newSelected = { ...selectedProducts }
-      allKeys.forEach(key => delete newSelected[key])
+      allKeys.forEach(key => {
+        const filteredProducts = allFilteredProducts[key]
+        if (newSelected[key]) {
+          newSelected[key] = newSelected[key].filter(p => !filteredProducts.includes(p))
+          if (newSelected[key].length === 0) {
+            delete newSelected[key]
+          }
+        }
+      })
       setSelectedProducts(newSelected)
     } else {
       // 전체 선택
       const newSelected = { ...selectedProducts }
-      filtered.forEach(([mediaName, products]) => {
-        const key = `${category === 'DIGITAL' ? 'DIGITAL' : 'TVC'}_${mediaName}`
-        newSelected[key] = products as string[]
+      Object.entries(allFilteredProducts).forEach(([key, filteredProducts]) => {
+        const currentSelected = newSelected[key] || []
+        newSelected[key] = [...new Set([...currentSelected, ...filteredProducts])]
       })
       setSelectedProducts(newSelected)
     }
@@ -121,10 +167,10 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
         className="dialog-content" 
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: '1000px', 
-          height: '700px',
-          maxWidth: '90vw', 
-          maxHeight: '85vh', 
+          width: '1200px', 
+          height: '80vh',
+          maxWidth: '95vw', 
+          maxHeight: '90vh', 
           display: 'flex', 
           flexDirection: 'column' 
         }}
@@ -147,7 +193,7 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
             style={{ width: '100%', marginBottom: '20px' }}
           />
           
-          {/* TVC 섹션 (상단 배치) */}
+          {/* TVC 섹션 */}
           <div style={{ marginBottom: '32px' }}>
             <div style={{
               display: 'flex',
@@ -256,55 +302,78 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
                     
                     {/* 상품 목록 */}
                     {isExpanded && (
-                      <div style={{ padding: '12px', backgroundColor: 'hsl(var(--background))' }}>
+                      <div style={{ 
+                        padding: '12px 12px 12px 52px', 
+                        backgroundColor: 'hsl(var(--background))',
+                        borderTop: '1px solid hsl(var(--border))'
+                      }}>
                         <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(3, 1fr)',
-                          gap: '8px'
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
                         }}>
-                          {filteredProducts.map((product) => (
-                            <label
-                              key={product}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                cursor: 'pointer',
-                                padding: '8px 10px',
-                                borderRadius: '6px',
-                                border: `1px solid ${
-                                  selectedProducts[key]?.includes(product)
-                                    ? 'hsl(var(--primary))' 
-                                    : 'hsl(var(--border))'
-                                }`,
-                                backgroundColor: selectedProducts[key]?.includes(product)
-                                  ? 'hsl(var(--primary) / 0.1)' 
-                                  : 'transparent',
-                                transition: 'all 0.2s'
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedProducts[key]?.includes(product) || false}
-                                onChange={(e) => {
-                                  const currentSelected = selectedProducts[key] || []
-                                  if (e.target.checked) {
-                                    setSelectedProducts({
-                                      ...selectedProducts,
-                                      [key]: [...currentSelected, product]
-                                    })
-                                  } else {
-                                    setSelectedProducts({
-                                      ...selectedProducts,
-                                      [key]: currentSelected.filter(p => p !== product)
-                                    })
+                          {filteredProducts.map((product) => {
+                            const isProductSelected = selectedProducts[key]?.includes(product) || false
+                            return (
+                              <label
+                                key={product}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  cursor: 'pointer',
+                                  padding: '8px 12px',
+                                  borderRadius: '6px',
+                                  backgroundColor: isProductSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                                  transition: 'background-color 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isProductSelected) {
+                                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.2)'
                                   }
                                 }}
-                                className="checkbox-custom"
-                              />
-                              <span style={{ fontSize: '12px', flex: 1 }}>{product}</span>
-                            </label>
-                          ))}
+                                onMouseLeave={(e) => {
+                                  if (!isProductSelected) {
+                                    e.currentTarget.style.backgroundColor = 'transparent'
+                                  }
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isProductSelected}
+                                  onChange={(e) => {
+                                    const currentSelected = selectedProducts[key] || []
+                                    if (e.target.checked) {
+                                      setSelectedProducts({
+                                        ...selectedProducts,
+                                        [key]: [...currentSelected, product]
+                                      })
+                                    } else {
+                                      const newSelected = currentSelected.filter(p => p !== product)
+                                      if (newSelected.length === 0) {
+                                        const newProducts = { ...selectedProducts }
+                                        delete newProducts[key]
+                                        setSelectedProducts(newProducts)
+                                      } else {
+                                        setSelectedProducts({
+                                          ...selectedProducts,
+                                          [key]: newSelected
+                                        })
+                                      }
+                                    }
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span style={{ 
+                                  fontSize: '12px', 
+                                  flex: 1,
+                                  color: isProductSelected ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                                }}>
+                                  {product}
+                                </span>
+                              </label>
+                            )
+                          })}
                         </div>
                       </div>
                     )}
@@ -325,7 +394,7 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
               borderBottom: '2px solid hsl(var(--border))'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Monitor size={18} style={{ color: 'hsl(var(--primary))' }} />
+                <Smartphone size={18} style={{ color: 'hsl(var(--primary))' }} />
                 <span style={{ fontSize: '14px', fontWeight: '600' }}>DIGITAL</span>
               </div>
               <button
@@ -424,55 +493,78 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
                     
                     {/* 상품 목록 */}
                     {isExpanded && (
-                      <div style={{ padding: '12px', backgroundColor: 'hsl(var(--background))' }}>
+                      <div style={{ 
+                        padding: '12px 12px 12px 52px', 
+                        backgroundColor: 'hsl(var(--background))',
+                        borderTop: '1px solid hsl(var(--border))'
+                      }}>
                         <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(3, 1fr)',
-                          gap: '8px'
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
                         }}>
-                          {filteredProducts.map((product) => (
-                            <label
-                              key={product}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                cursor: 'pointer',
-                                padding: '8px 10px',
-                                borderRadius: '6px',
-                                border: `1px solid ${
-                                  selectedProducts[key]?.includes(product)
-                                    ? 'hsl(var(--primary))' 
-                                    : 'hsl(var(--border))'
-                                }`,
-                                backgroundColor: selectedProducts[key]?.includes(product)
-                                  ? 'hsl(var(--primary) / 0.1)' 
-                                  : 'transparent',
-                                transition: 'all 0.2s'
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedProducts[key]?.includes(product) || false}
-                                onChange={(e) => {
-                                  const currentSelected = selectedProducts[key] || []
-                                  if (e.target.checked) {
-                                    setSelectedProducts({
-                                      ...selectedProducts,
-                                      [key]: [...currentSelected, product]
-                                    })
-                                  } else {
-                                    setSelectedProducts({
-                                      ...selectedProducts,
-                                      [key]: currentSelected.filter(p => p !== product)
-                                    })
+                          {filteredProducts.map((product) => {
+                            const isProductSelected = selectedProducts[key]?.includes(product) || false
+                            return (
+                              <label
+                                key={product}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  cursor: 'pointer',
+                                  padding: '8px 12px',
+                                  borderRadius: '6px',
+                                  backgroundColor: isProductSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                                  transition: 'background-color 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isProductSelected) {
+                                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.2)'
                                   }
                                 }}
-                                className="checkbox-custom"
-                              />
-                              <span style={{ fontSize: '12px', flex: 1 }}>{product}</span>
-                            </label>
-                          ))}
+                                onMouseLeave={(e) => {
+                                  if (!isProductSelected) {
+                                    e.currentTarget.style.backgroundColor = 'transparent'
+                                  }
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isProductSelected}
+                                  onChange={(e) => {
+                                    const currentSelected = selectedProducts[key] || []
+                                    if (e.target.checked) {
+                                      setSelectedProducts({
+                                        ...selectedProducts,
+                                        [key]: [...currentSelected, product]
+                                      })
+                                    } else {
+                                      const newSelected = currentSelected.filter(p => p !== product)
+                                      if (newSelected.length === 0) {
+                                        const newProducts = { ...selectedProducts }
+                                        delete newProducts[key]
+                                        setSelectedProducts(newProducts)
+                                      } else {
+                                        setSelectedProducts({
+                                          ...selectedProducts,
+                                          [key]: newSelected
+                                        })
+                                      }
+                                    }
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span style={{ 
+                                  fontSize: '12px', 
+                                  flex: 1,
+                                  color: isProductSelected ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                                }}>
+                                  {product}
+                                </span>
+                              </label>
+                            )
+                          })}
                         </div>
                       </div>
                     )}
@@ -489,7 +581,7 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
                   <div key={mediaName} style={{ borderBottom: '1px solid hsl(var(--border))' }}>
                     <label style={{
                       display: 'grid',
-                      gridTemplateColumns: '40px 1fr 100px 40px',
+                      gridTemplateColumns: '40px 1fr 40px',
                       alignItems: 'center',
                       padding: '10px 12px',
                       backgroundColor: 'hsl(var(--muted) / 0.2)',
@@ -524,9 +616,6 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
                       <div style={{ fontSize: '13px', fontWeight: '500' }}>
                         {mediaName}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                        미연동
-                      </div>
                       <div></div>
                     </label>
                   </div>
@@ -537,6 +626,13 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm }: ReachPre
         </div>
 
         <div className="dialog-footer">
+          <button
+            onClick={handleReset}
+            className="btn btn-ghost btn-md"
+            style={{ marginRight: 'auto' }}
+          >
+            초기화
+          </button>
           <button
             onClick={handleCancel}
             className="btn btn-secondary btn-md"

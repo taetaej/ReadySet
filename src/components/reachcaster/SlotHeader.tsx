@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { MoreVertical, Edit, Trash2, Info } from 'lucide-react'
-import { Avatar } from './common/Avatar'
+import { Avatar } from '../common/Avatar'
 
 interface SlotHeaderProps {
   slotId: number
@@ -38,66 +38,72 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
 
   return (
     <div className="slot-detail-header">
-      <div className="slot-detail-header__main">
-        <div className="slot-detail-header__info">
-          {/* 첫 번째 줄: 가시성 뱃지만 */}
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{
-              padding: '4px 12px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '500',
-              backgroundColor: 'hsl(var(--muted))',
-              color: 'hsl(var(--muted-foreground))'
-            }}>
-              {slotData.visibility}
-            </span>
-          </div>
+      <div className="slot-detail-header__main" style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        gap: '16px'
+      }}>
+        {/* 좌측: 가시성 뱃지 + 타이틀 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontSize: '12px',
+            fontWeight: '500',
+            backgroundColor: 'hsl(var(--muted))',
+            color: 'hsl(var(--muted-foreground))',
+            flexShrink: 0
+          }}>
+            {slotData.visibility}
+          </span>
           
-          {/* 두 번째 줄: Slot 타이틀 */}
-          <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>
+          <h1 style={{ 
+            fontSize: '20px', 
+            fontWeight: '600', 
+            margin: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
             {slotData.title}
           </h1>
-          
-          {/* 세 번째 줄: 광고주 프로필 + 설명 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-            {/* 광고주 프로필 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Avatar 
-                name={slotData.advertiser}
-                type="advertiser"
-                size={32}
-              />
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '500' }}>{slotData.advertiser}</div>
-                <div className="text-muted-foreground" style={{ fontSize: '11px' }}>ID: {slotData.advertiserId}</div>
-              </div>
-            </div>
-            
-            {/* 구분선 */}
-            <div style={{ 
-              width: '1px', 
-              height: '32px', 
-              backgroundColor: 'hsl(var(--border))' 
-            }} />
-            
-            {/* 설명 */}
-            <p className="text-muted-foreground" style={{ fontSize: '14px', margin: 0, flex: 1 }}>
-              {slotData.description}
-            </p>
-          </div>
         </div>
 
-        {/* 우측 액션 버튼들 */}
-        <div className="slot-detail-header__actions" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-          {/* Info 아이콘 - Slot ID, 생성/수정 정보 툴팁 */}
+        {/* 우측: 광고주 정보 + 액션 버튼들 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
+          {/* 광고주 프로필 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Avatar 
+              name={slotData.advertiser}
+              type="advertiser"
+              size={28}
+            />
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '500', lineHeight: '1.2' }}>
+                {slotData.advertiser}
+              </div>
+              <div className="text-muted-foreground" style={{ fontSize: '11px', lineHeight: '1.2' }}>
+                ID: {slotData.advertiserId}
+              </div>
+            </div>
+          </div>
+
+          {/* 구분선 */}
+          <div style={{ 
+            width: '1px', 
+            height: '32px', 
+            backgroundColor: 'hsl(var(--border))' 
+          }} />
+
+          {/* Info 아이콘 - Slot ID, 설명, 생성/수정 정보 툴팁 */}
           <div style={{ position: 'relative' }}>
             <button
               data-info-tooltip
               onMouseEnter={() => setInfoTooltipOpen(true)}
               onMouseLeave={() => setInfoTooltipOpen(false)}
-              className="btn btn-ghost btn-md"
-              style={{ padding: '8px' }}
+              className="btn btn-ghost btn-sm"
+              style={{ padding: '6px' }}
             >
               <Info size={18} />
             </button>
@@ -108,7 +114,7 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                 top: '100%',
                 right: 0,
                 marginTop: '8px',
-                width: '280px',
+                width: '320px',
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
@@ -116,12 +122,20 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
                 zIndex: 1000
               }}>
+                {/* 설명 */}
+                <div style={{ marginBottom: '12px' }}>
+                  <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>설명</div>
+                  <div style={{ fontSize: '13px', lineHeight: '1.4' }}>{slotData.description}</div>
+                </div>
+
+                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
+
                 <div style={{ marginBottom: '12px' }}>
                   <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Slot ID</div>
                   <div style={{ fontSize: '13px', fontWeight: '500' }}>#{slotId}</div>
                 </div>
                 
-                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
                 
                 <div style={{ marginBottom: '12px' }}>
                   <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
@@ -129,7 +143,7 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                   <div className="text-muted-foreground" style={{ fontSize: '12px' }}>김철수 (USER001)</div>
                 </div>
                 
-                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
                 
                 <div>
                   <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>최근 수정일시</div>
@@ -148,8 +162,8 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                 e.stopPropagation()
                 setContextMenuOpen(!contextMenuOpen)
               }}
-              className="btn btn-ghost btn-md"
-              style={{ padding: '8px' }}
+              className="btn btn-ghost btn-sm"
+              style={{ padding: '6px' }}
             >
               <MoreVertical size={18} />
             </button>

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X, Smartphone, Tv, ListPlus } from 'lucide-react'
 import { type ScenarioFormData, mediaData, numberToKorean } from './index'
 
 interface ScenarioStep2RatioFinderProps {
@@ -239,9 +239,14 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 color: selectedMediaCategory === 'DIGITAL' ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 cursor: 'pointer',
                 borderBottom: selectedMediaCategory === 'DIGITAL' ? '2px solid hsl(var(--foreground))' : 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
               }}
             >
+              <Smartphone size={16} />
               DIGITAL
             </button>
             <button
@@ -256,9 +261,14 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 color: selectedMediaCategory === 'TV' ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 cursor: 'pointer',
                 borderBottom: selectedMediaCategory === 'TV' ? '2px solid hsl(var(--foreground))' : 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
               }}
             >
+              <Tv size={16} />
               TVC
             </button>
           </div>
@@ -278,8 +288,8 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                   {/* 매체 행 */}
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'auto 1fr 120px 40px',
-                    gap: '12px',
+                    gridTemplateColumns: 'auto 1fr 120px auto',
+                    gap: '8px',
                     alignItems: 'center',
                     padding: '12px',
                     backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
@@ -314,15 +324,6 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       color: isSelected ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                     }}>
                       {mediaName}
-                      {isSelected && selectedProducts.length > 0 && (
-                        <span style={{
-                          marginLeft: '8px',
-                          fontSize: '11px',
-                          color: 'hsl(var(--muted-foreground))'
-                        }}>
-                          ({selectedProducts.length}개 선택)
-                        </span>
-                      )}
                     </div>
                     
                     {/* 비중 입력 */}
@@ -355,7 +356,7 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       </div>
                     )}
                     
-                    {/* 상품 선택 버튼 */}
+                    {/* 상품/채널 추가 버튼 */}
                     {isSelected && (
                       <button
                         onClick={() => {
@@ -366,14 +367,33 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                           })
                           setProductSearchQuery('')
                         }}
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-sm"
                         style={{
-                          fontSize: '11px',
-                          padding: '4px 8px',
-                          height: 'auto'
+                          fontSize: '12px',
+                          padding: '6px 12px',
+                          height: 'auto',
+                          backgroundColor: 'hsl(var(--primary))',
+                          color: 'hsl(var(--primary-foreground))',
+                          border: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontWeight: '500'
                         }}
                       >
-                        선택
+                        <ListPlus size={14} />
+                        {mediaKey.startsWith('DIGITAL') ? '상품 추가' : '채널 추가'}
+                        {selectedProducts.length > 0 && (
+                          <span style={{
+                            backgroundColor: 'hsl(var(--background) / 0.2)',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            fontSize: '11px',
+                            fontWeight: '600'
+                          }}>
+                            {selectedProducts.length}
+                          </span>
+                        )}
                       </button>
                     )}
                   </div>

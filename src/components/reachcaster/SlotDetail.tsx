@@ -209,7 +209,95 @@ const sampleScenarios = [
     creator: '송하늘',
     creatorId: 'USER010',
     completedAt: '2024-04-16 11:20',
-    errorMessage: null
+    errorMessage: null,
+    reachPredictorMedia: [
+      {
+        id: '1',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Display_CPM',
+        budget: '150000000',
+        impressions: '50000000',
+        cpm: '3000',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '2',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Video_CPM',
+        budget: '200000000',
+        impressions: '',
+        cpm: '',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '3',
+        category: 'DIGITAL',
+        type: 'linked',
+        mediaName: 'Google Ads',
+        productName: 'Google_Search_CPC',
+        budget: '180000000',
+        impressions: '30000000',
+        cpm: '6000',
+        customPeriod: { start: '2024-01-20', end: '2024-02-10' },
+        customTarget: ['M2024', 'M2529', 'M3034', 'F2024', 'F2529']
+      },
+      {
+        id: '4',
+        category: 'DIGITAL',
+        type: 'unlinked',
+        mediaName: '티빙',
+        budget: '120000000',
+        impressions: '25000000',
+        cpm: '4800'
+      },
+      {
+        id: '5',
+        category: 'DIGITAL',
+        type: 'unlinked',
+        mediaName: '블라인드',
+        budget: '80000000',
+        impressions: '',
+        cpm: ''
+      },
+      {
+        id: '6',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'CJ ENM',
+        productName: 'tvN',
+        budget: '300000000',
+        impressions: '15000000',
+        cpm: '20000'
+      },
+      {
+        id: '7',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'CJ ENM',
+        productName: 'tvN STORY',
+        budget: '150000000',
+        impressions: '',
+        cpm: ''
+      },
+      {
+        id: '8',
+        category: 'TVC',
+        type: 'linked',
+        mediaName: 'JTBC',
+        productName: 'JTBC',
+        budget: '250000000',
+        impressions: '12000000',
+        cpm: '20833'
+      }
+    ],
+    period: { start: '2024-01-15', end: '2024-02-15' },
+    targetGrpArray: ['남성 25~29세', '남성 30~34세', '남성 35~39세', '여성 25~29세', '여성 30~34세', '여성 35~39세', '여성 40~44세', '여성 45~49세']
   },
   { 
     id: 11, 
@@ -496,16 +584,24 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
     return (step / total) * 100
   }
 
-  // 타겟 GRP 아이콘
-  const getTargetIcon = (targetGrp: string) => {
+  // 타겟 GRP 아이콘 및 텍스트
+  const getTargetDisplay = (targetGrp: string) => {
     if (targetGrp === '전체') {
-      return <Users size={14} />
-    } else if (targetGrp.startsWith('여성')) {
-      return <User size={14} />
-    } else if (targetGrp.startsWith('남성')) {
-      return <User size={14} />
+      return {
+        icon: <Users size={14} />,
+        text: '전체'
+      }
+    } else {
+      // "여성(25~34세 외 3건)" 형식에서 숫자 추출
+      const match = targetGrp.match(/외\s*(\d+)건/)
+      const additionalCount = match ? parseInt(match[1]) : 0
+      const totalSegments = additionalCount + 1 // "외 n건"이므로 +1
+      
+      return {
+        icon: <User size={14} />,
+        text: `${totalSegments}개 세그먼트`
+      }
     }
-    return null
   }
 
   // 재시도 핸들러
@@ -550,7 +646,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: '600' }}>
-              Scenario
+              Reach Caster
             </h1>
             <button 
               onClick={() => navigate('/reachcaster/scenario/new')}
@@ -950,7 +1046,12 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                       const resultPath = scenario.type === 'Ratio Finder' 
                         ? '/reachcaster/scenario/ratio-finder/result'
                         : '/reachcaster/scenario/reach-predictor/result'
-                      navigate(resultPath, { state: { scenarioData: scenario } })
+                      navigate(resultPath, { 
+                        state: { 
+                          scenarioData: scenario,
+                          slotData: slotData
+                        } 
+                      })
                     }
                   }
 
@@ -1015,20 +1116,26 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           alignItems: 'center',
                           gap: '4px'
                         }}>
-                          {getTargetIcon(scenario.targetGrp)}
-                          {scenario.targetGrp}
+                          {(() => {
+                            const display = getTargetDisplay(scenario.targetGrp)
+                            return (
+                              <>
+                                {display.icon}
+                                {display.text}
+                              </>
+                            )
+                          })()}
                         </span>
                       </td>
                       <td>
                         <div style={{ 
                           display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
+                          flexDirection: 'column',
                           fontSize: '13px',
-                          color: 'hsl(var(--muted-foreground))'
+                          color: 'hsl(var(--muted-foreground))',
+                          lineHeight: '1.4'
                         }}>
-                          <span>{scenario.startDate}</span>
-                          <span>→</span>
+                          <span>{scenario.startDate} →</span>
                           <span>{scenario.endDate}</span>
                         </div>
                       </td>
@@ -1166,23 +1273,23 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   setContextMenuOpen(null)
-                                  console.log('수정:', scenario.id)
-                                }}
-                                className="dropdown-item"
-                              >
-                                <Edit size={14} />
-                                수정
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setContextMenuOpen(null)
                                   console.log('복제:', scenario.id)
                                 }}
                                 className="dropdown-item"
                               >
                                 <Copy size={14} />
                                 복제
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setContextMenuOpen(null)
+                                  console.log('이동:', scenario.id)
+                                }}
+                                className="dropdown-item"
+                              >
+                                <ArrowRightLeft size={14} />
+                                이동
                               </button>
                               <button
                                 onClick={(e) => {

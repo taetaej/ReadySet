@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Calendar, Users, Monitor, Tv, ArrowRight, ChevronRight } from 'lucide-react'
+import { X, Calendar, Users, Smartphone, Tv, ArrowRight, ChevronRight, Info } from 'lucide-react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import { type ReachPredictorMedia } from './types'
@@ -59,6 +59,7 @@ export function ScenarioStep2ReachPredictor({
   const [individualStartDateOpen, setIndividualStartDateOpen] = useState<string | null>(null)
   const [individualEndDateOpen, setIndividualEndDateOpen] = useState<string | null>(null)
   const [tempPeriod, setTempPeriod] = useState<{ start: string; end: string } | null>(null)
+  const [showSummaryTooltip, setShowSummaryTooltip] = useState(false)
   
   // 매체 삭제
   const handleRemoveMedia = (id: string) => {
@@ -89,12 +90,12 @@ export function ScenarioStep2ReachPredictor({
     }
   }
 
-  // CPM 자동 계산
+  // CPM 자동 계산 (소수점 첫째자리에서 반올림)
   const calculateCPM = (budget: string, impressions: string): string => {
     const b = parseInt(budget) || 0
     const i = parseInt(impressions) || 0
     if (b > 0 && i > 0) {
-      return ((b / i) * 1000).toFixed(2)
+      return Math.round((b / i) * 1000).toString()
     }
     return '-'
   }
@@ -103,6 +104,16 @@ export function ScenarioStep2ReachPredictor({
   const calculatedTotalBudget = reachPredictorMedia.reduce((sum, m) => {
     return sum + (parseInt(m.budget) || 0)
   }, 0)
+
+  // 총 예상 노출 계산
+  const calculatedTotalImpressions = reachPredictorMedia.reduce((sum, m) => {
+    return sum + (parseInt(m.impressions) || 0)
+  }, 0)
+
+  // 합계 CPM 계산
+  const calculatedTotalCPM = calculatedTotalBudget > 0 && calculatedTotalImpressions > 0
+    ? Math.round((calculatedTotalBudget / calculatedTotalImpressions) * 1000)
+    : 0
 
   // 개별 기간 설정
   const handlePeriodChange = (id: string, newPeriod: { start: string; end: string }) => {
@@ -504,7 +515,7 @@ export function ScenarioStep2ReachPredictor({
                     gap: '4px'
                   }}>
                     {media.category === 'DIGITAL' ? (
-                      <Monitor size={18} style={{ color: 'hsl(var(--primary))' }} />
+                      <Smartphone size={18} style={{ color: 'hsl(var(--primary))' }} />
                     ) : (
                       <Tv size={18} style={{ color: 'hsl(var(--accent-foreground))' }} />
                     )}
@@ -705,22 +716,74 @@ export function ScenarioStep2ReachPredictor({
             ))}
           </div>
 
-          {/* 총 예산 */}
+          {/* 요약 행 */}
           <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
+            display: 'grid',
+            gridTemplateColumns: '40px 24px 240px 130px 130px 100px 1fr',
+            gap: '12px',
             padding: '12px 16px',
             backgroundColor: 'hsl(var(--muted) / 0.3)',
             borderTop: '1px solid hsl(var(--border))',
-            fontSize: '14px',
-            fontWeight: '600'
+            fontSize: '13px',
+            fontWeight: '600',
+            alignItems: 'center'
           }}>
-            <span style={{ marginRight: '12px', color: 'hsl(var(--muted-foreground))' }}>
-              총 예산:
-            </span>
-            <span>
-              {calculatedTotalBudget.toLocaleString('ko-KR')} 원
-            </span>
+            <div></div>
+            <div></div>
+            <div style={{ 
+              color: 'hsl(var(--muted-foreground))',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              position: 'relative'
+            }}>
+              <span>요약</span>
+              <div
+                onMouseEnter={() => setShowSummaryTooltip(true)}
+                onMouseLeave={() => setShowSummaryTooltip(false)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'help',
+                  position: 'relative'
+                }}
+              >
+                <Info size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                {showSummaryTooltip && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    backgroundColor: 'hsl(var(--popover))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    zIndex: 100,
+                    minWidth: '200px',
+                    fontSize: '11px',
+                    fontWeight: '400',
+                    color: 'hsl(var(--foreground))',
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none'
+                  }}>
+                    * 입력된 값을 기준으로 계산된 결과입니다
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {calculatedTotalBudget.toLocaleString('ko-KR')}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {calculatedTotalImpressions.toLocaleString('ko-KR')}
+            </div>
+            <div style={{ textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>
+              {calculatedTotalCPM > 0 ? calculatedTotalCPM.toLocaleString('ko-KR') : '-'}
+            </div>
+            <div></div>
           </div>
         </div>
       ) : (
@@ -755,302 +818,263 @@ export function ScenarioStep2ReachPredictor({
           fontWeight: '500',
           marginBottom: '16px'
         }}>
-          리치커브
+          리치커브 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
 
-        {/* 예산 상한 (필수) */}
-        <div style={{ marginBottom: '24px' }}>
+        {/* 구간 */}
+        <div style={{ marginBottom: '16px' }}>
           <label style={{
             display: 'block',
             fontSize: '13px',
             fontWeight: '500',
             marginBottom: '8px'
           }}>
-            예산 상한 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+            구간
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: '200px auto', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* 최소값 */}
             <input
               type="text"
-              value={reachCurve.budgetCap ? reachCurve.budgetCap.toLocaleString('ko-KR') : ''}
+              value={reachCurve.detailSettings?.rangeMin ? reachCurve.detailSettings.rangeMin.toLocaleString('ko-KR') : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, '')
                 if (value === '' || /^\d+$/.test(value)) {
                   onUpdateReachCurve?.({
                     ...reachCurve,
-                    budgetCap: value === '' ? undefined : parseInt(value)
+                    detailSettings: {
+                      ...reachCurve.detailSettings,
+                      rangeMin: value === '' ? undefined : parseInt(value)
+                    }
                   })
                 }
               }}
-              placeholder="예산 상한을 입력하세요"
+              placeholder="최소값"
               className="input"
               style={{ 
-                width: '100%',
-                borderColor: validationActive && !reachCurve.budgetCap ? 'hsl(var(--destructive))' : undefined
+                width: '140px', 
+                fontSize: '13px',
+                borderColor: validationActive && !reachCurve.detailSettings?.rangeMin ? 'hsl(var(--destructive))' : undefined
               }}
             />
             <span style={{ 
-              fontSize: '14px', 
+              fontSize: '13px', 
+              color: 'hsl(var(--muted-foreground))',
+              whiteSpace: 'nowrap'
+            }}>
+              원
+            </span>
+            
+            {/* 화살표 */}
+            <ArrowRight size={14} style={{ color: 'hsl(var(--muted-foreground))', margin: '0 4px' }} />
+            
+            {/* 최대값 */}
+            <input
+              type="text"
+              value={reachCurve.detailSettings?.rangeMax ? reachCurve.detailSettings.rangeMax.toLocaleString('ko-KR') : ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/,/g, '')
+                if (value === '' || /^\d+$/.test(value)) {
+                  onUpdateReachCurve?.({
+                    ...reachCurve,
+                    detailSettings: {
+                      ...reachCurve.detailSettings,
+                      rangeMax: value === '' ? undefined : parseInt(value)
+                    }
+                  })
+                }
+              }}
+              placeholder="최대값"
+              className="input"
+              style={{ 
+                width: '140px', 
+                fontSize: '13px',
+                borderColor: validationActive && !reachCurve.detailSettings?.rangeMax ? 'hsl(var(--destructive))' : undefined
+              }}
+            />
+            <span style={{ 
+              fontSize: '13px', 
               color: 'hsl(var(--muted-foreground))',
               whiteSpace: 'nowrap'
             }}>
               원
             </span>
           </div>
-          {validationActive && !reachCurve.budgetCap && (
+          {validationActive && (!reachCurve.detailSettings?.rangeMin || !reachCurve.detailSettings?.rangeMax) && (
             <div style={{
               fontSize: '11px',
               color: 'hsl(var(--destructive))',
               marginTop: '4px'
             }}>
-              예산 상한을 입력해주세요.
+              구간 최소값과 최대값을 입력해주세요.
             </div>
           )}
         </div>
 
-        {/* 리치커브 상세 설정 */}
-        <div style={{
-          border: '1px solid hsl(var(--border))',
-          borderRadius: '8px',
-          padding: '16px',
-          backgroundColor: 'hsl(var(--muted) / 0.1)'
-        }}>
-          <div style={{
+        {/* 리치커브 기준 설정 */}
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{
+            display: 'block',
             fontSize: '13px',
             fontWeight: '500',
-            marginBottom: '16px'
+            marginBottom: '8px'
           }}>
-            리치커브 상세 설정 <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', fontWeight: '400' }}>(선택)</span>
+            리치커브 기준 설정
+          </label>
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px'
+          }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+              cursor: 'pointer',
+              padding: '12px',
+              border: `1px solid ${reachCurve.detailSettings?.criteriaType === 'count' ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+              borderRadius: '6px',
+              backgroundColor: reachCurve.detailSettings?.criteriaType === 'count' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+              flex: 1,
+              transition: 'all 0.2s'
+            }}>
+              <input
+                type="radio"
+                name="criteriaType"
+                checked={reachCurve.detailSettings?.criteriaType === 'count'}
+                onChange={() => {
+                  onUpdateReachCurve?.({
+                    ...reachCurve,
+                    detailSettings: {
+                      ...reachCurve.detailSettings,
+                      criteriaType: 'count',
+                      intervalAmount: undefined,
+                      intervalCount: reachCurve.detailSettings?.intervalCount || 10
+                    }
+                  })
+                }}
+                className="radio-custom"
+                style={{ marginTop: '2px' }}
+              />
+              <div style={{ fontSize: '13px', fontWeight: '500' }}>
+                구간 수 기준
+              </div>
+            </label>
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+              cursor: 'pointer',
+              padding: '12px',
+              border: `1px solid ${reachCurve.detailSettings?.criteriaType === 'amount' ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+              borderRadius: '6px',
+              backgroundColor: reachCurve.detailSettings?.criteriaType === 'amount' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+              flex: 1,
+              transition: 'all 0.2s'
+            }}>
+              <input
+                type="radio"
+                name="criteriaType"
+                checked={reachCurve.detailSettings?.criteriaType === 'amount'}
+                onChange={() => {
+                  onUpdateReachCurve?.({
+                    ...reachCurve,
+                    detailSettings: {
+                      ...reachCurve.detailSettings,
+                      criteriaType: 'amount',
+                      intervalCount: undefined
+                    }
+                  })
+                }}
+                className="radio-custom"
+                style={{ marginTop: '2px' }}
+              />
+              <div style={{ fontSize: '13px', fontWeight: '500' }}>
+                구간별 금액 기준
+              </div>
+            </label>
           </div>
+        </div>
 
-          {/* 구간 범위 */}
-          <div style={{ marginBottom: '16px' }}>
+        {/* 구간 수 기준 입력 */}
+        {reachCurve.detailSettings?.criteriaType === 'count' && (
+          <div>
             <label style={{
               display: 'block',
-              fontSize: '12px',
+              fontSize: '13px',
+              fontWeight: '500',
+              marginBottom: '12px'
+            }}>
+              구간 수 (2~20)
+            </label>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input
+                    type="range"
+                    min="2"
+                    max="20"
+                    value={reachCurve.detailSettings?.intervalCount || 10}
+                    onChange={(e) => {
+                      onUpdateReachCurve?.({
+                        ...reachCurve,
+                        detailSettings: {
+                          ...reachCurve.detailSettings,
+                          intervalCount: parseInt(e.target.value)
+                        }
+                      })
+                    }}
+                    className="slider-custom"
+                    style={{ 
+                      background: `linear-gradient(to right, hsl(var(--foreground)) 0%, hsl(var(--foreground)) ${((reachCurve.detailSettings?.intervalCount || 10) - 2) / 18 * 100}%, hsl(var(--muted)) ${((reachCurve.detailSettings?.intervalCount || 10) - 2) / 18 * 100}%, hsl(var(--muted)) 100%)`
+                    }}
+                  />
+                </div>
+                <span style={{
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  minWidth: '50px',
+                  textAlign: 'right',
+                  color: 'hsl(var(--primary))'
+                }}>
+                  {reachCurve.detailSettings?.intervalCount || 10}개
+                </span>
+              </div>
+              {/* 구간별 금액 표시 */}
+              <div style={{
+                fontSize: '12px',
+                color: 'hsl(var(--muted-foreground))',
+                paddingLeft: '4px'
+              }}>
+                {(() => {
+                  const min = reachCurve.detailSettings?.rangeMin || 0
+                  const max = reachCurve.detailSettings?.rangeMax || 0
+                  const count = reachCurve.detailSettings?.intervalCount || 10
+                  
+                  if (min > 0 && max > 0 && max > min && count > 0) {
+                    const amount = Math.ceil((max - min) / count)
+                    return `구간별 금액: ${amount.toLocaleString('ko-KR')} 원`
+                  }
+                  return '구간별 금액: —'
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 구간별 금액 기준 입력 */}
+        {reachCurve.detailSettings?.criteriaType === 'amount' && (
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
               fontWeight: '500',
               marginBottom: '8px'
             }}>
-              구간
+              구간별 금액 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
             </label>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              {/* 최소값 */}
-              <input
-                type="text"
-                value={reachCurve.detailSettings?.rangeMin ? reachCurve.detailSettings.rangeMin.toLocaleString('ko-KR') : ''}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/,/g, '')
-                  if (value === '' || /^\d+$/.test(value)) {
-                    onUpdateReachCurve?.({
-                      ...reachCurve,
-                      detailSettings: {
-                        ...reachCurve.detailSettings,
-                        rangeMin: value === '' ? undefined : parseInt(value)
-                      }
-                    })
-                  }
-                }}
-                placeholder="최소값"
-                className="input"
-                style={{ width: '140px', fontSize: '13px' }}
-              />
-              <span style={{ 
-                fontSize: '13px', 
-                color: 'hsl(var(--muted-foreground))',
-                whiteSpace: 'nowrap'
-              }}>
-                원
-              </span>
-              
-              {/* 화살표 */}
-              <ArrowRight size={14} style={{ color: 'hsl(var(--muted-foreground))', margin: '0 4px' }} />
-              
-              {/* 최대값 */}
-              <input
-                type="text"
-                value={reachCurve.detailSettings?.rangeMax ? reachCurve.detailSettings.rangeMax.toLocaleString('ko-KR') : ''}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/,/g, '')
-                  if (value === '' || /^\d+$/.test(value)) {
-                    onUpdateReachCurve?.({
-                      ...reachCurve,
-                      detailSettings: {
-                        ...reachCurve.detailSettings,
-                        rangeMax: value === '' ? undefined : parseInt(value)
-                      }
-                    })
-                  }
-                }}
-                placeholder="최대값"
-                className="input"
-                style={{ width: '140px', fontSize: '13px' }}
-              />
-              <span style={{ 
-                fontSize: '13px', 
-                color: 'hsl(var(--muted-foreground))',
-                whiteSpace: 'nowrap'
-              }}>
-                원
-              </span>
-            </div>
-          </div>
-
-          {/* 기준 선택 */}
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px'
-            }}>
-              <label style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-                cursor: 'pointer',
-                padding: '12px',
-                border: `1px solid ${reachCurve.detailSettings?.criteriaType === 'count' ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                borderRadius: '6px',
-                backgroundColor: reachCurve.detailSettings?.criteriaType === 'count' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                flex: 1,
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="radio"
-                  name="criteriaType"
-                  checked={reachCurve.detailSettings?.criteriaType === 'count'}
-                  onChange={() => {
-                    onUpdateReachCurve?.({
-                      ...reachCurve,
-                      detailSettings: {
-                        ...reachCurve.detailSettings,
-                        criteriaType: 'count',
-                        intervalAmount: undefined,
-                        intervalCount: reachCurve.detailSettings?.intervalCount || 10
-                      }
-                    })
-                  }}
-                  className="radio-custom"
-                  style={{ marginTop: '2px' }}
-                />
-                <div style={{ fontSize: '13px', fontWeight: '500' }}>
-                  구간 수 기준
-                </div>
-              </label>
-              <label style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-                cursor: 'pointer',
-                padding: '12px',
-                border: `1px solid ${reachCurve.detailSettings?.criteriaType === 'amount' ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                borderRadius: '6px',
-                backgroundColor: reachCurve.detailSettings?.criteriaType === 'amount' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                flex: 1,
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="radio"
-                  name="criteriaType"
-                  checked={reachCurve.detailSettings?.criteriaType === 'amount'}
-                  onChange={() => {
-                    onUpdateReachCurve?.({
-                      ...reachCurve,
-                      detailSettings: {
-                        ...reachCurve.detailSettings,
-                        criteriaType: 'amount',
-                        intervalCount: undefined
-                      }
-                    })
-                  }}
-                  className="radio-custom"
-                  style={{ marginTop: '2px' }}
-                />
-                <div style={{ fontSize: '13px', fontWeight: '500' }}>
-                  구간별 금액 기준
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* 구간 수 기준 입력 */}
-          {reachCurve.detailSettings?.criteriaType === 'count' && (
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: '500',
-                marginBottom: '12px'
-              }}>
-                구간 수 (2~20)
-              </label>
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <div style={{ flex: 1, position: 'relative' }}>
-                    <input
-                      type="range"
-                      min="2"
-                      max="20"
-                      value={reachCurve.detailSettings?.intervalCount || 10}
-                      onChange={(e) => {
-                        onUpdateReachCurve?.({
-                          ...reachCurve,
-                          detailSettings: {
-                            ...reachCurve.detailSettings,
-                            intervalCount: parseInt(e.target.value)
-                          }
-                        })
-                      }}
-                      className="slider-custom"
-                      style={{ 
-                        background: `linear-gradient(to right, hsl(var(--foreground)) 0%, hsl(var(--foreground)) ${((reachCurve.detailSettings?.intervalCount || 10) - 2) / 18 * 100}%, hsl(var(--muted)) ${((reachCurve.detailSettings?.intervalCount || 10) - 2) / 18 * 100}%, hsl(var(--muted)) 100%)`
-                      }}
-                    />
-                  </div>
-                  <span style={{
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    minWidth: '50px',
-                    textAlign: 'right',
-                    color: 'hsl(var(--primary))'
-                  }}>
-                    {reachCurve.detailSettings?.intervalCount || 10}개
-                  </span>
-                </div>
-                {/* 구간별 금액 표시 */}
-                <div style={{
-                  fontSize: '12px',
-                  color: 'hsl(var(--muted-foreground))',
-                  paddingLeft: '4px'
-                }}>
-                  {(() => {
-                    const min = reachCurve.detailSettings?.rangeMin || 0
-                    const max = reachCurve.detailSettings?.rangeMax || 0
-                    const count = reachCurve.detailSettings?.intervalCount || 10
-                    
-                    if (min > 0 && max > 0 && max > min && count > 0) {
-                      const amount = Math.ceil((max - min) / count)
-                      return `구간별 금액: ${amount.toLocaleString('ko-KR')} 원`
-                    }
-                    return '구간별 금액: —'
-                  })()}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 구간별 금액 기준 입력 */}
-          {reachCurve.detailSettings?.criteriaType === 'amount' && (
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: '500',
-                marginBottom: '8px'
-              }}>
-                구간별 금액 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-              </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
@@ -1116,7 +1140,6 @@ export function ScenarioStep2ReachPredictor({
               </div>
             </div>
           )}
-        </div>
       </div>
 
       {/* 기간 설정 다이얼로그 */}

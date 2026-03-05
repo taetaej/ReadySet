@@ -1,5 +1,5 @@
 import { MoreVertical, Edit, Trash2 } from 'lucide-react'
-import { Avatar } from './common/Avatar'
+import { Avatar } from '../common/Avatar'
 
 interface SlotData {
   id: string

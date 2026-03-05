@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight, X, Clock, CheckCircle, AlertCircle } from 'lucide-react'
-import { AppLayout } from './layout/AppLayout'
-import { getDarkMode, setDarkMode } from '../utils/theme'
+import { AppLayout } from '../layout/AppLayout'
+import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { 
   ScenarioStep1,
   ScenarioStep2RatioFinder,
@@ -10,7 +10,7 @@ import {
   ReachPredictorMediaDialog,
   type ScenarioFormData,
   type ReachPredictorMedia
-} from './scenario'
+} from '../scenario'
 
 interface CreateScenarioProps {
   slotData?: any
@@ -28,10 +28,16 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     industry: '',
     period: { start: '', end: '' },
     targetGrp: [],
-    simulationUnit: ''
+    simulationUnit: '',
+    reachCurve: {
+      detailSettings: {
+        criteriaType: 'count',
+        intervalCount: 10
+      }
+    }
   })
   
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   
   // 매체별 예산 배분 관련 state
@@ -141,8 +147,10 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
         .every(m => m.impressions && parseInt(m.impressions) > 0)
       if (!unlinkedMediaValid) return false
       
-      // 리치커브 예산 상한 필수
-      if (!formData.reachCurve?.budgetCap || formData.reachCurve.budgetCap <= 0) return false
+      // 리치커브 구간 최소/최대값 필수
+      if (!formData.reachCurve?.detailSettings?.rangeMin || formData.reachCurve.detailSettings.rangeMin <= 0) return false
+      if (!formData.reachCurve?.detailSettings?.rangeMax || formData.reachCurve.detailSettings.rangeMax <= 0) return false
+      if (formData.reachCurve.detailSettings.rangeMin >= formData.reachCurve.detailSettings.rangeMax) return false
       
       // 구간별 금액 기준 선택 시 금액 입력 필수
       if (formData.reachCurve?.detailSettings?.criteriaType === 'amount') {
@@ -250,16 +258,17 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
       currentView="createScenario"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: slotData?.title || 'Slot', onClick: () => navigate('/reachcaster') },
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData?.title || 'Slot' },
+        { label: 'Reach Caster', href: '/reachcaster' },
         { label: '새 시나리오 생성' }
       ]}
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded: allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders: expandedFolders,
-        onToggleAllSlots: () => setAllSlotsExpanded(!allSlotsExpanded),
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: (folderId: string) => {
           setExpandedFolders(prev => 
             prev.includes(folderId) 
@@ -985,12 +994,12 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                           <span style={{ 
                             fontSize: '13px', 
                             fontWeight: '500',
-                            color: formData.reachCurve?.budgetCap ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                            color: (formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                           }}>
-                            {formData.reachCurve?.budgetCap ? '설정됨' : '—'}
+                            {(formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) ? '설정됨' : '—'}
                           </span>
                         </div>
-                        {formData.reachCurve?.budgetCap && (
+                        {(formData.reachCurve?.detailSettings?.rangeMin && formData.reachCurve?.detailSettings?.rangeMax) && (
                           <div style={{
                             marginTop: '8px',
                             padding: '8px',
@@ -1006,53 +1015,36 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                               display: 'flex',
                               justifyContent: 'space-between'
                             }}>
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>예산 상한</span>
+                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간</span>
                               <span style={{ fontWeight: '500' }}>
-                                {formData.reachCurve.budgetCap.toLocaleString('ko-KR')} 원
+                                {formData.reachCurve.detailSettings.rangeMin.toLocaleString('ko-KR')} ~ {formData.reachCurve.detailSettings.rangeMax.toLocaleString('ko-KR')} 원
                               </span>
                             </div>
-                            {formData.reachCurve.detailSettings && (
-                              <>
-                                {(formData.reachCurve.detailSettings.rangeMin || formData.reachCurve.detailSettings.rangeMax) && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.rangeMin?.toLocaleString('ko-KR') || '—'} ~ {formData.reachCurve.detailSettings.rangeMax?.toLocaleString('ko-KR') || '—'} 원
-                                    </span>
-                                  </div>
-                                )}
-                                {formData.reachCurve.detailSettings.criteriaType === 'count' && formData.reachCurve.detailSettings.intervalCount && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간 수</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.intervalCount}개
-                                    </span>
-                                  </div>
-                                )}
-                                {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
-                                  <div style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--foreground))',
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                  }}>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간별 금액</span>
-                                    <span style={{ fontWeight: '500' }}>
-                                      {formData.reachCurve.detailSettings.intervalAmount.toLocaleString('ko-KR')} 원
-                                    </span>
-                                  </div>
-                                )}
-                              </>
+                            {formData.reachCurve.detailSettings.criteriaType === 'count' && formData.reachCurve.detailSettings.intervalCount && (
+                              <div style={{
+                                fontSize: '11px',
+                                color: 'hsl(var(--foreground))',
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}>
+                                <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간 수</span>
+                                <span style={{ fontWeight: '500' }}>
+                                  {formData.reachCurve.detailSettings.intervalCount}개
+                                </span>
+                              </div>
+                            )}
+                            {formData.reachCurve.detailSettings.criteriaType === 'amount' && formData.reachCurve.detailSettings.intervalAmount && (
+                              <div style={{
+                                fontSize: '11px',
+                                color: 'hsl(var(--foreground))',
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}>
+                                <span style={{ color: 'hsl(var(--muted-foreground))' }}>구간별 금액</span>
+                                <span style={{ fontWeight: '500' }}>
+                                  {formData.reachCurve.detailSettings.intervalAmount.toLocaleString('ko-KR')} 원
+                                </span>
+                              </div>
                             )}
                           </div>
                         )}
@@ -1116,6 +1108,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
           setReachPredictorMedia([...reachPredictorMedia, ...mediaItems])
           setRpMediaSelectionDialog(false)
         }}
+        currentMedia={reachPredictorMedia}
       />
       
       {/* 토스트 알림 */}

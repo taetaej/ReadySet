@@ -1,21 +1,24 @@
 import React from 'react'
-import { Archive, ChevronRight, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Archive, ChevronRight, ChevronLeft, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
 
 interface SidebarProps {
-  allSlotsExpanded: boolean
+  isCollapsed: boolean
   expandedFolders: string[]
-  onToggleAllSlots: () => void
+  onToggleSidebar: () => void
   onToggleFolder: (folderId: string) => void
   onNavigateToWorkspace: () => void
 }
 
 export function Sidebar({ 
-  allSlotsExpanded, 
+  isCollapsed, 
   expandedFolders, 
-  onToggleAllSlots, 
+  onToggleSidebar, 
   onToggleFolder,
   onNavigateToWorkspace 
 }: SidebarProps) {
+  const navigate = useNavigate()
+  
   return (
     <aside className="workspace-sidebar" style={{ 
       borderRight: 'none',
@@ -23,21 +26,30 @@ export function Sidebar({
       flexDirection: 'column',
       height: '100vh',
       position: 'sticky',
-      top: 0
+      top: 0,
+      width: isCollapsed ? '60px' : '320px',
+      transition: 'width 0.3s ease',
+      flexShrink: 0
     }}>
-      <div className="workspace-sidebar-header" style={{ borderBottom: 'none' }}>
-        <h2 className="workspace-sidebar-title">
-          My Slots
-        </h2>
+      <div className="workspace-sidebar-header" style={{ 
+        borderBottom: 'none',
+        justifyContent: isCollapsed ? 'center' : 'space-between'
+      }}>
+        {!isCollapsed && (
+          <h2 className="workspace-sidebar-title">
+            My Slots
+          </h2>
+        )}
         <button 
-          onClick={onToggleAllSlots}
+          onClick={onToggleSidebar}
           className="btn btn-ghost btn-sm"
-          title={allSlotsExpanded ? "모든 Slot 접기" : "모든 Slot 펼치기"}
+          title={isCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
+          style={{ padding: '8px' }}
         >
-          {allSlotsExpanded ? (
-            <span style={{ fontSize: '11px', fontWeight: '500' }}>Collapse</span>
+          {isCollapsed ? (
+            <ChevronRight size={16} />
           ) : (
-            <span style={{ fontSize: '11px', fontWeight: '500' }}>Expand</span>
+            <ChevronLeft size={16} />
           )}
         </button>
       </div>
@@ -45,21 +57,10 @@ export function Sidebar({
       <nav className="workspace-sidebar-nav" style={{
         flex: 1,
         overflowY: 'auto',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        display: isCollapsed ? 'none' : 'block'
       }}>
         <div>
-          <div 
-            className="tree-node" 
-            style={{ justifyContent: 'flex-start' }}
-            onClick={onNavigateToWorkspace}
-          >
-            <LayoutGrid size={16} style={{ flexShrink: 0 }} />
-            <span style={{ fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              SlotBoard
-            </span>
-          </div>
-          
-          <div style={{ marginLeft: '16px' }}>
             {/* 삼성 갤럭시 S24 캠페인 Slot */}
             <div 
               onClick={() => onToggleFolder('samsung')}
@@ -96,24 +97,151 @@ export function Sidebar({
             
             {expandedFolders.includes('samsung') && (
               <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
-                {/* Reach Caster 솔루션 */}
+                {/* DataShot 솔루션 */}
                 <div 
-                  onClick={() => onToggleFolder('samsung-reachcaster')}
-                  className="tree-node tree-node--active"
+                  className="tree-node"
                   style={{ marginBottom: '4px' }}
                 >
-                  <ChevronRight 
-                    size={12} 
-                    style={{ 
-                      transform: expandedFolders.includes('samsung-reachcaster') ? 'rotate(90deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s'
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleFolder('samsung-datashot')
                     }}
-                  />
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      marginRight: '4px'
+                    }}
+                  >
+                    <ChevronRight 
+                      size={12} 
+                      style={{ 
+                        transform: expandedFolders.includes('samsung-datashot') ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  </div>
+                  <Hexagon size={16} style={{ 
+                    fill: 'hsl(var(--primary))', 
+                    color: 'hsl(var(--primary-foreground))'
+                  }} />
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate('/datashot')
+                    }}
+                    style={{ 
+                      fontSize: '14px', 
+                      flex: 1,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    DataShot
+                  </span>
+                  <span style={{ 
+                    fontSize: '12px',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    minWidth: '24px',
+                    textAlign: 'center'
+                  }} className="bg-background text-muted-foreground">
+                    4
+                  </span>
+                </div>
+
+                {/* DataShot 데이터셋 목록 */}
+                {expandedFolders.includes('samsung-datashot') && (
+                  <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      padding: '6px 8px',
+                      borderRadius: '4px',
+                      marginBottom: '2px',
+                      fontSize: '13px'
+                    }}>
+                      <span style={{ flex: 1 }}>데이터셋 A</span>
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      padding: '6px 8px',
+                      borderRadius: '4px',
+                      marginBottom: '2px',
+                      fontSize: '13px'
+                    }}>
+                      <span style={{ flex: 1 }}>데이터셋 B</span>
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      padding: '6px 8px',
+                      borderRadius: '4px',
+                      marginBottom: '2px',
+                      fontSize: '13px'
+                    }}>
+                      <span style={{ flex: 1 }}>데이터셋 C</span>
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      padding: '6px 8px',
+                      borderRadius: '4px',
+                      marginBottom: '2px',
+                      fontSize: '13px'
+                    }}>
+                      <span style={{ flex: 1 }}>데이터셋 D</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reach Caster 솔루션 */}
+                <div 
+                  className="tree-node"
+                  style={{ marginBottom: '4px' }}
+                >
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleFolder('samsung-reachcaster')
+                    }}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      marginRight: '4px'
+                    }}
+                  >
+                    <ChevronRight 
+                      size={12} 
+                      style={{ 
+                        transform: expandedFolders.includes('samsung-reachcaster') ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  </div>
                   <Hexagon size={16} style={{ 
                     fill: 'hsl(var(--primary))', 
                     color: 'hsl(var(--primary-foreground))' 
                   }} />
-                  <span style={{ fontSize: '14px', flex: 1 }}>Reach Caster</span>
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate('/reachcaster')
+                    }}
+                    style={{ 
+                      fontSize: '14px', 
+                      flex: 1,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Reach Caster
+                  </span>
                   <span style={{ 
                     fontSize: '12px',
                     padding: '2px 8px',
@@ -256,20 +384,6 @@ export function Sidebar({
                     </div>
                   </div>
                 )}
-                
-                {/* Data Shot 솔루션 */}
-                <div className="tree-node" style={{ marginBottom: '4px', opacity: 0.6 }}>
-                  <ChevronRight size={12} style={{ opacity: 0.5 }} />
-                  <Hexagon size={16} style={{ opacity: 0.5 }} />
-                  <span style={{ fontSize: '14px', flex: 1 }}>Data Shot</span>
-                  <span style={{ 
-                    fontSize: '11px',
-                    padding: '2px 6px',
-                    borderRadius: '8px'
-                  }} className="bg-muted text-muted-foreground">
-                    준비중
-                  </span>
-                </div>
 
                 {/* Ad Curator 솔루션 */}
                 <div className="tree-node" style={{ marginBottom: '4px', opacity: 0.6 }}>
@@ -369,15 +483,15 @@ export function Sidebar({
               </span>
             </div>
           </div>
-        </div>
       </nav>
       
       {/* Support Section - Glassy Tone on Tone */}
-      <div style={{
-        marginTop: 'auto',
-        padding: '16px'
-      }}>
+      {!isCollapsed && (
         <div style={{
+          marginTop: 'auto',
+          padding: '16px'
+        }}>
+          <div style={{
           backgroundColor: 'hsl(var(--background) / 0.5)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
@@ -469,7 +583,8 @@ export function Sidebar({
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </aside>
   )
 }

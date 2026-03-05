@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 
 interface BreadcrumbItem {
@@ -12,6 +13,8 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ items }: BreadcrumbProps) {
+  const navigate = useNavigate()
+  
   if (items.length === 0) return null
 
   return (
@@ -27,9 +30,9 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 onClick={() => {
                   if (item.onClick) {
                     item.onClick()
-                  } else {
-                    // 네비게이션 로직 추가 예정
-                    console.log('Navigate to:', item.href)
+                  }
+                  if (item.href) {
+                    navigate(item.href)
                   }
                 }}
                 style={{ 

@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText } from 'lucide-react'
+import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText, Smartphone, Tv, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight, SearchCheck } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
-import { AppLayout } from './layout/AppLayout'
-import { getDarkMode, setDarkMode as setDarkModeUtil } from '../utils/theme'
+import { AppLayout } from '../layout/AppLayout'
+import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { DetailedDataTable } from './RatioFinderDetailTable'
+import { targetGrpOptions } from '../scenario/constants'
 
 interface RatioFinderResultProps {
   scenarioData?: any
@@ -36,13 +37,28 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const location = useLocation()
   const scenarioData = propScenarioData || location.state?.scenarioData
   
+  // Slot 데이터 가져오기
+  const slotData = location.state?.slotData || {
+    title: '2024 봄 시즌 캠페인',
+    advertiser: '삼성전자',
+    advertiserId: 'ADV001'
+  }
+  
+  // 기본 타겟 GRP 설정
+  const defaultTargetGrp = ['남성 25~29세', '남성 30~34세', '여성 25~29세']
+  const selectedTargetGrp = scenarioData?.targetGrp && Array.isArray(scenarioData.targetGrp) && scenarioData.targetGrp.length > 0
+    ? scenarioData.targetGrp 
+    : defaultTargetGrp
+  
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
+  const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
   const [showBestRatio, setShowBestRatio] = useState(false)
   
@@ -123,7 +139,15 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   }, [maxReachIndex])
 
   const toggleAllSlots = () => {
-    setAllSlotsExpanded(!allSlotsExpanded)
+    const newExpanded = !isSidebarCollapsed
+    setIsSidebarCollapsed(newExpanded)
+    
+    // 모든 폴더 펼치기/접기
+    if (newExpanded) {
+      setExpandedFolders(['samsung', 'samsung-reachcaster', 'lg', 'hyundai'])
+    } else {
+      setExpandedFolders([])
+    }
   }
 
   const toggleFolder = (folderId: string) => {
@@ -369,7 +393,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
   const onChartClick = (params: any) => {
     if (params.componentType === 'series' && params.seriesType === 'bar') {
+      console.log('Chart clicked - dataIndex:', params.dataIndex)
       setSelectedBarIndex(params.dataIndex)
+      console.log('Selected data:', simulationData[params.dataIndex])
     }
   }
 
@@ -402,95 +428,134 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       currentView="ratioFinderResult"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: 'Slot', onClick: () => navigate('/reachcaster') },
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData.title },
+        { label: 'Reach Caster', href: '/reachcaster' },
         { label: scenarioData?.name || 'Ratio Finder Result' }
       ]}
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleAllSlots: toggleAllSlots,
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
-      {/* Scenario Header - SlotHeader 스타일 */}
+      {/* Scenario Header - 1줄 레이아웃 */}
       <div className="slot-detail-header">
-        <div className="slot-detail-header__main">
-          <div className="slot-detail-header__info">
-            {/* 첫 번째 줄: 분석 모듈 뱃지 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <span style={{
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '500',
-                backgroundColor: 'hsl(var(--foreground))',
-                color: 'hsl(var(--background))',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <Scale size={14} />
-                Ratio Finder
-              </span>
-            </div>
+        <div className="slot-detail-header__main" style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: '16px'
+        }}>
+          {/* 좌측: 분석 모듈 뱃지 + 시나리오명 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+            <span style={{
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: '500',
+              backgroundColor: 'hsl(var(--foreground))',
+              color: 'hsl(var(--background))',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: 0
+            }}>
+              <Scale size={14} />
+              Ratio Finder
+            </span>
             
-            {/* 두 번째 줄: 시나리오 타이틀 */}
-            <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px', fontFamily: 'Paperlogy, sans-serif' }}>
+            <h1 style={{ 
+              fontSize: '20px', 
+              fontWeight: '600', 
+              margin: 0,
+              fontFamily: 'Paperlogy, sans-serif',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
               {scenarioData?.name || 'Ratio Finder 시나리오 결과'}
             </h1>
-            
-            {/* 세 번째 줄: 설명 */}
-            <p className="text-muted-foreground" style={{ fontSize: '14px', margin: 0, marginBottom: '16px', fontFamily: 'Paperlogy, sans-serif' }}>
-              {scenarioData?.description || 'TVC와 Digital 매체의 최적 예산 비중을 분석한 결과입니다.'}
-            </p>
-            
-            {/* 네 번째 줄: 주요 정보 */}
+          </div>
+
+          {/* 우측: 주요 정보 + 액션 버튼들 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
+            {/* 주요 정보 */}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '20px',
-              fontSize: '13px',
+              gap: '12px',
+              fontSize: '12px',
               fontFamily: 'Paperlogy, sans-serif'
             }} className="text-muted-foreground">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>총 예산:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontWeight: '500' }}>총 예산</span>
                 <span>₩1,000,000,000</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>시뮬레이션 단위:</span>
-                <span>10%</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontWeight: '500' }}>시뮬레이션</span>
+                <span>10% 단위</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>타겟 GRP:</span>
-                <span>{scenarioData?.targetGrp?.length || 3}개 세그먼트</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontWeight: '500' }}>타겟</span>
+                <span>{selectedTargetGrp.length}개</span>
+                <button
+                  onClick={() => setTargetGrpTooltipOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'hsl(var(--muted-foreground))',
+                    transition: 'color 0.2s',
+                    opacity: 0.6
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'hsl(var(--foreground))'
+                    e.currentTarget.style.opacity = '1'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                    e.currentTarget.style.opacity = '0.6'
+                  }}
+                  title="타겟 GRP 상세 보기"
+                >
+                  <SearchCheck size={14} />
+                </button>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>캠페인 기간:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontWeight: '500' }}>기간</span>
                 <span>{scenarioData?.startDate || '2024-01-15'} ~ {scenarioData?.endDate || '2024-02-15'}</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>브랜드/업종:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontWeight: '500' }}>브랜드/업종</span>
                 <span>{scenarioData?.brand || '삼성전자'} / {scenarioData?.industry || '전자제품'}</span>
               </div>
             </div>
-          </div>
 
-          {/* 우측 액션 버튼들 */}
-          <div className="slot-detail-header__actions" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-            {/* Export 드롭다운 */}
+            {/* 구분선 */}
+            <div style={{ 
+              width: '1px', 
+              height: '32px', 
+              backgroundColor: 'hsl(var(--border))' 
+            }} />
+
+            {/* Export 버튼 */}
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="btn btn-ghost btn-md"
-                style={{ padding: '8px' }}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
               >
                 <Share2 size={18} />
               </button>
@@ -577,14 +642,14 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               )}
             </div>
             
-            {/* Info 아이콘 - 시나리오 ID, 생성/완료 정보 툴팁 */}
+            {/* Info 아이콘 - 설명, 시나리오 ID, 생성/완료 정보 툴팁 */}
             <div style={{ position: 'relative' }}>
               <button
                 data-info-tooltip
                 onMouseEnter={() => setInfoTooltipOpen(true)}
                 onMouseLeave={() => setInfoTooltipOpen(false)}
-                className="btn btn-ghost btn-md"
-                style={{ padding: '8px' }}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
               >
                 <Info size={18} />
               </button>
@@ -595,7 +660,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   top: '100%',
                   right: 0,
                   marginTop: '8px',
-                  width: '280px',
+                  width: '320px',
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
@@ -604,12 +669,22 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   zIndex: 1000,
                   fontFamily: 'Paperlogy, sans-serif'
                 }}>
+                  {/* 설명 */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>설명</div>
+                    <div style={{ fontSize: '13px', lineHeight: '1.4' }}>
+                      {scenarioData?.description || 'TVC와 Digital 매체의 최적 예산 비중을 분석한 결과입니다.'}
+                    </div>
+                  </div>
+
+                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
+
                   <div style={{ marginBottom: '12px' }}>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Scenario ID</div>
                     <div style={{ fontSize: '13px', fontWeight: '500' }}>#{scenarioData?.id || '1'}</div>
                   </div>
                   
-                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
                   
                   <div style={{ marginBottom: '12px' }}>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
@@ -619,7 +694,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                     </div>
                   </div>
                   
-                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
                   
                   <div>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>완료일시</div>
@@ -628,82 +703,86 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 </div>
               )}
             </div>
+
+            {/* 관리 메뉴 */}
+            <div style={{ position: 'relative' }}>
+              <button
+                data-context-menu
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setContextMenuOpen(!contextMenuOpen)
+                }}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+              >
+                <MoreVertical size={18} />
+              </button>
+              
+              {contextMenuOpen && (
+                <div className="dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  width: '120px',
+                  zIndex: 1000
+                }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setContextMenuOpen(false)
+                      console.log('시나리오 복제')
+                    }}
+                    className="dropdown-item"
+                  >
+                    <Copy size={14} />
+                    복제
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setContextMenuOpen(false)
+                      console.log('시나리오 이동')
+                    }}
+                    className="dropdown-item"
+                  >
+                    <ArrowRightLeft size={14} />
+                    이동
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setContextMenuOpen(false)
+                      if (window.confirm('시나리오를 삭제하시겠습니까?')) {
+                        console.log('시나리오 삭제')
+                      }
+                    }}
+                    className="dropdown-item"
+                  >
+                    <Trash2 size={14} />
+                    삭제
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* 차트 영역 - workspace-content 스타일 */}
-      <div className="workspace-content">
-        <div style={{ marginBottom: '16px', position: 'relative' }}>
-          {/* 차트 타이틀과 모집단 정보 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '40px'
+      <div className="workspace-content" style={{ overflow: 'hidden' }}>
+        <div style={{ marginBottom: '16px', position: 'relative', width: '100%', maxWidth: '100%' }}>
+          {/* 차트 소제목 */}
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            fontFamily: 'Paperlogy, sans-serif',
+            margin: 0,
+            marginBottom: '16px',
+            color: 'hsl(var(--foreground))'
           }}>
-            <h2 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0
-            }} className="text-foreground">
-              Digital/TVC 통합 도달 시뮬레이션
-            </h2>
-            
-            {/* 모집단 정보 */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}>
-              <Users size={16} className="text-muted-foreground" />
-              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
-                모집단: 46,039,423명
-              </span>
-              <div style={{ position: 'relative' }}>
-                <button
-                  onMouseEnter={() => setPopulationTooltipOpen(true)}
-                  onMouseLeave={() => setPopulationTooltipOpen(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Info size={14} className="text-muted-foreground" />
-                </button>
-                
-                {populationTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '8px',
-                    width: '140px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    fontSize: '12px'
-                  }}>
-                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
-                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
-                      코리안클릭 (2026년 1월)
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+            Digital - TVC Ratio Analysis
+          </h3>
           
           {/* 차트 컨테이너 */}
           <div style={{ position: 'relative', marginTop: '24px', marginBottom: '8px' }}>
@@ -772,24 +851,98 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         </div>
 
         {/* 상세 데이터 테이블 */}
-        <div style={{ marginTop: '24px' }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            marginBottom: '16px',
-            fontFamily: 'Paperlogy, sans-serif'
-          }} className="text-foreground">
-            선택 비중별 예상 성과
-            {selectedData && (
-              <span style={{ 
-                fontSize: '14px', 
-                fontWeight: '400',
-                marginLeft: '12px'
-              }} className="text-muted-foreground">
-                (TVC {selectedData.tvcRatio}% / Digital {selectedData.digitalRatio}%)
+        <div style={{ marginTop: '24px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '16px'
+          }}>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              color: 'hsl(var(--foreground))',
+              margin: 0
+            }}>
+              <span>Estimated Performance</span>
+              {selectedData && (
+                <span style={{ 
+                  fontSize: '13px', 
+                  fontWeight: '400',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }} className="text-muted-foreground">
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Smartphone size={14} />
+                    Digital {selectedData.digitalRatio}%
+                  </span>
+                  <span>:</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Tv size={14} />
+                    TVC {selectedData.tvcRatio}%
+                  </span>
+                </span>
+              )}
+            </h3>
+            
+            {/* 모집단 정보 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              <Users size={16} className="text-muted-foreground" />
+              <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                모집단: 46,039,423명
               </span>
-            )}
-          </h2>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onMouseEnter={() => setPopulationTooltipOpen(true)}
+                  onMouseLeave={() => setPopulationTooltipOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Info size={14} className="text-muted-foreground" />
+                </button>
+                
+                {populationTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '140px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
+                    <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                      통계청 (2024년)
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           
           {selectedData ? (
             <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
@@ -801,12 +954,188 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
               fontFamily: 'Paperlogy, sans-serif'
-            }} className="text-muted-foreground">
-              차트에서 막대를 클릭하면 상세 데이터가 표시됩니다
-            </div>
-          )}
+              }} className="text-muted-foreground">
+                차트에서 막대를 클릭하면 상세 데이터가 표시됩니다
+              </div>
+            )}
+        </div>
+
+        {/* DataShot CTA */}
+        <div style={{
+          padding: '24px 0',
+          borderTop: '1px solid hsl(var(--border))',
+          marginTop: '16px'
+        }}>
+          <button
+            onClick={() => navigate('/datashot')}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontFamily: 'Paperlogy, sans-serif',
+              color: 'hsl(var(--muted-foreground))',
+              transition: 'all 0.2s',
+              borderRadius: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
+              e.currentTarget.style.color = 'hsl(var(--foreground))'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+            }}
+          >
+            <Database size={16} />
+            <span>이 예측을 실제 데이터와 비교해보세요</span>
+            <span style={{ 
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              DataShot에서 {scenarioData?.industry || '업종별'} 캠페인 성과 확인하기
+              <ArrowRight size={16} />
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* 타겟 GRP 다이얼로그 */}
+      {targetGrpTooltipOpen && (
+        <div className="dialog-overlay" onClick={() => setTargetGrpTooltipOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 타겟 GRP</h3>
+              <p className="dialog-description">
+                이 시나리오에 적용된 타겟 모수입니다
+              </p>
+            </div>
+            
+            <div style={{ padding: '24px' }}>
+              {/* 남성 */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid hsl(var(--border))'
+                }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>남성</span>
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '8px'
+                }}>
+                  {targetGrpOptions.male.map((target) => {
+                    const isSelected = selectedTargetGrp.includes(target)
+                    
+                    return (
+                      <label
+                        key={target}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          cursor: 'not-allowed',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: `1px solid ${isSelected ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                          backgroundColor: isSelected ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                          opacity: isSelected ? 1 : 0.5,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled
+                          className="checkbox-custom"
+                          style={{ cursor: 'not-allowed' }}
+                        />
+                        <span style={{ fontSize: '12px' }}>{target.replace('남성 ', '')}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* 여성 */}
+              <div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid hsl(var(--border))'
+                }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>여성</span>
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '8px'
+                }}>
+                  {targetGrpOptions.female.map((target) => {
+                    const isSelected = selectedTargetGrp.includes(target)
+                    
+                    return (
+                      <label
+                        key={target}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          cursor: 'not-allowed',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: `1px solid ${isSelected ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                          backgroundColor: isSelected ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                          opacity: isSelected ? 1 : 0.5,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled
+                          className="checkbox-custom"
+                          style={{ cursor: 'not-allowed' }}
+                        />
+                        <span style={{ fontSize: '12px' }}>{target.replace('여성 ', '')}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setTargetGrpTooltipOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   )
 }
