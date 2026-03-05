@@ -360,11 +360,6 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                     }} className="text-foreground">
                       {advertiser.name}
                     </div>
-                    <div style={{ 
-                      fontSize: '12px'
-                    }} className="text-muted-foreground">
-                      {advertiser.slotCount}개 Slot
-                    </div>
                   </div>
                 </div>
               ))}

@@ -258,8 +258,9 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
       currentView="createScenario"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: slotData?.title || 'Slot', onClick: () => navigate('/reachcaster') },
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData?.title || 'Slot' },
+        { label: 'Reach Caster', href: '/reachcaster' },
         { label: '새 시나리오 생성' }
       ]}
       isDarkMode={isDarkMode}

@@ -9,15 +9,16 @@
 | 2026. 2. 06 | 신지아 | 구현 기반 업데이트 | 실제 구현 내용 반영 | 1.2 |
 | 2026. 2. 09 | AI | 시나리오 생성 페이지 상세 업데이트 | Reach Predictor Phase 1 구현 완료 | 1.3 |
 | 2026. 2. 12 | AI | 실제 구현 구조 반영 | 현재 프로젝트 파일 구조 기반 업데이트 | 1.4 |
+| 2026. 3. 05 | AI | 브레드크럼 네비게이션 구조 개선 | 솔루션 레이어 추가, 정책 문서화 | 1.5 |
 
 ---
 
 📢 본 문서는 예측/분석 고도화 프로젝트 정책서(v0.2)를 기반으로 작성된 정보 구조(IA) 가이드입니다.
 
-- 현재 버전: v1.4
+- 현재 버전: v1.5
 - 관리자: 신지아
 - 참고: 예측분석_고도화_프로젝트_정책서_v0.2.md
-- 최근 업데이트: 실제 구현 구조 반영 (2026.02.12)
+- 최근 업데이트: 브레드크럼 네비게이션 구조 개선 (2026.03.05)
 
 ---
 
@@ -164,7 +165,8 @@
 │       └── 페이지 네비게이션
 ├── Slot 생성/수정 페이지
 │   ├── Breadcrumb (GNB 하단)
-│   │   └── SlotBoard / 새 Slot 생성 (또는 Slot 수정)
+│   │   ├── 생성: SlotBoard / 새 Slot 생성
+│   │   └── 수정: SlotBoard / Slot 수정
 │   ├── 폼 영역
 │   │   ├── 기본 정보
 │   │   │   ├── Slot명 (필수, 30자 이내)
@@ -181,7 +183,7 @@
 ├── Slot 상세 페이지 (Reach Caster)
 │   ├── URL: /reachcaster
 │   ├── Breadcrumb
-│   │   └── SlotBoard / {Slot명}
+│   │   └── SlotBoard / {Slot명} / Reach Caster
 │   ├── Slot 헤더 (컴팩트 디자인)
 │   │   ├── 가시성 뱃지
 │   │   ├── Slot 타이틀
@@ -241,7 +243,7 @@
 ├── 시나리오 생성 페이지
 │   ├── URL: /reachcaster/scenario/new
 │   ├── Breadcrumb
-│   │   └── SlotBoard / {Slot명} / 새 시나리오 생성
+│   │   └── SlotBoard / {Slot명} / Reach Caster / 새 시나리오 생성
 │   └── 콘텐츠 (준비 중)
 └── 라우팅 구조
     ├── / 또는 /slotboard → SlotBoard 메인
@@ -271,9 +273,16 @@ Sidebar (SNB)
 └── 상태: 확장/축소 가능
 
 Breadcrumb
-├── 역할: 현재 위치 표시
+├── 역할: 현재 위치 표시 및 상위 네비게이션
 ├── 위치: GNB 하단
-└── 동적: 라우트에 따라 자동 생성
+├── 구조: 4단계 계층
+│   ├── Level 1: SlotBoard (클릭 가능)
+│   ├── Level 2: Slot명 (클릭 불가)
+│   ├── Level 3: 솔루션명 (클릭 가능)
+│   └── Level 4: 세부 페이지명 (클릭 불가, 현재 위치)
+├── 표시 형식: "SlotBoard / {Slot명} / {솔루션명} / {세부 페이지명}"
+├── 구분자: ChevronRight 아이콘 (14px)
+└── 상세 정책: plan/spec/Breadcrumb_Navigation_Policy.md 참조
 
 Footer
 ├── 역할: 하단 정보 표시
@@ -591,7 +600,7 @@ SlotBoard
 ```
 Slot 상세 (URL: /reachcaster)
 ├── Breadcrumb (GNB 하단)
-│   └── SlotBoard / {Slot명}
+│   └── SlotBoard / {Slot명} / Reach Caster
 ├── Slot 헤더 (컴팩트 디자인)
 │   ├── 좌측: Slot 정보
 │   │   ├── 1줄: 가시성 뱃지
@@ -716,7 +725,7 @@ Slot 상세 (URL: /reachcaster)
 ```
 시나리오 생성 (URL: /reachcaster/scenario/new)
 ├── Breadcrumb (GNB 하단)
-│   └── SlotBoard / {Slot명} / 새 시나리오 생성
+│   └── SlotBoard / {Slot명} / Reach Caster / 새 시나리오 생성
 ├── 페이지 헤더
 │   ├── 타이틀: "새 시나리오 생성"
 │   └── 설명: "단계별로 시나리오 정보를 입력하고 분석을 시작하세요"

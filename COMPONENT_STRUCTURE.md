@@ -192,6 +192,7 @@ import { AnalysisCard } from './AnalysisCard'
 
 - `src/components/README.md`: 상세한 컴포넌트 설명
 - `plan/strategic(highlevel)/예측분석_플랫폼_IA_v1.0.md`: 전체 시스템 IA
+- `plan/spec/Breadcrumb_Navigation_Policy.md`: 브레드크럼 네비게이션 정책 및 정의서
 - `guide/Screen_Specification_Guide.md`: 화면 스펙 가이드
 
 ## 💡 주의사항

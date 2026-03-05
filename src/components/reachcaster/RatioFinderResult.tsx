@@ -37,6 +37,13 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const location = useLocation()
   const scenarioData = propScenarioData || location.state?.scenarioData
   
+  // Slot 데이터 가져오기
+  const slotData = location.state?.slotData || {
+    title: '2024 봄 시즌 캠페인',
+    advertiser: '삼성전자',
+    advertiserId: 'ADV001'
+  }
+  
   // 기본 타겟 GRP 설정
   const defaultTargetGrp = ['남성 25~29세', '남성 30~34세', '여성 25~29세']
   const selectedTargetGrp = scenarioData?.targetGrp && Array.isArray(scenarioData.targetGrp) && scenarioData.targetGrp.length > 0
@@ -421,8 +428,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       currentView="ratioFinderResult"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: 'Slot', onClick: () => navigate('/reachcaster') },
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData.title },
+        { label: 'Reach Caster', href: '/reachcaster' },
         { label: scenarioData?.name || 'Ratio Finder Result' }
       ]}
       isDarkMode={isDarkMode}

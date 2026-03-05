@@ -16,6 +16,13 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const navigate = useNavigate()
   const location = useLocation()
   
+  // Slot 데이터 가져오기
+  const slotData = location.state?.slotData || {
+    title: '2024 봄 시즌 캠페인',
+    advertiser: '삼성전자',
+    advertiserId: 'ADV001'
+  }
+  
   // 기본 시나리오 데이터 (매체/상품 포함)
   const defaultScenarioData = {
     name: '건강식품 타겟 마케팅',
@@ -204,8 +211,9 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       currentView="reachPredictorResult"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: 'Slot', onClick: () => navigate('/reachcaster') },
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData.title },
+        { label: 'Reach Caster', href: '/reachcaster' },
         { label: scenarioData?.name || 'Reach Predictor Result' }
       ]}
       isDarkMode={isDarkMode}

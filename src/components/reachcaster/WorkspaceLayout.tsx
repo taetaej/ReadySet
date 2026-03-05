@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Search, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Trash2, X, ChevronDown, Filter, LayoutGrid, List } from 'lucide-react'
 import { CreateFolder } from './CreateFolder'
 import { EditFolder } from './EditFolder'
@@ -15,6 +15,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   console.log('SlotBoardLayout 컴포넌트 렌더링됨')
   
   const navigate = useNavigate()
+  const location = useLocation()
   
   // 샘플 Slot 데이터
   const sampleFolders = [
@@ -80,6 +81,19 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       return () => clearTimeout(timer)
     }
   }, [showToast])
+
+  // URL 변경 감지하여 currentView 업데이트
+  useEffect(() => {
+    if (location.pathname === '/slotboard' || location.pathname === '/') {
+      setCurrentView('workspace')
+      setSelectedSlot(null)
+    } else if (location.pathname === '/reachcaster') {
+      setCurrentView('slotDetail')
+      if (!selectedSlot) {
+        setSelectedSlot(sampleFolders[0])
+      }
+    }
+  }, [location.pathname])
 
   // 페이지 타이틀 업데이트
   useEffect(() => {
@@ -519,11 +533,15 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       showBreadcrumb={currentView !== 'workspace'}
       breadcrumbItems={
         currentView === 'createFolder' 
-          ? [{ label: 'SlotBoard', onClick: () => setCurrentView('workspace') }, { label: '새 Slot 생성' }]
+          ? [{ label: 'SlotBoard', href: '/slotboard' }, { label: '새 Slot 생성' }]
           : currentView === 'editFolder'
-          ? [{ label: 'SlotBoard', onClick: () => setCurrentView('workspace') }, { label: 'Slot 수정' }]
+          ? [{ label: 'SlotBoard', href: '/slotboard' }, { label: 'Slot 수정' }]
           : currentView === 'slotDetail' && selectedSlot
-          ? [{ label: 'SlotBoard', onClick: () => setCurrentView('workspace') }, { label: selectedSlot.title }]
+          ? [
+              { label: 'SlotBoard', href: '/slotboard' }, 
+              { label: selectedSlot.title }, 
+              { label: 'Reach Caster' }
+            ]
           : []
       }
       isDarkMode={isDarkMode}

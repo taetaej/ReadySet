@@ -38,9 +38,9 @@ export function DataShotDetail() {
       currentView="datashot"
       showBreadcrumb={true}
       breadcrumbItems={[
-        { label: 'SlotBoard', onClick: () => navigate('/slotboard') },
-        { label: slotData.title, onClick: () => navigate('/slotboard') },
-        { label: 'DataShot' }
+        { label: 'SlotBoard', href: '/slotboard' },
+        { label: slotData.title },
+        { label: 'Data Shot' }
       ]}
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}

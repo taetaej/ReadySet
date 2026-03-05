@@ -1046,7 +1046,12 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                       const resultPath = scenario.type === 'Ratio Finder' 
                         ? '/reachcaster/scenario/ratio-finder/result'
                         : '/reachcaster/scenario/reach-predictor/result'
-                      navigate(resultPath, { state: { scenarioData: scenario } })
+                      navigate(resultPath, { 
+                        state: { 
+                          scenarioData: scenario,
+                          slotData: slotData
+                        } 
+                      })
                     }
                   }
 
