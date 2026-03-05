@@ -68,33 +68,92 @@ export function DataShotDetail() {
 
       {/* DataShot 콘텐츠 영역 */}
       <div className="workspace-content">
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '400px',
-          padding: '48px 24px'
-        }}>
+        {/* 시나리오 섹션 */}
+        <div style={{ padding: '24px' }}>
+          {/* 타이틀 영역 */}
           <div style={{
-            textAlign: 'center',
-            maxWidth: '600px'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px'
           }}>
             <h2 style={{
               fontSize: '24px',
               fontWeight: '600',
-              marginBottom: '16px',
               color: 'hsl(var(--foreground))'
             }}>
-              DataShot
+              Scenario
             </h2>
-            <p style={{
-              fontSize: '16px',
-              color: 'hsl(var(--muted-foreground))',
-              lineHeight: '1.6'
+            <button
+              style={{
+                height: '48px',
+                padding: '0 32px',
+                borderRadius: '24px',
+                background: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                border: 'none',
+                fontSize: '16px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onClick={() => console.log('New Scenario 클릭')}
+            >
+              New Scenario
+            </button>
+          </div>
+
+          {/* 플레이스홀더 */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '400px',
+            padding: '48px 24px',
+            border: '2px dashed hsl(var(--border))',
+            borderRadius: '12px',
+            background: 'hsl(var(--muted) / 0.3)'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              maxWidth: '600px'
             }}>
-              은서 작업 예정
-            </p>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                marginBottom: '12px',
+                color: 'hsl(var(--foreground))'
+              }}>
+                DataShot 시나리오 목록
+              </h3>
+              <p style={{
+                fontSize: '16px',
+                color: 'hsl(var(--muted-foreground))',
+                lineHeight: '1.6',
+                marginBottom: '24px'
+              }}>
+                여기에 시나리오 목록이 표시됩니다.
+              </p>
+              <div style={{
+                padding: '16px',
+                background: 'hsl(var(--muted))',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: 'hsl(var(--muted-foreground))',
+                textAlign: 'left'
+              }}>
+                <p style={{ marginBottom: '8px', fontWeight: '600' }}>
+                  📝 작업 가이드:
+                </p>
+                <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+                  <li>plan/eunseo/README.md 먼저 읽기</li>
+                  <li>DataShotList.tsx 컴포넌트 만들기</li>
+                  <li>DataShotCard.tsx 컴포넌트 만들기</li>
+                  <li>이 영역을 목록으로 교체하기</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
