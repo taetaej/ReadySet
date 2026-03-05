@@ -147,16 +147,17 @@
 
   .workspace-layout {
     display: grid;
+    grid-template-columns: auto 1fr;
     min-height: calc(100vh - 64px);
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease;
   }
 
   .workspace-layout--collapsed {
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: auto 1fr;
   }
 
   .workspace-layout--expanded {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: auto 1fr;
   }
 
   .workspace-sidebar {

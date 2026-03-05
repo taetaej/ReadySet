@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Calendar, Users } from 'lucide-react'
+import { ChevronRight, Calendar, Users, Info } from 'lucide-react'
 import { mediaData, targetGrpOptions } from '../scenario/constants'
 
 interface ReachPredictorDetailTableProps {
@@ -47,6 +47,7 @@ const getTargetLabel = (code: string): string => {
 export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPredictorDetailTableProps) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['DIGITAL', 'TVC'])
   const [hoveredCustom, setHoveredCustom] = useState<string | null>(null)
+  const [effectiveImpressionTooltipOpen, setEffectiveImpressionTooltipOpen] = useState(false)
   
   // 선택된 비중 데이터
   const tvcRatio = selectedData?.tvcRatio ?? 50
@@ -93,47 +94,55 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
     const digitalMedia = ['Google Ads', 'Meta', 'NAVER 보장형 DA']
     digitalMedia.forEach((media, mediaIdx) => {
       const products = mediaData.DIGITAL[media as keyof typeof mediaData.DIGITAL].slice(0, 3)
-      data.DIGITAL[media] = products.map((product: string, idx: number) => ({
-        product,
-        uv: Math.floor(Math.random() * 2000000) + 500000,
-        budget: Math.floor(Math.random() * 500000000) + 100000000,
-        impressions: Math.floor(Math.random() * 30000000) + 5000000,
-        reach: Math.floor(Math.random() * 10000000) + 2000000,
-        frequency: (Math.random() * 2 + 2).toFixed(2),
-        grp: (Math.random() * 50 + 20).toFixed(2),
-        cprp: Math.floor(Math.random() * 10000000) + 3000000,
-        reach1: (Math.random() * 10 + 10).toFixed(2),
-        reach2: (Math.random() * 5 + 5).toFixed(2),
-        reach3: (Math.random() * 3 + 4).toFixed(2),
-        reach4: (Math.random() * 2 + 3).toFixed(2),
-        reach5: (Math.random() * 1 + 2).toFixed(2),
-        // 개별 설정 정보 (Google Ads의 첫 번째 상품만 개별 설정)
-        customPeriod: mediaIdx === 0 && idx === 0 ? { start: '2024-01-20', end: '2024-02-10' } : undefined,
-        customTarget: mediaIdx === 0 && idx === 0 ? ['M2024', 'M2529', 'M3034', 'F2024', 'F2529'] : undefined
-      }))
+      data.DIGITAL[media] = products.map((product: string, idx: number) => {
+        const impressions = Math.floor(Math.random() * 30000000) + 5000000
+        return {
+          product,
+          uv: Math.floor(Math.random() * 2000000) + 500000,
+          budget: Math.floor(Math.random() * 500000000) + 100000000,
+          impressions,
+          effectiveImpression: Math.floor(impressions * (0.6 + Math.random() * 0.2)), // 60-80% of impressions
+          reach: Math.floor(Math.random() * 10000000) + 2000000,
+          frequency: (Math.random() * 2 + 2).toFixed(2),
+          grp: (Math.random() * 50 + 20).toFixed(2),
+          cprp: Math.floor(Math.random() * 10000000) + 3000000,
+          reach1: (Math.random() * 10 + 10).toFixed(2),
+          reach2: (Math.random() * 5 + 5).toFixed(2),
+          reach3: (Math.random() * 3 + 4).toFixed(2),
+          reach4: (Math.random() * 2 + 3).toFixed(2),
+          reach5: (Math.random() * 1 + 2).toFixed(2),
+          // 개별 설정 정보 (Google Ads의 첫 번째 상품만 개별 설정)
+          customPeriod: mediaIdx === 0 && idx === 0 ? { start: '2024-01-20', end: '2024-02-10' } : undefined,
+          customTarget: mediaIdx === 0 && idx === 0 ? ['M2024', 'M2529', 'M3034', 'F2024', 'F2529'] : undefined
+        }
+      })
     })
 
     // TVC 데이터
     const tvcMedia = ['지상파', '종편', 'CJ ENM']
     tvcMedia.forEach(media => {
       const channels = mediaData.TV[media as keyof typeof mediaData.TV].slice(0, 3)
-      data.TVC[media] = channels.map((channel: string) => ({
-        product: channel,
-        uv: Math.floor(Math.random() * 3000000) + 1000000,
-        budget: Math.floor(Math.random() * 600000000) + 200000000,
-        impressions: Math.floor(Math.random() * 40000000) + 10000000,
-        reach: Math.floor(Math.random() * 15000000) + 5000000,
-        frequency: (Math.random() * 2 + 2.5).toFixed(2),
-        grp: (Math.random() * 60 + 30).toFixed(2),
-        cprp: Math.floor(Math.random() * 12000000) + 5000000,
-        reach1: '-',
-        reach2: '-',
-        reach3: '-',
-        reach4: '-',
-        reach5: '-',
-        customPeriod: undefined,
-        customTarget: undefined
-      }))
+      data.TVC[media] = channels.map((channel: string) => {
+        const impressions = Math.floor(Math.random() * 40000000) + 10000000
+        return {
+          product: channel,
+          uv: Math.floor(Math.random() * 3000000) + 1000000,
+          budget: Math.floor(Math.random() * 600000000) + 200000000,
+          impressions,
+          effectiveImpression: Math.floor(impressions * (0.6 + Math.random() * 0.2)), // 60-80% of impressions
+          reach: Math.floor(Math.random() * 15000000) + 5000000,
+          frequency: (Math.random() * 2 + 2.5).toFixed(2),
+          grp: (Math.random() * 60 + 30).toFixed(2),
+          cprp: Math.floor(Math.random() * 12000000) + 5000000,
+          reach1: '-',
+          reach2: '-',
+          reach3: '-',
+          reach4: '-',
+          reach5: '-',
+          customPeriod: undefined,
+          customTarget: undefined
+        }
+      })
     })
 
     return data
@@ -150,6 +159,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
       uv: products.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: products.reduce((sum: number, p: any) => sum + p.budget, 0),
       impressions: products.reduce((sum: number, p: any) => sum + p.impressions, 0),
+      effectiveImpression: products.reduce((sum: number, p: any) => sum + p.effectiveImpression, 0),
       reach: products.reduce((sum: number, p: any) => sum + p.reach, 0),
       frequency: (products.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / products.length).toFixed(2),
       grp: products.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
@@ -172,6 +182,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
       uv: allProducts.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: allProducts.reduce((sum: number, p: any) => sum + p.budget, 0),
       impressions: allProducts.reduce((sum: number, p: any) => sum + p.impressions, 0),
+      effectiveImpression: allProducts.reduce((sum: number, p: any) => sum + p.effectiveImpression, 0),
       reach: allProducts.reduce((sum: number, p: any) => sum + p.reach, 0),
       frequency: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / allProducts.length).toFixed(2),
       grp: allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
@@ -189,6 +200,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
     return {
       budget: 1500000000,
       impressions: 85000000,
+      effectiveImpression: 60000000, // ~70% of impressions
       reach: 32000000,
       frequency: 3.45,
       grp: 245.50,
@@ -245,7 +257,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+            gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
             backgroundColor: 'hsl(var(--muted))',
             borderBottom: '1px solid hsl(var(--border))',
             fontSize: '12px',
@@ -283,6 +295,54 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
             <div style={{ padding: '12px 8px' }}>구분 &gt; 매체 &gt; 상품/채널</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Budget</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Impression</div>
+            <div style={{ 
+              padding: '12px 8px', 
+              textAlign: 'right',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '4px',
+              position: 'relative'
+            }}>
+              <span>Effective Impression</span>
+              <div
+                onMouseEnter={() => setEffectiveImpressionTooltipOpen(true)}
+                onMouseLeave={() => setEffectiveImpressionTooltipOpen(false)}
+                style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
+              >
+                <Info size={14} style={{ cursor: 'help', opacity: 0.6 }} />
+                {effectiveImpressionTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    marginTop: '8px',
+                    padding: '10px 14px',
+                    backgroundColor: 'hsl(var(--popover))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    zIndex: 100,
+                    minWidth: '320px',
+                    maxWidth: '380px',
+                    fontSize: '11px',
+                    color: 'hsl(var(--foreground))',
+                    whiteSpace: 'normal',
+                    lineHeight: '1.6',
+                    pointerEvents: 'none',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '6px' }}>Effective Impression</div>
+                    <div>
+                      설정하신 유효 타겟에게 물리적으로 인지 가능한(Viewable) 노출 수치를 의미합니다.
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                      Reach Caster의 예측 결과값은 해당 데이터를 기반으로 제공됩니다.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach (Count)</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Avg. Frequency</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>GRPs</div>
@@ -309,7 +369,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                 onClick={() => hasData && toggleCategory(category)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                  gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
                   borderBottom: '1px solid hsl(var(--border))',
                   cursor: hasData ? 'pointer' : 'default',
@@ -335,6 +395,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                 <div style={{ padding: '12px 8px' }}>{category}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.budget, '원') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.impressions, '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.effectiveImpression, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.reach, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(parseFloat(categorySubTotal.frequency), '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? categorySubTotal.grp : '-'}</div>
@@ -358,7 +419,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                       onClick={() => toggleMedia(mediaKey)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                        gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                         backgroundColor: 'hsl(var(--card))',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
@@ -381,6 +442,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                       <div style={{ padding: '10px 8px' }}>{media}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.budget, '원')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.impressions, '회')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.effectiveImpression, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.reach, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(mediaSubTotal.frequency), '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.grp}</div>
@@ -402,7 +464,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                           key={idx}
                           style={{
                             display: 'grid',
-                            gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                            gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                             backgroundColor: 'hsl(var(--background))',
                             borderBottom: '1px solid hsl(var(--border))',
                             fontSize: '11px',
@@ -539,6 +601,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
                           </div>
                           <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.budget, '원')}</div>
                           <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.impressions, '회')}</div>
+                          <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.effectiveImpression, '회')}</div>
                           <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.reach, '회')}</div>
                           <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(product.frequency), '회')}</div>
                           <div style={{ padding: '8px', textAlign: 'right' }}>{product.grp}</div>

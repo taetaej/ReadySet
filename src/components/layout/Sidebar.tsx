@@ -1,19 +1,19 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Archive, ChevronRight, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
+import { Archive, ChevronRight, ChevronLeft, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
 
 interface SidebarProps {
-  allSlotsExpanded: boolean
+  isCollapsed: boolean
   expandedFolders: string[]
-  onToggleAllSlots: () => void
+  onToggleSidebar: () => void
   onToggleFolder: (folderId: string) => void
   onNavigateToWorkspace: () => void
 }
 
 export function Sidebar({ 
-  allSlotsExpanded, 
+  isCollapsed, 
   expandedFolders, 
-  onToggleAllSlots, 
+  onToggleSidebar, 
   onToggleFolder,
   onNavigateToWorkspace 
 }: SidebarProps) {
@@ -26,21 +26,30 @@ export function Sidebar({
       flexDirection: 'column',
       height: '100vh',
       position: 'sticky',
-      top: 0
+      top: 0,
+      width: isCollapsed ? '60px' : '320px',
+      transition: 'width 0.3s ease',
+      flexShrink: 0
     }}>
-      <div className="workspace-sidebar-header" style={{ borderBottom: 'none' }}>
-        <h2 className="workspace-sidebar-title">
-          My Slots
-        </h2>
+      <div className="workspace-sidebar-header" style={{ 
+        borderBottom: 'none',
+        justifyContent: isCollapsed ? 'center' : 'space-between'
+      }}>
+        {!isCollapsed && (
+          <h2 className="workspace-sidebar-title">
+            My Slots
+          </h2>
+        )}
         <button 
-          onClick={onToggleAllSlots}
+          onClick={onToggleSidebar}
           className="btn btn-ghost btn-sm"
-          title={allSlotsExpanded ? "모든 Slot 접기" : "모든 Slot 펼치기"}
+          title={isCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
+          style={{ padding: '8px' }}
         >
-          {allSlotsExpanded ? (
-            <span style={{ fontSize: '11px', fontWeight: '500' }}>Collapse</span>
+          {isCollapsed ? (
+            <ChevronRight size={16} />
           ) : (
-            <span style={{ fontSize: '11px', fontWeight: '500' }}>Expand</span>
+            <ChevronLeft size={16} />
           )}
         </button>
       </div>
@@ -48,21 +57,10 @@ export function Sidebar({
       <nav className="workspace-sidebar-nav" style={{
         flex: 1,
         overflowY: 'auto',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        display: isCollapsed ? 'none' : 'block'
       }}>
         <div>
-          <div 
-            className="tree-node" 
-            style={{ justifyContent: 'flex-start' }}
-            onClick={onNavigateToWorkspace}
-          >
-            <LayoutGrid size={16} style={{ flexShrink: 0 }} />
-            <span style={{ fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              SlotBoard
-            </span>
-          </div>
-          
-          <div style={{ marginLeft: '16px' }}>
             {/* 삼성 갤럭시 S24 캠페인 Slot */}
             <div 
               onClick={() => onToggleFolder('samsung')}
@@ -485,15 +483,15 @@ export function Sidebar({
               </span>
             </div>
           </div>
-        </div>
       </nav>
       
       {/* Support Section - Glassy Tone on Tone */}
-      <div style={{
-        marginTop: 'auto',
-        padding: '16px'
-      }}>
+      {!isCollapsed && (
         <div style={{
+          marginTop: 'auto',
+          padding: '16px'
+        }}>
+          <div style={{
           backgroundColor: 'hsl(var(--background) / 0.5)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
@@ -585,7 +583,8 @@ export function Sidebar({
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </aside>
   )
 }

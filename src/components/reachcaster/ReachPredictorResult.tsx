@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, HelpCircle, SearchCheck, Users } from 'lucide-react'
+import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, SearchCheck, Users, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { targetGrpOptions } from '../scenario/constants'
@@ -147,18 +147,19 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   console.log('reachPredictorMedia length:', scenarioData?.reachPredictorMedia?.length)
   
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
 
   const toggleAllSlots = () => {
-    const newExpanded = !allSlotsExpanded
-    setAllSlotsExpanded(newExpanded)
+    const newExpanded = !isSidebarCollapsed
+    setIsSidebarCollapsed(newExpanded)
     
     // 모든 폴더 펼치기/접기
     if (newExpanded) {
@@ -210,141 +211,157 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleAllSlots: toggleAllSlots,
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
-      {/* Scenario Header */}
+      {/* Scenario Header - Single Line */}
       <div className="slot-detail-header">
-        <div className="slot-detail-header__main">
-          <div className="slot-detail-header__info">
-            {/* 첫 번째 줄: 분석 모듈 뱃지 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <span style={{
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '500',
-                backgroundColor: 'hsl(var(--foreground))',
-                color: 'hsl(var(--background))',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <Target size={14} />
-                Reach Predictor
-              </span>
-            </div>
+        <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
+          {/* 좌측: 뱃지 + 타이틀 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px',
+            flex: 1,
+            minWidth: 0
+          }}>
+            <span style={{
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: '500',
+              backgroundColor: 'hsl(var(--foreground))',
+              color: 'hsl(var(--background))',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: 0
+            }}>
+              <Target size={14} />
+              Reach Predictor
+            </span>
             
-            {/* 두 번째 줄: 시나리오 타이틀 */}
-            <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px', fontFamily: 'Paperlogy, sans-serif' }}>
+            <h1 style={{ 
+              fontSize: '20px', 
+              fontWeight: '700', 
+              margin: 0,
+              fontFamily: 'Paperlogy, sans-serif',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0
+            }}>
               {scenarioData?.name || 'Reach Predictor 시나리오 결과'}
             </h1>
-            
-            {/* 세 번째 줄: 설명 */}
-            <p className="text-muted-foreground" style={{ fontSize: '14px', margin: 0, marginBottom: '16px', fontFamily: 'Paperlogy, sans-serif' }}>
-              {scenarioData?.description || '선택한 매체 믹스의 예상 도달률을 분석한 결과입니다.'}
-            </p>
-            
-            {/* 네 번째 줄: 주요 정보 */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '20px',
-              fontSize: '13px',
-              fontFamily: 'Paperlogy, sans-serif'
-            }} className="text-muted-foreground">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>총 예산:</span>
-                <span>₩{(scenarioData?.totalBudget || 1000000000).toLocaleString('ko-KR')}</span>
-              </div>
-              <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>분석 매체/상품:</span>
-                <span>{scenarioData?.reachPredictorMedia?.length || 0}개</span>
-                <button
-                  onClick={() => setMediaDialogOpen(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: 'hsl(var(--muted-foreground))',
-                    transition: 'color 0.2s',
-                    opacity: 0.6
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))'
-                    e.currentTarget.style.opacity = '1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
-                    e.currentTarget.style.opacity = '0.6'
-                  }}
-                  title="매체/상품 상세 보기"
-                >
-                  <SearchCheck size={14} />
-                </button>
-              </div>
-              <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
-                <span style={{ fontWeight: '500' }}>타겟 GRP:</span>
-                <span>{selectedTargetGrp.length}개 세그먼트</span>
-                <button
-                  onClick={() => setTargetGrpTooltipOpen(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'hsl(var(--muted-foreground))',
-                    transition: 'color 0.2s',
-                    opacity: 0.6
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))'
-                    e.currentTarget.style.opacity = '1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
-                    e.currentTarget.style.opacity = '0.6'
-                  }}
-                  title="타겟 GRP 상세 보기"
-                >
-                  <SearchCheck size={14} />
-                </button>
-              </div>
-              <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>캠페인 기간:</span>
-                <span>{scenarioData?.startDate || '2024-01-15'} ~ {scenarioData?.endDate || '2024-02-15'}</span>
-              </div>
-              <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: '500' }}>브랜드/업종:</span>
-                <span>{scenarioData?.brand || '삼성전자'} / {scenarioData?.industry || '전자제품'}</span>
-              </div>
+          </div>
+
+          {/* 중앙: 주요 정보 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '16px',
+            fontSize: '12px',
+            fontFamily: 'Paperlogy, sans-serif',
+            flexShrink: 0
+          }} className="text-muted-foreground">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>총 예산</span>
+              <span>₩{(scenarioData?.totalBudget || 1000000000).toLocaleString('ko-KR')}</span>
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>시뮬레이션</span>
+              <span>{scenarioData?.reachPredictorMedia?.length || 0}개</span>
+              <button
+                onClick={() => setMediaDialogOpen(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: 'hsl(var(--muted-foreground))',
+                  transition: 'color 0.2s',
+                  opacity: 0.6
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))'
+                  e.currentTarget.style.opacity = '1'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                  e.currentTarget.style.opacity = '0.6'
+                }}
+                title="매체/상품 상세 보기"
+              >
+                <SearchCheck size={14} />
+              </button>
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>타겟</span>
+              <span>{selectedTargetGrp.length}개</span>
+              <button
+                onClick={() => setTargetGrpTooltipOpen(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: 'hsl(var(--muted-foreground))',
+                  transition: 'color 0.2s',
+                  opacity: 0.6
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))'
+                  e.currentTarget.style.opacity = '1'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                  e.currentTarget.style.opacity = '0.6'
+                }}
+                title="타겟 GRP 상세 보기"
+              >
+                <SearchCheck size={14} />
+              </button>
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>기간</span>
+              <span>{scenarioData?.startDate || '2024-01-15'} ~ {scenarioData?.endDate || '2024-02-15'}</span>
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>브랜드/업종</span>
+              <span>{scenarioData?.brand || '삼성전자'} / {scenarioData?.industry || '전자제품'}</span>
             </div>
           </div>
 
-          {/* 우측 액션 버튼들 */}
-          <div className="slot-detail-header__actions" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+          <div style={{ 
+            width: '1px', 
+            height: '24px', 
+            backgroundColor: 'hsl(var(--border))',
+            margin: '0 8px',
+            flexShrink: 0
+          }} />
+
+          {/* 우측: 액션 버튼들 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {/* Export 드롭다운 */}
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="btn btn-ghost btn-md"
-                style={{ padding: '8px' }}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
               >
-                <Share2 size={18} />
+                <Share2 size={16} />
               </button>
               
               {exportMenuOpen && (
@@ -435,10 +452,10 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                 data-info-tooltip
                 onMouseEnter={() => setInfoTooltipOpen(true)}
                 onMouseLeave={() => setInfoTooltipOpen(false)}
-                className="btn btn-ghost btn-md"
-                style={{ padding: '8px' }}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
               >
-                <Info size={18} />
+                <Info size={16} />
               </button>
               
               {infoTooltipOpen && (
@@ -456,6 +473,15 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   zIndex: 1000,
                   fontFamily: 'Paperlogy, sans-serif'
                 }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>설명</div>
+                    <div style={{ fontSize: '13px', lineHeight: '1.5' }}>
+                      {scenarioData?.description || '선택한 매체 믹스의 예상 도달률을 분석한 결과입니다.'}
+                    </div>
+                  </div>
+                  
+                  <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                  
                   <div style={{ marginBottom: '12px' }}>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Scenario ID</div>
                     <div style={{ fontSize: '13px', fontWeight: '500' }}>#{scenarioData?.id || '1'}</div>
@@ -477,6 +503,59 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>완료일시</div>
                     <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.completedAt || '2024-01-20 16:45'}</div>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Menu 버튼 */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+              >
+                <MoreVertical size={16} />
+              </button>
+              
+              {menuOpen && (
+                <div className="dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  width: '120px',
+                  zIndex: 1000
+                }}>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false)
+                      console.log('복제:', scenarioData?.id)
+                    }}
+                    className="dropdown-item"
+                  >
+                    <Copy size={14} />
+                    복제
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false)
+                      console.log('이동:', scenarioData?.id)
+                    }}
+                    className="dropdown-item"
+                  >
+                    <ArrowRightLeft size={14} />
+                    이동
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false)
+                      console.log('삭제:', scenarioData?.id)
+                    }}
+                    className="dropdown-item"
+                  >
+                    <Trash2 size={14} />
+                    삭제
+                  </button>
                 </div>
               )}
             </div>
@@ -622,7 +701,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   }}>
                     <div style={{ fontWeight: '600', marginBottom: '4px' }}>기준</div>
                     <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
-                      코리안클릭 (2026년 1월)
+                      통계청 (2024년)
                     </div>
                   </div>
                 )}
@@ -634,6 +713,53 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             selectedData={scenarioData}
             isDarkMode={isDarkMode}
           />
+        </div>
+
+        {/* DataShot CTA */}
+        <div style={{
+          padding: '24px 0',
+          borderTop: '1px solid hsl(var(--border))',
+          marginTop: '16px'
+        }}>
+          <button
+            onClick={() => navigate('/datashot')}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontFamily: 'Paperlogy, sans-serif',
+              color: 'hsl(var(--muted-foreground))',
+              transition: 'all 0.2s',
+              borderRadius: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
+              e.currentTarget.style.color = 'hsl(var(--foreground))'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+            }}
+          >
+            <Database size={16} />
+            <span>이 예측을 실제 데이터와 비교해보세요</span>
+            <span style={{ 
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              DataShot에서 {scenarioData?.industry || '업종별'} 캠페인 성과 확인하기
+              <ArrowRight size={16} />
+            </span>
+          </button>
         </div>
       </div>
 
@@ -1066,6 +1192,19 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                       원
                     </span>
                   </div>
+                </div>
+
+                {/* 리치커브 기준 설정 */}
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    marginBottom: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}>
+                    리치커브 기준 설정
+                  </label>
                 </div>
 
                 {/* 구간 수 기준 */}

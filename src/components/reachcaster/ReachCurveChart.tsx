@@ -169,18 +169,18 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
           fontFamily: 'Paperlogy, sans-serif'
         }}>
           <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>
-            예산: {data.budgetLabel}원
+            예산: {data.budget.toLocaleString('ko-KR')}원
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff9d' }}></div>
-            <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: '12px' }}>Reach (%):</span>
+            <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: '12px' }}>Reach 1+:</span>
             <span style={{ fontWeight: '600', marginLeft: 'auto', fontSize: '12px' }}>{data.reach}%</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
             <div style={{ width: '8px', height: '4px', background: isDarkMode ? 'rgba(161, 161, 170, 0.3)' : 'rgba(212, 212, 216, 0.5)', borderRadius: '2px' }}></div>
             <span style={{ color: isDarkMode ? '#71717a' : '#a1a1aa' }}>예측 범위:</span>
             <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', marginLeft: 'auto' }}>
-              {data.lowerBound}% - {data.upperBound}%
+              {data.lowerBound}%~{data.upperBound}%
             </span>
           </div>
         </div>

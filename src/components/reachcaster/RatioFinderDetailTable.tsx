@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Info } from 'lucide-react'
 import { mediaData } from '../scenario/constants'
 
 interface DetailedDataTableProps {
@@ -9,6 +9,7 @@ interface DetailedDataTableProps {
 
 export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTableProps) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['DIGITAL', 'TVC'])
+  const [effectiveImpressionTooltipOpen, setEffectiveImpressionTooltipOpen] = useState(false)
   
   // 선택된 비중 데이터
   const tvcRatio = selectedData?.tvcRatio ?? 50
@@ -58,42 +59,50 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     const digitalMedia = ['Google Ads', 'Meta', 'NAVER 보장형 DA']
     digitalMedia.forEach(media => {
       const products = mediaData.DIGITAL[media as keyof typeof mediaData.DIGITAL].slice(0, 3)
-      data.DIGITAL[media] = products.map((product: string) => ({
-        product,
-        uv: Math.floor(Math.random() * 2000000) + 500000,
-        budget: Math.floor(Math.random() * 500000000) + 100000000,
-        impressions: Math.floor(Math.random() * 30000000) + 5000000,
-        reach: Math.floor(Math.random() * 10000000) + 2000000,
-        frequency: (Math.random() * 2 + 2).toFixed(2),
-        grp: (Math.random() * 50 + 20).toFixed(2),
-        cprp: Math.floor(Math.random() * 10000000) + 3000000,
-        reach1: (Math.random() * 10 + 10).toFixed(2),
-        reach2: (Math.random() * 5 + 5).toFixed(2),
-        reach3: (Math.random() * 3 + 4).toFixed(2),
-        reach4: (Math.random() * 2 + 3).toFixed(2),
-        reach5: (Math.random() * 1 + 2).toFixed(2)
-      }))
+      data.DIGITAL[media] = products.map((product: string) => {
+        const impressions = Math.floor(Math.random() * 30000000) + 5000000
+        return {
+          product,
+          uv: Math.floor(Math.random() * 2000000) + 500000,
+          budget: Math.floor(Math.random() * 500000000) + 100000000,
+          impressions,
+          effectiveImpression: Math.floor(impressions * (0.6 + Math.random() * 0.2)), // 60-80% of impressions
+          reach: Math.floor(Math.random() * 10000000) + 2000000,
+          frequency: (Math.random() * 2 + 2).toFixed(2),
+          grp: (Math.random() * 50 + 20).toFixed(2),
+          cprp: Math.floor(Math.random() * 10000000) + 3000000,
+          reach1: (Math.random() * 10 + 10).toFixed(2),
+          reach2: (Math.random() * 5 + 5).toFixed(2),
+          reach3: (Math.random() * 3 + 4).toFixed(2),
+          reach4: (Math.random() * 2 + 3).toFixed(2),
+          reach5: (Math.random() * 1 + 2).toFixed(2)
+        }
+      })
     })
 
     // TVC 데이터
     const tvcMedia = ['지상파', '종편', 'CJ ENM']
     tvcMedia.forEach(media => {
       const channels = mediaData.TV[media as keyof typeof mediaData.TV].slice(0, 3)
-      data.TVC[media] = channels.map((channel: string) => ({
-        product: channel,
-        uv: Math.floor(Math.random() * 3000000) + 1000000,
-        budget: Math.floor(Math.random() * 600000000) + 200000000,
-        impressions: Math.floor(Math.random() * 40000000) + 10000000,
-        reach: Math.floor(Math.random() * 15000000) + 5000000,
-        frequency: (Math.random() * 2 + 2.5).toFixed(2),
-        grp: (Math.random() * 60 + 30).toFixed(2),
-        cprp: Math.floor(Math.random() * 12000000) + 5000000,
-        reach1: '-', // TVC 채널 단위는 Reach 데이터 없음
-        reach2: '-',
-        reach3: '-',
-        reach4: '-',
-        reach5: '-'
-      }))
+      data.TVC[media] = channels.map((channel: string) => {
+        const impressions = Math.floor(Math.random() * 40000000) + 10000000
+        return {
+          product: channel,
+          uv: Math.floor(Math.random() * 3000000) + 1000000,
+          budget: Math.floor(Math.random() * 600000000) + 200000000,
+          impressions,
+          effectiveImpression: Math.floor(impressions * (0.6 + Math.random() * 0.2)), // 60-80% of impressions
+          reach: Math.floor(Math.random() * 15000000) + 5000000,
+          frequency: (Math.random() * 2 + 2.5).toFixed(2),
+          grp: (Math.random() * 60 + 30).toFixed(2),
+          cprp: Math.floor(Math.random() * 12000000) + 5000000,
+          reach1: '-', // TVC 채널 단위는 Reach 데이터 없음
+          reach2: '-',
+          reach3: '-',
+          reach4: '-',
+          reach5: '-'
+        }
+      })
     })
 
     return data
@@ -112,6 +121,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
       uv: products.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: products.reduce((sum: number, p: any) => sum + p.budget, 0),
       impressions: products.reduce((sum: number, p: any) => sum + p.impressions, 0),
+      effectiveImpression: products.reduce((sum: number, p: any) => sum + p.effectiveImpression, 0),
       reach: products.reduce((sum: number, p: any) => sum + p.reach, 0),
       frequency: (products.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / products.length).toFixed(2),
       grp: products.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
@@ -136,6 +146,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
       uv: allProducts.reduce((sum: number, p: any) => sum + p.uv, 0),
       budget: allProducts.reduce((sum: number, p: any) => sum + p.budget, 0),
       impressions: allProducts.reduce((sum: number, p: any) => sum + p.impressions, 0),
+      effectiveImpression: allProducts.reduce((sum: number, p: any) => sum + p.effectiveImpression, 0),
       reach: allProducts.reduce((sum: number, p: any) => sum + p.reach, 0),
       frequency: (allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.frequency), 0) / allProducts.length).toFixed(2),
       grp: allProducts.reduce((sum: number, p: any) => sum + parseFloat(p.grp), 0).toFixed(2),
@@ -154,6 +165,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     return {
       budget: 1500000000,
       impressions: 85000000,
+      effectiveImpression: 60000000, // ~70% of impressions
       reach: 32000000,
       frequency: 3.45,
       grp: 245.50,
@@ -212,7 +224,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+            gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
             backgroundColor: 'hsl(var(--muted))',
             borderBottom: '1px solid hsl(var(--border))',
             fontSize: '12px',
@@ -250,6 +262,54 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             <div style={{ padding: '12px 8px' }}>구분 &gt; 매체 &gt; 상품/채널</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Budget</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Impression</div>
+            <div style={{ 
+              padding: '12px 8px', 
+              textAlign: 'right',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '4px',
+              position: 'relative'
+            }}>
+              <span>Effective Impression</span>
+              <div
+                onMouseEnter={() => setEffectiveImpressionTooltipOpen(true)}
+                onMouseLeave={() => setEffectiveImpressionTooltipOpen(false)}
+                style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
+              >
+                <Info size={14} style={{ cursor: 'help', opacity: 0.6 }} />
+                {effectiveImpressionTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    marginTop: '8px',
+                    padding: '10px 14px',
+                    backgroundColor: 'hsl(var(--popover))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    zIndex: 100,
+                    minWidth: '320px',
+                    maxWidth: '380px',
+                    fontSize: '11px',
+                    color: 'hsl(var(--foreground))',
+                    whiteSpace: 'normal',
+                    lineHeight: '1.6',
+                    pointerEvents: 'none',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '6px' }}>Effective Impression</div>
+                    <div>
+                      설정하신 유효 타겟에게 물리적으로 인지 가능한(Viewable) 노출 수치를 의미합니다.
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                      Reach Caster의 예측 결과값은 해당 데이터를 기반으로 제공됩니다.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach (Count)</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Avg. Frequency</div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>GRPs</div>
@@ -278,7 +338,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                 onClick={() => hasData && toggleCategory(category)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                  gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
                   borderBottom: '1px solid hsl(var(--border))',
                   cursor: hasData ? 'pointer' : 'default',
@@ -304,6 +364,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                 <div style={{ padding: '12px 8px' }}>{category}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.budget, '원') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.impressions, '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.effectiveImpression, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.reach, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(parseFloat(categorySubTotal.frequency), '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? categorySubTotal.grp : '-'}</div>
@@ -327,7 +388,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       onClick={() => toggleMedia(mediaKey)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                        gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                         backgroundColor: 'hsl(var(--card))',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
@@ -350,6 +411,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       <div style={{ padding: '10px 8px' }}>{media}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.budget, '원')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.impressions, '회')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.effectiveImpression, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.reach, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(mediaSubTotal.frequency), '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.grp}</div>
@@ -367,7 +429,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         key={idx}
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                          gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                           backgroundColor: 'hsl(var(--background))',
                           borderBottom: '1px solid hsl(var(--border))',
                           fontSize: '11px',
@@ -380,6 +442,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         <div style={{ padding: '8px', paddingLeft: '48px' }} className="text-muted-foreground">{product.product}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.budget, '원')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.impressions, '회')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.effectiveImpression, '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.reach, '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(product.frequency), '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{product.grp}</div>
@@ -405,7 +468,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '80px 1fr 140px 120px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                 backgroundColor: 'hsl(var(--primary) / 0.15)',
                 borderTop: '3px solid hsl(var(--primary))',
                 fontSize: '14px',
@@ -416,6 +479,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
               <div style={{ padding: '14px 8px', letterSpacing: '0.02em' }}>Estimated Total</div>
               <div style={{ padding: '14px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.budget, '원')}</div>
               <div style={{ padding: '14px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.impressions, '회')}</div>
+              <div style={{ padding: '14px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.effectiveImpression, '회')}</div>
               <div style={{ padding: '14px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.reach, '회')}</div>
               <div style={{ padding: '14px 8px', textAlign: 'right' }}>{formatWithUnit(grandTotal.frequency, '회')}</div>
               <div style={{ padding: '14px 8px', textAlign: 'right' }}>{grandTotal.grp}</div>

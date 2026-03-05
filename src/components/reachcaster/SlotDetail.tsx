@@ -1268,23 +1268,23 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   setContextMenuOpen(null)
-                                  console.log('수정:', scenario.id)
-                                }}
-                                className="dropdown-item"
-                              >
-                                <Edit size={14} />
-                                수정
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setContextMenuOpen(null)
                                   console.log('복제:', scenario.id)
                                 }}
                                 className="dropdown-item"
                               >
                                 <Copy size={14} />
                                 복제
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setContextMenuOpen(null)
+                                  console.log('이동:', scenario.id)
+                                }}
+                                className="dropdown-item"
+                              >
+                                <ArrowRightLeft size={14} />
+                                이동
                               </button>
                               <button
                                 onClick={(e) => {

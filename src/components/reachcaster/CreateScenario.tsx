@@ -37,7 +37,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     }
   })
   
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   
   // 매체별 예산 배분 관련 state
@@ -265,9 +265,9 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded: allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders: expandedFolders,
-        onToggleAllSlots: () => setAllSlotsExpanded(!allSlotsExpanded),
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: (folderId: string) => {
           setExpandedFolders(prev => 
             prev.includes(folderId) 

@@ -1,5 +1,6 @@
 import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
 
 interface GlobalNavBarProps {
@@ -8,16 +9,22 @@ interface GlobalNavBarProps {
 }
 
 export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps) {
+  const navigate = useNavigate()
+  const [showClientLayer, setShowClientLayer] = useState(false)
   const [showNotificationLayer, setShowNotificationLayer] = useState(false)
   const [showGradeTooltip, setShowGradeTooltip] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const clientRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
   const gradeRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  // 외부 클릭 시 알림 레이어 닫기
+  // 외부 클릭 시 레이어 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (clientRef.current && !clientRef.current.contains(event.target as Node)) {
+        setShowClientLayer(false)
+      }
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setShowNotificationLayer(false)
       }
@@ -78,94 +85,116 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
   const currentGradeIndex = grades.findIndex(grade => grade.name === currentGrade.name)
   const nextGrade = currentGradeIndex < grades.length - 1 ? grades[currentGradeIndex + 1] : null
 
-  // 예시 광고주 프로필 이미지 데이터 (다양한 색상)
-  const advertiserProfiles = [
-    { id: 1, name: '삼성전자' },
-    { id: 2, name: '카카오' },
-    { id: 3, name: '네이버' }
-  ]
+  // 광고주 목록 데이터 (자음 오름차순 정렬)
+  const allAdvertisers = [
+    { id: 1, name: '삼성전자', slotCount: 5 },
+    { id: 2, name: '카카오', slotCount: 3 },
+    { id: 3, name: '네이버', slotCount: 4 },
+    { id: 4, name: 'LG전자', slotCount: 3 },
+    { id: 5, name: '현대자동차', slotCount: 12 },
+    { id: 6, name: 'SK텔레콤', slotCount: 9 },
+    { id: 7, name: 'KT', slotCount: 7 },
+    { id: 8, name: 'LG유플러스', slotCount: 11 },
+    { id: 9, name: '롯데마트', slotCount: 4 },
+    { id: 10, name: '쿠팡', slotCount: 15 },
+    { id: 11, name: '배달의민족', slotCount: 8 },
+    { id: 12, name: '토스', slotCount: 6 }
+  ].sort((a, b) => a.name.localeCompare(b.name, 'ko'))
 
-  // 예시 알림 목록 데이터 (최근 10개)
+  // 상위 3개 광고주
+  const topAdvertisers = allAdvertisers.slice(0, 3)
+
+  // 알림 목록 데이터 (최근 10개) - 솔루션명과 결과물명 구조로 변경
   const notifications = [
     {
       id: 1,
-      slotName: '삼성 갤럭시 S24 캠페인',
-      scenarioType: 'A/B 테스트',
-      scenarioName: '타겟 오디언스 비교',
+      solution: 'Reach Caster',
+      scenarioName: '시즌 프로모션 효과 예측',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 3,
-      isNew: true
+      isNew: true,
+      resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 2,
-      slotName: 'LG 올레드 TV 런칭 캠페인',
-      scenarioType: '성과 분석',
+      solution: 'Reach Caster',
       scenarioName: '브랜드 인지도 측정',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 15,
-      isNew: true
+      isNew: true,
+      resultUrl: '/reachcaster/scenario/ratio-finder/result'
     },
     {
       id: 3,
-      slotName: '현대 아이오닉 6 마케팅',
-      scenarioType: '타겟팅',
+      solution: 'Reach Caster',
       scenarioName: '연령별 선호도 분석',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 45,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 4,
-      slotName: '네이버 쇼핑 프로모션',
-      scenarioType: 'A/B 테스트',
+      solution: 'Reach Caster',
       scenarioName: '할인율 최적화',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 120,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/ratio-finder/result'
     },
     {
       id: 5,
-      slotName: '카카오톡 광고 캠페인',
-      scenarioType: '성과 분석',
+      solution: 'Reach Caster',
       scenarioName: 'CTR 개선 분석',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 180,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 6,
-      slotName: '쿠팡 로켓배송 홍보',
-      scenarioType: '타겟팅',
+      solution: 'Reach Caster',
       scenarioName: '지역별 배송 선호도',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 240,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/ratio-finder/result'
     },
     {
       id: 7,
-      slotName: 'SK텔레콤 5G 서비스',
-      scenarioType: 'A/B 테스트',
+      solution: 'Reach Caster',
       scenarioName: '요금제 비교',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 300,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 8,
-      slotName: 'KT 인터넷 서비스',
-      scenarioType: '성과 분석',
+      solution: 'Reach Caster',
       scenarioName: '고객 만족도 조사',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 360,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/ratio-finder/result'
     },
     {
       id: 9,
-      slotName: 'LG유플러스 모바일',
-      scenarioType: '타겟팅',
+      solution: 'Reach Caster',
       scenarioName: '데이터 사용량 분석',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 420,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 10,
-      slotName: '롯데마트 온라인',
-      scenarioType: 'A/B 테스트',
+      solution: 'Reach Caster',
       scenarioName: '배송비 정책 테스트',
+      message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 480,
-      isNew: false
+      isNew: false,
+      resultUrl: '/reachcaster/scenario/ratio-finder/result'
     }
   ]
 
@@ -204,21 +233,34 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
         height: '40px'
       }}>
         {/* Clients 섹션 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div 
+          ref={clientRef}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px',
+            cursor: 'pointer',
+            padding: '6px 12px',
+            borderRadius: '16px',
+            transition: 'all 0.2s',
+            position: 'relative'
+          }}
+          onClick={() => setShowClientLayer(!showClientLayer)}
+        >
           <span style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--primary-foreground))' }}>
             Clients
           </span>
           
           {/* 광고주 프로필 이미지들 (겹쳐서 표시) */}
           <div style={{ display: 'flex', alignItems: 'center', marginLeft: '4px' }}>
-            {advertiserProfiles.map((profile, index) => (
+            {topAdvertisers.map((profile, index) => (
               <div
                 key={profile.id}
                 style={{
-                  marginLeft: index > 0 ? '-6px' : '0', // 간격 2px 더 넓힘 (-8px → -6px)
-                  zIndex: advertiserProfiles.length - index,
+                  marginLeft: index > 0 ? '-6px' : '0',
+                  zIndex: topAdvertisers.length - index,
                   border: '2px solid hsl(var(--primary))',
-                  borderRadius: `${24 * 0.3}px` // Softer squircle
+                  borderRadius: `${24 * 0.3}px`
                 }}
               >
                 <Avatar 
@@ -239,9 +281,95 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               fontSize: '11px',
               fontWeight: '600'
             }}>
-              +9
+              +{allAdvertisers.length - 3}
             </div>
           </div>
+
+          {/* 광고주 목록 레이어 */}
+          {showClientLayer && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              marginTop: '8px',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '12px',
+              padding: '12px 0',
+              minWidth: '320px',
+              maxHeight: '480px',
+              overflowY: 'auto',
+              boxShadow: '0 12px 24px 0 rgb(0 0 0 / 0.15)',
+              zIndex: 1000
+            }}
+            className="custom-scrollbar"
+            onClick={(e) => e.stopPropagation()}
+            >
+              {/* 헤더 */}
+              <div style={{ 
+                padding: '0 16px 12px 16px',
+                borderBottom: '1px solid hsl(var(--border))',
+                marginBottom: '8px'
+              }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600'
+                }} className="text-foreground">
+                  광고주 목록
+                </div>
+                <div style={{ 
+                  fontSize: '12px',
+                  marginTop: '2px'
+                }} className="text-muted-foreground">
+                  총 {allAdvertisers.length}개 광고주
+                </div>
+              </div>
+
+              {/* 광고주 목록 */}
+              {allAdvertisers.map((advertiser) => (
+                <div
+                  key={advertiser.id}
+                  style={{
+                    padding: '12px 16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                  onClick={() => {
+                    console.log('광고주 클릭:', advertiser.name)
+                    setShowClientLayer(false)
+                  }}
+                >
+                  <Avatar 
+                    name={advertiser.name}
+                    type="advertiser"
+                    size={32}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '500'
+                    }} className="text-foreground">
+                      {advertiser.name}
+                    </div>
+                    <div style={{ 
+                      fontSize: '12px'
+                    }} className="text-muted-foreground">
+                      {advertiser.slotCount}개 Slot
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 구분선 */}
@@ -263,17 +391,28 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             padding: '6px 12px',
             borderRadius: '16px',
             transition: 'all 0.2s',
-            position: 'relative'
+            position: 'relative',
+            minWidth: '400px'
           }}
           onClick={() => setShowNotificationLayer(!showNotificationLayer)}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = 'hsl(var(--primary-foreground) / 0.1)'
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-          }}
         >
-          <Bell size={16} style={{ color: 'hsl(var(--primary-foreground))' }} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Bell size={16} style={{ color: 'hsl(var(--primary-foreground))', flexShrink: 0 }} />
+            {/* NEW 알림이 있을 때 빨간 점 표시 */}
+            {notifications.some(n => n.isNew) && (
+              <div style={{
+                position: 'absolute',
+                top: '-2px',
+                right: '-2px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#ef4444',
+                borderRadius: '50%',
+                border: '2px solid hsl(var(--primary))',
+                boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)'
+              }} />
+            )}
+          </div>
           <span style={{ 
             fontSize: '13px', 
             fontWeight: '500', 
@@ -281,9 +420,10 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            maxWidth: '300px'
+            flex: 1,
+            minWidth: 0
           }}>
-            Reach Caster: {notifications[0].scenarioType} &gt; {notifications[0].scenarioName} 생성이 완료되었습니다!
+            R/C {notifications[0].scenarioName}: {notifications[0].message}
           </span>
 
           {/* 알림 목록 레이어 */}
@@ -343,7 +483,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                     e.currentTarget.style.backgroundColor = 'transparent'
                   }}
                   onClick={() => {
-                    console.log('알림 클릭:', notification)
+                    navigate(notification.resultUrl)
                     setShowNotificationLayer(false)
                   }}
                 >
@@ -351,12 +491,12 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                     <div style={{ 
                       fontSize: '13px', 
                       fontWeight: '500',
-                      marginBottom: '2px',
+                      marginBottom: '6px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px'
                     }} className="text-foreground">
-                      {notification.slotName}
+                      {notification.message}
                       {notification.isNew && (
                         <span style={{
                           fontSize: '10px',
@@ -374,12 +514,12 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                       fontSize: '12px',
                       marginBottom: '4px'
                     }} className="text-muted-foreground">
-                      Reach Caster: {notification.scenarioType} &gt; {notification.scenarioName}
+                      {notification.solution}: {notification.scenarioName}
                     </div>
                     <div style={{ 
                       fontSize: '11px'
                     }} className="text-muted-foreground">
-                      {formatTimeAgo(notification.completedMinutesAgo)} 완료
+                      {formatTimeAgo(notification.completedMinutesAgo)}
                     </div>
                   </div>
                 </div>
@@ -409,14 +549,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             transition: 'all 0.2s',
             position: 'relative'
           }}
-          onMouseEnter={() => setShowGradeTooltip(true)}
-          onMouseLeave={() => setShowGradeTooltip(false)}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = 'hsl(var(--primary-foreground) / 0.1)'
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-          }}
+          onClick={() => setShowGradeTooltip(!showGradeTooltip)}
         >
           <currentGrade.icon size={16} style={{ color: 'hsl(var(--primary-foreground))' }} />
           <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))' }}>
@@ -438,7 +571,9 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               maxWidth: '320px',
               boxShadow: '0 12px 24px 0 rgb(0 0 0 / 0.15)',
               zIndex: 1000
-            }}>
+            }}
+            onClick={(e) => e.stopPropagation()}
+            >
               {/* 현재 등급 정보 */}
               <div style={{ marginBottom: nextGrade ? '16px' : '0' }}>
                 <div style={{ 

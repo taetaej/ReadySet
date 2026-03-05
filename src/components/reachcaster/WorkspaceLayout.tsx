@@ -45,7 +45,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     { id: 'SLT025', title: '맥도날드 해피밀 캠페인', advertiser: '맥도날드', advertiserId: 'ADV025', visibility: 'Internal', results: 13, modified: '2023-12-22', description: '맥도날드 해피밀 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } }
   ]
 
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true) // 기본적으로 모든 Slot 펼쳐진 상태
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // 기본적으로 사이드바 펼쳐진 상태
   const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'lg', 'hyundai', 'samsung-reachcaster']) // 기본적으로 모든 폴더 펼쳐진 상태
   const [contextMenuOpen, setContextMenuOpen] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
@@ -113,16 +113,16 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
   // 모든 Slot 펼치기/접기 토글
   const toggleAllSlots = () => {
-    if (allSlotsExpanded) {
+    if (!isSidebarCollapsed) {
       // 모두 접기
       setExpandedFolders([])
-      setAllSlotsExpanded(false)
+      setIsSidebarCollapsed(true)
     } else {
       // 모두 펼치기
       const allSlotIds = ['samsung', 'lg', 'hyundai'] // 모든 Slot ID들
       const allSubIds = ['samsung-reachcaster'] // 하위 솔루션들도 포함
       setExpandedFolders([...allSlotIds, ...allSubIds])
-      setAllSlotsExpanded(true)
+      setIsSidebarCollapsed(false)
     }
   }
 
@@ -529,9 +529,9 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleAllSlots: toggleAllSlots,
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => setCurrentView('workspace')
       }}

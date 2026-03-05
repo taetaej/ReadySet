@@ -7,7 +7,7 @@ import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 export function DataShotDetail() {
   const navigate = useNavigate()
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [allSlotsExpanded, setAllSlotsExpanded] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'samsung-datashot'])
 
   useEffect(() => {
@@ -45,9 +45,9 @@ export function DataShotDetail() {
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        allSlotsExpanded: allSlotsExpanded,
+        isCollapsed: isSidebarCollapsed,
         expandedFolders: expandedFolders,
-        onToggleAllSlots: () => setAllSlotsExpanded(!allSlotsExpanded),
+        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
         onToggleFolder: (folderId: string) => {
           setExpandedFolders(prev => 
             prev.includes(folderId) 
