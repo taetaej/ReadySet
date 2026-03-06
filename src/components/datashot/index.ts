@@ -1,4 +1,3 @@
-export { DataShotDetail } from './DataShotDetail'
-export { DatasetList } from './DatasetList'
-export { DatasetCard } from './DatasetCard'
+export { DatasetList as DataShotDetail } from './DatasetList'
+export { CreateDataset } from './CreateDataset'
 export * from './types'
