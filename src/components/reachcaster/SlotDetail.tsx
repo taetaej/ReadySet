@@ -565,12 +565,20 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
     return styles[status as keyof typeof styles] || styles.Pending
   }
 
-  // 시나리오 타입 스타일 - 더 잘 보이는 색상
+  // 시나리오 타입 스타일 - 농도 차이로 구분
   const getTypeStyle = (type: string) => {
-    return { 
-      bg: 'hsl(var(--foreground))', 
-      color: 'hsl(var(--background))', 
-      border: 'hsl(var(--foreground))' 
+    if (type === 'Ratio Finder') {
+      return { 
+        bg: 'hsl(var(--foreground))', 
+        color: 'hsl(var(--background))', 
+        border: 'hsl(var(--foreground))' 
+      }
+    } else {
+      return { 
+        bg: 'hsl(var(--muted))', 
+        color: 'hsl(var(--foreground))', 
+        border: 'hsl(var(--border))' 
+      }
     }
   }
 
@@ -684,25 +692,33 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
           {/* 좌측: 뷰 토글 + Scenario 개수 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* 뷰 모드 토글 */}
-            <div style={{ display: 'flex', gap: '4px', padding: '4px', backgroundColor: 'hsl(var(--muted))', borderRadius: '6px' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '6px',
+              overflow: 'hidden'
+            }}>
               <button
                 onClick={() => setViewMode('list')}
-                className={`btn btn-sm ${viewMode === 'list' ? 'btn-secondary' : 'btn-ghost'}`}
-                style={{ 
-                  backgroundColor: viewMode === 'list' ? 'hsl(var(--background))' : 'transparent',
-                  boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  padding: '8px'
+                className="btn btn-ghost btn-sm"
+                style={{
+                  borderRadius: 0,
+                  border: 'none',
+                  backgroundColor: viewMode === 'list' ? 'hsl(var(--muted))' : 'transparent',
+                  padding: '8px 12px'
                 }}
               >
                 <List size={16} />
               </button>
               <button
                 onClick={() => setViewMode('gantt')}
-                className={`btn btn-sm ${viewMode === 'gantt' ? 'btn-secondary' : 'btn-ghost'}`}
-                style={{ 
-                  backgroundColor: viewMode === 'gantt' ? 'hsl(var(--background))' : 'transparent',
-                  boxShadow: viewMode === 'gantt' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  padding: '8px'
+                className="btn btn-ghost btn-sm"
+                style={{
+                  borderRadius: 0,
+                  border: 'none',
+                  backgroundColor: viewMode === 'gantt' ? 'hsl(var(--muted))' : 'transparent',
+                  padding: '8px 12px'
                 }}
               >
                 <Calendar size={16} />
@@ -715,15 +731,20 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
               color: 'hsl(var(--muted-foreground))'
             }}>
               {filteredScenarios.length} Scenarios
-              {selectedScenarios.length > 0 && (
-                <span style={{ marginLeft: '12px', color: 'hsl(var(--primary))' }}>
-                  ({selectedScenarios.length}개 선택됨)
-                </span>
-              )}
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* 선택된 개수 (이동 버튼 왼쪽) */}
+            {selectedScenarios.length > 0 && (
+              <span style={{ 
+                fontSize: '14px', 
+                color: 'hsl(var(--primary))'
+              }}>
+                {selectedScenarios.length}개 선택됨
+              </span>
+            )}
+
             {/* 선택된 항목 일괄 작업 버튼 */}
             {selectedScenarios.length > 0 && (
               <>
@@ -1090,7 +1111,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                       <td>
                         <span style={{
                           padding: '4px 10px',
-                          borderRadius: '4px',
+                          borderRadius: '12px',
                           fontSize: '12px',
                           fontWeight: '500',
                           backgroundColor: typeStyle.bg,
@@ -1351,41 +1372,46 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                 {/* Zoom 컨트롤 */}
                 <div style={{ 
                   display: 'flex', 
-                  gap: '2px', 
-                  padding: '2px', 
-                  backgroundColor: 'hsl(var(--background))', 
-                  borderRadius: '4px',
-                  border: '1px solid hsl(var(--border))'
+                  alignItems: 'center',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                  overflow: 'hidden'
                 }}>
                   <button
                     onClick={() => setTimelineZoom('month')}
-                    className={`btn btn-sm ${timelineZoom === 'month' ? 'btn-secondary' : 'btn-ghost'}`}
+                    className="btn btn-ghost btn-sm"
                     style={{ 
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                      backgroundColor: timelineZoom === 'month' ? 'hsl(var(--muted))' : 'transparent'
+                      borderRadius: 0,
+                      border: 'none',
+                      backgroundColor: timelineZoom === 'month' ? 'hsl(var(--muted))' : 'transparent',
+                      padding: '8px 12px',
+                      fontSize: '12px'
                     }}
                   >
                     월
                   </button>
                   <button
                     onClick={() => setTimelineZoom('quarter')}
-                    className={`btn btn-sm ${timelineZoom === 'quarter' ? 'btn-secondary' : 'btn-ghost'}`}
+                    className="btn btn-ghost btn-sm"
                     style={{ 
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                      backgroundColor: timelineZoom === 'quarter' ? 'hsl(var(--muted))' : 'transparent'
+                      borderRadius: 0,
+                      border: 'none',
+                      backgroundColor: timelineZoom === 'quarter' ? 'hsl(var(--muted))' : 'transparent',
+                      padding: '8px 12px',
+                      fontSize: '12px'
                     }}
                   >
                     분기
                   </button>
                   <button
                     onClick={() => setTimelineZoom('year')}
-                    className={`btn btn-sm ${timelineZoom === 'year' ? 'btn-secondary' : 'btn-ghost'}`}
+                    className="btn btn-ghost btn-sm"
                     style={{ 
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                      backgroundColor: timelineZoom === 'year' ? 'hsl(var(--muted))' : 'transparent'
+                      borderRadius: 0,
+                      border: 'none',
+                      backgroundColor: timelineZoom === 'year' ? 'hsl(var(--muted))' : 'transparent',
+                      padding: '8px 12px',
+                      fontSize: '12px'
                     }}
                   >
                     년
@@ -1526,8 +1552,16 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                       totalDays = timelineYear % 4 === 0 ? 366 : 365 // 윤년 체크
                     }
 
+                    // 현재 보이는 기간과 겹치는 시나리오만 필터링
+                    const visibleScenarios = currentScenarios.filter(scenario => {
+                      const scenarioStart = new Date(scenario.startDate)
+                      const scenarioEnd = new Date(scenario.endDate)
+                      // 시나리오가 현재 보이는 기간과 겹치는지 확인
+                      return scenarioStart <= endDate && scenarioEnd >= baseDate
+                    })
+
                     // 시나리오를 날짜 순으로 정렬
-                    const sortedByDate = [...currentScenarios].sort((a, b) => 
+                    const sortedByDate = [...visibleScenarios].sort((a, b) => 
                       new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
                     )
 
@@ -1623,36 +1657,54 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 {scenario.name}
                               </div>
                               
-                              {/* 상세 정보 */}
-                              <div style={{ 
-                                fontSize: '10px',
-                                color: 'hsl(var(--primary-foreground))',
-                                opacity: 0.85,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                zIndex: 1
-                              }}>
-                                {/* 타입 */}
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                  {getTypeIcon(scenario.type)}
-                                  <span>{scenario.type === 'Ratio Finder' ? 'RF' : 'RP'}</span>
-                                </span>
-                                <span>•</span>
-                                {/* 업종 */}
-                                <span>{scenario.industry}</span>
-                                <span>•</span>
-                                {/* 상태 */}
-                                <span style={{
-                                  fontWeight: '500'
+                              {/* 상세 정보 - 분기일 때만 전체 표시 */}
+                              {timelineZoom === 'quarter' ? (
+                                <div style={{ 
+                                  fontSize: '10px',
+                                  color: 'hsl(var(--primary-foreground))',
+                                  opacity: 0.85,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  zIndex: 1
                                 }}>
-                                  {scenario.status}
-                                  {scenario.status === 'Processing' && ` (${scenario.processStep}/${scenario.totalSteps})`}
-                                </span>
-                                <span>•</span>
-                                {/* 작성자 */}
-                                <span>{scenario.creator}</span>
-                              </div>
+                                  {/* 타입 */}
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                    {getTypeIcon(scenario.type)}
+                                    <span>{scenario.type === 'Ratio Finder' ? 'RF' : 'RP'}</span>
+                                  </span>
+                                  <span>•</span>
+                                  {/* 업종 */}
+                                  <span>{scenario.industry}</span>
+                                  <span>•</span>
+                                  {/* 상태 */}
+                                  <span style={{
+                                    fontWeight: '500'
+                                  }}>
+                                    {scenario.status}
+                                    {scenario.status === 'Processing' && ` (${scenario.processStep}/${scenario.totalSteps})`}
+                                  </span>
+                                  <span>•</span>
+                                  {/* 작성자 */}
+                                  <span>{scenario.creator}</span>
+                                </div>
+                              ) : (
+                                /* 월/년일 때는 분석모듈 약어만 표시 */
+                                <div style={{ 
+                                  fontSize: '10px',
+                                  color: 'hsl(var(--primary-foreground))',
+                                  opacity: 0.85,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  zIndex: 1
+                                }}>
+                                  {getTypeIcon(scenario.type)}
+                                  <span style={{ fontWeight: '500' }}>
+                                    {scenario.type === 'Ratio Finder' ? 'RF' : 'RP'}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )
                         })}
