@@ -7,6 +7,7 @@ import { targetGrpOptions } from '../scenario/constants'
 import { ReachCurveChart } from './ReachCurveChart'
 import { ReachPredictorScoreCards } from './ReachPredictorScoreCards'
 import { ReachPredictorDetailTable } from './ReachPredictorDetailTable'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -154,8 +155,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   console.log('reachPredictorMedia length:', scenarioData?.reachPredictorMedia?.length)
   
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>([])
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -163,26 +163,6 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
-
-  const toggleAllSlots = () => {
-    const newExpanded = !isSidebarCollapsed
-    setIsSidebarCollapsed(newExpanded)
-    
-    // 모든 폴더 펼치기/접기
-    if (newExpanded) {
-      setExpandedFolders(['samsung', 'samsung-reachcaster', 'lg', 'hyundai'])
-    } else {
-      setExpandedFolders([])
-    }
-  }
-
-  const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folderId) 
-        ? prev.filter(id => id !== folderId)
-        : [...prev, folderId]
-    )
-  }
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -221,7 +201,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
+        onToggleSidebar: toggleSidebar,
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
@@ -242,8 +222,8 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
               borderRadius: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              backgroundColor: 'hsl(var(--foreground))',
-              color: 'hsl(var(--background))',
+              backgroundColor: 'hsl(var(--muted))',
+              color: 'hsl(var(--foreground))',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
@@ -757,16 +737,11 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             }}
           >
             <Database size={16} />
-            <span>이 예측을 실제 데이터와 비교해보세요</span>
-            <span style={{ 
-              fontWeight: '500',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              DataShot에서 {scenarioData?.industry || '업종별'} 캠페인 성과 확인하기
-              <ArrowRight size={16} />
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
+              <span style={{ fontWeight: '500' }}>DataShot에서 {scenarioData?.industry || '업종명'} 업종의 캠페인 성과 확인하기</span>
+              <span style={{ fontSize: '11px', opacity: 0.7 }}>실제 집행 데이터 기반</span>
+            </div>
+            <ArrowRight size={16} />
           </button>
         </div>
       </div>
@@ -1088,39 +1063,54 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             style={{ maxWidth: '600px' }}
           >
             <div className="dialog-header">
-              <h3 className="dialog-title">리치커브 상세 설정</h3>
+              <h3 className="dialog-title">리치커브 설정</h3>
               <p className="dialog-description">
                 시나리오 생성 시 설정된 리치커브 분석 파라미터입니다
               </p>
             </div>
             
             <div style={{ padding: '24px' }}>
-              {/* 예산 상한 */}
-              <div style={{ marginBottom: '24px' }}>
+              {/* 구간 */}
+              <div style={{ marginBottom: '20px' }}>
                 <label style={{
                   display: 'block',
                   fontSize: '13px',
-                  fontWeight: '600',
+                  fontWeight: '500',
                   marginBottom: '8px',
                   color: 'hsl(var(--foreground))'
                 }}>
-                  예산 상한 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                  구간
                 </label>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '12px'
                 }}>
                   <div style={{
-                    fontSize: '16px',
+                    fontSize: '14px',
                     fontWeight: '500',
                     color: 'hsl(var(--foreground))',
                     textAlign: 'right'
                   }}>
-                    {(scenarioData?.curveSettings?.budgetCap || 1800000000).toLocaleString('ko-KR')}
+                    {(scenarioData?.curveSettings?.minInterval || 100000).toLocaleString('ko-KR')}
                   </div>
                   <span style={{
+                    fontSize: '13px',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    원
+                  </span>
+                  <ArrowRight size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                  <div style={{
                     fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'hsl(var(--foreground))',
+                    textAlign: 'right'
+                  }}>
+                    {(scenarioData?.curveSettings?.maxInterval || 1000000000).toLocaleString('ko-KR')}
+                  </div>
+                  <span style={{
+                    fontSize: '13px',
                     color: 'hsl(var(--muted-foreground))'
                   }}>
                     원
@@ -1128,235 +1118,138 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                 </div>
               </div>
 
-              {/* 리치커브 상세 설정 */}
-              <div style={{
-                padding: '20px',
-                backgroundColor: 'hsl(var(--muted) / 0.1)',
-                borderRadius: '8px',
-                border: '1px solid hsl(var(--border))'
-              }}>
-                <div style={{
+              {/* 리치커브 기준 설정 */}
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{
+                  display: 'block',
                   fontSize: '13px',
-                  fontWeight: '600',
-                  marginBottom: '16px',
+                  fontWeight: '500',
+                  marginBottom: '8px',
                   color: 'hsl(var(--foreground))'
                 }}>
-                  리치커브 상세 설정 <span style={{ 
-                    fontSize: '11px', 
-                    fontWeight: '400',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}>(선택)</span>
-                </div>
-                
-                {/* 구간 */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    marginBottom: '8px',
-                    color: 'hsl(var(--foreground))'
-                  }}>
-                    구간
-                  </label>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'hsl(var(--foreground))',
-                      textAlign: 'right'
-                    }}>
-                      {(scenarioData?.curveSettings?.minInterval || 300000000).toLocaleString('ko-KR')}
-                    </div>
-                    <span style={{
-                      fontSize: '13px',
-                      color: 'hsl(var(--muted-foreground))'
-                    }}>
-                      원
-                    </span>
-                    <span style={{
-                      fontSize: '13px',
-                      color: 'hsl(var(--muted-foreground))',
-                      padding: '0 4px'
-                    }}>
-                      →
-                    </span>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'hsl(var(--foreground))',
-                      textAlign: 'right'
-                    }}>
-                      {(scenarioData?.curveSettings?.maxInterval || 1800000000).toLocaleString('ko-KR')}
-                    </div>
-                    <span style={{
-                      fontSize: '13px',
-                      color: 'hsl(var(--muted-foreground))'
-                    }}>
-                      원
-                    </span>
-                  </div>
-                </div>
+                  리치커브 기준 설정
+                </label>
+              </div>
 
-                {/* 리치커브 기준 설정 */}
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    marginBottom: '8px',
-                    color: 'hsl(var(--foreground))'
-                  }}>
-                    리치커브 기준 설정
-                  </label>
-                </div>
-
-                {/* 구간 수 기준 */}
+              {/* 구간 수 기준 */}
+              <div style={{
+                padding: '14px',
+                backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                  ? 'hsl(var(--primary) / 0.1)' 
+                  : 'transparent',
+                borderRadius: '6px',
+                border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                  ? 'hsl(var(--primary))' 
+                  : 'hsl(var(--border))'}`,
+                marginBottom: '12px'
+              }}>
                 <div style={{
-                  padding: '14px',
-                  backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
-                    ? 'hsl(var(--background))' 
-                    : 'transparent',
-                  borderRadius: '6px',
-                  border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
-                    ? 'hsl(var(--primary))' 
-                    : 'hsl(var(--border))'}`,
-                  marginBottom: '12px',
-                  opacity: (scenarioData?.curveSettings?.intervalType || 'amount') === 'count' ? 1 : 0.5
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px'
                 }}>
                   <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
+                      ? 'hsl(var(--primary))' 
+                      : 'hsl(var(--border))'}`,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '12px'
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
                   }}>
+                    {(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' && (
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: 'hsl(var(--primary))'
+                      }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
                     <div style={{
-                      width: '16px',
-                      height: '16px',
-                      borderRadius: '50%',
-                      border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' 
-                        ? 'hsl(var(--primary))' 
-                        : 'hsl(var(--border))'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          backgroundColor: 'hsl(var(--primary))'
-                        }} />
-                      )}
-                    </div>
-                    <span style={{
                       fontSize: '13px',
                       fontWeight: '500',
                       color: 'hsl(var(--foreground))'
                     }}>
                       구간 수 기준
-                    </span>
-                  </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    paddingLeft: '26px'
-                  }}>
-                    <span style={{
-                      fontSize: '12px',
-                      color: 'hsl(var(--muted-foreground))',
-                      minWidth: '80px'
-                    }}>
-                      구간 수 (2~20):
-                    </span>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'hsl(var(--foreground))'
-                    }}>
-                      {scenarioData?.curveSettings?.intervalCount ? `${scenarioData.curveSettings.intervalCount}개` : '-'}
                     </div>
+                    {(scenarioData?.curveSettings?.intervalType || 'amount') === 'count' && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'hsl(var(--muted-foreground))',
+                        marginTop: '4px'
+                      }}>
+                        구간 수: <span style={{ fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+                          {scenarioData?.curveSettings?.intervalCount || 10}개
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                {/* 구간별 금액 기준 */}
+              {/* 구간별 금액 기준 */}
+              <div style={{
+                padding: '14px',
+                backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                  ? 'hsl(var(--primary) / 0.1)' 
+                  : 'transparent',
+                borderRadius: '6px',
+                border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                  ? 'hsl(var(--primary))' 
+                  : 'hsl(var(--border))'}`,
+              }}>
                 <div style={{
-                  padding: '14px',
-                  backgroundColor: (scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
-                    ? 'hsl(var(--background))' 
-                    : 'transparent',
-                  borderRadius: '6px',
-                  border: `1px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
-                    ? 'hsl(var(--primary))' 
-                    : 'hsl(var(--border))'}`,
-                  opacity: (scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' ? 1 : 0.5
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px'
                 }}>
                   <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
+                      ? 'hsl(var(--primary))' 
+                      : 'hsl(var(--border))'}`,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '12px'
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
                   }}>
+                    {(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' && (
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: 'hsl(var(--primary))'
+                      }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
                     <div style={{
-                      width: '16px',
-                      height: '16px',
-                      borderRadius: '50%',
-                      border: `2px solid ${(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' 
-                        ? 'hsl(var(--primary))' 
-                        : 'hsl(var(--border))'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          backgroundColor: 'hsl(var(--primary))'
-                        }} />
-                      )}
-                    </div>
-                    <span style={{
                       fontSize: '13px',
                       fontWeight: '500',
                       color: 'hsl(var(--foreground))'
                     }}>
                       구간별 금액 기준
-                    </span>
-                  </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    paddingLeft: '26px'
-                  }}>
-                    <span style={{
-                      fontSize: '12px',
-                      color: 'hsl(var(--muted-foreground))',
-                      minWidth: '80px'
-                    }}>
-                      구간별 금액:
-                    </span>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'hsl(var(--foreground))'
-                    }}>
-                      {scenarioData?.curveSettings?.intervalAmount 
-                        ? `${(scenarioData.curveSettings.intervalAmount).toLocaleString('ko-KR')}원` 
-                        : '150,000,000원'}
                     </div>
+                    {(scenarioData?.curveSettings?.intervalType || 'amount') === 'amount' && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'hsl(var(--muted-foreground))',
+                        marginTop: '4px'
+                      }}>
+                        구간별 금액: <span style={{ fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+                          {(scenarioData?.curveSettings?.intervalAmount || 150000000).toLocaleString('ko-KR')}원
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

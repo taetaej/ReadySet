@@ -10,6 +10,7 @@ import { SlotDetail } from './SlotDetail'
 import { AppLayout } from '../layout/AppLayout'
 import { WelcomeSectionFixed as WelcomeSection } from './WelcomeSectionFixed'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: 'workspace' | 'createFolder' | 'editFolder' | 'slotDetail' }) {
   console.log('SlotBoardLayout 컴포넌트 렌더링됨')
@@ -46,8 +47,8 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     { id: 'SLT025', title: '맥도날드 해피밀 캠페인', advertiser: '맥도날드', advertiserId: 'ADV025', visibility: 'Internal', results: 13, modified: '2023-12-22', description: '맥도날드 해피밀 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } }
   ]
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // 기본적으로 사이드바 펼쳐진 상태
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'lg', 'hyundai', 'samsung-reachcaster']) // 기본적으로 모든 폴더 펼쳐진 상태
+  // 사이드바 상태 관리 (localStorage 연동)
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [contextMenuOpen, setContextMenuOpen] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const [currentView, setCurrentView] = useState<'workspace' | 'createFolder' | 'editFolder' | 'slotDetail'>(initialView)
@@ -58,7 +59,6 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20) // 페이지 크기 변경 가능하게
-  const [isManagementMode, setIsManagementMode] = useState(false) // Slot 관리 모드
   const [selectedFolders, setSelectedFolders] = useState<string[]>([]) // 선택된 Slot들
   const [searchExpanded, setSearchExpanded] = useState(false) // 검색 필드 확장 상태
   const [searchQuery, setSearchQuery] = useState('') // 검색 쿼리
@@ -127,25 +127,17 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
   // 모든 Slot 펼치기/접기 토글
   const toggleAllSlots = () => {
-    if (!isSidebarCollapsed) {
+    // 이 기능은 사이드바 접힘/펼침과는 별개로 폴더만 제어
+    if (expandedFolders.length > 0) {
       // 모두 접기
-      setExpandedFolders([])
-      setIsSidebarCollapsed(true)
+      localStorage.setItem('sidebar-expanded-folders', JSON.stringify([]))
+      window.location.reload() // 상태 동기화를 위해 리로드
     } else {
       // 모두 펼치기
-      const allSlotIds = ['samsung', 'lg', 'hyundai'] // 모든 Slot ID들
-      const allSubIds = ['samsung-reachcaster'] // 하위 솔루션들도 포함
-      setExpandedFolders([...allSlotIds, ...allSubIds])
-      setIsSidebarCollapsed(false)
+      const allSlotIds = ['samsung', 'lg', 'hyundai', 'samsung-reachcaster', 'samsung-datashot']
+      localStorage.setItem('sidebar-expanded-folders', JSON.stringify(allSlotIds))
+      window.location.reload() // 상태 동기화를 위해 리로드
     }
-  }
-
-  const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folderId) 
-        ? prev.filter(id => id !== folderId)
-        : [...prev, folderId]
-    )
   }
 
   const handleContextMenu = (folderTitle: string, action: 'edit' | 'delete') => {
@@ -240,42 +232,13 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     // 여기에 Slot 목록 새로고침 로직을 추가할 수 있습니다
   }
 
-  // Slot 관리 모드 관련 함수들
-  const toggleManagementMode = () => {
-    setIsManagementMode(!isManagementMode)
-    setSelectedFolders([]) // 모드 전환 시 선택 초기화
-  }
-
+  // Slot 선택 관련 함수들
   const toggleFolderSelection = (folderTitle: string) => {
-    setSelectedFolders(prev => {
-      const newSelection = prev.includes(folderTitle)
+    setSelectedFolders(prev => 
+      prev.includes(folderTitle)
         ? prev.filter(title => title !== folderTitle)
         : [...prev, folderTitle]
-      
-      // 체크박스 선택 시 자동으로 관리모드 진입
-      if (newSelection.length > 0 && !isManagementMode) {
-        setIsManagementMode(true)
-      }
-      // 모든 체크박스 해제 시 관리모드 해제
-      if (newSelection.length === 0 && isManagementMode) {
-        setIsManagementMode(false)
-      }
-      
-      return newSelection
-    })
-  }
-
-  const selectAllFolders = () => {
-    const allCurrentFolderTitles = currentFolders.map(folder => folder.title)
-    setSelectedFolders(allCurrentFolderTitles)
-    if (!isManagementMode) {
-      setIsManagementMode(true)
-    }
-  }
-
-  const deselectAllFolders = () => {
-    setSelectedFolders([])
-    setIsManagementMode(false)
+    )
   }
 
   const deleteSelectedFolders = () => {
@@ -290,16 +253,15 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
         message: `${folderText}가 성공적으로 삭제되었습니다.` 
       })
       setSelectedFolders([])
-      setIsManagementMode(false)
     }
   }
 
   const handleFolderClick = (folder: any) => {
-    if (isManagementMode) {
-      // 관리 모드에서는 Slot 선택/해제
+    // 체크박스가 선택되어 있으면 선택/해제만 수행
+    if (selectedFolders.length > 0) {
       toggleFolderSelection(folder.title)
     } else {
-      // 일반 모드에서는 Slot 상세로 이동
+      // 선택된 항목이 없으면 Slot 상세로 이동
       console.log('Slot 상세로 이동:', folder.title)
       setSelectedSlot(folder)
       setCurrentView('slotDetail')
@@ -549,7 +511,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
+        onToggleSidebar: toggleSidebar,
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => setCurrentView('workspace')
       }}
@@ -611,7 +573,6 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
             adCuratorResults={31}
             budgetOptimizerResults={17}
             reachCasterResults={48}
-            isManagementMode={isManagementMode}
           />
 
           {/* Search & Filter */}
@@ -666,134 +627,113 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
               </span>
             </div>
 
-            {/* 우측: 검색, 정렬, 필터, 관리 */}
+            {/* 우측: 선택된 개수 + 관리 버튼 + 검색 + 필터 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* 관리 모드일 때만 보이는 버튼들 */}
-              {isManagementMode && (
-                <>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px',
-                    padding: '0 12px',
-                    fontSize: '14px'
-                  }} className="text-muted-foreground">
-                    {selectedFolders.length}개 선택됨
-                  </div>
-                  <button
-                    onClick={selectedFolders.length === currentFolders.length ? deselectAllFolders : selectAllFolders}
-                    className="btn btn-ghost btn-md"
-                    style={{ border: '1px solid hsl(var(--border))' }}
-                  >
-                    {selectedFolders.length === currentFolders.length ? '전체 해제' : '전체 선택'}
-                  </button>
-                  <button
-                    onClick={deleteSelectedFolders}
-                    disabled={selectedFolders.length === 0}
-                    className="btn btn-md"
-                    style={{ 
-                      backgroundColor: selectedFolders.length > 0 ? 'hsl(var(--destructive))' : 'hsl(var(--muted))',
-                      color: selectedFolders.length > 0 ? 'hsl(var(--destructive-foreground))' : 'hsl(var(--muted-foreground))',
-                      border: 'none',
-                      opacity: selectedFolders.length === 0 ? 0.5 : 1,
-                      cursor: selectedFolders.length === 0 ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    <Trash2 size={16} />
-                    삭제
-                  </button>
-                  <button 
-                    onClick={toggleManagementMode}
-                    className="btn btn-secondary btn-md"
-                    style={{ border: '1px solid hsl(var(--border))' }}
-                  >
-                    관리 완료
-                  </button>
-                </>
+              {/* 선택된 개수 (삭제 버튼 왼쪽) */}
+              {selectedFolders.length > 0 && (
+                <span style={{ 
+                  fontSize: '14px', 
+                  color: 'hsl(var(--primary))'
+                }}>
+                  {selectedFolders.length}개 선택됨
+                </span>
               )}
 
-              {/* 일반 모드일 때만 보이는 검색/정렬/필터 버튼들 */}
-              {!isManagementMode && (
-                <>
-                  {/* Search - 아이콘 + 텍스트 형태, 클릭하면 펼쳐짐 */}
-                  <div style={{ position: 'relative' }}>
-                    {!searchExpanded ? (
+              {/* 선택된 항목이 있을 때만 보이는 관리 버튼들 */}
+              {selectedFolders.length > 0 && (
+                <button
+                  onClick={deleteSelectedFolders}
+                  className="btn btn-md"
+                  style={{ 
+                    backgroundColor: 'hsl(var(--destructive))',
+                    color: 'hsl(var(--destructive-foreground))',
+                    border: 'none'
+                  }}
+                >
+                  <Trash2 size={16} />
+                  삭제
+                </button>
+              )}
+
+              {/* 검색 */}
+              <div style={{ position: 'relative' }}>
+                {!searchExpanded ? (
+                  <button
+                    onClick={() => setSearchExpanded(true)}
+                    className="btn btn-ghost btn-md"
+                    style={{ 
+                      border: '1px solid hsl(var(--border))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '0 12px'
+                    }}
+                  >
+                    <Search size={16} />
+                    <span>검색</span>
+                  </button>
+                ) : (
+                  <div style={{ 
+                    position: 'relative',
+                    width: '300px',
+                    transition: 'width 0.3s ease-out'
+                  }}>
+                    <Search size={16} style={{ 
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 1
+                    }} className="text-muted-foreground" />
+                    <input 
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={() => {
+                        if (!searchQuery) {
+                          setSearchExpanded(false)
+                        }
+                      }}
+                      placeholder="Search (Slot명, 광고주명)"
+                      className="input"
+                      autoFocus
+                      style={{ 
+                        paddingLeft: '40px',
+                        paddingRight: '12px',
+                        height: '36px',
+                        minHeight: '36px',
+                        width: '100%'
+                      }}
+                    />
+                    {searchQuery && (
                       <button
-                        onClick={() => setSearchExpanded(true)}
-                        className="btn btn-ghost btn-md"
-                        style={{ 
-                          border: '1px solid hsl(var(--border))',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '0 12px'
+                        onClick={() => {
+                          setSearchQuery('')
+                          setSearchExpanded(false)
                         }}
-                      >
-                        <Search size={16} />
-                        <span>검색</span>
-                      </button>
-                    ) : (
-                      <div style={{ 
-                        position: 'relative',
-                        width: '300px',
-                        transition: 'width 0.3s ease-out'
-                      }}>
-                        <Search size={16} style={{ 
+                        style={{
                           position: 'absolute',
-                          left: '12px',
+                          right: '8px',
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          zIndex: 1
-                        }} className="text-muted-foreground" />
-                        <input 
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onBlur={() => {
-                            if (!searchQuery) {
-                              setSearchExpanded(false)
-                            }
-                          }}
-                          placeholder="Search (Slot명, 광고주명)"
-                          className="input"
-                          autoFocus
-                          style={{ 
-                            paddingLeft: '40px',
-                            paddingRight: '12px',
-                            height: '36px',
-                            minHeight: '36px',
-                            width: '100%'
-                          }}
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => {
-                              setSearchQuery('')
-                              setSearchExpanded(false)
-                            }}
-                            style={{
-                              position: 'absolute',
-                              right: '8px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
-                              padding: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            <X size={14} className="text-muted-foreground" />
-                          </button>
-                        )}
-                      </div>
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <X size={14} className="text-muted-foreground" />
+                      </button>
                     )}
                   </div>
+                )}
+              </div>
 
-                  {/* 필터 */}
-                  <div style={{ position: 'relative' }}>
+              {/* 필터 */}
+              <div style={{ position: 'relative' }}>
                     <button
                       onClick={() => setFilterOpen(!filterOpen)}
                       className="btn btn-ghost btn-md"
@@ -946,8 +886,6 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                       </div>
                     )}
                   </div>
-                </>
-              )}
             </div>
           </section>
 
@@ -964,7 +902,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                   <SlotCard
                     key={index}
                     slot={folder}
-                    isManagementMode={isManagementMode}
+                    isManagementMode={selectedFolders.length > 0}
                     isSelected={selectedFolders.includes(folder.title)}
                     contextMenuOpen={contextMenuOpen === folder.title}
                     onSlotClick={handleFolderClick}
@@ -996,7 +934,22 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                   fontSize: '12px',
                   fontWeight: '600'
                 }} className="text-muted-foreground">
-                  <div></div>
+                  {/* 전체 선택 체크박스 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedFolders.length === currentFolders.length && currentFolders.length > 0}
+                      onChange={() => {
+                        if (selectedFolders.length === currentFolders.length) {
+                          setSelectedFolders([])
+                        } else {
+                          setSelectedFolders(currentFolders.map(f => f.title))
+                        }
+                      }}
+                      className="checkbox-custom"
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </div>
                   
                   {/* ID - Sortable */}
                   <div 

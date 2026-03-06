@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { AppLayout } from '../layout/AppLayout'
 import { SlotHeader } from '../reachcaster/SlotHeader'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 export function DataShotDetail() {
   const navigate = useNavigate()
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'samsung-datashot'])
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -47,14 +47,8 @@ export function DataShotDetail() {
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders: expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
-        onToggleFolder: (folderId: string) => {
-          setExpandedFolders(prev => 
-            prev.includes(folderId) 
-              ? prev.filter(id => id !== folderId)
-              : [...prev, folderId]
-          )
-        },
+        onToggleSidebar: toggleSidebar,
+        onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
