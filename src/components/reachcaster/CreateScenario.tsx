@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight, X, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 import { 
   ScenarioStep1,
   ScenarioStep2RatioFinder,
@@ -37,8 +38,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     }
   })
   
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>([])
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   
   // 매체별 예산 배분 관련 state
   const [selectedMediaCategory, setSelectedMediaCategory] = useState<'DIGITAL' | 'TV'>('DIGITAL')
@@ -268,14 +268,8 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders: expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
-        onToggleFolder: (folderId: string) => {
-          setExpandedFolders(prev => 
-            prev.includes(folderId) 
-              ? prev.filter(id => id !== folderId)
-              : [...prev, folderId]
-          )
-        },
+        onToggleSidebar: toggleSidebar,
+        onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >

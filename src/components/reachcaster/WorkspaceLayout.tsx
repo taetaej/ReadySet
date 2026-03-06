@@ -10,6 +10,7 @@ import { SlotDetail } from './SlotDetail'
 import { AppLayout } from '../layout/AppLayout'
 import { WelcomeSectionFixed as WelcomeSection } from './WelcomeSectionFixed'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: 'workspace' | 'createFolder' | 'editFolder' | 'slotDetail' }) {
   console.log('SlotBoardLayout 컴포넌트 렌더링됨')
@@ -46,8 +47,8 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     { id: 'SLT025', title: '맥도날드 해피밀 캠페인', advertiser: '맥도날드', advertiserId: 'ADV025', visibility: 'Internal', results: 13, modified: '2023-12-22', description: '맥도날드 해피밀 캠페인', solutions: { reachCaster: 1, budgetOptimizer: 1, metricHub: 0 } }
   ]
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // 기본적으로 사이드바 펼쳐진 상태
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'lg', 'hyundai', 'samsung-reachcaster']) // 기본적으로 모든 폴더 펼쳐진 상태
+  // 사이드바 상태 관리 (localStorage 연동)
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [contextMenuOpen, setContextMenuOpen] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const [currentView, setCurrentView] = useState<'workspace' | 'createFolder' | 'editFolder' | 'slotDetail'>(initialView)
@@ -127,25 +128,17 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
   // 모든 Slot 펼치기/접기 토글
   const toggleAllSlots = () => {
-    if (!isSidebarCollapsed) {
+    // 이 기능은 사이드바 접힘/펼침과는 별개로 폴더만 제어
+    if (expandedFolders.length > 0) {
       // 모두 접기
-      setExpandedFolders([])
-      setIsSidebarCollapsed(true)
+      localStorage.setItem('sidebar-expanded-folders', JSON.stringify([]))
+      window.location.reload() // 상태 동기화를 위해 리로드
     } else {
       // 모두 펼치기
-      const allSlotIds = ['samsung', 'lg', 'hyundai'] // 모든 Slot ID들
-      const allSubIds = ['samsung-reachcaster'] // 하위 솔루션들도 포함
-      setExpandedFolders([...allSlotIds, ...allSubIds])
-      setIsSidebarCollapsed(false)
+      const allSlotIds = ['samsung', 'lg', 'hyundai', 'samsung-reachcaster', 'samsung-datashot']
+      localStorage.setItem('sidebar-expanded-folders', JSON.stringify(allSlotIds))
+      window.location.reload() // 상태 동기화를 위해 리로드
     }
-  }
-
-  const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folderId) 
-        ? prev.filter(id => id !== folderId)
-        : [...prev, folderId]
-    )
   }
 
   const handleContextMenu = (folderTitle: string, action: 'edit' | 'delete') => {
@@ -549,7 +542,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
+        onToggleSidebar: toggleSidebar,
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => setCurrentView('workspace')
       }}

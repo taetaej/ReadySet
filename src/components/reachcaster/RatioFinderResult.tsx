@@ -6,6 +6,7 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { DetailedDataTable } from './RatioFinderDetailTable'
 import { targetGrpOptions } from '../scenario/constants'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 interface RatioFinderResultProps {
   scenarioData?: any
@@ -51,8 +52,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     : defaultTargetGrp
   
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>([])
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -138,26 +138,6 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     return () => window.removeEventListener('resize', handleResize)
   }, [maxReachIndex])
 
-  const toggleAllSlots = () => {
-    const newExpanded = !isSidebarCollapsed
-    setIsSidebarCollapsed(newExpanded)
-    
-    // 모든 폴더 펼치기/접기
-    if (newExpanded) {
-      setExpandedFolders(['samsung', 'samsung-reachcaster', 'lg', 'hyundai'])
-    } else {
-      setExpandedFolders([])
-    }
-  }
-
-  const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folderId) 
-        ? prev.filter(id => id !== folderId)
-        : [...prev, folderId]
-    )
-  }
-
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
@@ -224,7 +204,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               </div>
               <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};">
                 <span style="display: inline-block; width: 10px; height: 10px; background: ${colors.reach}; border-radius: 50%;"></span>
-                <span style="font-weight: 600;">통합 도달률: ${reach.value}%</span>
+                <span style="font-weight: 600;">Reach 1+: ${reach.value}%</span>
               </div>
             </div>
           `
@@ -234,7 +214,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         data: [
           { name: 'TVC', itemStyle: { color: colors.tvc } },
           { name: 'Digital', itemStyle: { color: colors.digital } },
-          { name: '통합 도달률', itemStyle: { color: colors.reach } }
+          { name: 'Reach 1+', itemStyle: { color: colors.reach } }
         ],
         bottom: 10,
         right: 20,
@@ -293,7 +273,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         },
         {
           type: 'value',
-          name: '통합 도달률 (%)',
+          name: 'Reach 1+ (%)',
           nameTextStyle: {
             color: isDarkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
             fontFamily: 'Paperlogy, sans-serif',
@@ -362,7 +342,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           }
         },
         {
-          name: '통합 도달률',
+          name: 'Reach 1+',
           type: 'line',
           yAxisIndex: 1,
           data: reachData,
@@ -438,7 +418,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
+        onToggleSidebar: toggleSidebar,
         onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
@@ -994,16 +974,11 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
             }}
           >
             <Database size={16} />
-            <span>이 예측을 실제 데이터와 비교해보세요</span>
-            <span style={{ 
-              fontWeight: '500',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              DataShot에서 {scenarioData?.industry || '업종별'} 캠페인 성과 확인하기
-              <ArrowRight size={16} />
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
+              <span style={{ fontWeight: '500' }}>DataShot에서 {scenarioData?.industry || '업종명'} 업종의 캠페인 성과 확인하기</span>
+              <span style={{ fontSize: '11px', opacity: 0.7 }}>실제 집행 데이터 기반</span>
+            </div>
+            <ArrowRight size={16} />
           </button>
         </div>
       </div>

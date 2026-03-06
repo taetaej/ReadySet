@@ -340,10 +340,10 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                   display: 'grid',
                   gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
-                  borderBottom: '1px solid hsl(var(--border))',
+                  borderBottom: '2px solid hsl(var(--border))',
                   cursor: hasData ? 'pointer' : 'default',
                   fontSize: '13px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   transition: 'background-color 0.2s',
                   opacity: hasData ? 1 : 0.5
                 }}
@@ -389,15 +389,15 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
-                        backgroundColor: 'hsl(var(--card))',
+                        backgroundColor: 'hsl(var(--muted) / 0.35)',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
                         fontSize: '12px',
-                        fontWeight: '500',
+                        fontWeight: '600',
                         transition: 'background-color 0.2s'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--card))'}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.35)'}
                     >
                       <div style={{ padding: '10px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '24px' }}>
                         <ChevronRight 
