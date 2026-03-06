@@ -1,26 +1,29 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { AppLayout } from '../layout/AppLayout'
 import { SlotHeader } from '../reachcaster/SlotHeader'
-import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
+import { DatasetList } from './DatasetList'
+import { Dataset } from './types'
+import { getDarkMode, toggleDarkMode } from '../../utils/theme'
 
 export function DataShotDetail() {
-  const navigate = useNavigate()
-  const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung', 'samsung-datashot'])
-
-  useEffect(() => {
-    setDarkModeUtil(isDarkMode)
-  }, [isDarkMode])
+  const [isDarkMode, setIsDarkMode] = useState(getDarkMode())
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [expandedFolders, setExpandedFolders] = useState<string[]>(['samsung'])
 
   const handleToggleDarkMode = () => {
-    const newMode = !isDarkMode
-    setIsDarkMode(newMode)
-    setDarkModeUtil(newMode)
+    toggleDarkMode()
+    setIsDarkMode(getDarkMode())
   }
 
-  // 샘플 Slot 데이터 (실제로는 props나 API에서 가져올 것)
+  const handleToggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => 
+      prev.includes(folderId) 
+        ? prev.filter(id => id !== folderId)
+        : [...prev, folderId]
+    )
+  }
+
+  // 임시 Slot 데이터
   const slotData = {
     title: '삼성 갤럭시 S24 캠페인',
     advertiser: '삼성전자',
@@ -28,10 +31,103 @@ export function DataShotDetail() {
     visibility: 'Internal',
     results: 5,
     modified: '2024-01-15',
-    description: '삼성 갤럭시 S24 출시를 위한 마케팅 캠페인입니다.'
+    description: '2024년 상반기 갤럭시 S24 출시 캠페인'
   }
 
-  const slotId = 1
+  // 임시 데이터셋 목록
+  const [datasets] = useState<Dataset[]>([
+    {
+      id: 'DS001',
+      name: 'Meta_260115_01',
+      description: '2024년 Q4 Meta 캠페인 성과 분석',
+      slotId: 'SLOT001',
+      slotName: '삼성 갤럭시 S24 캠페인',
+      advertiser: '삼성전자',
+      media: 'Meta',
+      industries: ['tech', 'retail'],
+      period: { start: '24-10', end: '24-12' },
+      products: ['feed', 'story'],
+      metrics: ['impressions', 'clicks', 'cost', 'ctr'],
+      status: '완료',
+      creator: '김은서',
+      createdAt: '2026-01-15',
+      rowCount: 15234
+    },
+    {
+      id: 'DS002',
+      name: 'Google_260112_01',
+      description: 'Google Ads 검색 캠페인 데이터',
+      slotId: 'SLOT001',
+      slotName: '삼성 갤럭시 S24 캠페인',
+      advertiser: '삼성전자',
+      media: 'Google Ads',
+      industries: ['tech'],
+      period: { start: '24-09', end: '24-11' },
+      products: ['search', 'display'],
+      metrics: ['impressions', 'clicks', 'cost'],
+      status: '추출중',
+      creator: '박지민',
+      createdAt: '2026-01-12'
+    },
+    {
+      id: 'DS003',
+      name: 'Kakao_260110_01',
+      slotId: 'SLOT001',
+      slotName: '삼성 갤럭시 S24 캠페인',
+      advertiser: '삼성전자',
+      media: '모먼트',
+      industries: ['tech', 'automotive'],
+      period: { start: '24-08', end: '24-10' },
+      products: ['feed'],
+      metrics: ['impressions', 'clicks'],
+      status: '완료',
+      creator: '이수진',
+      createdAt: '2026-01-10',
+      rowCount: 8921
+    },
+    {
+      id: 'DS004',
+      name: 'Naver_260108_01',
+      description: '네이버 GFA 캠페인 분석',
+      slotId: 'SLOT001',
+      slotName: '삼성 갤럭시 S24 캠페인',
+      advertiser: '삼성전자',
+      media: 'GFA',
+      industries: ['tech'],
+      period: { start: '24-07', end: '24-09' },
+      products: ['display'],
+      metrics: ['impressions', 'cost', 'cpm'],
+      status: '실패',
+      creator: '최민호',
+      createdAt: '2026-01-08'
+    },
+    {
+      id: 'DS005',
+      name: 'Meta_250315_01',
+      description: '2023년 연간 Meta 캠페인 데이터 (만료됨)',
+      slotId: 'SLOT001',
+      slotName: '삼성 갤럭시 S24 캠페인',
+      advertiser: '삼성전자',
+      media: 'Meta',
+      industries: ['tech'],
+      period: { start: '23-01', end: '23-12' },
+      products: ['feed', 'story', 'reels'],
+      metrics: ['impressions', 'clicks', 'cost'],
+      status: '만료',
+      creator: '김은서',
+      createdAt: '2025-03-15'
+    }
+  ])
+
+  const handleDatasetClick = (dataset: Dataset) => {
+    console.log('Dataset clicked:', dataset)
+    // TODO: 데이터셋 상세 페이지로 이동
+  }
+
+  const handleCreateDataset = () => {
+    console.log('Create new dataset')
+    // TODO: 데이터셋 생성 페이지로 이동
+  }
 
   return (
     <AppLayout
@@ -45,118 +141,27 @@ export function DataShotDetail() {
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        isCollapsed: isSidebarCollapsed,
-        expandedFolders: expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
-        onToggleFolder: (folderId: string) => {
-          setExpandedFolders(prev => 
-            prev.includes(folderId) 
-              ? prev.filter(id => id !== folderId)
-              : [...prev, folderId]
-          )
-        },
-        onNavigateToWorkspace: () => navigate('/slotboard')
+        isCollapsed,
+        expandedFolders,
+        onToggleSidebar: () => setIsCollapsed(!isCollapsed),
+        onToggleFolder: handleToggleFolder,
+        onNavigateToWorkspace: () => console.log('Navigate to workspace')
       }}
     >
-      {/* Slot 정보 헤더 */}
+      {/* Slot Header */}
       <SlotHeader 
-        slotId={slotId}
+        slotId={1}
         slotData={slotData}
-        onEdit={() => console.log('Edit slot')}
-        onDelete={() => console.log('Delete slot')}
+        onEdit={() => console.log('수정')}
+        onDelete={() => console.log('삭제')}
       />
 
-      {/* DataShot 콘텐츠 영역 */}
-      <div className="workspace-content">
-        {/* 시나리오 섹션 */}
-        <div style={{ padding: '24px' }}>
-          {/* 타이틀 영역 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '24px'
-          }}>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '600',
-              color: 'hsl(var(--foreground))'
-            }}>
-              Scenario
-            </h2>
-            <button
-              style={{
-                height: '48px',
-                padding: '0 32px',
-                borderRadius: '24px',
-                background: 'hsl(var(--primary))',
-                color: 'hsl(var(--primary-foreground))',
-                border: 'none',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onClick={() => console.log('New Scenario 클릭')}
-            >
-              New Scenario
-            </button>
-          </div>
-
-          {/* 플레이스홀더 */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '400px',
-            padding: '48px 24px',
-            border: '2px dashed hsl(var(--border))',
-            borderRadius: '12px',
-            background: 'hsl(var(--muted) / 0.3)'
-          }}>
-            <div style={{
-              textAlign: 'center',
-              maxWidth: '600px'
-            }}>
-              <h3 style={{
-                fontSize: '20px',
-                fontWeight: '600',
-                marginBottom: '12px',
-                color: 'hsl(var(--foreground))'
-              }}>
-                DataShot 시나리오 목록
-              </h3>
-              <p style={{
-                fontSize: '16px',
-                color: 'hsl(var(--muted-foreground))',
-                lineHeight: '1.6',
-                marginBottom: '24px'
-              }}>
-                여기에 시나리오 목록이 표시됩니다.
-              </p>
-              <div style={{
-                padding: '16px',
-                background: 'hsl(var(--muted))',
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: 'hsl(var(--muted-foreground))',
-                textAlign: 'left'
-              }}>
-                <p style={{ marginBottom: '8px', fontWeight: '600' }}>
-                  📝 작업 가이드:
-                </p>
-                <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-                  <li>plan/eunseo/README.md 먼저 읽기</li>
-                  <li>DataShotList.tsx 컴포넌트 만들기</li>
-                  <li>DataShotCard.tsx 컴포넌트 만들기</li>
-                  <li>이 영역을 목록으로 교체하기</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* 데이터셋 목록 */}
+      <DatasetList
+        datasets={datasets}
+        onDatasetClick={handleDatasetClick}
+        onCreateDataset={handleCreateDataset}
+      />
     </AppLayout>
   )
 }

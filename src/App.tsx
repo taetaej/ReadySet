@@ -8,6 +8,7 @@ import { ReachPredictorResult } from './components/reachcaster/ReachPredictorRes
 import { SplashCursor } from './components/common/SplashCursor'
 // DataShot 컴포넌트
 import { DataShotDetail } from './components/datashot/DataShotDetail'
+import { DataShotTest } from './components/datashot/DataShotTest'
 
 function App() {
   console.log('App 컴포넌트 렌더링됨 - SlotBoardLayout 사용')
@@ -22,6 +23,7 @@ function App() {
         <Route path="/reachcaster/scenario/ratio-finder/result" element={<RatioFinderResult />} />
         <Route path="/reachcaster/scenario/reach-predictor/result" element={<ReachPredictorResult />} />
         <Route path="/datashot" element={<DataShotDetail />} />
+        <Route path="/datashot-test" element={<DataShotTest />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
