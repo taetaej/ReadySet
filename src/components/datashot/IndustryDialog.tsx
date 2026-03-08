@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ChevronRight, Search, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ChevronRight, X } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
 interface IndustryDialogProps {
@@ -13,8 +13,32 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   const [brandSearchQuery, setBrandSearchQuery] = useState('')
   const [expandedMajor, setExpandedMajor] = useState<string[]>([])
   const [expandedMid, setExpandedMid] = useState<string[]>([])
+  const [showBrandDropdown, setShowBrandDropdown] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowBrandDropdown(false)
+      }
+    }
+
+    if (showBrandDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showBrandDropdown])
 
   if (!isOpen) return null
+
+  // 브랜드 검색 필터링 (대소문자 구분 없이, 부분 일치)
+  const filteredBrands = Object.entries(brandIndustryMap).filter(([brand]) => 
+    brand.toLowerCase().includes(brandSearchQuery.toLowerCase())
+  )
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -32,26 +56,26 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
         
         <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* 브랜드 검색 */}
-          <div style={{ marginBottom: '16px' }}>
+          <div ref={searchRef} style={{ marginBottom: '16px', position: 'relative' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ 
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'hsl(var(--muted-foreground))'
-              }} />
               <input
                 type="text"
                 value={brandSearchQuery}
-                onChange={(e) => setBrandSearchQuery(e.target.value)}
-                placeholder="브랜드명으로 검색 (예: LG, 삼성, 다이슨)"
+                onChange={(e) => {
+                  setBrandSearchQuery(e.target.value)
+                  setShowBrandDropdown(true)
+                }}
+                onFocus={() => setShowBrandDropdown(true)}
+                placeholder="브랜드 업종 검색"
                 className="input"
-                style={{ paddingLeft: '40px', width: '100%' }}
+                style={{ width: '100%' }}
               />
               {brandSearchQuery && (
                 <button
-                  onClick={() => setBrandSearchQuery('')}
+                  onClick={() => {
+                    setBrandSearchQuery('')
+                    setShowBrandDropdown(false)
+                  }}
                   style={{
                     position: 'absolute',
                     right: '8px',
@@ -70,36 +94,53 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               )}
             </div>
             
-            {/* 브랜드 검색 결과 */}
-            {brandSearchQuery && brandIndustryMap[brandSearchQuery] && (
+            {/* 브랜드 검색 드롭다운 */}
+            {showBrandDropdown && brandSearchQuery && filteredBrands.length > 0 && (
               <div style={{
-                marginTop: '8px',
-                padding: '12px 16px',
-                backgroundColor: 'hsl(var(--primary) / 0.1)',
-                border: '1px solid hsl(var(--primary))',
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '4px',
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
                 borderRadius: '6px',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                maxHeight: '200px',
+                overflowY: 'auto',
+                zIndex: 10
               }}>
-                <div style={{ flex: 1 }}>
-                  <strong style={{ color: 'hsl(var(--primary))' }}>{brandSearchQuery}</strong>
-                  <span style={{ color: 'hsl(var(--muted-foreground))', marginLeft: '8px' }}>→</span>
-                  <span style={{ marginLeft: '8px' }}>{brandIndustryMap[brandSearchQuery]}</span>
-                </div>
-                <button
-                  onClick={() => {
-                    const industryPath = brandIndustryMap[brandSearchQuery]
-                    if (!selectedIndustries.includes(industryPath)) {
-                      onUpdate([...selectedIndustries, industryPath])
-                    }
-                    setBrandSearchQuery('')
-                  }}
-                  className="btn btn-primary btn-sm"
-                >
-                  추가
-                </button>
+                {filteredBrands.map(([brand, industryPath]) => (
+                  <div
+                    key={brand}
+                    onClick={() => {
+                      if (!selectedIndustries.includes(industryPath)) {
+                        onUpdate([...selectedIndustries, industryPath])
+                      }
+                      setBrandSearchQuery('')
+                      setShowBrandDropdown(false)
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid hsl(var(--border))',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
+                      {brand}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                      {industryPath}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -385,28 +426,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 fontSize: '12px',
                 position: 'sticky',
                 top: 0,
-                zIndex: 1,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                zIndex: 1
               }}>
-                <span>선택된 업종 ({selectedIndustries.length})</span>
-                {selectedIndustries.length > 0 && (
-                  <button
-                    onClick={() => onUpdate([])}
-                    style={{
-                      fontSize: '10px',
-                      padding: '4px 8px',
-                      backgroundColor: 'hsl(var(--destructive))',
-                      color: 'hsl(var(--destructive-foreground))',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    전체 삭제
-                  </button>
-                )}
+                선택된 업종 ({selectedIndustries.length})
               </div>
               
               <div style={{ flex: 1, padding: '8px' }}>
@@ -450,7 +472,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                 </span>
                               )}
                               <span style={{ 
-                                fontWeight: idx === parts.length - 1 ? '600' : '400',
                                 color: idx === parts.length - 1 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                               }}>
                                 {part}
@@ -485,6 +506,13 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
         </div>
 
         <div className="dialog-footer">
+          <button
+            onClick={() => onUpdate([])}
+            className="btn btn-ghost btn-md"
+            style={{ marginRight: 'auto' }}
+          >
+            초기화
+          </button>
           <button
             onClick={onClose}
             className="btn btn-secondary btn-md"

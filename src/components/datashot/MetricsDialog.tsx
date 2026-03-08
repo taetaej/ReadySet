@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { metaMetrics, type MetricGroup } from './types'
 
 interface MetricsDialogProps {
@@ -46,14 +46,6 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
     }
   }
 
-  const getMetricLabel = (metricId: string): string => {
-    for (const group of metricsData) {
-      const metric = group.metrics.find(m => m.id === metricId)
-      if (metric) return metric.label
-    }
-    return metricId
-  }
-
   const handleReset = () => {
     onUpdate([])
     setSearchQuery('')
@@ -77,20 +69,13 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
           {/* 검색 */}
           <div style={{ marginBottom: '16px' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ 
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'hsl(var(--muted-foreground))'
-              }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="지표 검색"
                 className="input"
-                style={{ paddingLeft: '40px', width: '100%' }}
+                style={{ width: '100%' }}
               />
               {searchQuery && (
                 <button
@@ -113,63 +98,6 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
               )}
             </div>
           </div>
-
-          {/* 선택된 지표 Chips */}
-          {selectedMetrics.length > 0 && (
-            <div style={{
-              marginBottom: '16px',
-              padding: '8px 12px',
-              backgroundColor: 'hsl(var(--muted) / 0.3)',
-              borderRadius: '6px',
-              border: '1px solid hsl(var(--border))',
-              minHeight: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: 'hsl(var(--muted-foreground))',
-                whiteSpace: 'nowrap'
-              }}>
-                선택된 지표 ({selectedMetrics.length})
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', flex: 1 }}>
-                {selectedMetrics.map(metricId => (
-                  <div
-                    key={metricId}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '4px 10px',
-                      backgroundColor: 'hsl(var(--primary) / 0.1)',
-                      border: '1px solid hsl(var(--primary))',
-                      borderRadius: '16px',
-                      fontSize: '12px'
-                    }}
-                  >
-                    <span>{getMetricLabel(metricId)}</span>
-                    <button
-                      onClick={() => toggleMetric(metricId)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'hsl(var(--primary))'
-                      }}
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 지표 그룹 리스트 */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -241,7 +169,7 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
 
                       {/* 지표 리스트 (항상 표시) */}
                       <div style={{ backgroundColor: 'hsl(var(--background))' }}>
-                        {group.metrics.map((metric, metricIndex) => {
+                        {group.metrics.map((metric) => {
                           const isSelected = selectedMetrics.includes(metric.id)
                           return (
                             <label

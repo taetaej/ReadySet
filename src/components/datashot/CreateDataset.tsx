@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
-import { adProductsByMedia, yearOptions, monthOptions, quarterOptions } from './types'
+import { yearOptions, monthOptions, quarterOptions, targetingOptionsByMedia } from './types'
 import { IndustryDialog } from './IndustryDialog'
 import { MetricsDialog } from './MetricsDialog'
 import { AdProductsDialog } from './AdProductsDialog'
+import { MetaAdProductsDialog } from './MetaAdProductsDialog'
+import { DisabledSelectBox } from './DisabledSelectBox'
+import { ConfigurationSummary } from './ConfigurationSummary'
 
 interface CreateDatasetProps {
   slotData?: any
@@ -31,17 +34,18 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     periodType: 'month' as 'month' | 'quarter', // 월별/분기별 선택
     products: [] as string[],
     metrics: [] as string[],
-    targetingOption: '' // 단일 선택으로 변경
+    targetingCategory: '', // 타겟팅 기준 (단일 선택)
+    targetingOptions: [] as string[] // 타겟팅 세부 옵션 (다중 선택)
   })
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [validationActive, setValidationActive] = useState(false)
-  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
   const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
   const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
+  const [metaAdProductsDialogOpen, setMetaAdProductsDialogOpen] = useState(false)
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -68,23 +72,61 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     { number: 2, title: '검토 및 추출', description: '샘플 데이터 확인' }
   ]
 
+  // 날짜 범위 유효성 검사
+  const validateDateRange = () => {
+    if (!formData.period.startYear || !formData.period.startMonth || 
+        !formData.period.endYear || !formData.period.endMonth) {
+      return { valid: true, message: '' } // 아직 입력 중이면 통과
+    }
+
+    const startYear = parseInt(formData.period.startYear)
+    const startPeriod = parseInt(formData.period.startMonth)
+    const endYear = parseInt(formData.period.endYear)
+    const endPeriod = parseInt(formData.period.endMonth)
+
+    // 월별/분기별에 따라 월 단위로 변환
+    const multiplier = formData.periodType === 'quarter' ? 3 : 1
+    const startMonthTotal = startYear * 12 + (startPeriod - 1) * multiplier
+    const endMonthTotal = endYear * 12 + (endPeriod - 1) * multiplier
+
+    // 종료일이 시작일보다 이전인지 체크
+    if (endMonthTotal < startMonthTotal) {
+      return { valid: false, message: '종료일은 시작일보다 이후여야 합니다.' }
+    }
+
+    // 2년(24개월) 초과 체크
+    const diffMonths = endMonthTotal - startMonthTotal
+    if (diffMonths > 24) {
+      return { valid: false, message: '조회기간은 최대 2년까지 설정 가능합니다.' }
+    }
+
+    return { valid: true, message: '' }
+  }
+
+  const dateRangeValidation = validateDateRange()
+
   const isStep1Valid = () => {
+    // 타겟팅 카테고리를 선택했는데 옵션을 선택하지 않은 경우 체크
+    const isTargetingValid = !formData.targetingCategory || formData.targetingOptions.length > 0
+    
     return !!(
       formData.datasetName &&
+      formData.datasetName.trim().length > 0 && // 공백만으로 구성 불가
       formData.media &&
       formData.industries.length > 0 &&
       formData.period.startYear &&
       formData.period.startMonth &&
       formData.period.endYear &&
       formData.period.endMonth &&
+      dateRangeValidation.valid && // 날짜 범위 유효성 체크
       formData.products.length > 0 &&
-      formData.metrics.length > 0
+      formData.metrics.length > 0 &&
+      isTargetingValid
     )
   }
 
   const handleNext = () => {
     if (currentStep === 1 && !isStep1Valid()) {
-      setShowToast({ type: 'error', message: '필수 항목을 모두 입력해주세요.' })
       return
     }
     if (currentStep < 2) {
@@ -102,12 +144,11 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     setIsSubmitting(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      setShowToast({ type: 'success', message: '데이터 추출이 시작되었습니다.' })
       setTimeout(() => {
         navigate('/datashot')
-      }, 2000)
+      }, 500)
     } catch (error) {
-      setShowToast({ type: 'error', message: '데이터 추출 실행에 실패했습니다.' })
+      // 에러 처리
     } finally {
       setIsSubmitting(false)
     }
@@ -253,8 +294,14 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         type="text"
                         value={formData.datasetName}
                         onChange={(e) => {
-                          if (e.target.value.length <= 30) {
-                            setFormData({ ...formData, datasetName: e.target.value })
+                          const value = e.target.value.replace(/\n/g, '') // 줄바꿈 차단
+                          if (value.length <= 30) {
+                            setFormData({ ...formData, datasetName: value })
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault() // Enter 키 차단
                           }
                         }}
                         placeholder="데이터셋명을 입력하세요."
@@ -266,11 +313,20 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         width: '800px',
                         textAlign: 'right',
                         fontSize: '12px',
-                        color: '#737373',
+                        color: 'hsl(var(--muted-foreground))',
                         marginTop: '4px'
                       }}>
                         {formData.datasetName.length}/30
                       </div>
+                      {validationActive && formData.datasetName.trim().length === 0 && formData.datasetName.length > 0 && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          공백만으로 구성할 수 없습니다.
+                        </div>
+                      )}
                     </div>
 
                     {/* 설명 */}
@@ -294,18 +350,27 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         width: '800px',
                         textAlign: 'right',
                         fontSize: '12px',
-                        color: '#737373',
+                        color: 'hsl(var(--muted-foreground))',
                         marginTop: '4px'
                       }}>
                         {formData.description.length}/200
                       </div>
+                      {validationActive && formData.description.trim().length === 0 && formData.description.length > 0 && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          공백만으로 구성할 수 없습니다.
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* 2. 조회조건 */}
+                  {/* 2. 상세 설정 */}
                   <div style={{ marginBottom: '40px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px' }}>
-                      조회조건
+                      상세 설정
                     </h3>
 
                     {/* 매체 (단일 선택) */}
@@ -338,7 +403,14 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                               type="radio"
                               name="media"
                               checked={formData.media === media}
-                              onChange={() => setFormData({ ...formData, media })}
+                              onChange={() => setFormData({ 
+                                ...formData, 
+                                media,
+                                products: [], // 매체 변경 시 광고상품 초기화
+                                metrics: [], // 매체 변경 시 지표 초기화
+                                targetingCategory: '', // 매체 변경 시 타겟팅 기준 초기화
+                                targetingOptions: [] // 매체 변경 시 타겟팅 옵션 초기화
+                              })}
                               style={{ accentColor: 'hsl(var(--primary))' }}
                             />
                             <span style={{ fontSize: '13px' }}>{media}</span>
@@ -354,8 +426,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       </label>
                       <div style={{
                         width: '800px',
-                        height: '44px',
-                        padding: '12px 16px',
+                        height: '36px',
+                        padding: '8px 12px',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '6px',
                         backgroundColor: 'hsl(var(--background))',
@@ -368,7 +440,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       onClick={() => setIndustryDialogOpen(true)}
                       >
                         <span style={{ 
-                          fontSize: '13px',
+                          fontSize: '14px',
+                          lineHeight: '16.5px',
                           color: formData.industries.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -377,8 +450,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         }}>
                           {formData.industries.length === 0 
                             ? '업종을 선택하세요'
-                            : formData.industries.length === 1
-                            ? formData.industries[0]
                             : `${formData.industries.length}개 업종 선택됨`}
                         </span>
                         <ChevronRight size={16} style={{ flexShrink: 0, marginLeft: '8px' }} />
@@ -446,8 +517,9 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           })}
                           className="input"
                           style={{ flex: 1 }}
+                          required
                         >
-                          <option value="">년도</option>
+                          <option value="">년도 선택</option>
                           {yearOptions.map(year => (
                             <option key={year} value={year}>{year}년</option>
                           ))}
@@ -461,14 +533,15 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           })}
                           className="input"
                           style={{ flex: 1 }}
+                          required
                         >
-                          <option value="">{formData.periodType === 'month' ? '월' : '분기'}</option>
+                          <option value="">{formData.periodType === 'month' ? '월 선택' : '분기 선택'}</option>
                           {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
                             <option key={idx} value={String(idx + 1)}>{option}</option>
                           ))}
                         </select>
 
-                        <span style={{ color: 'hsl(var(--muted-foreground))', padding: '0 4px' }}>~</span>
+                        <ArrowRight size={16} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />
 
                         {/* 종료 */}
                         <select
@@ -479,8 +552,9 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           })}
                           className="input"
                           style={{ flex: 1 }}
+                          required
                         >
-                          <option value="">년도</option>
+                          <option value="">년도 선택</option>
                           {yearOptions.map(year => (
                             <option key={year} value={year}>{year}년</option>
                           ))}
@@ -494,13 +568,23 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           })}
                           className="input"
                           style={{ flex: 1 }}
+                          required
                         >
-                          <option value="">{formData.periodType === 'month' ? '월' : '분기'}</option>
+                          <option value="">{formData.periodType === 'month' ? '월 선택' : '분기 선택'}</option>
                           {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
                             <option key={idx} value={String(idx + 1)}>{option}</option>
                           ))}
                         </select>
                       </div>
+                      {validationActive && !dateRangeValidation.valid && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          {dateRangeValidation.message}
+                        </div>
+                      )}
                     </div>
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
@@ -508,21 +592,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       </label>
                       
                       {!formData.media ? (
-                        <div style={{
-                          width: '800px',
-                          height: '36px',
-                          padding: '8px 12px',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '6px',
-                          backgroundColor: 'hsl(var(--muted) / 0.3)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          boxSizing: 'border-box'
-                        }}>
-                          <span style={{ fontSize: '14px', lineHeight: '16.5px', color: '#737373' }}>
-                            먼저 매체를 선택해주세요
-                          </span>
-                        </div>
+                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
                       ) : (
                         <div style={{
                           width: '800px',
@@ -537,15 +607,37 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           alignItems: 'center',
                           boxSizing: 'border-box'
                         }}
-                        onClick={() => setAdProductsDialogOpen(true)}
+                        onClick={() => {
+                          if (formData.media === 'Meta') {
+                            setMetaAdProductsDialogOpen(true)
+                          } else {
+                            setAdProductsDialogOpen(true)
+                          }
+                        }}
                         >
                           <span style={{ 
                             fontSize: '14px',
                             lineHeight: '16.5px',
-                            color: formData.products.length > 0 ? '#0A0A0A' : '#737373'
+                            color: formData.products.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                           }}>
                             {formData.products.length > 0 
-                              ? `${formData.products.length}개 광고상품 선택됨` 
+                              ? formData.media === 'Meta'
+                                ? (() => {
+                                    // Meta의 경우 조합 개수 계산
+                                    try {
+                                      const groups = formData.products.map(p => JSON.parse(p))
+                                      const totalCombinations = groups.reduce((sum, g) => {
+                                        const buyingCount = g.buyingTypes?.length || 2
+                                        const platformCount = g.platforms?.length || 6
+                                        const goalCount = g.performanceGoals?.length || 6
+                                        return sum + (buyingCount * platformCount * goalCount)
+                                      }, 0)
+                                      return `${totalCombinations}개 광고상품 선택됨`
+                                    } catch {
+                                      return `${formData.products.length}개 광고상품 선택됨`
+                                    }
+                                  })()
+                                : `${formData.products.length}개 광고상품 선택됨`
                               : '광고상품을 선택하세요'}
                           </span>
                           <ChevronRight size={16} />
@@ -567,32 +659,37 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
                       </label>
-                      <div style={{
-                        width: '800px',
-                        height: '36px',
-                        padding: '8px 12px',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px',
-                        backgroundColor: 'hsl(var(--background))',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        boxSizing: 'border-box'
-                      }}
-                      onClick={() => setMetricsDialogOpen(true)}
-                      >
-                        <span style={{ 
-                          fontSize: '14px',
-                          lineHeight: '16.5px',
-                          color: formData.metrics.length > 0 ? '#0A0A0A' : '#737373'
-                        }}>
-                          {formData.metrics.length > 0 
-                            ? `${formData.metrics.length}개 지표 선택됨` 
-                            : '지표를 선택하세요'}
-                        </span>
-                        <ChevronRight size={16} />
-                      </div>
+                      
+                      {!formData.media ? (
+                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
+                      ) : (
+                        <div style={{
+                          width: '800px',
+                          height: '36px',
+                          padding: '8px 12px',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px',
+                          backgroundColor: 'hsl(var(--background))',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          boxSizing: 'border-box'
+                        }}
+                        onClick={() => setMetricsDialogOpen(true)}
+                        >
+                          <span style={{ 
+                            fontSize: '14px',
+                            lineHeight: '16.5px',
+                            color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                          }}>
+                            {formData.metrics.length > 0 
+                              ? `${formData.metrics.length}개 지표 선택됨` 
+                              : '지표를 선택하세요'}
+                          </span>
+                          <ChevronRight size={16} />
+                        </div>
+                      )}
                       {validationActive && formData.metrics.length === 0 && (
                         <div style={{
                           fontSize: '12px',
@@ -604,23 +701,103 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       )}
                     </div>
 
-                    {/* 타겟팅 옵션 (단일 선택) */}
+                    {/* 타겟팅 옵션 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         타겟팅 옵션
                       </label>
-                      <select
-                        value={formData.targetingOption}
-                        onChange={(e) => setFormData({ ...formData, targetingOption: e.target.value })}
-                        className="input"
-                        style={{ width: '800px' }}
-                      >
-                        <option value="">선택 안 함</option>
-                        <option value="age">연령</option>
-                        <option value="gender">성별</option>
-                        <option value="region">지역</option>
-                        <option value="interest">관심사</option>
-                      </select>
+                      
+                      {!formData.media ? (
+                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
+                      ) : (
+                        <div style={{ width: '800px' }}>
+                          {/* 타겟팅 기준 선택 */}
+                          <div style={{ marginBottom: '12px' }}>
+                            <select
+                              value={formData.targetingCategory}
+                              onChange={(e) => {
+                                setFormData({ 
+                                  ...formData, 
+                                  targetingCategory: e.target.value,
+                                  targetingOptions: [] // 기준 변경 시 세부 옵션 초기화
+                                })
+                              }}
+                              className="input"
+                              style={{ width: '100%', height: '36px', padding: '8px 12px', boxSizing: 'border-box' }}
+                            >
+                              <option value="">선택 안 함</option>
+                              {targetingOptionsByMedia[formData.media]?.map((targeting) => (
+                                <option key={targeting.category} value={targeting.category}>
+                                  {targeting.category}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* 타겟팅 세부 옵션 (다중 선택) */}
+                          {formData.targetingCategory && (
+                            <div style={{
+                              padding: '16px',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                              backgroundColor: 'hsl(var(--muted) / 0.1)'
+                            }}>
+                              <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '12px' }}>
+                                {formData.targetingCategory} 옵션 (다중 선택 가능)
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {targetingOptionsByMedia[formData.media]
+                                  ?.find(t => t.category === formData.targetingCategory)
+                                  ?.options.map((option) => (
+                                    <label
+                                      key={option}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        padding: '10px',
+                                        border: `1px solid ${formData.targetingOptions.includes(option) ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        backgroundColor: formData.targetingOptions.includes(option) ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={formData.targetingOptions.includes(option)}
+                                        onChange={() => {
+                                          if (formData.targetingOptions.includes(option)) {
+                                            setFormData({
+                                              ...formData,
+                                              targetingOptions: formData.targetingOptions.filter(o => o !== option)
+                                            })
+                                          } else {
+                                            setFormData({
+                                              ...formData,
+                                              targetingOptions: [...formData.targetingOptions, option]
+                                            })
+                                          }
+                                        }}
+                                        className="checkbox-custom"
+                                      />
+                                      <span style={{ fontSize: '13px' }}>{option}</span>
+                                    </label>
+                                  ))}
+                              </div>
+                              {validationActive && formData.targetingCategory && formData.targetingOptions.length === 0 && (
+                                <div style={{
+                                  fontSize: '12px',
+                                  color: 'hsl(var(--destructive))',
+                                  marginTop: '8px'
+                                }}>
+                                  최소 1개 이상 선택해주세요.
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -674,143 +851,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
           <div style={{ width: '1px', backgroundColor: 'hsl(var(--border))', alignSelf: 'stretch', minHeight: '600px' }} />
 
           {/* 우측: Configuration Summary */}
-          <div style={{ position: 'sticky', top: '24px' }}>
-            <div style={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '24px' }}>
-              <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid hsl(var(--border))' }}>
-                <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'hsl(var(--muted-foreground))' }}>
-                  Configuration Summary
-                </h3>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {/* Step 1: 조회조건 */}
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.8px',
-                    color: 'hsl(var(--muted-foreground))',
-                    marginBottom: '12px'
-                  }}>
-                    Step 1 · 조회조건 설정
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        데이터셋명
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: formData.datasetName ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                        textAlign: 'right',
-                        maxWidth: '200px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {formData.datasetName || '—'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        매체
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: formData.media ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {formData.media || '—'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        업종
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: formData.industries.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {formData.industries.length > 0 ? `${formData.industries.length}개` : '—'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        조회기간
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: (formData.period.startYear && formData.period.startMonth && formData.period.endYear && formData.period.endMonth) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {formData.period.startYear && formData.period.startMonth 
-                          ? `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}${formData.periodType === 'quarter' ? 'Q' : ''}` 
-                          : '—'} → {formData.period.endYear && formData.period.endMonth 
-                          ? `${formData.period.endYear}-${formData.period.endMonth.padStart(2, '0')}${formData.periodType === 'quarter' ? 'Q' : ''}` 
-                          : '—'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        광고상품
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: formData.products.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {formData.products.length > 0 ? `${formData.products.length}개` : '—'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        지표
-                      </span>
-                      <span style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '500',
-                        color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {formData.metrics.length > 0 ? `${formData.metrics.length}개` : '—'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 구분선 */}
-                {currentStep === 2 && (
-                  <>
-                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
-                    
-                    {/* Step 2: 샘플 데이터 */}
-                    <div>
-                      <div style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.8px',
-                        color: 'hsl(var(--muted-foreground))',
-                        marginBottom: '12px'
-                      }}>
-                        Step 2 · 샘플 데이터
-                      </div>
-                      <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                        샘플 데이터 확인 완료 시<br />추출을 시작할 수 있습니다.
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+          <ConfigurationSummary formData={formData} currentStep={currentStep} />
         </div>
       </div>
 
@@ -832,6 +873,14 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         media={formData.media}
       />
 
+      {/* Meta 광고상품 선택 다이얼로그 */}
+      <MetaAdProductsDialog
+        isOpen={metaAdProductsDialogOpen}
+        onClose={() => setMetaAdProductsDialogOpen(false)}
+        selectedProducts={formData.products}
+        onUpdate={(products) => setFormData({ ...formData, products })}
+      />
+
       {/* 지표 선택 다이얼로그 */}
       <MetricsDialog
         isOpen={metricsDialogOpen}
@@ -840,22 +889,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         onUpdate={(metrics) => setFormData({ ...formData, metrics })}
         media={formData.media}
       />
-      {/* 토스트 알림 */}
-      {showToast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          padding: '16px 24px',
-          borderRadius: '8px',
-          backgroundColor: showToast.type === 'success' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))',
-          color: showToast.type === 'success' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--destructive-foreground))',
-          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-          zIndex: 9999
-        }}>
-          {showToast.message}
-        </div>
-      )}
     </AppLayout>
   )
 }

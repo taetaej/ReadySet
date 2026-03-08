@@ -21,7 +21,7 @@ export const sampleDatasets: Dataset[] = [
     id: 1,
     name: '2024년 1월 Google Ads 캠페인 데이터',
     media: 'Google Ads',
-    industry: '화장품',
+    industry: '전체',
     startDate: '2024-01-01',
     endDate: '2024-01-31',
     status: 'Completed',
@@ -33,7 +33,7 @@ export const sampleDatasets: Dataset[] = [
     id: 2,
     name: 'Meta 광고 성과 분석 데이터',
     media: 'Meta',
-    industry: '이커머스',
+    industry: '3개 업종',
     startDate: '2024-01-15',
     endDate: '2024-02-15',
     status: 'Processing',
@@ -57,7 +57,7 @@ export const sampleDatasets: Dataset[] = [
     id: 4,
     name: '네이버 성과형 DA 광고 데이터',
     media: '네이버 성과형 DA',
-    industry: '자동차',
+    industry: '5개 업종',
     startDate: '2024-01-01',
     endDate: '2024-03-31',
     status: 'Error',
@@ -81,7 +81,7 @@ export const sampleDatasets: Dataset[] = [
     id: 6,
     name: '네이버 보장형 DA 캠페인 분석',
     media: '네이버 보장형 DA',
-    industry: '게임',
+    industry: '전체',
     startDate: '2024-02-10',
     endDate: '2024-03-10',
     status: 'Processing',
@@ -93,7 +93,7 @@ export const sampleDatasets: Dataset[] = [
     id: 7,
     name: 'Google Ads 디스플레이 캠페인',
     media: 'Google Ads',
-    industry: '이커머스',
+    industry: '2개 업종',
     startDate: '2024-01-28',
     endDate: '2024-02-28',
     status: 'Expired',
@@ -117,7 +117,7 @@ export const sampleDatasets: Dataset[] = [
     id: 9,
     name: 'kakao모먼트 여름 프로모션',
     media: 'kakao모먼트',
-    industry: '여행',
+    industry: '7개 업종',
     startDate: '2024-05-01',
     endDate: '2024-07-31',
     status: 'Processing',
@@ -156,11 +156,58 @@ export const industryCategories: { [major: string]: { [mid: string]: string[] } 
 export const brandIndustryMap: { [brand: string]: string } = {
   'LG': '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
   '삼성': '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
-  '다이슨': '가정용전기전자 > 가사용전기전자 > 청소기'
-  // TODO: 더 많은 브랜드 추가 예정
+  '다이슨': '가정용전기전자 > 가사용전기전자 > 청소기',
+  '샤오미': '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
+  '애플': '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
+  '소니': '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
+  '필립스': '가정용전기전자 > 가사용전기전자 > 가사용전기전자기타',
+  '보쉬': '가정용전기전자 > 가사용전기전자 > 세탁기',
+  '일렉트로룩스': '가정용전기전자 > 가사용전기전자 > 세탁기',
+  '쿠쿠': '가정용품 > 주방용품 > 주방용품',
+  '락앤락': '가정용품 > 주방용품 > 주방용품',
+  '코웨이': '가정용전기전자 > 가사용전기전자 > 가습기',
+  '청호나이스': '가정용전기전자 > 가사용전기전자 > 가습기'
 }
 
 // 매체별 광고상품 데이터
+export interface MetaAdProductCombination {
+  campaignObjective: string
+  buyingType: string
+  performanceGoal: string
+  platform: string
+}
+
+export const metaAdProducts = {
+  campaignObjectives: [
+    'POST_ENGAGEMENT',
+    'REACH',
+    'VIDEO_VIEWS',
+    'CONVERSIONS',
+    'LEAD_GENERATION',
+    'OUTCOME_TRAFFIC'
+  ],
+  buyingTypes: [
+    'AUCTION',
+    'RESERVED'
+  ],
+  platforms: [
+    'facebook',
+    'instagram',
+    'facebook&instagram',
+    'messenger',
+    'audience_network',
+    'facebook&instagram&messenger'
+  ],
+  performanceGoals: [
+    'CLICKS',
+    'LINK_CLICKS',
+    'OFFSITE_CONVERSIONS',
+    'LEAD_GENERATION',
+    'IMPRESSIONS',
+    'REACH'
+  ]
+}
+
 export const adProductsByMedia: { [media: string]: string[] } = {
   'Google Ads': [
     '검색 광고',
@@ -172,16 +219,7 @@ export const adProductsByMedia: { [media: string]: string[] } = {
     '디스커버리 광고',
     'Performance Max'
   ],
-  'Meta': [
-    'Facebook 피드 광고',
-    'Facebook 스토리 광고',
-    'Instagram 피드 광고',
-    'Instagram 스토리 광고',
-    'Instagram 릴스 광고',
-    'Messenger 광고',
-    'Audience Network',
-    'Facebook 동영상 광고'
-  ],
+  'Meta': [], // Meta는 4단계 구조로 별도 처리
   'kakao모먼트': [
     '카카오톡 비즈보드',
     '카카오톡 채널 광고',
@@ -288,3 +326,99 @@ export const metaMetrics: MetricGroup[] = [
 export const yearOptions = ['2023', '2024', '2025', '2026']
 export const monthOptions = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 export const quarterOptions = ['1분기', '2분기', '3분기', '4분기']
+
+// 매체별 타겟팅 옵션
+export interface TargetingOption {
+  category: string
+  options: string[]
+}
+
+export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
+  'Meta': [
+    {
+      category: '기기유형',
+      options: ['데스크톱', '모바일 웹', '분류되지 않음', '앱 내']
+    },
+    {
+      category: '게재위치',
+      options: [
+        'Facebook Marketplace',
+        'Facebook 검색 결과',
+        'Facebook 동영상 피드',
+        'Facebook 릴스',
+        'Facebook 릴스 광고',
+        'Facebook 스토리',
+        'Instagram 릴스',
+        'Instagram 스토리',
+        'Instagram 탐색 탭',
+        'Instagram 탐색 홈',
+        'Instagram 프로필 피드',
+        '분류되지 않음',
+        '피드'
+      ]
+    }
+  ],
+  'Google Ads': [
+    {
+      category: '기기유형',
+      options: ['데스크톱', '모바일', '태블릿']
+    },
+    {
+      category: '네트워크',
+      options: ['검색 네트워크', '디스플레이 네트워크', 'YouTube', '검색 파트너']
+    }
+  ],
+  'kakao모먼트': [
+    {
+      category: '기기유형',
+      options: ['PC', '모바일']
+    },
+    {
+      category: '게재위치',
+      options: ['카카오톡', '카카오스토리', 'Daum']
+    }
+  ],
+  '네이버 성과형 DA': [
+    {
+      category: '기기유형',
+      options: ['PC', '모바일']
+    }
+  ],
+  '네이버 보장형 DA': [
+    {
+      category: '기기유형',
+      options: ['PC', '모바일']
+    }
+  ],
+  'TikTok': [
+    {
+      category: '게재위치',
+      options: ['For You 피드', 'Following 피드', 'TikTok 검색']
+    }
+  ]
+}
+
+// Meta 광고상품 샘플 데이터 (실제로는 API에서 가져와야 함)
+export const metaAdProductCombinations: MetaAdProductCombination[] = [
+  // CONVERSIONS 샘플
+  { campaignObjective: 'CONVERSIONS', buyingType: 'AUCTION', performanceGoal: 'OFFSITE_CONVERSIONS', platform: 'facebook' },
+  { campaignObjective: 'CONVERSIONS', buyingType: 'AUCTION', performanceGoal: 'OFFSITE_CONVERSIONS', platform: 'instagram' },
+  { campaignObjective: 'CONVERSIONS', buyingType: 'AUCTION', performanceGoal: 'LINK_CLICKS', platform: 'facebook' },
+  { campaignObjective: 'CONVERSIONS', buyingType: 'AUCTION', performanceGoal: 'LINK_CLICKS', platform: 'instagram' },
+  { campaignObjective: 'CONVERSIONS', buyingType: 'RESERVED', performanceGoal: 'OFFSITE_CONVERSIONS', platform: 'facebook' },
+  
+  // LEAD_GENERATION 샘플
+  { campaignObjective: 'LEAD_GENERATION', buyingType: 'AUCTION', performanceGoal: 'LEAD_GENERATION', platform: 'facebook' },
+  { campaignObjective: 'LEAD_GENERATION', buyingType: 'AUCTION', performanceGoal: 'LEAD_GENERATION', platform: 'instagram' },
+  { campaignObjective: 'LEAD_GENERATION', buyingType: 'AUCTION', performanceGoal: 'QUALITY_LEAD', platform: 'facebook' },
+  
+  // OUTCOME_TRAFFIC 샘플
+  { campaignObjective: 'OUTCOME_TRAFFIC', buyingType: 'AUCTION', performanceGoal: 'LINK_CLICKS', platform: 'facebook' },
+  { campaignObjective: 'OUTCOME_TRAFFIC', buyingType: 'AUCTION', performanceGoal: 'LINK_CLICKS', platform: 'instagram' },
+  { campaignObjective: 'OUTCOME_TRAFFIC', buyingType: 'AUCTION', performanceGoal: 'LANDING_PAGE_VIEWS', platform: 'facebook&instagram' },
+  
+  // VIDEO_VIEWS 샘플
+  { campaignObjective: 'VIDEO_VIEWS', buyingType: 'AUCTION', performanceGoal: 'THRUPLAY', platform: 'facebook' },
+  { campaignObjective: 'VIDEO_VIEWS', buyingType: 'AUCTION', performanceGoal: 'VIDEO_VIEWS', platform: 'instagram' },
+  { campaignObjective: 'VIDEO_VIEWS', buyingType: 'RESERVED', performanceGoal: 'THRUPLAY', platform: 'facebook&instagram' }
+]

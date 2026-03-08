@@ -518,15 +518,14 @@ export function DatasetList() {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     onClick={() => {
                       if (isClickable) {
-                        console.log('Navigate to dataset:', dataset.id)
                         // navigate(`/datashot/${dataset.id}`)
                       }
                     }}
                   >
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#737373' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                       {dataset.id}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: '500', color: isClickable ? '#0A0A0A' : '#737373' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: '500', color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                       {dataset.name}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }}>
@@ -555,7 +554,7 @@ export function DatasetList() {
                         {dataset.status}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#737373' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                       {dataset.creator} ({dataset.creatorId})
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
@@ -588,7 +587,7 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                console.log('복제:', dataset.id)
+                                // TODO: 복제 기능 구현
                               }}
                               className="dropdown-item"
                             >
@@ -599,7 +598,7 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                console.log('이동:', dataset.id)
+                                // TODO: 이동 기능 구현
                               }}
                               className="dropdown-item"
                             >
@@ -610,7 +609,7 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                console.log('삭제:', dataset.id)
+                                // TODO: 삭제 기능 구현
                               }}
                               className="dropdown-item"
                             >
