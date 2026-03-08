@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
-import { adProductsByMedia, availableMetrics } from './types'
+import { adProductsByMedia, yearOptions, monthOptions, quarterOptions } from './types'
 import { IndustryDialog } from './IndustryDialog'
+import { MetricsDialog } from './MetricsDialog'
+import { AdProductsDialog } from './AdProductsDialog'
 
 interface CreateDatasetProps {
   slotData?: any
@@ -20,7 +22,12 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     description: '',
     media: '', // 단일 선택으로 변경
     industries: [] as string[],
-    period: { start: '', end: '' },
+    period: { 
+      startYear: '', 
+      startMonth: '', 
+      endYear: '', 
+      endMonth: '' 
+    },
     periodType: 'month' as 'month' | 'quarter', // 월별/분기별 선택
     products: [] as string[],
     metrics: [] as string[],
@@ -34,6 +41,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
   const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
+  const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -46,8 +54,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         formData.description ||
         formData.media.length > 0 ||
         formData.industries.length > 0 ||
-        formData.period.start ||
-        formData.period.end
+        formData.period.startYear ||
+        formData.period.endYear
       )
       if (hasAnyInput) {
         setValidationActive(true)
@@ -57,7 +65,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
 
   const steps = [
     { number: 1, title: '조회조건 설정', description: '데이터 추출 조건' },
-    { number: 2, title: '샘플 데이터 확인', description: '추출 데이터 미리보기' }
+    { number: 2, title: '검토 및 추출', description: '샘플 데이터 확인' }
   ]
 
   const isStep1Valid = () => {
@@ -65,8 +73,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       formData.datasetName &&
       formData.media &&
       formData.industries.length > 0 &&
-      formData.period.start &&
-      formData.period.end &&
+      formData.period.startYear &&
+      formData.period.startMonth &&
+      formData.period.endYear &&
+      formData.period.endMonth &&
       formData.products.length > 0 &&
       formData.metrics.length > 0
     )
@@ -137,7 +147,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 420px', gap: '48px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '800px 1px 420px', gap: '48px', alignItems: 'start' }}>
           {/* 좌측: 스테퍼 + 입력 폼 */}
           <div>
             {/* 미니멀 스테퍼 */}
@@ -242,14 +252,25 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       <input
                         type="text"
                         value={formData.datasetName}
-                        onChange={(e) => setFormData({ ...formData, datasetName: e.target.value })}
-                        placeholder="데이터셋명을 입력하세요"
+                        onChange={(e) => {
+                          if (e.target.value.length <= 30) {
+                            setFormData({ ...formData, datasetName: e.target.value })
+                          }
+                        }}
+                        placeholder="데이터셋명을 입력하세요."
                         className="input"
-                        style={{ width: '100%', maxWidth: '600px' }}
+                        style={{ width: '800px' }}
+                        maxLength={30}
                       />
-                      <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '6px' }}>
-                        최대 30자
-                      </p>
+                      <div style={{ 
+                        width: '800px',
+                        textAlign: 'right',
+                        fontSize: '12px',
+                        color: '#737373',
+                        marginTop: '4px'
+                      }}>
+                        {formData.datasetName.length}/30
+                      </div>
                     </div>
 
                     {/* 설명 */}
@@ -259,14 +280,25 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       </label>
                       <textarea
                         value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        onChange={(e) => {
+                          if (e.target.value.length <= 200) {
+                            setFormData({ ...formData, description: e.target.value })
+                          }
+                        }}
                         placeholder="데이터셋에 대한 설명을 입력하세요"
                         className="input"
-                        style={{ width: '100%', maxWidth: '600px', minHeight: '80px', resize: 'vertical' }}
+                        style={{ width: '800px', minHeight: '80px', resize: 'vertical' }}
+                        maxLength={200}
                       />
-                      <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '6px' }}>
-                        최대 200자
-                      </p>
+                      <div style={{ 
+                        width: '800px',
+                        textAlign: 'right',
+                        fontSize: '12px',
+                        color: '#737373',
+                        marginTop: '4px'
+                      }}>
+                        {formData.description.length}/200
+                      </div>
                     </div>
                   </div>
 
@@ -281,7 +313,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         매체 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
                       </label>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', maxWidth: '600px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', width: '800px' }}>
                         {['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok'].map(media => (
                           <label 
                             key={media}
@@ -321,15 +353,17 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         업종 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
                       </label>
                       <div style={{
+                        width: '800px',
+                        height: '44px',
                         padding: '12px 16px',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '6px',
                         backgroundColor: 'hsl(var(--background))',
-                        maxWidth: '600px',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        boxSizing: 'border-box'
                       }}
                       onClick={() => setIndustryDialogOpen(true)}
                       >
@@ -364,10 +398,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         조회기간 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                        <span style={{ fontSize: '12px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', marginLeft: '8px' }}>
-                          (최대 24개월)
-                        </span>
                       </label>
+                      <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
+                        조회기간은 최대 2년으로 설정해주세요.
+                      </p>
                       
                       {/* 월별/분기별 선택 */}
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
@@ -376,7 +410,11 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                             type="radio"
                             name="periodType"
                             checked={formData.periodType === 'month'}
-                            onChange={() => setFormData({ ...formData, periodType: 'month', period: { start: '', end: '' } })}
+                            onChange={() => setFormData({ 
+                              ...formData, 
+                              periodType: 'month', 
+                              period: { startYear: '', startMonth: '', endYear: '', endMonth: '' } 
+                            })}
                             style={{ accentColor: 'hsl(var(--primary))' }}
                           />
                           <span style={{ fontSize: '13px' }}>월별</span>
@@ -386,146 +424,131 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                             type="radio"
                             name="periodType"
                             checked={formData.periodType === 'quarter'}
-                            onChange={() => setFormData({ ...formData, periodType: 'quarter', period: { start: '', end: '' } })}
+                            onChange={() => setFormData({ 
+                              ...formData, 
+                              periodType: 'quarter', 
+                              period: { startYear: '', startMonth: '', endYear: '', endMonth: '' } 
+                            })}
                             style={{ accentColor: 'hsl(var(--primary))' }}
                           />
                           <span style={{ fontSize: '13px' }}>분기별</span>
                         </label>
                       </div>
 
-                      {/* 기간 입력 */}
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', maxWidth: '600px' }}>
-                        {formData.periodType === 'month' ? (
-                          <>
-                            <input
-                              type="month"
-                              value={formData.period.start}
-                              onChange={(e) => setFormData({ 
-                                ...formData, 
-                                period: { ...formData.period, start: e.target.value } 
-                              })}
-                              className="input"
-                              style={{ flex: 1 }}
-                            />
-                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>~</span>
-                            <input
-                              type="month"
-                              value={formData.period.end}
-                              onChange={(e) => setFormData({ 
-                                ...formData, 
-                                period: { ...formData.period, end: e.target.value } 
-                              })}
-                              className="input"
-                              style={{ flex: 1 }}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <input
-                              type="text"
-                              value={formData.period.start}
-                              onChange={(e) => setFormData({ 
-                                ...formData, 
-                                period: { ...formData.period, start: e.target.value } 
-                              })}
-                              placeholder="24-1Q"
-                              className="input"
-                              style={{ flex: 1 }}
-                            />
-                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>~</span>
-                            <input
-                              type="text"
-                              value={formData.period.end}
-                              onChange={(e) => setFormData({ 
-                                ...formData, 
-                                period: { ...formData.period, end: e.target.value } 
-                              })}
-                              placeholder="24-4Q"
-                              className="input"
-                              style={{ flex: 1 }}
-                            />
-                          </>
-                        )}
-                      </div>
-                      {formData.periodType === 'quarter' && (
-                        <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '6px' }}>
-                          형식: yy-nQ (예: 24-1Q, 24-2Q)
-                        </p>
-                      )}
-                    </div>
+                      {/* 기간 선택 */}
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '800px' }}>
+                        {/* 시작 */}
+                        <select
+                          value={formData.period.startYear}
+                          onChange={(e) => setFormData({ 
+                            ...formData, 
+                            period: { ...formData.period, startYear: e.target.value } 
+                          })}
+                          className="input"
+                          style={{ flex: 1 }}
+                        >
+                          <option value="">년도</option>
+                          {yearOptions.map(year => (
+                            <option key={year} value={year}>{year}년</option>
+                          ))}
+                        </select>
+                        
+                        <select
+                          value={formData.period.startMonth}
+                          onChange={(e) => setFormData({ 
+                            ...formData, 
+                            period: { ...formData.period, startMonth: e.target.value } 
+                          })}
+                          className="input"
+                          style={{ flex: 1 }}
+                        >
+                          <option value="">{formData.periodType === 'month' ? '월' : '분기'}</option>
+                          {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
+                            <option key={idx} value={String(idx + 1)}>{option}</option>
+                          ))}
+                        </select>
 
-                    {/* 광고상품 (다중 선택) */}
+                        <span style={{ color: 'hsl(var(--muted-foreground))', padding: '0 4px' }}>~</span>
+
+                        {/* 종료 */}
+                        <select
+                          value={formData.period.endYear}
+                          onChange={(e) => setFormData({ 
+                            ...formData, 
+                            period: { ...formData.period, endYear: e.target.value } 
+                          })}
+                          className="input"
+                          style={{ flex: 1 }}
+                        >
+                          <option value="">년도</option>
+                          {yearOptions.map(year => (
+                            <option key={year} value={year}>{year}년</option>
+                          ))}
+                        </select>
+                        
+                        <select
+                          value={formData.period.endMonth}
+                          onChange={(e) => setFormData({ 
+                            ...formData, 
+                            period: { ...formData.period, endMonth: e.target.value } 
+                          })}
+                          className="input"
+                          style={{ flex: 1 }}
+                        >
+                          <option value="">{formData.periodType === 'month' ? '월' : '분기'}</option>
+                          {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
+                            <option key={idx} value={String(idx + 1)}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         광고상품 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                        <span style={{ fontSize: '12px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', marginLeft: '8px' }}>
-                          (다중 선택 가능)
-                        </span>
                       </label>
                       
                       {!formData.media ? (
                         <div style={{
-                          padding: '16px',
+                          width: '800px',
+                          height: '36px',
+                          padding: '8px 12px',
                           border: '1px solid hsl(var(--border))',
                           borderRadius: '6px',
                           backgroundColor: 'hsl(var(--muted) / 0.3)',
-                          maxWidth: '600px'
+                          display: 'flex',
+                          alignItems: 'center',
+                          boxSizing: 'border-box'
                         }}>
-                          <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                          <span style={{ fontSize: '14px', lineHeight: '16.5px', color: '#737373' }}>
                             먼저 매체를 선택해주세요
-                          </p>
+                          </span>
                         </div>
                       ) : (
-                        <div style={{ maxWidth: '600px' }}>
-                          <div style={{
-                            padding: '12px',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                            backgroundColor: 'hsl(var(--muted) / 0.1)',
-                            marginBottom: '12px',
-                            fontSize: '12px',
-                            color: 'hsl(var(--muted-foreground))'
+                        <div style={{
+                          width: '800px',
+                          height: '36px',
+                          padding: '8px 12px',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px',
+                          backgroundColor: 'hsl(var(--background))',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          boxSizing: 'border-box'
+                        }}
+                        onClick={() => setAdProductsDialogOpen(true)}
+                        >
+                          <span style={{ 
+                            fontSize: '14px',
+                            lineHeight: '16.5px',
+                            color: formData.products.length > 0 ? '#0A0A0A' : '#737373'
                           }}>
-                            선택된 매체: <strong style={{ color: 'hsl(var(--foreground))' }}>{formData.media}</strong>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {adProductsByMedia[formData.media]?.map((product) => (
-                              <label
-                                key={product}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '10px',
-                                  padding: '12px',
-                                  border: `1px solid ${formData.products.includes(product) ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  backgroundColor: formData.products.includes(product) ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                                  transition: 'all 0.2s'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={formData.products.includes(product)}
-                                  onChange={() => {
-                                    if (formData.products.includes(product)) {
-                                      setFormData({
-                                        ...formData,
-                                        products: formData.products.filter(p => p !== product)
-                                      })
-                                    } else {
-                                      setFormData({
-                                        ...formData,
-                                        products: [...formData.products, product]
-                                      })
-                                    }
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span style={{ fontSize: '13px' }}>{product}</span>
-                              </label>
-                            ))}
-                          </div>
+                            {formData.products.length > 0 
+                              ? `${formData.products.length}개 광고상품 선택됨` 
+                              : '광고상품을 선택하세요'}
+                          </span>
+                          <ChevronRight size={16} />
                         </div>
                       )}
                       {validationActive && formData.products.length === 0 && (
@@ -543,26 +566,26 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                        <span style={{ fontSize: '12px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', marginLeft: '8px' }}>
-                          (다중 선택 가능)
-                        </span>
                       </label>
                       <div style={{
-                        padding: '12px 16px',
+                        width: '800px',
+                        height: '36px',
+                        padding: '8px 12px',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '6px',
                         backgroundColor: 'hsl(var(--background))',
-                        maxWidth: '600px',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        boxSizing: 'border-box'
                       }}
                       onClick={() => setMetricsDialogOpen(true)}
                       >
                         <span style={{ 
-                          fontSize: '13px',
-                          color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                          fontSize: '14px',
+                          lineHeight: '16.5px',
+                          color: formData.metrics.length > 0 ? '#0A0A0A' : '#737373'
                         }}>
                           {formData.metrics.length > 0 
                             ? `${formData.metrics.length}개 지표 선택됨` 
@@ -590,7 +613,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         value={formData.targetingOption}
                         onChange={(e) => setFormData({ ...formData, targetingOption: e.target.value })}
                         className="input"
-                        style={{ maxWidth: '300px' }}
+                        style={{ width: '800px' }}
                       >
                         <option value="">선택 안 함</option>
                         <option value="age">연령</option>
@@ -724,9 +747,13 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       <span style={{ 
                         fontSize: '13px', 
                         fontWeight: '500',
-                        color: (formData.period.start || formData.period.end) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                        color: (formData.period.startYear && formData.period.startMonth && formData.period.endYear && formData.period.endMonth) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                       }}>
-                        {formData.period.start || '—'} → {formData.period.end || '—'}
+                        {formData.period.startYear && formData.period.startMonth 
+                          ? `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}${formData.periodType === 'quarter' ? 'Q' : ''}` 
+                          : '—'} → {formData.period.endYear && formData.period.endMonth 
+                          ? `${formData.period.endYear}-${formData.period.endMonth.padStart(2, '0')}${formData.periodType === 'quarter' ? 'Q' : ''}` 
+                          : '—'}
                       </span>
                     </div>
 
@@ -796,125 +823,23 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         onUpdate={(industries) => setFormData({ ...formData, industries })}
       />
 
+      {/* 광고상품 선택 다이얼로그 */}
+      <AdProductsDialog
+        isOpen={adProductsDialogOpen}
+        onClose={() => setAdProductsDialogOpen(false)}
+        selectedProducts={formData.products}
+        onUpdate={(products) => setFormData({ ...formData, products })}
+        media={formData.media}
+      />
+
       {/* 지표 선택 다이얼로그 */}
-      {metricsDialogOpen && (
-        <div className="dialog-overlay" onClick={() => setMetricsDialogOpen(false)}>
-          <div 
-            className="dialog-content" 
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '700px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
-          >
-            <div className="dialog-header">
-              <h3 className="dialog-title">지표 선택</h3>
-              <p className="dialog-description">
-                데이터 추출에 포함할 지표를 선택하세요
-              </p>
-            </div>
-            
-            <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
-              {/* 카테고리별 지표 */}
-              {['기본 지표', '비용 지표', '전환 지표', '동영상 지표', '참여 지표'].map((category) => {
-                const categoryMetrics = availableMetrics.filter(m => m.category === category)
-                if (categoryMetrics.length === 0) return null
-                
-                const allSelected = categoryMetrics.every(m => formData.metrics.includes(m.id))
-                
-                return (
-                  <div key={category} style={{ marginBottom: '24px' }}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '12px',
-                      paddingBottom: '8px',
-                      borderBottom: '1px solid hsl(var(--border))'
-                    }}>
-                      <span style={{ fontSize: '14px', fontWeight: '600' }}>{category}</span>
-                      <button
-                        onClick={() => {
-                          const categoryMetricIds = categoryMetrics.map(m => m.id)
-                          if (allSelected) {
-                            setFormData({
-                              ...formData,
-                              metrics: formData.metrics.filter(m => !categoryMetricIds.includes(m))
-                            })
-                          } else {
-                            setFormData({
-                              ...formData,
-                              metrics: [...new Set([...formData.metrics, ...categoryMetricIds])]
-                            })
-                          }
-                        }}
-                        className="btn btn-ghost btn-sm"
-                      >
-                        {allSelected ? '전체 해제' : '전체 선택'}
-                      </button>
-                    </div>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '10px'
-                    }}>
-                      {categoryMetrics.map((metric) => (
-                        <label
-                          key={metric.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            cursor: 'pointer',
-                            padding: '10px 12px',
-                            borderRadius: '6px',
-                            border: `1px solid ${formData.metrics.includes(metric.id) ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                            backgroundColor: formData.metrics.includes(metric.id) ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.metrics.includes(metric.id)}
-                            onChange={() => {
-                              if (formData.metrics.includes(metric.id)) {
-                                setFormData({
-                                  ...formData,
-                                  metrics: formData.metrics.filter(m => m !== metric.id)
-                                })
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  metrics: [...formData.metrics, metric.id]
-                                })
-                              }
-                            }}
-                            className="checkbox-custom"
-                          />
-                          <span style={{ fontSize: '13px' }}>{metric.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="dialog-footer">
-              <button
-                onClick={() => setMetricsDialogOpen(false)}
-                className="btn btn-secondary btn-md"
-              >
-                취소
-              </button>
-              <button
-                onClick={() => setMetricsDialogOpen(false)}
-                className="btn btn-primary btn-md"
-              >
-                선택 완료 ({formData.metrics.length}개)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <MetricsDialog
+        isOpen={metricsDialogOpen}
+        onClose={() => setMetricsDialogOpen(false)}
+        selectedMetrics={formData.metrics}
+        onUpdate={(metrics) => setFormData({ ...formData, metrics })}
+        media={formData.media}
+      />
       {/* 토스트 알림 */}
       {showToast && (
         <div style={{

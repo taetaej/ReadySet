@@ -215,22 +215,76 @@ export const adProductsByMedia: { [media: string]: string[] } = {
   ]
 }
 
-// 선택 가능한 지표 리스트
-export const availableMetrics = [
-  { id: 'impressions', name: '노출수', category: '기본 지표' },
-  { id: 'clicks', name: '클릭수', category: '기본 지표' },
-  { id: 'ctr', name: '클릭률 (CTR)', category: '기본 지표' },
-  { id: 'reach', name: '도달수', category: '기본 지표' },
-  { id: 'frequency', name: '빈도', category: '기본 지표' },
-  { id: 'cost', name: '비용', category: '비용 지표' },
-  { id: 'cpc', name: '클릭당 비용 (CPC)', category: '비용 지표' },
-  { id: 'cpm', name: '1000회 노출당 비용 (CPM)', category: '비용 지표' },
-  { id: 'conversions', name: '전환수', category: '전환 지표' },
-  { id: 'conversion_rate', name: '전환율', category: '전환 지표' },
-  { id: 'cpa', name: '전환당 비용 (CPA)', category: '전환 지표' },
-  { id: 'roas', name: '광고 수익률 (ROAS)', category: '전환 지표' },
-  { id: 'video_views', name: '동영상 조회수', category: '동영상 지표' },
-  { id: 'video_completion', name: '동영상 완료율', category: '동영상 지표' },
-  { id: 'engagement', name: '참여수', category: '참여 지표' },
-  { id: 'engagement_rate', name: '참여율', category: '참여 지표' }
+// Meta 광고 지표 데이터
+export interface MetricItem {
+  id: string
+  label: string
+  selected: boolean
+}
+
+export interface MetricGroup {
+  group: string
+  metrics: MetricItem[]
+}
+
+export const metaMetrics: MetricGroup[] = [
+  {
+    group: '성과',
+    metrics: [
+      { id: 'clicks_all', label: '클릭(전체)', selected: false },
+      { id: 'cpc', label: 'CPC', selected: false },
+      { id: 'cpm', label: 'CPM', selected: false },
+      { id: 'cpv', label: 'CPV', selected: false },
+      { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'vtr', label: 'VTR', selected: false },
+      { id: 'frequency', label: '빈도', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'reach', label: '도달수', selected: false },
+      { id: 'spend', label: '광고 소진금액', selected: false }
+    ]
+  },
+  {
+    group: '참여',
+    metrics: [
+      { id: 'link_click', label: '링크 클릭 수', selected: false },
+      { id: 'cost_per_link_click', label: '링크 클릭당 비용', selected: false },
+      { id: 'link_ctr', label: '링크 클릭률', selected: false },
+      { id: 'cost_per_video_3s', label: '동영상 3초 이상 조회당 비용', selected: false },
+      { id: 'cost_per_video_15s', label: '동영상 15초 이상 조회당 비용', selected: false },
+      { id: 'video_play_3s', label: '3초 재생수', selected: false },
+      { id: 'video_play_15s', label: '15초 재생수', selected: false },
+      { id: 'post_reaction', label: '게시물 반응수', selected: false },
+      { id: 'post_engagement', label: '게시물 참여수', selected: false },
+      { id: 'cost_per_post_engagement', label: '게시물 참여당 비용', selected: false },
+      { id: 'video_views_3s', label: '동영상 3초 이상 조회수', selected: false },
+      { id: 'video_views_15s', label: '동영상 15초 이상 조회수', selected: false },
+      { id: 'video_views_30s', label: '동영상 30초 이상 조회수', selected: false }
+    ]
+  },
+  {
+    group: '진단',
+    metrics: [
+      { id: 'video_view_25', label: '동영상 25% 재생수', selected: false },
+      { id: 'video_view_50', label: '동영상 50% 재생수', selected: false },
+      { id: 'video_view_75', label: '동영상 75% 재생수', selected: false },
+      { id: 'video_view_95', label: '동영상 95% 재생수', selected: false },
+      { id: 'video_view_100', label: '동영상 100% 재생', selected: false }
+    ]
+  },
+  {
+    group: '전환',
+    metrics: [
+      { id: 'purchase', label: '구매수', selected: false },
+      { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
+      { id: 'complete_registration', label: '등록 완료수', selected: false },
+      { id: 'cost_per_registration', label: '등록 완료당 비용', selected: false },
+      { id: 'install', label: '설치수', selected: false },
+      { id: 'cost_per_install', label: '설치당 비용', selected: false }
+    ]
+  }
 ]
+
+// 년도 및 월/분기 옵션
+export const yearOptions = ['2023', '2024', '2025', '2026']
+export const monthOptions = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
+export const quarterOptions = ['1분기', '2분기', '3분기', '4분기']

@@ -334,7 +334,7 @@
   }
 
   .input::placeholder {
-    color: hsl(var(--muted-foreground));
+    color: #737373 !important;
   }
 
   .textarea {
@@ -359,7 +359,19 @@
   }
 
   .textarea::placeholder {
-    color: hsl(var(--muted-foreground));
+    color: #737373 !important;
+  }
+
+  select {
+    color: hsl(var(--foreground));
+  }
+
+  select option {
+    color: hsl(var(--foreground));
+  }
+
+  select:invalid {
+    color: #737373;
   }
 
   /* Cards */

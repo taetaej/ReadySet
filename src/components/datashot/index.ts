@@ -1,4 +1,6 @@
 export { DatasetList } from './DatasetList'
 export { CreateDataset } from './CreateDataset'
 export { IndustryDialog } from './IndustryDialog'
+export { MetricsDialog } from './MetricsDialog'
+export { AdProductsDialog } from './AdProductsDialog'
 export * from './types'
