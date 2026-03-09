@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Check, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 import { yearOptions, monthOptions, quarterOptions, targetingOptionsByMedia } from './types'
 import { IndustryDialog } from './IndustryDialog'
 import { MetricsDialog } from './MetricsDialog'
@@ -19,6 +20,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   
   const [formData, setFormData] = useState({
     datasetName: '',
@@ -38,8 +40,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     targetingOptions: [] as string[] // 타겟팅 세부 옵션 (다중 선택)
   })
   
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [expandedFolders, setExpandedFolders] = useState<string[]>([])
   const [validationActive, setValidationActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
@@ -169,12 +169,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       sidebarProps={{
         isCollapsed: isSidebarCollapsed,
         expandedFolders,
-        onToggleSidebar: () => setIsSidebarCollapsed(!isSidebarCollapsed),
-        onToggleFolder: (id: string) => {
-          setExpandedFolders(prev =>
-            prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-          )
-        },
+        onToggleSidebar: toggleSidebar,
+        onToggleFolder: toggleFolder,
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >

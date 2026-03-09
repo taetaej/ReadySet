@@ -5,6 +5,7 @@ import { SlotHeader } from '../reachcaster/SlotHeader'
 import { sampleDatasets } from './types'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
+import { useSidebarState } from '../../hooks/useSidebarState'
 
 type ViewMode = 'list' | 'grid'
 type SortField = 'id' | 'name' | 'media' | 'industry' | 'startDate' | 'status' | 'created' | 'creator'
@@ -13,6 +14,7 @@ type SortOrder = 'asc' | 'desc'
 export function DatasetList() {
   const navigate = useNavigate()
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
+  const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   
   // 뷰 및 정렬 상태
   const [viewMode, setViewMode] = useState<ViewMode>('list')
@@ -138,11 +140,11 @@ export function DatasetList() {
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}
       sidebarProps={{
-        isCollapsed: false,
-        expandedFolders: [],
-        onToggleSidebar: () => {},
-        onToggleFolder: () => {},
-        onNavigateToWorkspace: () => {}
+        isCollapsed: isSidebarCollapsed,
+        expandedFolders,
+        onToggleSidebar: toggleSidebar,
+        onToggleFolder: toggleFolder,
+        onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
       <SlotHeader 
