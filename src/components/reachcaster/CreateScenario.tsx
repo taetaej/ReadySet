@@ -12,6 +12,7 @@ import {
   type ScenarioFormData,
   type ReachPredictorMedia
 } from '../scenario'
+import { targetGrpOptions } from '../scenario/constants'
 
 interface CreateScenarioProps {
   slotData?: any
@@ -28,7 +29,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     brand: '',
     industry: '',
     period: { start: '', end: '' },
-    targetGrp: [],
+    targetGrp: [...targetGrpOptions.male, ...targetGrpOptions.female],
     simulationUnit: '',
     reachCurve: {
       detailSettings: {
@@ -75,6 +76,9 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
   // 유효성 검사 활성화 감지 (사용자가 입력을 시작하면 활성화)
   useEffect(() => {
     if (!validationActive) {
+      // 타겟 GRP가 전체 선택(24개)인 경우는 디폴트 값이므로 사용자 입력으로 간주하지 않음
+      const isTargetGrpModified = formData.targetGrp.length > 0 && formData.targetGrp.length !== 24
+      
       const hasAnyInput = !!(
         formData.scenarioName ||
         formData.description ||
@@ -82,7 +86,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
         formData.brand ||
         formData.period.start ||
         formData.period.end ||
-        formData.targetGrp.length > 0 ||
+        isTargetGrpModified ||
         formData.totalBudget ||
         formData.simulationUnit ||
         selectedMedia.length > 0
@@ -250,7 +254,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
-    setDarkModeUtil(newMode)
+    setDarkMode(newMode)
   }
 
   return (

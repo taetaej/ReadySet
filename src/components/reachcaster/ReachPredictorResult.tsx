@@ -323,7 +323,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ fontWeight: '500' }}>기간</span>
-              <span>{scenarioData?.startDate || '2024-01-15'} ~ {scenarioData?.endDate || '2024-02-15'}</span>
+              <span>{scenarioData?.startDate || '2024-01-15'} → {scenarioData?.endDate || '2024-02-15'}</span>
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

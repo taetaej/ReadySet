@@ -415,6 +415,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
   const [timelineYear, setTimelineYear] = useState(2024)
   const [timelineMonth, setTimelineMonth] = useState(1) // 1-12
   const [timelineQuarter, setTimelineQuarter] = useState(1) // 1-4
+  const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null)
   
   // 검색 & 필터 상태
   const [searchExpanded, setSearchExpanded] = useState(false)
@@ -643,6 +644,33 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
       setSelectedScenarios([])
     } else {
       setSelectedScenarios(currentScenarios.map(s => s.id))
+    }
+  }
+
+  // 타임라인 시나리오 바 클릭 핸들러 (싱글/더블클릭 구분)
+  const handleScenarioBarClick = (scenario: any) => {
+    if (clickTimer) {
+      // 더블클릭: 상세 페이지로 이동
+      clearTimeout(clickTimer)
+      setClickTimer(null)
+      
+      const resultPath = scenario.type === 'Ratio Finder'
+        ? '/reachcaster/scenario/ratio-finder/result'
+        : '/reachcaster/scenario/reach-predictor/result'
+      
+      navigate(resultPath, { 
+        state: { 
+          scenarioData: scenario,
+          slotData: slotData 
+        }
+      })
+    } else {
+      // 싱글클릭: 체크 토글 (300ms 대기)
+      const timer = setTimeout(() => {
+        toggleScenario(scenario.id)
+        setClickTimer(null)
+      }, 300)
+      setClickTimer(timer)
     }
   }
 
@@ -1637,8 +1665,8 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 justifyContent: 'center',
                                 gap: '3px'
                               }}
-                              onClick={() => toggleScenario(scenario.id)}
-                              title={`${scenario.name}\n${scenario.startDate} → ${scenario.endDate}\n${scenario.creator}(${scenario.creatorId})`}
+                              onClick={() => handleScenarioBarClick(scenario)}
+                              title={`${scenario.name}\n${scenario.startDate} → ${scenario.endDate}\n${scenario.creator}(${scenario.creatorId})\n\n더블클릭하여 상세 보기`}
                             >
                               {/* 상태별 좌측 바 */}
                               <div style={{

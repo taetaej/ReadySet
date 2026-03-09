@@ -179,12 +179,12 @@ export function ScenarioStep2ReachPredictor({
           backgroundColor: 'hsl(var(--muted) / 0.1)'
         }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '16px'
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'flex-start'
           }}>
             {/* 캠페인 기간 */}
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{
                 fontSize: '12px',
                 fontWeight: '500',
@@ -213,7 +213,7 @@ export function ScenarioStep2ReachPredictor({
             </div>
 
             {/* 타겟 설정 */}
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{
                 fontSize: '12px',
                 fontWeight: '500',
@@ -234,16 +234,6 @@ export function ScenarioStep2ReachPredictor({
                 >
                   일괄 적용
                 </button>
-              </div>
-              {/* 높이 맞추기 위한 더미 텍스트 영역 */}
-              <div style={{ 
-                fontSize: '11px', 
-                color: 'transparent',
-                marginBottom: '4px',
-                height: '15px',
-                visibility: 'hidden'
-              }}>
-                placeholder
               </div>
               <button
                 onClick={() => setShowGlobalTargetDialog(true)}
@@ -578,16 +568,16 @@ export function ScenarioStep2ReachPredictor({
                 {showSummaryTooltip && (
                   <div style={{
                     position: 'absolute',
-                    top: '100%',
+                    bottom: '100%',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    marginTop: '8px',
+                    marginBottom: '8px',
                     padding: '8px 12px',
                     backgroundColor: 'hsl(var(--popover))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '6px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                    zIndex: 100,
+                    zIndex: 1000,
                     minWidth: '200px',
                     fontSize: '11px',
                     fontWeight: '400',

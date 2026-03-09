@@ -22,7 +22,7 @@ interface ReachPredictorScoreCardsProps {
 export function ReachPredictorScoreCards({ data, isDarkMode = false }: ReachPredictorScoreCardsProps) {
   const scoreCards: ScoreCard[] = [
     {
-      title: 'Reach1+',
+      title: 'Reach 1+',
       value: data?.reach1Plus?.toFixed(1) || '68.5',
       unit: '%',
       icon: <Users size={20} />,
