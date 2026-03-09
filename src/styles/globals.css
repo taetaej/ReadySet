@@ -1,25 +1,28 @@
-/* Paperlogy 폰트 import */
+/* Paperlogy 폰트 import - 로컬 파일 사용 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 @font-face {
   font-family: 'Paperlogy';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PaperlogyRegular.woff') format('woff');
+  src: url('/fonts/PaperlogyRegular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Paperlogy';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PaperlogyMedium.woff') format('woff');
+  src: url('/fonts/PaperlogyMedium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Paperlogy';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PaperlogyBold.woff') format('woff');
+  src: url('/fonts/PaperlogyBold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @layer base {
