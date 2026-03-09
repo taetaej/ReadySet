@@ -148,9 +148,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
           {/* 2단 레이아웃 */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: '1fr 1px 380px',
+            gridTemplateColumns: '340px 1px 1fr',
             gap: '0',
-            flex: 1,
+            height: '600px',
             overflow: 'hidden',
             border: '1px solid hsl(var(--border))',
             borderRadius: '8px'
@@ -159,7 +159,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
             <div style={{ 
               overflowY: 'auto',
               backgroundColor: 'hsl(var(--background))',
-              padding: '16px'
+              padding: '16px',
+              minHeight: '600px',
+              maxHeight: '600px'
             }}>
               <div style={{ 
                 marginBottom: '12px',
@@ -416,7 +418,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               overflowY: 'auto',
               backgroundColor: 'hsl(var(--muted) / 0.2)',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: '600px',
+              maxHeight: '600px'
             }}>
               <div style={{ 
                 padding: '12px 16px',
