@@ -147,6 +147,71 @@ export const sampleDatasets: Dataset[] = [
     created: '2024-02-10 09:30',
     creator: '송하늘',
     creatorId: 'USER010'
+  },
+  {
+    id: 11,
+    name: '네이버 성과형 DA 봄 시즌 캠페인',
+    media: '네이버 성과형 DA',
+    industry: '2개 업종',
+    startDate: '2024-03',
+    endDate: '2024-05',
+    periodType: 'month',
+    status: 'Processing',
+    created: '2024-03-05 11:15',
+    creator: '김민준',
+    creatorId: 'USER011'
+  },
+  {
+    id: 12,
+    name: 'Google Ads 검색 광고 최적화',
+    media: 'Google Ads',
+    industry: '전체',
+    startDate: '2024-1',
+    endDate: '2024-2',
+    periodType: 'quarter',
+    status: 'Completed',
+    created: '2024-01-18 14:20',
+    creator: '이서연',
+    creatorId: 'USER012'
+  },
+  {
+    id: 13,
+    name: 'Meta 리타겟팅 캠페인',
+    media: 'Meta',
+    industry: '5개 업종',
+    startDate: '2024-04',
+    endDate: '2024-06',
+    periodType: 'month',
+    status: 'Pending',
+    created: '2024-04-01 09:00',
+    creator: '박지훈',
+    creatorId: 'USER013'
+  },
+  {
+    id: 14,
+    name: 'kakao모먼트 브랜드 인지도 캠페인',
+    media: 'kakao모먼트',
+    industry: '전자제품',
+    startDate: '2024-2',
+    endDate: '2024-2',
+    periodType: 'quarter',
+    status: 'Error',
+    created: '2024-04-10 16:30',
+    creator: '최수진',
+    creatorId: 'USER014'
+  },
+  {
+    id: 15,
+    name: 'TikTok 신규 고객 유치 캠페인',
+    media: 'TikTok',
+    industry: '3개 업종',
+    startDate: '2024-05',
+    endDate: '2024-07',
+    periodType: 'month',
+    status: 'Processing',
+    created: '2024-05-01 10:45',
+    creator: '정예린',
+    creatorId: 'USER015'
   }
 ]
 
