@@ -362,6 +362,18 @@
     color: hsl(var(--muted-foreground));
   }
 
+  select {
+    color: hsl(var(--foreground));
+  }
+
+  select option {
+    color: hsl(var(--foreground));
+  }
+
+  select:invalid {
+    color: hsl(var(--muted-foreground));
+  }
+
   /* Cards */
   .card {
     border-radius: 0.5rem;
