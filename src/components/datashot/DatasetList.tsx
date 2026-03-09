@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, Filter, List, LayoutGrid, X, ChevronDown, ChevronUp, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2 } from 'lucide-react'
+import { Plus, Search, Filter, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { SlotHeader } from '../reachcaster/SlotHeader'
 import { sampleDatasets } from './types'
@@ -7,7 +7,6 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 
-type ViewMode = 'list' | 'grid'
 type SortField = 'id' | 'name' | 'media' | 'industry' | 'startDate' | 'status' | 'created' | 'creator'
 type SortOrder = 'asc' | 'desc'
 
@@ -17,9 +16,10 @@ export function DatasetList() {
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   
   // 뷰 및 정렬 상태
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [sortField, setSortField] = useState<SortField>('created')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   
   // 검색 & 필터 상태
   const [searchExpanded, setSearchExpanded] = useState(false)
@@ -27,8 +27,37 @@ export function DatasetList() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string[]>([])
   const [mediaFilter, setMediaFilter] = useState<string[]>([])
-  const [industryFilter, setIndustryFilter] = useState<string[]>([])
   const [contextMenuOpen, setContextMenuOpen] = useState<number | null>(null)
+  
+  // 체크박스 선택 상태
+  const [selectedDatasets, setSelectedDatasets] = useState<number[]>([])
+  const [selectAll, setSelectAll] = useState(false)
+
+  // 체크박스 전체 선택/해제
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedDatasets([])
+      setSelectAll(false)
+    } else {
+      setSelectedDatasets(filteredDatasets.map(d => d.id))
+      setSelectAll(true)
+    }
+  }
+
+  // 개별 체크박스 선택/해제
+  const handleSelectDataset = (id: number) => {
+    if (selectedDatasets.includes(id)) {
+      const newSelected = selectedDatasets.filter(sid => sid !== id)
+      setSelectedDatasets(newSelected)
+      setSelectAll(false)
+    } else {
+      const newSelected = [...selectedDatasets, id]
+      setSelectedDatasets(newSelected)
+      if (newSelected.length === filteredDatasets.length) {
+        setSelectAll(true)
+      }
+    }
+  }
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -80,9 +109,6 @@ export function DatasetList() {
       // 매체 필터
       if (mediaFilter.length > 0 && !mediaFilter.includes(dataset.media)) return false
       
-      // 업종 필터
-      if (industryFilter.length > 0 && !industryFilter.includes(dataset.industry)) return false
-      
       return true
     })
     .sort((a, b) => {
@@ -95,6 +121,11 @@ export function DatasetList() {
       }
       return (aVal > bVal ? 1 : -1) * modifier
     })
+
+  // 페이지네이션
+  const totalPages = Math.ceil(filteredDatasets.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const currentDatasets = filteredDatasets.slice(startIndex, startIndex + itemsPerPage)
 
   // 상태 뱃지 스타일
   const getStatusStyle = (status: string) => {
@@ -125,6 +156,25 @@ export function DatasetList() {
         icon: <Building2 size={14} />,
         text: `${totalCount}개 업종`
       }
+    }
+  }
+
+  // 조회기간 포맷팅 함수
+  const formatPeriod = (startDate: string, endDate: string, periodType: 'month' | 'quarter') => {
+    if (periodType === 'month') {
+      // "2024-01" → "2024년 1월"
+      const formatMonth = (date: string) => {
+        const [year, month] = date.split('-')
+        return `${year}년 ${parseInt(month)}월`
+      }
+      return `${formatMonth(startDate)} → ${formatMonth(endDate)}`
+    } else {
+      // "2024-1" → "2024년 1분기"
+      const formatQuarter = (date: string) => {
+        const [year, quarter] = date.split('-')
+        return `${year}년 ${quarter}분기`
+      }
+      return `${formatQuarter(startDate)} → ${formatQuarter(endDate)}`
     }
   }
 
@@ -195,44 +245,60 @@ export function DatasetList() {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          {/* 좌측: 뷰 토글 + 데이터셋 개수 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* 뷰 모드 토글 */}
-            <div style={{ display: 'flex', gap: '4px', padding: '4px', backgroundColor: 'hsl(var(--muted))', borderRadius: '6px' }}>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`btn btn-sm ${viewMode === 'list' ? 'btn-secondary' : 'btn-ghost'}`}
-                style={{ 
-                  backgroundColor: viewMode === 'list' ? 'hsl(var(--background))' : 'transparent',
-                  boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  padding: '8px'
-                }}
-              >
-                <List size={16} />
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`btn btn-sm ${viewMode === 'grid' ? 'btn-secondary' : 'btn-ghost'}`}
-                style={{ 
-                  backgroundColor: viewMode === 'grid' ? 'hsl(var(--background))' : 'transparent',
-                  boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  padding: '8px'
-                }}
-              >
-                <LayoutGrid size={16} />
-              </button>
-            </div>
-            
-            {/* 데이터셋 개수 */}
-            <div style={{ 
-              fontSize: '14px',
-              color: 'hsl(var(--muted-foreground))'
-            }}>
-              {filteredDatasets.length} Datasets
-            </div>
+          {/* 좌측: 데이터셋 개수 */}
+          <div style={{ 
+            fontSize: '14px',
+            color: 'hsl(var(--muted-foreground))'
+          }}>
+            {filteredDatasets.length} Datasets
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* 선택 개수 표시 */}
+            {selectedDatasets.length > 0 && (
+              <div style={{
+                fontSize: '14px',
+                color: 'hsl(var(--foreground))',
+                fontWeight: '500'
+              }}>
+                {selectedDatasets.length}개 선택됨
+              </div>
+            )}
+            
+            {/* 선택된 항목 일괄 작업 버튼 */}
+            {selectedDatasets.length > 0 && (
+              <>
+                <button
+                  onClick={() => {
+                    // TODO: 이동 기능 구현
+                    console.log('이동:', selectedDatasets)
+                  }}
+                  className="btn btn-ghost btn-md"
+                  style={{ border: '1px solid hsl(var(--border))' }}
+                >
+                  <ArrowRightLeft size={16} />
+                  이동
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`선택한 ${selectedDatasets.length}개 데이터셋을 삭제하시겠습니까?`)) {
+                      console.log('삭제:', selectedDatasets)
+                      setSelectedDatasets([])
+                      setSelectAll(false)
+                    }
+                  }}
+                  className="btn btn-md"
+                  style={{
+                    backgroundColor: 'hsl(var(--destructive))',
+                    color: 'hsl(var(--destructive-foreground))',
+                    border: 'none'
+                  }}
+                >
+                  <Trash2 size={16} />
+                  삭제
+                </button>
+              </>
+            )}
             {/* 검색 */}
             <div style={{ position: 'relative' }}>
               {!searchExpanded ? (
@@ -272,7 +338,7 @@ export function DatasetList() {
                         setSearchExpanded(false)
                       }
                     }}
-                    placeholder="데이터셋명, 작성자"
+                    placeholder="데이터셋명, 생성자"
                     className="input"
                     autoFocus
                     style={{ 
@@ -321,14 +387,14 @@ export function DatasetList() {
                   alignItems: 'center',
                   gap: '6px',
                   padding: '0 12px',
-                  backgroundColor: (statusFilter.length > 0 || mediaFilter.length > 0 || industryFilter.length > 0) 
+                  backgroundColor: (statusFilter.length > 0 || mediaFilter.length > 0) 
                     ? 'hsl(var(--primary) / 0.1)' 
                     : 'transparent'
                 }}
               >
                 <Filter size={16} />
                 <span>필터</span>
-                {(statusFilter.length > 0 || mediaFilter.length > 0 || industryFilter.length > 0) && (
+                {(statusFilter.length > 0 || mediaFilter.length > 0) && (
                   <span style={{
                     backgroundColor: 'hsl(var(--primary))',
                     color: 'hsl(var(--primary-foreground))',
@@ -337,7 +403,7 @@ export function DatasetList() {
                     fontSize: '10px',
                     fontWeight: '600'
                   }}>
-                    {statusFilter.length + mediaFilter.length + industryFilter.length}
+                    {statusFilter.length + mediaFilter.length}
                   </span>
                 )}
               </button>
@@ -359,7 +425,7 @@ export function DatasetList() {
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>상태</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {['Pending', 'Processing', 'Completed', 'Error', 'Expired'].map(status => (
+                      {['Completed', 'Processing', 'Pending', 'Error', 'Expired'].map(status => (
                         <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                           <input
                             type="checkbox"
@@ -383,7 +449,7 @@ export function DatasetList() {
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>매체</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
-                      {Array.from(new Set(sampleDatasets.map(d => d.media))).map(media => (
+                      {['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok'].map(media => (
                         <label key={media} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                           <input
                             type="checkbox"
@@ -403,36 +469,11 @@ export function DatasetList() {
                     </div>
                   </div>
 
-                  {/* 업종 필터 */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>업종</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
-                      {Array.from(new Set(sampleDatasets.map(d => d.industry))).map(industry => (
-                        <label key={industry} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={industryFilter.includes(industry)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setIndustryFilter([...industryFilter, industry])
-                              } else {
-                                setIndustryFilter(industryFilter.filter(i => i !== industry))
-                              }
-                            }}
-                            className="checkbox-custom"
-                          />
-                          <span style={{ fontSize: '13px' }}>{industry}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* 필터 초기화 */}
                   <button
                     onClick={() => {
                       setStatusFilter([])
                       setMediaFilter([])
-                      setIndustryFilter([])
                     }}
                     className="btn btn-ghost btn-sm"
                     style={{ width: '100%', marginTop: '8px' }}
@@ -458,6 +499,14 @@ export function DatasetList() {
                 backgroundColor: 'hsl(var(--muted) / 0.5)',
                 borderBottom: '1px solid hsl(var(--border))'
               }}>
+                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '14px', fontWeight: '600', width: '50px' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="checkbox-custom"
+                  />
+                </th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '80px' }}>
                   <button onClick={() => handleSort('id')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }}>
                     ID {renderSortIcon('id')}
@@ -501,9 +550,10 @@ export function DatasetList() {
               </tr>
             </thead>
             <tbody>
-              {filteredDatasets.map((dataset) => {
+              {currentDatasets.map((dataset) => {
                 const statusStyle = getStatusStyle(dataset.status)
                 const isClickable = dataset.status === 'Completed'
+                const isSelected = selectedDatasets.includes(dataset.id)
                 return (
                   <tr 
                     key={dataset.id}
@@ -524,6 +574,14 @@ export function DatasetList() {
                       }
                     }}
                   >
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectDataset(dataset.id)}
+                        className="checkbox-custom"
+                      />
+                    </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                       {dataset.id}
                     </td>
@@ -540,13 +598,12 @@ export function DatasetList() {
                       </div>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                      {dataset.startDate} ~ {dataset.endDate}
+                      {formatPeriod(dataset.startDate, dataset.endDate, dataset.periodType)}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
-                        display: 'inline-block',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
                         fontSize: '12px',
                         fontWeight: '500',
                         backgroundColor: statusStyle.bg,
@@ -627,6 +684,154 @@ export function DatasetList() {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* 페이지네이션 */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          marginTop: '24px'
+        }}>
+          {/* 좌측: 페이지 크기 선택 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+              페이지당 표시:
+            </span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="input"
+              style={{ 
+                width: '80px',
+                height: '32px',
+                minHeight: '32px',
+                padding: '4px 8px',
+                fontSize: '14px'
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          {/* 우측: 페이지 정보 및 네비게이션 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* 페이지 정보 */}
+            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+              {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredDatasets.length)} / {filteredDatasets.length}개
+            </span>
+
+            {/* 페이지 네비게이션 */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {/* 첫 페이지로 */}
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronLeft size={14} />
+                  <ChevronLeft size={14} style={{ marginLeft: '-8px' }} />
+                </button>
+
+                {/* 이전 페이지 */}
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+
+                {/* 페이지 번호들 */}
+                {(() => {
+                  const pages = []
+                  const maxVisible = 5
+                  let start = Math.max(1, currentPage - Math.floor(maxVisible / 2))
+                  let end = Math.min(totalPages, start + maxVisible - 1)
+
+                  if (end - start + 1 < maxVisible) {
+                    start = Math.max(1, end - maxVisible + 1)
+                  }
+
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i)}
+                        className={`btn btn-sm ${
+                          currentPage === i ? 'btn-primary' : 'btn-ghost'
+                        }`}
+                        style={{ 
+                          width: '32px', 
+                          height: '32px',
+                          padding: '0',
+                          fontSize: '14px',
+                          fontWeight: currentPage === i ? '600' : '400'
+                        }}
+                      >
+                        {i}
+                      </button>
+                    )
+                  }
+
+                  return pages
+                })()}
+
+                {/* 다음 페이지 */}
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronRight size={14} />
+                </button>
+
+                {/* 마지막 페이지로 */}
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronRight size={14} />
+                  <ChevronRight size={14} style={{ marginLeft: '-8px' }} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </AppLayout>
