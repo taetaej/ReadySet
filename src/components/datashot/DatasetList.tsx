@@ -162,17 +162,13 @@ export function DatasetList() {
   // 조회기간 포맷팅 함수
   const formatPeriod = (startDate: string, endDate: string, periodType: 'month' | 'quarter') => {
     if (periodType === 'month') {
-      // "2024-01" → "2024년 1월"
-      const formatMonth = (date: string) => {
-        const [year, month] = date.split('-')
-        return `${year}년 ${parseInt(month)}월`
-      }
-      return `${formatMonth(startDate)} → ${formatMonth(endDate)}`
+      // "2024-01" → "2024-01"
+      return `${startDate} → ${endDate}`
     } else {
-      // "2024-1" → "2024년 1분기"
+      // "2024-1" → "2024-1Q"
       const formatQuarter = (date: string) => {
         const [year, quarter] = date.split('-')
-        return `${year}년 ${quarter}분기`
+        return `${year}-${quarter}Q`
       }
       return `${formatQuarter(startDate)} → ${formatQuarter(endDate)}`
     }

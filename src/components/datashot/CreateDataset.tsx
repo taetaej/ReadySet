@@ -11,6 +11,7 @@ import { AdProductsDialog } from './AdProductsDialog'
 import { MetaAdProductsDialog } from './MetaAdProductsDialog'
 import { DisabledSelectBox } from './DisabledSelectBox'
 import { ConfigurationSummary } from './ConfigurationSummary'
+import { MonthRangePicker } from './MonthRangePicker'
 
 interface CreateDatasetProps {
   slotData?: any
@@ -502,76 +503,13 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         </label>
                       </div>
 
-                      {/* 기간 선택 */}
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '800px' }}>
-                        {/* 시작 */}
-                        <select
-                          value={formData.period.startYear}
-                          onChange={(e) => setFormData({ 
-                            ...formData, 
-                            period: { ...formData.period, startYear: e.target.value } 
-                          })}
-                          className="input"
-                          style={{ flex: 1 }}
-                          required
-                        >
-                          <option value="">년도 선택</option>
-                          {yearOptions.map(year => (
-                            <option key={year} value={year}>{year}년</option>
-                          ))}
-                        </select>
-                        
-                        <select
-                          value={formData.period.startMonth}
-                          onChange={(e) => setFormData({ 
-                            ...formData, 
-                            period: { ...formData.period, startMonth: e.target.value } 
-                          })}
-                          className="input"
-                          style={{ flex: 1 }}
-                          required
-                        >
-                          <option value="">{formData.periodType === 'month' ? '월 선택' : '분기 선택'}</option>
-                          {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
-                            <option key={idx} value={String(idx + 1)}>{option}</option>
-                          ))}
-                        </select>
-
-                        <ArrowRight size={16} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />
-
-                        {/* 종료 */}
-                        <select
-                          value={formData.period.endYear}
-                          onChange={(e) => setFormData({ 
-                            ...formData, 
-                            period: { ...formData.period, endYear: e.target.value } 
-                          })}
-                          className="input"
-                          style={{ flex: 1 }}
-                          required
-                        >
-                          <option value="">년도 선택</option>
-                          {yearOptions.map(year => (
-                            <option key={year} value={year}>{year}년</option>
-                          ))}
-                        </select>
-                        
-                        <select
-                          value={formData.period.endMonth}
-                          onChange={(e) => setFormData({ 
-                            ...formData, 
-                            period: { ...formData.period, endMonth: e.target.value } 
-                          })}
-                          className="input"
-                          style={{ flex: 1 }}
-                          required
-                        >
-                          <option value="">{formData.periodType === 'month' ? '월 선택' : '분기 선택'}</option>
-                          {(formData.periodType === 'month' ? monthOptions : quarterOptions).map((option, idx) => (
-                            <option key={idx} value={String(idx + 1)}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
+                      {/* 기간 선택 - Custom Month Range Picker */}
+                      <MonthRangePicker
+                        type={formData.periodType}
+                        value={formData.period}
+                        onChange={(period) => setFormData({ ...formData, period })}
+                      />
+                      
                       {validationActive && !dateRangeValidation.valid && (
                         <div style={{
                           fontSize: '12px',
