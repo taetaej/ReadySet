@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Calendar, Users, Smartphone, Tv, ArrowRight, ChevronRight, Info } from 'lucide-react'
+import { X, Calendar, Users, Smartphone, Tv, ArrowRight, ChevronRight, Info, ListPlus } from 'lucide-react'
 import { type ReachPredictorMedia } from './types'
 import { targetGrpOptions } from './constants'
 import { CustomDateRangePicker } from '../reachcaster/CustomDateRangePicker'
@@ -271,8 +271,14 @@ export function ScenarioStep2ReachPredictor({
         <button
           onClick={onOpenMediaDialog}
           className="btn btn-primary btn-md"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
         >
-          매체 추가
+          <ListPlus size={16} />
+          매체 · 상품(채널) 추가
         </button>
       </div>
 
@@ -604,14 +610,25 @@ export function ScenarioStep2ReachPredictor({
         </div>
       ) : (
         <div style={{
-          padding: '40px',
+          padding: '48px 40px',
           textAlign: 'center',
           border: '1px dashed hsl(var(--border))',
           borderRadius: '8px',
           color: 'hsl(var(--muted-foreground))',
-          fontSize: '14px'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          매체를 추가해주세요
+          <ListPlus size={32} style={{ opacity: 0.5 }} />
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>
+              분석할 매체와 상품(채널)을 추가해주세요
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.8 }}>
+              '매체 · 상품(채널) 추가' 버튼을 클릭하여 시작하세요
+            </div>
+          </div>
         </div>
       )}
 

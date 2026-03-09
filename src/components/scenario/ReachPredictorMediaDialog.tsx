@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Minus, Smartphone, Tv } from 'lucide-react'
+import { Plus, Minus, Smartphone, Tv, Info } from 'lucide-react'
 import { mediaData, unlinkedMedia } from './constants'
 import { ReachPredictorMedia } from './types'
 
@@ -180,6 +180,21 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
           <p className="dialog-description">
             분석에 포함할 매체와 상품을 선택하세요
           </p>
+          <div style={{
+            marginTop: '12px',
+            padding: '12px',
+            backgroundColor: 'hsl(var(--muted) / 0.5)',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: 'hsl(var(--muted-foreground))',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Info size={14} />
+            <span>Step1에서 선택한 업종의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
+          </div>
         </div>
         
         <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>

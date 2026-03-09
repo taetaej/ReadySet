@@ -8,6 +8,7 @@ import { ReachCurveChart } from './ReachCurveChart'
 import { ReachPredictorScoreCards } from './ReachPredictorScoreCards'
 import { ReachPredictorDetailTable } from './ReachPredictorDetailTable'
 import { useSidebarState } from '../../hooks/useSidebarState'
+import { maskEmail } from '../../utils/maskEmail'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -481,7 +482,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
                     <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.created || '2024-01-10 14:30'}</div>
                     <div className="text-muted-foreground" style={{ fontSize: '12px' }}>
-                      {scenarioData?.creator || '김철수'} ({scenarioData?.creatorId || 'USER001'})
+                      {scenarioData?.creator || '김철수'} ({maskEmail(scenarioData?.creatorId || 'kimcheolsu@gmail.com')})
                     </div>
                   </div>
                   

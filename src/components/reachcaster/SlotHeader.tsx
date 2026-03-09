@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { MoreVertical, Edit, Trash2, Info } from 'lucide-react'
 import { Avatar } from '../common/Avatar'
+import { maskEmail } from '../../utils/maskEmail'
 
 interface SlotHeaderProps {
   slotId: number
@@ -140,7 +141,7 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                 <div style={{ marginBottom: '12px' }}>
                   <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
                   <div style={{ fontSize: '13px', fontWeight: '500' }}>2024-01-15 14:30</div>
-                  <div className="text-muted-foreground" style={{ fontSize: '12px' }}>김철수 (USER001)</div>
+                  <div className="text-muted-foreground" style={{ fontSize: '12px' }}>김철수 ({maskEmail('kimcheolsu@gmail.com')})</div>
                 </div>
                 
                 <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '12px 0' }} />
@@ -148,7 +149,7 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
                 <div>
                   <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>최근 수정일시</div>
                   <div style={{ fontSize: '13px', fontWeight: '500' }}>{slotData.modified} 16:45</div>
-                  <div className="text-muted-foreground" style={{ fontSize: '12px' }}>이영희 (USER002)</div>
+                  <div className="text-muted-foreground" style={{ fontSize: '12px' }}>이영희 ({maskEmail('leeyounghee@gmail.com')})</div>
                 </div>
               </div>
             )}

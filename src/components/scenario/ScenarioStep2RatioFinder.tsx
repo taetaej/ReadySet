@@ -1,4 +1,4 @@
-import { X, Smartphone, Tv, ListPlus } from 'lucide-react'
+import { X, Smartphone, Tv, ListPlus, Info } from 'lucide-react'
 import { type ScenarioFormData, mediaData, numberToKorean } from './index'
 
 interface ScenarioStep2RatioFinderProps {
@@ -522,6 +522,28 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       </div>
                     </div>
                   )}
+                  
+                  {/* 상품이 없을 때 힌트 메시지 */}
+                  {isSelected && selectedProducts.length === 0 && (
+                    <div style={{
+                      marginTop: '8px',
+                      marginLeft: '40px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      border: '1px dashed hsl(var(--border))',
+                      borderRadius: '6px',
+                      backgroundColor: 'hsl(var(--muted) / 0.2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <ListPlus size={24} style={{ opacity: 0.5, color: 'hsl(var(--muted-foreground))' }} />
+                      <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                        '{mediaKey.startsWith('DIGITAL') ? '상품 추가' : '채널 추가'}' 버튼을 클릭하여 {mediaKey.startsWith('DIGITAL') ? '상품을' : '채널을'} 추가하세요
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -660,6 +682,21 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 <p className="dialog-description">
                   분석에 포함할 상품을 선택하세요
                 </p>
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  backgroundColor: 'hsl(var(--muted) / 0.5)',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: 'hsl(var(--muted-foreground))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Info size={14} />
+                  <span>Step1에서 선택한 업종의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
+                </div>
               </div>
               
               <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>

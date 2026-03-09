@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, List, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Calendar, Scale, Target, MoreVertical, Edit, Trash2, Copy, Users, User, Search, X, Filter, ArrowRightLeft, CheckCircle, AlertCircle } from 'lucide-react'
 import { SlotHeader } from './SlotHeader'
+import { maskEmail } from '../../utils/maskEmail'
 import FrappeGantt from 'frappe-gantt-react'
 
 interface SlotDetailProps {
@@ -36,7 +37,7 @@ const sampleScenarios = [
     stepDescription: '분석 완료',
     created: '2024-01-10 14:30',
     creator: '김철수',
-    creatorId: 'USER001',
+    creatorId: 'kimcheolsu@gmail.com',
     completedAt: '2024-01-20 16:45',
     errorMessage: null
   },
@@ -55,7 +56,7 @@ const sampleScenarios = [
     stepDescription: '예측 모델 실행 중',
     created: '2024-01-18 09:15',
     creator: '이영희',
-    creatorId: 'USER002',
+    creatorId: 'leeyounghee@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -74,7 +75,7 @@ const sampleScenarios = [
     stepDescription: '대기 중',
     created: '2024-01-25 11:20',
     creator: '박민수',
-    creatorId: 'USER003',
+    creatorId: 'parkminsoo@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -93,7 +94,7 @@ const sampleScenarios = [
     stepDescription: '데이터 검증 실패',
     created: '2024-01-03 15:40',
     creator: '최지은',
-    creatorId: 'USER004',
+    creatorId: 'choijieun@gmail.com',
     completedAt: '2024-01-06 10:23',
     errorMessage: '입력 데이터 형식 오류: 예산 정보가 누락되었습니다.'
   },
@@ -112,7 +113,7 @@ const sampleScenarios = [
     stepDescription: '분석 완료',
     created: '2024-01-12 10:00',
     creator: '정현우',
-    creatorId: 'USER005',
+    creatorId: 'junghyunwoo@gmail.com',
     completedAt: '2024-01-15 14:20',
     errorMessage: null
   },
@@ -131,7 +132,7 @@ const sampleScenarios = [
     stepDescription: '결과 분석 중',
     created: '2024-02-05 13:25',
     creator: '강민지',
-    creatorId: 'USER006',
+    creatorId: 'kangminji@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -150,7 +151,7 @@ const sampleScenarios = [
     stepDescription: '모델 실행 오류',
     created: '2024-01-22 16:10',
     creator: '윤서준',
-    creatorId: 'USER007',
+    creatorId: 'yoonseojun@gmail.com',
     completedAt: '2024-01-29 09:15',
     errorMessage: '서버 연결 오류: 외부 API 응답 시간 초과'
   },
@@ -169,7 +170,7 @@ const sampleScenarios = [
     stepDescription: '대기 중',
     created: '2024-02-20 10:45',
     creator: '조은비',
-    creatorId: 'USER008',
+    creatorId: 'joeunbi@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -188,7 +189,7 @@ const sampleScenarios = [
     stepDescription: '데이터 수집 중',
     created: '2024-04-25 14:00',
     creator: '한지우',
-    creatorId: 'USER009',
+    creatorId: 'hanjiwoo@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -207,7 +208,7 @@ const sampleScenarios = [
     stepDescription: '분석 완료',
     created: '2024-02-10 09:30',
     creator: '송하늘',
-    creatorId: 'USER010',
+    creatorId: 'songhaneul@gmail.com',
     completedAt: '2024-04-16 11:20',
     errorMessage: null,
     reachPredictorMedia: [
@@ -314,7 +315,7 @@ const sampleScenarios = [
     stepDescription: '분석 완료',
     created: '2024-01-28 11:15',
     creator: '임도현',
-    creatorId: 'USER011',
+    creatorId: 'limdohyun@gmail.com',
     completedAt: '2024-02-13 15:20',
     errorMessage: null
   },
@@ -333,7 +334,7 @@ const sampleScenarios = [
     stepDescription: '예측 모델 실행 중',
     created: '2024-03-05 13:40',
     creator: '배서연',
-    creatorId: 'USER012',
+    creatorId: 'baeseoyeon@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -352,7 +353,7 @@ const sampleScenarios = [
     stepDescription: '분석 완료',
     created: '2024-01-15 10:20',
     creator: '오준혁',
-    creatorId: 'USER013',
+    creatorId: 'ojunhyuk@gmail.com',
     completedAt: '2024-03-22 09:45',
     errorMessage: null
   },
@@ -371,7 +372,7 @@ const sampleScenarios = [
     stepDescription: '대기 중',
     created: '2024-02-15 15:55',
     creator: '신예린',
-    creatorId: 'USER014',
+    creatorId: 'shinyerin@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -390,7 +391,7 @@ const sampleScenarios = [
     stepDescription: '데이터 수집 중',
     created: '2024-02-25 11:30',
     creator: '홍재민',
-    creatorId: 'USER015',
+    creatorId: 'hongjaemin@gmail.com',
     completedAt: null,
     errorMessage: null
   },
@@ -1295,7 +1296,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           fontSize: '13px',
                           color: 'hsl(var(--muted-foreground))'
                         }}>
-                          {scenario.creator}({scenario.creatorId})
+                          {scenario.creator}({maskEmail(scenario.creatorId)})
                         </span>
                       </td>
                       <td>
@@ -1666,7 +1667,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 gap: '3px'
                               }}
                               onClick={() => handleScenarioBarClick(scenario)}
-                              title={`${scenario.name}\n${scenario.startDate} → ${scenario.endDate}\n${scenario.creator}(${scenario.creatorId})\n\n더블클릭하여 상세 보기`}
+                              title={`${scenario.name}\n${scenario.startDate} → ${scenario.endDate}\n${scenario.creator}(${maskEmail(scenario.creatorId)})\n\n더블클릭하여 상세 보기`}
                             >
                               {/* 상태별 좌측 바 */}
                               <div style={{
