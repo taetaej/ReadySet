@@ -1,4 +1,6 @@
-import { SplitText } from './common/SplitText'
+import { SplitText } from '../common/SplitText'
+import { IndustryBubbleChart } from './IndustryBubbleChart'
+import { DataInsightCard } from './DataInsightCard'
 
 interface WelcomeSectionProps {
   userName?: string
@@ -39,59 +41,15 @@ export function WelcomeSection({ userName = 'Jia Shin' }: WelcomeSectionProps) {
       {/* Bento Boxes Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '5fr 3fr 2fr',
+        gridTemplateColumns: '2fr 6fr 2fr',
         gap: '16px',
         marginBottom: '32px'
       }}>
-        {/* Bento Box 1 */}
-        <div className="card" style={{
-          padding: '24px',
-          minHeight: '180px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          boxShadow: 'none'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '8px'
-          }} className="text-muted-foreground">
-            Content 1
-          </div>
-          <div style={{
-            fontSize: '24px',
-            fontWeight: '600'
-          }} className="text-foreground">
-            Coming Soon
-          </div>
-        </div>
+        {/* Bento Box 1 - Data Insight */}
+        <DataInsightCard />
 
-        {/* Bento Box 2 */}
-        <div className="card" style={{
-          padding: '24px',
-          minHeight: '180px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          boxShadow: 'none'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '8px'
-          }} className="text-muted-foreground">
-            Content 2
-          </div>
-          <div style={{
-            fontSize: '24px',
-            fontWeight: '600'
-          }} className="text-foreground">
-            Coming Soon
-          </div>
-        </div>
+        {/* Bento Box 2 - Industry Bubble Chart */}
+        <IndustryBubbleChart industry="뷰티" />
 
         {/* Bento Box 3 */}
         <div className="card" style={{

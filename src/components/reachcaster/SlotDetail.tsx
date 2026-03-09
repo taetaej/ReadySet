@@ -34,7 +34,6 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    stepDescription: '분석 완료',
     created: '2024-01-10 14:30',
     creator: '김철수',
     creatorId: 'kimcheolsu@gmail.com',
@@ -51,9 +50,8 @@ const sampleScenarios = [
     startDate: '2024-01-20',
     endDate: '2024-03-20',
     status: 'Processing',
-    processStep: 3,
+    processStep: 1,
     totalSteps: 5,
-    stepDescription: '예측 모델 실행 중',
     created: '2024-01-18 09:15',
     creator: '이영희',
     creatorId: 'leeyounghee@gmail.com',
@@ -72,7 +70,6 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    stepDescription: '대기 중',
     created: '2024-01-25 11:20',
     creator: '박민수',
     creatorId: 'parkminsoo@gmail.com',
@@ -91,7 +88,6 @@ const sampleScenarios = [
     status: 'Error',
     processStep: 2,
     totalSteps: 5,
-    stepDescription: '데이터 검증 실패',
     created: '2024-01-03 15:40',
     creator: '최지은',
     creatorId: 'choijieun@gmail.com',
@@ -110,7 +106,6 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    stepDescription: '분석 완료',
     created: '2024-01-12 10:00',
     creator: '정현우',
     creatorId: 'junghyunwoo@gmail.com',
@@ -129,7 +124,6 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 4,
     totalSteps: 5,
-    stepDescription: '결과 분석 중',
     created: '2024-02-05 13:25',
     creator: '강민지',
     creatorId: 'kangminji@gmail.com',
@@ -148,7 +142,6 @@ const sampleScenarios = [
     status: 'Error',
     processStep: 3,
     totalSteps: 5,
-    stepDescription: '모델 실행 오류',
     created: '2024-01-22 16:10',
     creator: '윤서준',
     creatorId: 'yoonseojun@gmail.com',
@@ -167,7 +160,6 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    stepDescription: '대기 중',
     created: '2024-02-20 10:45',
     creator: '조은비',
     creatorId: 'joeunbi@gmail.com',
@@ -186,7 +178,6 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 2,
     totalSteps: 5,
-    stepDescription: '데이터 수집 중',
     created: '2024-04-25 14:00',
     creator: '한지우',
     creatorId: 'hanjiwoo@gmail.com',
@@ -205,7 +196,6 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    stepDescription: '분석 완료',
     created: '2024-02-10 09:30',
     creator: '송하늘',
     creatorId: 'songhaneul@gmail.com',
@@ -312,7 +302,6 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    stepDescription: '분석 완료',
     created: '2024-01-28 11:15',
     creator: '임도현',
     creatorId: 'limdohyun@gmail.com',
@@ -331,7 +320,6 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 3,
     totalSteps: 5,
-    stepDescription: '예측 모델 실행 중',
     created: '2024-03-05 13:40',
     creator: '배서연',
     creatorId: 'baeseoyeon@gmail.com',
@@ -350,7 +338,6 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    stepDescription: '분석 완료',
     created: '2024-01-15 10:20',
     creator: '오준혁',
     creatorId: 'ojunhyuk@gmail.com',
@@ -369,7 +356,6 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    stepDescription: '대기 중',
     created: '2024-02-15 15:55',
     creator: '신예린',
     creatorId: 'shinyerin@gmail.com',
@@ -388,7 +374,6 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 2,
     totalSteps: 5,
-    stepDescription: '데이터 수집 중',
     created: '2024-02-25 11:30',
     creator: '홍재민',
     creatorId: 'hongjaemin@gmail.com',
@@ -401,6 +386,30 @@ type ViewMode = 'list' | 'gantt'
 type SortField = 'id' | 'name' | 'type' | 'industry' | 'targetGrp' | 'startDate' | 'endDate' | 'status' | 'created' | 'creator'
 type SortOrder = 'asc' | 'desc'
 type TimelineZoom = 'month' | 'quarter' | 'year'
+
+// Processing 단계별 설명 (Reach Caster 기준)
+const getProcessingStepDescription = (step: number, moduleType: string): string => {
+  if (moduleType === 'Ratio Finder') {
+    const ratioFinderSteps: { [key: number]: string } = {
+      1: '입력 조건 분석 중',
+      2: '매체별 도달 예측 중',
+      3: '통합 도달 추정 중',
+      4: '결과 시각화 중',
+      5: '완료'
+    }
+    return ratioFinderSteps[step] || '처리 중'
+  } else if (moduleType === 'Reach Predictor') {
+    const reachPredictorSteps: { [key: number]: string } = {
+      1: '입력 조건 분석 중',
+      2: '매체별 도달 예측 중',
+      3: '통합 도달 추정 중',
+      4: '결과 시각화 중',
+      5: '완료'
+    }
+    return reachPredictorSteps[step] || '처리 중'
+  }
+  return '처리 중'
+}
 
 export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailProps) {
   const navigate = useNavigate()
@@ -1241,7 +1250,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                 </div>
                               </div>
                               <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                                {scenario.processStep}/{scenario.totalSteps} · {scenario.stepDescription}
+                                {scenario.processStep}/{scenario.totalSteps} · {getProcessingStepDescription(scenario.processStep, scenario.type)}
                               </span>
                             </>
                           ) : (
