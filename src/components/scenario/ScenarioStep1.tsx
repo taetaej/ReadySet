@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { ArrowRight, ChevronRight, Scale, Target } from 'lucide-react'
-import { DayPicker } from 'react-day-picker'
-import 'react-day-picker/dist/style.css'
+import { ChevronRight, Scale, Target } from 'lucide-react'
 import { ScenarioFormData } from './types'
 import { sampleBrands, targetGrpOptions } from './constants'
+import { CustomDateRangePicker } from '../reachcaster/CustomDateRangePicker'
 
 interface ScenarioStep1Props {
   formData: ScenarioFormData
@@ -15,8 +14,6 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
   const [brandSearchQuery, setBrandSearchQuery] = useState('')
   const [brandDropdownOpen, setBrandDropdownOpen] = useState(false)
   const [targetGrpDialogOpen, setTargetGrpDialogOpen] = useState(false)
-  const [startDateOpen, setStartDateOpen] = useState(false)
-  const [endDateOpen, setEndDateOpen] = useState(false)
 
   const filteredBrands = sampleBrands.filter(brand =>
     brand.name.toLowerCase().includes(brandSearchQuery.toLowerCase())
@@ -366,167 +363,10 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
         }}>
           캠페인 기간 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'end' }}>
-          {/* 시작일 */}
-          <div>
-            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>
-              시작일
-            </div>
-            <div style={{ position: 'relative' }}>
-              <button
-                type="button"
-                onClick={() => setStartDateOpen(!startDateOpen)}
-                className="input"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  borderColor: validationActive && !formData.period.start ? 'hsl(var(--destructive))' : undefined
-                }}
-              >
-                <span style={{ 
-                  color: formData.period.start ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                }}>
-                  {formData.period.start ? new Date(formData.period.start).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'}
-                </span>
-              </button>
-              {startDateOpen && (
-                <>
-                  <div 
-                    style={{
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 999
-                    }}
-                    onClick={() => setStartDateOpen(false)}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      marginTop: '8px',
-                      zIndex: 1000,
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                    }}
-                  >
-                    <DayPicker
-                      mode="single"
-                      selected={formData.period.start ? new Date(formData.period.start) : undefined}
-                      onSelect={(date) => {
-                        if (date) {
-                          const dateStr = date.toISOString().split('T')[0]
-                          setFormData({ ...formData, period: { ...formData.period, start: dateStr } })
-                          setStartDateOpen(false)
-                        }
-                      }}
-                      disabled={(date) => {
-                        if (formData.period.end) {
-                          return date > new Date(formData.period.end)
-                        }
-                        return false
-                      }}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* 화살표 */}
-          <div style={{ 
-            paddingBottom: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <ArrowRight size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
-          </div>
-
-          {/* 종료일 */}
-          <div>
-            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>
-              종료일
-            </div>
-            <div style={{ position: 'relative' }}>
-              <button
-                type="button"
-                onClick={() => setEndDateOpen(!endDateOpen)}
-                className="input"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  borderColor: validationActive && !formData.period.end ? 'hsl(var(--destructive))' : undefined
-                }}
-              >
-                <span style={{ 
-                  color: formData.period.end ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                }}>
-                  {formData.period.end ? new Date(formData.period.end).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'}
-                </span>
-              </button>
-              {endDateOpen && (
-                <>
-                  <div 
-                    style={{
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 999
-                    }}
-                    onClick={() => setEndDateOpen(false)}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      marginTop: '8px',
-                      zIndex: 1000,
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                    }}
-                  >
-                    <DayPicker
-                      mode="single"
-                      selected={formData.period.end ? new Date(formData.period.end) : undefined}
-                      onSelect={(date) => {
-                        if (date) {
-                          const dateStr = date.toISOString().split('T')[0]
-                          setFormData({ ...formData, period: { ...formData.period, end: dateStr } })
-                          setEndDateOpen(false)
-                        }
-                      }}
-                      disabled={(date) => {
-                        if (formData.period.start) {
-                          return date < new Date(formData.period.start)
-                        }
-                        return false
-                      }}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+        <CustomDateRangePicker
+          value={formData.period}
+          onChange={(range) => setFormData({ ...formData, period: range })}
+        />
         {validationActive && (!formData.period.start || !formData.period.end) && (
           <div style={{
             fontSize: '11px',

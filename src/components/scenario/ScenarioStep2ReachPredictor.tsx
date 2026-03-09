@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { X, Calendar, Users, Smartphone, Tv, ArrowRight, ChevronRight, Info } from 'lucide-react'
-import { DayPicker } from 'react-day-picker'
-import 'react-day-picker/dist/style.css'
 import { type ReachPredictorMedia } from './types'
 import { targetGrpOptions } from './constants'
+import { CustomDateRangePicker } from '../reachcaster/CustomDateRangePicker'
 
 interface ScenarioStep2ReachPredictorProps {
   reachPredictorMedia: ReachPredictorMedia[]
@@ -54,10 +53,6 @@ export function ScenarioStep2ReachPredictor({
   const [showPeriodDialog, setShowPeriodDialog] = useState<string | null>(null)
   const [showTargetDialog, setShowTargetDialog] = useState<string | null>(null)
   const [showGlobalTargetDialog, setShowGlobalTargetDialog] = useState(false)
-  const [startDateOpen, setStartDateOpen] = useState(false)
-  const [endDateOpen, setEndDateOpen] = useState(false)
-  const [individualStartDateOpen, setIndividualStartDateOpen] = useState<string | null>(null)
-  const [individualEndDateOpen, setIndividualEndDateOpen] = useState<string | null>(null)
   const [tempPeriod, setTempPeriod] = useState<{ start: string; end: string } | null>(null)
   const [showSummaryTooltip, setShowSummaryTooltip] = useState(false)
   
@@ -211,179 +206,10 @@ export function ScenarioStep2ReachPredictor({
                   일괄 적용
                 </button>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '8px', alignItems: 'end' }}>
-                {/* 시작일 */}
-                <div>
-                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}>
-                    시작일
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <button
-                      type="button"
-                      onClick={() => setStartDateOpen(!startDateOpen)}
-                      className="input"
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: '6px 8px',
-                        minHeight: '36px'
-                      }}
-                    >
-                      <span style={{ 
-                        color: period.start ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                        fontSize: '12px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
-                        {period.start ? new Date(period.start).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'}
-                      </span>
-                    </button>
-                    {startDateOpen && (
-                      <>
-                        <div 
-                          style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 999
-                          }}
-                          onClick={() => setStartDateOpen(false)}
-                        />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '8px',
-                            zIndex: 1000,
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                          }}
-                        >
-                          <DayPicker
-                            mode="single"
-                            selected={period.start ? new Date(period.start) : undefined}
-                            onSelect={(date) => {
-                              if (date) {
-                                const dateStr = date.toISOString().split('T')[0]
-                                onUpdateGlobalSettings?.({ period: { ...period, start: dateStr } })
-                                setStartDateOpen(false)
-                              }
-                            }}
-                            disabled={(date) => {
-                              if (period.end) {
-                                return date > new Date(period.end)
-                              }
-                              return false
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* 화살표 */}
-                <div style={{ 
-                  paddingBottom: '6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <ArrowRight size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                </div>
-
-                {/* 종료일 */}
-                <div>
-                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}>
-                    종료일
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <button
-                      type="button"
-                      onClick={() => setEndDateOpen(!endDateOpen)}
-                      className="input"
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: '6px 8px',
-                        minHeight: '36px'
-                      }}
-                    >
-                      <span style={{ 
-                        color: period.end ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                        fontSize: '12px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
-                        {period.end ? new Date(period.end).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'}
-                      </span>
-                    </button>
-                    {endDateOpen && (
-                      <>
-                        <div 
-                          style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 999
-                          }}
-                          onClick={() => setEndDateOpen(false)}
-                        />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '8px',
-                            zIndex: 1000,
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                          }}
-                        >
-                          <DayPicker
-                            mode="single"
-                            selected={period.end ? new Date(period.end) : undefined}
-                            onSelect={(date) => {
-                              if (date) {
-                                const dateStr = date.toISOString().split('T')[0]
-                                onUpdateGlobalSettings?.({ period: { ...period, end: dateStr } })
-                                setEndDateOpen(false)
-                              }
-                            }}
-                            disabled={(date) => {
-                              if (period.start) {
-                                return date < new Date(period.start)
-                              }
-                              return false
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <CustomDateRangePicker
+                value={period}
+                onChange={(range) => onUpdateGlobalSettings?.({ period: range })}
+              />
             </div>
 
             {/* 타겟 설정 */}
@@ -1147,8 +973,6 @@ export function ScenarioStep2ReachPredictor({
         <div className="dialog-overlay" onClick={() => {
           setShowPeriodDialog(null)
           setTempPeriod(null)
-          setIndividualStartDateOpen(null)
-          setIndividualEndDateOpen(null)
         }}>
           <div className="dialog-content" onClick={(e) => e.stopPropagation()} style={{ width: '500px' }}>
             <div className="dialog-header">
@@ -1158,201 +982,19 @@ export function ScenarioStep2ReachPredictor({
               </p>
             </div>
             <div style={{ padding: '24px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'end' }}>
-                {/* 시작일 */}
-                <div>
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>
-                    시작일
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newState = individualStartDateOpen === showPeriodDialog ? null : showPeriodDialog
-                        setIndividualStartDateOpen(newState)
-                        setIndividualEndDateOpen(null)
-                      }}
-                      className="input"
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <span style={{ 
-                        color: (tempPeriod?.start || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.start || period.start) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {(() => {
-                          const dateStr = tempPeriod?.start || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.start || period.start
-                          return dateStr ? new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'
-                        })()}
-                      </span>
-                    </button>
-                    {individualStartDateOpen === showPeriodDialog && (
-                      <>
-                        <div 
-                          style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 999
-                          }}
-                          onClick={() => setIndividualStartDateOpen(null)}
-                        />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '8px',
-                            zIndex: 1000,
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                          }}
-                        >
-                          <DayPicker
-                            mode="single"
-                            selected={(() => {
-                              const dateStr = tempPeriod?.start || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.start || period.start
-                              return dateStr ? new Date(dateStr) : undefined
-                            })()}
-                            onSelect={(date) => {
-                              if (date) {
-                                const dateStr = date.toISOString().split('T')[0]
-                                const media = reachPredictorMedia.find(m => m.id === showPeriodDialog)
-                                const currentEnd = tempPeriod?.end || media?.customPeriod?.end || period.end
-                                setTempPeriod({ start: dateStr, end: currentEnd })
-                                setIndividualStartDateOpen(null)
-                              }
-                            }}
-                            disabled={(date) => {
-                              const media = reachPredictorMedia.find(m => m.id === showPeriodDialog)
-                              const endDate = tempPeriod?.end || media?.customPeriod?.end || period.end
-                              if (endDate) {
-                                return date > new Date(endDate)
-                              }
-                              return false
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* 화살표 */}
-                <div style={{ 
-                  paddingBottom: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <ArrowRight size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                </div>
-
-                {/* 종료일 */}
-                <div>
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>
-                    종료일
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newState = individualEndDateOpen === showPeriodDialog ? null : showPeriodDialog
-                        setIndividualEndDateOpen(newState)
-                        setIndividualStartDateOpen(null)
-                      }}
-                      className="input"
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <span style={{ 
-                        color: (tempPeriod?.end || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.end || period.end) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                      }}>
-                        {(() => {
-                          const dateStr = tempPeriod?.end || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.end || period.end
-                          return dateStr ? new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '날짜 선택'
-                        })()}
-                      </span>
-                    </button>
-                    {individualEndDateOpen === showPeriodDialog && (
-                      <>
-                        <div 
-                          style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 999
-                          }}
-                          onClick={() => setIndividualEndDateOpen(null)}
-                        />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '8px',
-                            zIndex: 1000,
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
-                          }}
-                        >
-                          <DayPicker
-                            mode="single"
-                            selected={(() => {
-                              const dateStr = tempPeriod?.end || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.end || period.end
-                              return dateStr ? new Date(dateStr) : undefined
-                            })()}
-                            onSelect={(date) => {
-                              if (date) {
-                                const dateStr = date.toISOString().split('T')[0]
-                                const media = reachPredictorMedia.find(m => m.id === showPeriodDialog)
-                                const currentStart = tempPeriod?.start || media?.customPeriod?.start || period.start
-                                setTempPeriod({ start: currentStart, end: dateStr })
-                                setIndividualEndDateOpen(null)
-                              }
-                            }}
-                            disabled={(date) => {
-                              const media = reachPredictorMedia.find(m => m.id === showPeriodDialog)
-                              const startDate = tempPeriod?.start || media?.customPeriod?.start || period.start
-                              if (startDate) {
-                                return date < new Date(startDate)
-                              }
-                              return false
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <CustomDateRangePicker
+                value={{
+                  start: tempPeriod?.start || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.start || period.start,
+                  end: tempPeriod?.end || reachPredictorMedia.find(m => m.id === showPeriodDialog)?.customPeriod?.end || period.end
+                }}
+                onChange={(range) => setTempPeriod(range)}
+              />
             </div>
             <div className="dialog-footer">
               <button 
                 onClick={() => {
                   setShowPeriodDialog(null)
                   setTempPeriod(null)
-                  setIndividualStartDateOpen(null)
-                  setIndividualEndDateOpen(null)
                 }} 
                 className="btn btn-secondary btn-md"
               >
@@ -1365,8 +1007,6 @@ export function ScenarioStep2ReachPredictor({
                   }
                   setShowPeriodDialog(null)
                   setTempPeriod(null)
-                  setIndividualStartDateOpen(null)
-                  setIndividualEndDateOpen(null)
                 }} 
                 className="btn btn-primary btn-md"
               >
