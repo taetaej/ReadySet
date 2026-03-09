@@ -182,6 +182,9 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       // 성공 시
       setShowToast({ type: 'success', message: `"${deletingFolder}" Slot이 성공적으로 삭제되었습니다.` })
       
+      // 선택된 항목들도 초기화
+      setSelectedFolders([])
+      
     } catch (error) {
       // 실패 시
       setShowToast({ type: 'error', message: 'Slot 삭제에 실패했습니다. 다시 시도해주세요.' })
@@ -246,14 +249,8 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     
     // 여러 Slot 삭제 확인 다이얼로그
     const folderText = selectedFolders.length === 1 ? '1개 Slot' : `${selectedFolders.length}개 Slot`
-    if (window.confirm(`선택한 ${folderText}를 삭제하시겠습니까? 삭제된 Slot은 복원할 수 없습니다.`)) {
-      // 실제로는 API 호출
-      setShowToast({ 
-        type: 'success', 
-        message: `${folderText}가 성공적으로 삭제되었습니다.` 
-      })
-      setSelectedFolders([])
-    }
+    setDeletingFolder(folderText)
+    setShowDeleteDialog(true)
   }
 
   const handleFolderClick = (folder: any) => {

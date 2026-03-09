@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, List, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Calendar, Scale, Target, MoreVertical, Edit, Trash2, Copy, Users, User, Search, X, Filter, ArrowRightLeft } from 'lucide-react'
+import { Plus, List, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Calendar, Scale, Target, MoreVertical, Edit, Trash2, Copy, Users, User, Search, X, Filter, ArrowRightLeft, CheckCircle, AlertCircle } from 'lucide-react'
 import { SlotHeader } from './SlotHeader'
 import FrappeGantt from 'frappe-gantt-react'
 
@@ -405,8 +405,8 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
   const navigate = useNavigate()
   
   const [viewMode, setViewMode] = useState<ViewMode>('list')
-  const [sortField, setSortField] = useState<SortField>('id')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const [sortField, setSortField] = useState<SortField>('created')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
   const [selectedScenarios, setSelectedScenarios] = useState<number[]>([])
@@ -428,6 +428,19 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
   
   // 이동 다이얼로그
   const [showMoveDialog, setShowMoveDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deletingScenarios, setDeletingScenarios] = useState<number[]>([])
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
 
   // Slot ID를 고정값으로 설정 (실제로는 props로 받아올 것)
   const slotId = 1
@@ -758,10 +771,8 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                 </button>
                 <button
                   onClick={() => {
-                    if (window.confirm(`선택한 ${selectedScenarios.length}개 시나리오를 삭제하시겠습니까?`)) {
-                      console.log('삭제:', selectedScenarios)
-                      setSelectedScenarios([])
-                    }
+                    setDeletingScenarios(selectedScenarios)
+                    setShowDeleteDialog(true)
                   }}
                   className="btn btn-md"
                   style={{
@@ -815,7 +826,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                         setSearchExpanded(false)
                       }
                     }}
-                    placeholder="시나리오명, 작성자"
+                    placeholder="시나리오명, 생성자"
                     className="input"
                     autoFocus
                     style={{ 
@@ -1041,12 +1052,12 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                   </th>
                   <th onClick={() => handleSort('creator')} style={{ cursor: 'pointer', width: '100px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      작성자 {renderSortIcon('creator')}
+                      생성자 {renderSortIcon('creator')}
                     </div>
                   </th>
                   <th onClick={() => handleSort('created')} style={{ cursor: 'pointer', width: '140px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      작성일시 {renderSortIcon('created')}
+                      생성일시 {renderSortIcon('created')}
                     </div>
                   </th>
                   <th style={{ width: '60px', textAlign: 'right', paddingRight: '1.5rem' }}>
@@ -1685,7 +1696,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                                     {scenario.status === 'Processing' && ` (${scenario.processStep}/${scenario.totalSteps})`}
                                   </span>
                                   <span>•</span>
-                                  {/* 작성자 */}
+                                  {/* 생성자 */}
                                   <span>{scenario.creator}</span>
                                 </div>
                               ) : (
@@ -1912,6 +1923,91 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 다이얼로그 */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오를 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                선택한 {deletingScenarios.length}개 시나리오를 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false)
+                  setDeletingScenarios([])
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    // 실제 API 호출 시뮬레이션
+                    await new Promise(resolve => setTimeout(resolve, 1000))
+                    
+                    // 성공 시
+                    setShowToast({ 
+                      type: 'success', 
+                      message: `${deletingScenarios.length}개 시나리오가 성공적으로 삭제되었습니다.` 
+                    })
+                    setSelectedScenarios([])
+                  } catch (error) {
+                    // 실패 시
+                    setShowToast({ 
+                      type: 'error', 
+                      message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.' 
+                    })
+                  } finally {
+                    setShowDeleteDialog(false)
+                    setDeletingScenarios([])
+                  }
+                }}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 토스트 알림 */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
     </>

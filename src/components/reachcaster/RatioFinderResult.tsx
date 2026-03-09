@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText, Smartphone, Tv, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight, SearchCheck } from 'lucide-react'
+import { Info, Scale, ThumbsUp, Users, Share2, Link2, FileSpreadsheet, FileText, Smartphone, Tv, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight, SearchCheck, CheckCircle, AlertCircle, X } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
@@ -61,6 +61,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
   const [showBestRatio, setShowBestRatio] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   
   const chartRef = useRef<any>(null)
   
@@ -126,6 +128,16 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                 setBestRatioPosition({ x: pointInPixel[0], y: pointInPixel[1] })
                 setTimeout(() => setShowBestRatio(true), 50)
               }
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
             } catch (error) {
               console.error('Failed to recalculate position:', error)
             }
@@ -733,9 +745,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                     onClick={(e) => {
                       e.stopPropagation()
                       setContextMenuOpen(false)
-                      if (window.confirm('시나리오를 삭제하시겠습니까?')) {
-                        console.log('시나리오 삭제')
-                      }
+                      setShowDeleteDialog(true)
                     }}
                     className="dropdown-item"
                   >
@@ -1109,6 +1119,91 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 다이얼로그 */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오를 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                "{scenarioData?.name || '이 시나리오'}"를 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowDeleteDialog(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    // 실제 API 호출 시뮬레이션
+                    await new Promise(resolve => setTimeout(resolve, 1000))
+                    
+                    // 성공 시
+                    setShowToast({ 
+                      type: 'success', 
+                      message: '시나리오가 성공적으로 삭제되었습니다.' 
+                    })
+                    
+                    // 삭제 후 목록으로 이동
+                    setTimeout(() => {
+                      navigate('/reachcaster')
+                    }, 1500)
+                  } catch (error) {
+                    // 실패 시
+                    setShowToast({ 
+                      type: 'error', 
+                      message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.' 
+                    })
+                  } finally {
+                    setShowDeleteDialog(false)
+                  }
+                }}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 토스트 알림 */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
     </AppLayout>

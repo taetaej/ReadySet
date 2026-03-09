@@ -752,12 +752,12 @@
 
   .toast--success {
     border-color: hsl(142.1 76.2% 36.3%);
-    background-color: hsl(142.1 76.2% 36.3% / 0.1);
+    background-color: hsl(var(--background));
   }
 
   .toast--error {
     border-color: hsl(var(--destructive));
-    background-color: hsl(var(--destructive) / 0.1);
+    background-color: hsl(var(--background));
   }
 
   .toast__icon {
