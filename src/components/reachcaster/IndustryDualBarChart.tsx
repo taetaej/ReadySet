@@ -343,7 +343,7 @@ export function IndustryDualBarChart({ industry = '뷰티', onIndustryChange }: 
                       width: `${(product.spendShare / maxSpend) * 100}%`,
                       height: '100%',
                       backgroundColor: 'hsl(var(--foreground))',
-                      opacity: 0.6,
+                      opacity: 0.3,
                       borderRadius: '4px',
                       transition: 'width 0.3s ease, background-color 0.3s ease'
                     }} />
@@ -436,7 +436,7 @@ export function IndustryDualBarChart({ industry = '뷰티', onIndustryChange }: 
                       width: `${(product.ctr / maxCtr) * 100}%`,
                       height: '100%',
                       backgroundColor: 'hsl(var(--foreground))',
-                      opacity: 0.6,
+                      opacity: 0.3,
                       borderRadius: '4px',
                       transition: 'width 0.3s ease, background-color 0.3s ease'
                     }} />
