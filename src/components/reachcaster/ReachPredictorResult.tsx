@@ -210,6 +210,10 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
+      <div style={{
+        marginRight: spinXOpen ? '480px' : '0',
+        transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      }}>
       {/* Scenario Header - Single Line */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
@@ -556,7 +560,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       </div>
 
       {/* Content Area */}
-      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden', marginRight: spinXOpen ? '480px' : '0', transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
         {/* 차트 및 스코어카드 영역 - 뷰포트 너비에 맞춤 */}
         <div style={{
           display: 'grid',
@@ -1270,6 +1274,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
         </div>
       )}
+      </div>
 
       {/* SpinX 버튼 */}
       <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} />
