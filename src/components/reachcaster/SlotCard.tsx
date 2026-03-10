@@ -149,7 +149,7 @@ export function SlotCard({
             <Archive size={18} className="text-muted-foreground" style={{ marginTop: '2px', flexShrink: 0 }} />
             <h3 style={{
               fontSize: '16px',
-              fontWeight: '600',
+              fontWeight: '500',
               margin: 0,
               lineHeight: '1.4',
               overflow: 'hidden',

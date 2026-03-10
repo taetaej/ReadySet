@@ -8,6 +8,8 @@ import { DetailedDataTable } from './RatioFinderDetailTable'
 import { targetGrpOptions } from '../scenario/constants'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
+import { SpinXButton } from '../spinx/SpinXButton'
+import { SpinXPanel } from '../spinx/SpinXPanel'
 
 interface RatioFinderResultProps {
   scenarioData?: any
@@ -64,6 +66,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [showBestRatio, setShowBestRatio] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [spinxOpen, setSpinxOpen] = useState(false)
   
   const chartRef = useRef<any>(null)
   
@@ -436,6 +439,10 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
+      <div style={{
+        marginRight: spinxOpen ? '480px' : '0',
+        transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      }}>
       {/* Scenario Header - 1줄 레이아웃 */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ 
@@ -1207,6 +1214,22 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </button>
         </div>
       )}
+      </div>
+
+      {/* SpinX 플로팅 버튼 */}
+      <SpinXButton 
+        onClick={() => setSpinxOpen(!spinxOpen)}
+        hasNewMessage={false}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* SpinX 채팅 패널 */}
+      <SpinXPanel
+        isOpen={spinxOpen}
+        onClose={() => setSpinxOpen(false)}
+        isDarkMode={isDarkMode}
+        analysisType="ratioFinder"
+      />
     </AppLayout>
   )
 }

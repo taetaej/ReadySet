@@ -1,5 +1,6 @@
 import { SplitText } from '../common/SplitText'
-import { IndustryBubbleChart } from './IndustryBubbleChart'
+// import { IndustryBubbleChart } from './IndustryBubbleChart'
+import { IndustryDualBarChart } from './IndustryDualBarChart'
 import { DataInsightCard } from './DataInsightCard'
 
 interface WelcomeSectionProps {
@@ -48,8 +49,8 @@ export function WelcomeSection({ userName = 'Jia Shin' }: WelcomeSectionProps) {
         {/* Bento Box 1 - Data Insight */}
         <DataInsightCard />
 
-        {/* Bento Box 2 - Industry Bubble Chart */}
-        <IndustryBubbleChart industry="뷰티" />
+        {/* Bento Box 2 - Industry Dual Bar Chart */}
+        <IndustryDualBarChart industry="뷰티" />
 
         {/* Bento Box 3 */}
         <div className="card" style={{
