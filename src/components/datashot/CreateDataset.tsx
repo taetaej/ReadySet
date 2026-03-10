@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
-import { yearOptions, monthOptions, quarterOptions, targetingOptionsByMedia } from './types'
+import { targetingOptionsByMedia } from './types'
 import { IndustryDialog } from './IndustryDialog'
 import { MetricsDialog } from './MetricsDialog'
 import { AdProductsDialog } from './AdProductsDialog'
@@ -12,10 +12,33 @@ import { MetaAdProductsDialog } from './MetaAdProductsDialog'
 import { DisabledSelectBox } from './DisabledSelectBox'
 import { ConfigurationSummary } from './ConfigurationSummary'
 import { MonthRangePicker } from './MonthRangePicker'
+import { SampleDataModal } from './SampleDataModal'
 
 interface CreateDatasetProps {
   slotData?: any
 }
+
+const DatabaseSearchIcon = ({ size = 24, style }: { size?: number; style?: React.CSSProperties }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    style={style}
+  >
+    <path d="M21 11.693V5"/>
+    <path d="m22 22-1.875-1.875"/>
+    <path d="M3 12a9 3 0 0 0 8.697 2.998"/>
+    <path d="M3 5v14a9 3 0 0 0 9.28 2.999"/>
+    <circle cx="18" cy="18" r="3"/>
+    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+  </svg>
+)
 
 export function CreateDataset({ slotData }: CreateDatasetProps) {
   const navigate = useNavigate()
@@ -23,10 +46,12 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   
+  // Step 1 확인 완료 상태
+  const [isStep1Confirmed, setIsStep1Confirmed] = useState(false)
+  
   const [formData, setFormData] = useState({
     datasetName: '',
-    description: '',
-    media: '', // 단일 선택으로 변경
+    media: '',
     industries: [] as string[],
     period: { 
       startYear: '', 
@@ -34,11 +59,11 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       endYear: '', 
       endMonth: '' 
     },
-    periodType: 'month' as 'month' | 'quarter', // 월별/분기별 선택
+    periodType: 'month' as 'month' | 'quarter',
     products: [] as string[],
     metrics: [] as string[],
-    targetingCategory: '', // 타겟팅 기준 (단일 선택)
-    targetingOptions: [] as string[] // 타겟팅 세부 옵션 (다중 선택)
+    targetingCategory: '',
+    targetingOptions: [] as string[]
   })
   
   const [validationActive, setValidationActive] = useState(false)
@@ -47,17 +72,23 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
   const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
   const [metaAdProductsDialogOpen, setMetaAdProductsDialogOpen] = useState(false)
+  const [showSampleDataModal, setShowSampleDataModal] = useState(false)
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
   }, [isDarkMode])
 
   useEffect(() => {
+    if (currentStep >= 2) {
+      setIsStep1Confirmed(true)
+    }
+  }, [currentStep])
+
+  useEffect(() => {
     if (!validationActive) {
       const hasAnyInput = !!(
         formData.datasetName ||
-        formData.description ||
-        formData.media.length > 0 ||
+        formData.media ||
         formData.industries.length > 0 ||
         formData.period.startYear ||
         formData.period.endYear
@@ -107,19 +138,18 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const dateRangeValidation = validateDateRange()
 
   const isStep1Valid = () => {
-    // 타겟팅 카테고리를 선택했는데 옵션을 선택하지 않은 경우 체크
     const isTargetingValid = !formData.targetingCategory || formData.targetingOptions.length > 0
     
     return !!(
       formData.datasetName &&
-      formData.datasetName.trim().length > 0 && // 공백만으로 구성 불가
+      formData.datasetName.trim().length > 0 &&
       formData.media &&
       formData.industries.length > 0 &&
       formData.period.startYear &&
       formData.period.startMonth &&
       formData.period.endYear &&
       formData.period.endMonth &&
-      dateRangeValidation.valid && // 날짜 범위 유효성 체크
+      dateRangeValidation.valid &&
       formData.products.length > 0 &&
       formData.metrics.length > 0 &&
       isTargetingValid
@@ -291,14 +321,14 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         type="text"
                         value={formData.datasetName}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/\n/g, '') // 줄바꿈 차단
+                          const value = e.target.value.replace(/\n/g, '')
                           if (value.length <= 30) {
                             setFormData({ ...formData, datasetName: value })
                           }
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            e.preventDefault() // Enter 키 차단
+                            e.preventDefault()
                           }
                         }}
                         placeholder="데이터셋명을 입력하세요."
@@ -325,43 +355,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         </div>
                       )}
                     </div>
-
-                    {/* 설명 */}
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                        설명
-                      </label>
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => {
-                          if (e.target.value.length <= 200) {
-                            setFormData({ ...formData, description: e.target.value })
-                          }
-                        }}
-                        placeholder="데이터셋에 대한 설명을 입력하세요"
-                        className="input"
-                        style={{ width: '800px', minHeight: '80px', resize: 'vertical' }}
-                        maxLength={200}
-                      />
-                      <div style={{ 
-                        width: '800px',
-                        textAlign: 'right',
-                        fontSize: '12px',
-                        color: 'hsl(var(--muted-foreground))',
-                        marginTop: '4px'
-                      }}>
-                        {formData.description.length}/200
-                      </div>
-                      {validationActive && formData.description.trim().length === 0 && formData.description.length > 0 && (
-                        <div style={{
-                          fontSize: '12px',
-                          color: 'hsl(var(--destructive))',
-                          marginTop: '4px'
-                        }}>
-                          공백만으로 구성할 수 없습니다.
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   {/* 2. 상세 설정 */}
@@ -370,7 +363,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       상세 설정
                     </h3>
 
-                    {/* 매체 (단일 선택) */}
+                    {/* 매체 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         매체 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
@@ -403,10 +396,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                               onChange={() => setFormData({ 
                                 ...formData, 
                                 media,
-                                products: [], // 매체 변경 시 광고상품 초기화
-                                metrics: [], // 매체 변경 시 지표 초기화
-                                targetingCategory: '', // 매체 변경 시 타겟팅 기준 초기화
-                                targetingOptions: [] // 매체 변경 시 타겟팅 옵션 초기화
+                                products: [],
+                                metrics: [],
+                                targetingCategory: '',
+                                targetingOptions: []
                               })}
                               style={{ accentColor: 'hsl(var(--primary))' }}
                             />
@@ -416,7 +409,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       </div>
                     </div>
 
-                    {/* 업종 (다중 선택) */}
+                    {/* 업종 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         업종 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
@@ -588,7 +581,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       )}
                     </div>
 
-                    {/* 지표 (다중 선택) */}
+                    {/* 지표 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                         지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
@@ -740,17 +733,66 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
               {currentStep === 2 && (
                 <div>
                   <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
-                    샘플 데이터 확인
+                    검토 및 추출
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', marginBottom: '32px' }}>
-                    추출될 데이터의 샘플을 확인하세요.
-                  </p>
-                  {/* TODO: Step 2 샘플 데이터 테이블 구현 */}
-                  <div style={{ padding: '20px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '8px' }}>
-                    <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                      샘플 데이터 테이블 (구현 예정)
-                    </p>
+                  
+                  {/* Configuration Summary 박스 */}
+                  <div style={{
+                    padding: '16px 20px',
+                    backgroundColor: 'hsl(var(--muted) / 0.3)',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    marginBottom: '24px'
+                  }}>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--foreground))',
+                      lineHeight: '1.5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <Check size={16} />
+                      우측 Configuration Summary에서 설정 내용을 확인하세요!
+                    </div>
                   </div>
+                  
+                  {/* 샘플 데이터 미리보기 버튼 */}
+                  <button
+                    onClick={() => setShowSampleDataModal(true)}
+                    style={{
+                      width: '100%',
+                      padding: '48px 24px',
+                      backgroundColor: 'hsl(var(--muted) / 0.3)',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '16px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                      e.currentTarget.style.borderColor = 'hsl(var(--primary))'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
+                      e.currentTarget.style.borderColor = 'hsl(var(--border))'
+                    }}
+                  >
+                    <DatabaseSearchIcon size={40} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+                        샘플 데이터 미리보기
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                        클릭하여 추출할 데이터의 샘플을 확인하세요
+                      </div>
+                    </div>
+                  </button>
                 </div>
               )}
             </div>
@@ -785,7 +827,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
           <div style={{ width: '1px', backgroundColor: 'hsl(var(--border))', alignSelf: 'stretch', minHeight: '600px' }} />
 
           {/* 우측: Configuration Summary */}
-          <ConfigurationSummary formData={formData} currentStep={currentStep} />
+          <ConfigurationSummary formData={formData} currentStep={currentStep} isStep1Confirmed={isStep1Confirmed} />
         </div>
       </div>
 
@@ -822,6 +864,13 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         selectedMetrics={formData.metrics}
         onUpdate={(metrics) => setFormData({ ...formData, metrics })}
         media={formData.media}
+      />
+
+      {/* 샘플 데이터 미리보기 모달 */}
+      <SampleDataModal
+        isOpen={showSampleDataModal}
+        onClose={() => setShowSampleDataModal(false)}
+        formData={formData}
       />
     </AppLayout>
   )

@@ -165,10 +165,10 @@ export function DatasetList() {
       // "2024-01" → "2024-01"
       return `${startDate} → ${endDate}`
     } else {
-      // "2024-1" → "2024-1Q"
+      // "2024-1" → "2024-Q1"
       const formatQuarter = (date: string) => {
         const [year, quarter] = date.split('-')
-        return `${year}-${quarter}Q`
+        return `${year}-Q${quarter}`
       }
       return `${formatQuarter(startDate)} → ${formatQuarter(endDate)}`
     }
