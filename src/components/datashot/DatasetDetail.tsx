@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { DollarSign, MousePointerClick, TrendingUp, Eye, Link2, FileSpreadsheet, Share2, Database, Info, MoreVertical, Copy, ArrowRightLeft, Trash2 } from 'lucide-react'
+import { DollarSign, MousePointerClick, TrendingUp, Eye, Link2, FileSpreadsheet, Share2, Database, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -26,6 +26,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -48,6 +49,35 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     console.log('CSV 다운로드')
     setShowToast({ type: 'success', message: 'CSV 파일을 다운로드합니다.' })
     setExportMenuOpen(false)
+  }
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc'
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
+    }
+    setSortConfig({ key, direction })
+  }
+
+  const getSortedData = () => {
+    if (!sortConfig) return sampleData
+    
+    const sorted = [...sampleData].sort((a: any, b: any) => {
+      const aValue = a[sortConfig.key]
+      const bValue = b[sortConfig.key]
+      
+      // 숫자 형식 처리 (쉼표 제거)
+      const aNum = typeof aValue === 'string' ? parseFloat(aValue.replace(/[^0-9.-]/g, '')) : aValue
+      const bNum = typeof bValue === 'string' ? parseFloat(bValue.replace(/[^0-9.-]/g, '')) : bValue
+      
+      if (sortConfig.direction === 'asc') {
+        return aNum > bNum ? 1 : -1
+      } else {
+        return aNum < bNum ? 1 : -1
+      }
+    })
+    
+    return sorted
   }
 
   // 샘플 Key Metrics 데이터
@@ -82,60 +112,55 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     }
   ]
 
-  // 샘플 테이블 데이터
-  const sampleData = [
-    {
-      period: '2024-01',
-      media: 'Meta',
-      industryLarge: '제조업',
-      industryMedium: '전자제품',
-      industrySmall: '스마트폰',
-      adProduct1: 'Post Engagement',
-      adProduct2: 'Auction',
-      adProduct3: 'Facebook',
-      targetingOption: '기기유형 > Mobile',
-      impressions: '1,234,567',
-      clicks: '28,901',
-      cost: '₩12,345,678',
-      ctr: '2.34%',
-      cpc: '₩427',
-      cpm: '₩9,987'
-    },
-    {
-      period: '2024-02',
-      media: 'Meta',
-      industryLarge: '제조업',
-      industryMedium: '전자제품',
-      industrySmall: '스마트폰',
-      adProduct1: 'Post Engagement',
-      adProduct2: 'Auction',
-      adProduct3: 'Instagram',
-      targetingOption: '기기유형 > Mobile',
-      impressions: '1,456,789',
-      clicks: '32,145',
-      cost: '₩14,567,890',
-      ctr: '2.21%',
-      cpc: '₩453',
-      cpm: '₩10,001'
-    },
-    {
-      period: '2024-03',
-      media: 'Meta',
-      industryLarge: '제조업',
-      industryMedium: '전자제품',
-      industrySmall: '스마트폰',
-      adProduct1: 'Post Engagement',
-      adProduct2: 'Auction',
-      adProduct3: 'Facebook',
-      targetingOption: '게재위치 > Feed',
-      impressions: '1,678,901',
-      clicks: '39,234',
-      cost: '₩16,789,012',
-      ctr: '2.34%',
-      cpc: '₩428',
-      cpm: '₩10,002'
+  // 조회조건 데이터 (실제로는 props나 API에서 받아올 데이터)
+  const configData = datasetData?.config || {
+    media: 'Meta',
+    targetingCategory: '기기유형',
+    metrics: ['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']
+  }
+
+  // 광고상품 컬럼 구조 동적 생성
+  const getAdProductColumns = () => {
+    if (configData.media === 'Meta') {
+      return [
+        { key: 'objective', label: '캠페인 목표' },
+        { key: 'buyingType', label: '구매 유형' },
+        { key: 'platform', label: '플랫폼' },
+        { key: 'performanceGoal', label: '성과 목표' }
+      ]
     }
-  ]
+    return [{ key: 'product', label: '광고상품' }]
+  }
+
+  const adProductColumns = getAdProductColumns()
+
+  // 샘플 테이블 데이터 (5000행 제한)
+  const generateSampleData = () => {
+    const data = []
+    for (let i = 0; i < 50; i++) { // 실제로는 5000행
+      data.push({
+        period: '2024-01',
+        media: configData.media,
+        industryLarge: '제조업',
+        industryMedium: '전자제품',
+        industrySmall: '스마트폰',
+        objective: 'Post Engagement',
+        buyingType: 'Auction',
+        platform: i % 2 === 0 ? 'Facebook' : 'Instagram',
+        performanceGoal: '—',
+        targetingOption: configData.targetingCategory ? '기기유형 > Mobile' : null,
+        impressions: (1234567 + i * 1000).toLocaleString(),
+        clicks: (28901 + i * 100).toLocaleString(),
+        cost: (12345678 + i * 10000).toLocaleString(),
+        ctr: '2.34%',
+        cpc: (427 + i).toLocaleString(),
+        cpm: (9987 + i * 10).toLocaleString()
+      })
+    }
+    return data
+  }
+
+  const sampleData = generateSampleData()
 
   return (
     <AppLayout
@@ -516,16 +541,32 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
         {/* 추출 데이터 테이블 */}
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            fontFamily: 'Paperlogy, sans-serif',
-            margin: 0,
-            marginBottom: '16px',
-            color: 'hsl(var(--foreground))'
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            marginBottom: '12px'
           }}>
-            추출 데이터
-          </h3>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              color: 'hsl(var(--foreground))'
+            }}>
+              Extracted Data
+            </h3>
+            <div style={{
+              fontSize: '12px',
+              color: 'hsl(var(--muted-foreground))',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <Info size={14} />
+              전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+            </div>
+          </div>
           <div style={{
             backgroundColor: 'hsl(var(--card))',
             border: '1px solid hsl(var(--border))',
@@ -536,33 +577,51 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
                 width: '100%', 
-                borderCollapse: 'collapse',
-                fontSize: '13px'
+                borderCollapse: 'collapse'
               }}>
                 <thead>
                   <tr style={{ 
                     backgroundColor: 'hsl(var(--muted))',
                     borderBottom: '1px solid hsl(var(--border))'
                   }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>기간</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>매체</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>업종(대)</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>업종(중)</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>업종(소)</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>광고상품 1</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>광고상품 2</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>광고상품 3</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>타겟팅 옵션</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>노출수</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>클릭수</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>광고비</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>CTR</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>CPC</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>CPM</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>기간</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>매체</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(대)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(중)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(소)</th>
+                    {adProductColumns.map((col) => (
+                      <th key={col.key} style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>{col.label}</th>
+                    ))}
+                    {configData.targetingCategory && (
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>{configData.targetingCategory}</th>
+                    )}
+                    {/* 지표 컬럼 - 정렬 가능 */}
+                    {configData.metrics.map((metric: string) => (
+                      <th 
+                        key={metric}
+                        onClick={() => handleSort(metric)}
+                        style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'right', 
+                          fontWeight: '600', 
+                          whiteSpace: 'nowrap',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          userSelect: 'none'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                          {metric}
+                          {sortConfig?.key === metric && (
+                            sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                          )}
+                        </div>
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {sampleData.map((row, index) => (
+                  {getSortedData().map((row, index) => (
                     <tr 
                       key={index}
                       style={{ 
@@ -572,21 +631,42 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.period}</td>
-                      <td style={{ padding: '12px 16px' }}>{row.media}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.industryLarge}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.industryMedium}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.industrySmall}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.adProduct1}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.adProduct2}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.adProduct3}</td>
-                      <td style={{ padding: '12px 16px', color: 'hsl(var(--muted-foreground))' }}>{row.targetingOption}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.impressions}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.clicks}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.cost}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.ctr}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.cpc}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'hsl(var(--muted-foreground))' }}>{row.cpm}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.period}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }}>{row.media}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryLarge}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryMedium}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industrySmall}</td>
+                      {adProductColumns.map((col) => (
+                        <td key={col.key} style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">
+                          {(row as any)[col.key] || '—'}
+                        </td>
+                      ))}
+                      {configData.targetingCategory && (
+                        <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">
+                          {row.targetingOption || '—'}
+                        </td>
+                      )}
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
+                        {row.impressions}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
+                      </td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
+                        {row.clicks}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
+                      </td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
+                        {row.cost}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                      </td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{row.ctr}</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
+                        {row.cpc}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                      </td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
+                        {row.cpm}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
