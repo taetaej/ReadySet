@@ -590,7 +590,12 @@ export function DatasetList() {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     onClick={() => {
                       if (isClickable) {
-                        // navigate(`/datashot/${dataset.id}`)
+                        navigate(`/datashot/${dataset.id}`, {
+                          state: {
+                            datasetData: dataset,
+                            slotData: slotData
+                          }
+                        })
                       }
                     }}
                   >

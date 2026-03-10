@@ -1,4 +1,5 @@
 import { Database } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
 
 interface SampleDataModalProps {
   isOpen: boolean
@@ -21,6 +22,32 @@ interface SampleDataModalProps {
 }
 
 export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const metricsScrollRef = useRef<HTMLDivElement>(null)
+  const fixedTableRef = useRef<HTMLTableElement>(null)
+  const metricsTableRef = useRef<HTMLTableElement>(null)
+  const [fixedColumnsWidth, setFixedColumnsWidth] = useState(0)
+  const [metricsTableWidth, setMetricsTableWidth] = useState(0)
+
+  useEffect(() => {
+    if (fixedTableRef.current) {
+      // 실제 렌더링된 고정 테이블의 너비를 측정
+      const width = fixedTableRef.current.offsetWidth
+      setFixedColumnsWidth(width)
+    }
+    if (metricsTableRef.current) {
+      // 실제 렌더링된 지표 테이블의 너비를 측정
+      const width = metricsTableRef.current.scrollWidth
+      setMetricsTableWidth(width)
+    }
+  }, [formData.media, formData.targetingCategory, formData.metrics])
+
+  const handleScrollbarScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (metricsScrollRef.current) {
+      metricsScrollRef.current.scrollLeft = e.currentTarget.scrollLeft
+    }
+  }
+
   if (!isOpen) return null
 
   // 광고상품 컬럼 구조 동적 생성
@@ -78,7 +105,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
               color: 'hsl(var(--muted-foreground))'
             }}>
               <Database size={14} />
-              전체 데이터: 1,234행
+              추출할 전체 데이터 : 1,234 개 행
             </span>
           </div>
 
@@ -92,245 +119,273 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
             display: 'flex',
             flexDirection: 'column'
           }}>
-            {/* 테이블 스크롤 영역 */}
-            <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
+            {/* 테이블 영역 */}
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}>
+              <div style={{ display: 'flex' }}>
+                {/* 고정 컬럼 테이블 */}
+                <table 
+                  ref={fixedTableRef}
+                  style={{ 
+                    borderCollapse: 'separate',
+                    borderSpacing: 0,
+                    flexShrink: 0
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      <th style={{ 
+                        padding: '8px 10px', 
+                        textAlign: 'left', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'hsl(var(--muted))',
+                        width: '80px',
+                        borderBottom: '1px solid hsl(var(--border))'
+                      }}>기간</th>
+                      <th style={{ 
+                        padding: '8px 10px', 
+                        textAlign: 'left', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'hsl(var(--muted))',
+                        width: '100px',
+                        borderBottom: '1px solid hsl(var(--border))'
+                      }}>매체</th>
+                      <th style={{ 
+                        padding: '8px 10px', 
+                        textAlign: 'left', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'hsl(var(--muted))',
+                        width: '90px',
+                        borderBottom: '1px solid hsl(var(--border))'
+                      }}>업종(대)</th>
+                      <th style={{ 
+                        padding: '8px 10px', 
+                        textAlign: 'left', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'hsl(var(--muted))',
+                        width: '90px',
+                        borderBottom: '1px solid hsl(var(--border))'
+                      }}>업종(중)</th>
+                      <th style={{ 
+                        padding: '8px 10px', 
+                        textAlign: 'left', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'hsl(var(--muted))',
+                        width: '90px',
+                        borderBottom: '1px solid hsl(var(--border))'
+                      }}>업종(소)</th>
+                      {adProductColumns.map((col) => (
+                        <th key={col.key} style={{ 
+                          padding: '8px 10px', 
+                          textAlign: 'left', 
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 'hsl(var(--muted))',
+                          width: '100px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>{col.label}</th>
+                      ))}
+                      {formData.targetingCategory && (
+                        <th style={{ 
+                          padding: '8px 10px', 
+                          textAlign: 'left', 
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 'hsl(var(--muted))',
+                          width: '100px',
+                          borderBottom: '1px solid hsl(var(--border))',
+                          boxShadow: '2px 0 4px rgba(0,0,0,0.1)'
+                        }}>{formData.targetingCategory}</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4, 5].map((row) => (
+                      <tr key={row}>
+                        <td style={{ 
+                          padding: '8px 10px', 
+                          fontSize: '12px', 
+                          color: 'hsl(var(--muted-foreground))',
+                          whiteSpace: 'nowrap',
+                          width: '80px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>
+                          {formData.period.startYear ? 
+                            formData.periodType === 'quarter'
+                              ? `${formData.period.startYear}-Q${formData.period.startMonth}`
+                              : `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}`
+                            : '—'}
+                        </td>
+                        <td style={{ 
+                          padding: '8px 10px', 
+                          fontSize: '12px',
+                          whiteSpace: 'nowrap',
+                          width: '100px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>{formData.media || '—'}</td>
+                        <td style={{ 
+                          padding: '8px 10px', 
+                          fontSize: '12px', 
+                          color: 'hsl(var(--muted-foreground))',
+                          whiteSpace: 'nowrap',
+                          width: '90px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>{formData.industries[0]?.split(' > ')[0] || '—'}</td>
+                        <td style={{ 
+                          padding: '8px 10px', 
+                          fontSize: '12px', 
+                          color: 'hsl(var(--muted-foreground))',
+                          whiteSpace: 'nowrap',
+                          width: '90px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>{formData.industries[0]?.split(' > ')[1] || '—'}</td>
+                        <td style={{ 
+                          padding: '8px 10px', 
+                          fontSize: '12px', 
+                          color: 'hsl(var(--muted-foreground))',
+                          whiteSpace: 'nowrap',
+                          width: '90px',
+                          borderBottom: '1px solid hsl(var(--border))'
+                        }}>{formData.industries[0]?.split(' > ')[2] || '—'}</td>
+                        {adProductColumns.map((col) => (
+                          <td key={col.key} style={{ 
+                            padding: '8px 10px', 
+                            fontSize: '12px', 
+                            color: 'hsl(var(--muted-foreground))',
+                            whiteSpace: 'nowrap',
+                            width: '100px',
+                            borderBottom: '1px solid hsl(var(--border))'
+                          }}>—</td>
+                        ))}
+                        {formData.targetingCategory && (
+                          <td style={{ 
+                            padding: '8px 10px', 
+                            fontSize: '12px', 
+                            color: 'hsl(var(--muted-foreground))',
+                            whiteSpace: 'nowrap',
+                            width: '100px',
+                            borderBottom: '1px solid hsl(var(--border))',
+                            boxShadow: '2px 0 4px rgba(0,0,0,0.1)'
+                          }}>{formData.targetingOptions[0] || '—'}</td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* 지표 컬럼 테이블 */}
+                <div 
+                  ref={metricsScrollRef}
+                  style={{ 
+                    flex: 1,
+                    overflowX: 'hidden',
+                    overflowY: 'hidden',
+                    minWidth: 0
+                  }}
+                >
+                  <table 
+                    ref={metricsTableRef}
+                    style={{ 
+                      borderCollapse: 'separate',
+                      borderSpacing: 0,
+                      width: '100%',
+                      minWidth: `${formData.metrics.length * 110}px`
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        {formData.metrics.map((metric) => (
+                          <th key={metric} style={{ 
+                            padding: '8px 10px', 
+                            textAlign: 'right', 
+                            fontSize: '12px', 
+                            fontWeight: '600', 
+                            whiteSpace: 'nowrap',
+                            backgroundColor: 'hsl(var(--muted))',
+                            minWidth: '110px',
+                            borderBottom: '1px solid hsl(var(--border))'
+                          }}>{metric}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[1, 2, 3, 4, 5].map((row) => (
+                        <tr key={row}>
+                          {formData.metrics.map((metric) => (
+                            <td key={metric} style={{ 
+                              padding: '8px 10px', 
+                              fontSize: '12px', 
+                              textAlign: 'right', 
+                              color: 'hsl(var(--muted-foreground))',
+                              whiteSpace: 'nowrap',
+                              minWidth: '110px',
+                              borderBottom: '1px solid hsl(var(--border))'
+                            }}>—</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* 가로 스크롤바 영역 */}
+            <div style={{ display: 'flex', borderTop: '1px solid hsl(var(--border))' }}>
+              {/* 고정 컬럼 영역 - 실제 테이블과 동일한 구조 */}
               <table style={{ 
-                width: 'max-content', 
-                minWidth: '100%', 
                 borderCollapse: 'separate',
-                borderSpacing: 0
+                borderSpacing: 0,
+                flexShrink: 0,
+                visibility: 'hidden'
               }}>
                 <thead>
                   <tr>
-                    {/* 기간 */}
-                    <th style={{ 
-                      padding: '12px 16px', 
-                      textAlign: 'left', 
-                      fontSize: '13px', 
-                      fontWeight: '600', 
-                      whiteSpace: 'nowrap',
-                      position: 'sticky',
-                      left: 0,
-                      top: 0,
-                      backgroundColor: 'hsl(var(--muted))',
-                      zIndex: 11,
-                      width: '120px',
-                      borderBottom: '1px solid hsl(var(--border))'
-                    }}>
-                      기간
-                    </th>
-                    
-                    {/* 매체 */}
-                    <th style={{ 
-                      padding: '12px 16px', 
-                      textAlign: 'left', 
-                      fontSize: '13px', 
-                      fontWeight: '600', 
-                      whiteSpace: 'nowrap',
-                      position: 'sticky',
-                      left: '120px',
-                      top: 0,
-                      backgroundColor: 'hsl(var(--muted))',
-                      zIndex: 11,
-                      width: '120px',
-                      borderBottom: '1px solid hsl(var(--border))'
-                    }}>
-                      매체
-                    </th>
-                    
-                    {/* 업종 */}
-                    <th style={{ 
-                      padding: '12px 16px', 
-                      textAlign: 'left', 
-                      fontSize: '13px', 
-                      fontWeight: '600', 
-                      whiteSpace: 'nowrap',
-                      position: 'sticky',
-                      left: '240px',
-                      top: 0,
-                      backgroundColor: 'hsl(var(--muted))',
-                      zIndex: 11,
-                      width: '180px',
-                      borderBottom: '1px solid hsl(var(--border))'
-                    }}>
-                      업종
-                    </th>
-                    
-                    {/* 광고상품 컬럼들 (동적) */}
-                    {adProductColumns.map((col, idx) => {
-                      const leftPosition = 420 + (idx * 160)
-                      const isLast = idx === adProductColumns.length - 1 && !formData.targetingCategory
-                      
-                      return (
-                        <th key={col.key} style={{ 
-                          padding: '12px 16px', 
-                          textAlign: 'left', 
-                          fontSize: '13px', 
-                          fontWeight: '600', 
-                          whiteSpace: 'nowrap',
-                          position: 'sticky',
-                          left: `${leftPosition}px`,
-                          top: 0,
-                          backgroundColor: 'hsl(var(--muted))',
-                          zIndex: 11,
-                          width: '160px',
-                          borderBottom: '1px solid hsl(var(--border))',
-                          boxShadow: isLast ? '2px 0 4px rgba(0,0,0,0.1)' : 'none'
-                        }}>
-                          {col.label}
-                        </th>
-                      )
-                    })}
-                    
-                    {/* 타겟팅 옵션 (있을 경우 고정) */}
-                    {formData.targetingCategory && (
-                      <th style={{ 
-                        padding: '12px 16px', 
-                        textAlign: 'left', 
-                        fontSize: '13px', 
-                        fontWeight: '600', 
-                        whiteSpace: 'nowrap',
-                        position: 'sticky',
-                        left: `${420 + (adProductColumns.length * 160)}px`,
-                        top: 0,
-                        backgroundColor: 'hsl(var(--muted))',
-                        zIndex: 11,
-                        width: '160px',
-                        borderBottom: '1px solid hsl(var(--border))',
-                        boxShadow: '2px 0 4px rgba(0,0,0,0.1)'
-                      }}>
-                        타겟팅 옵션
-                      </th>
-                    )}
-                    
-                    {/* 지표 컬럼 (스크롤 영역) */}
-                    {formData.metrics.map((metric) => (
-                      <th key={metric} style={{ 
-                        padding: '12px 16px', 
-                        textAlign: 'right', 
-                        fontSize: '13px', 
-                        fontWeight: '600', 
-                        whiteSpace: 'nowrap',
-                        backgroundColor: 'hsl(var(--muted))',
-                        width: '140px',
-                        borderBottom: '1px solid hsl(var(--border))'
-                      }}>
-                        {metric}
-                      </th>
+                    <th style={{ padding: '8px 10px', width: '80px', height: '1px' }}></th>
+                    <th style={{ padding: '8px 10px', width: '100px', height: '1px' }}></th>
+                    <th style={{ padding: '8px 10px', width: '90px', height: '1px' }}></th>
+                    <th style={{ padding: '8px 10px', width: '90px', height: '1px' }}></th>
+                    <th style={{ padding: '8px 10px', width: '90px', height: '1px' }}></th>
+                    {adProductColumns.map((col) => (
+                      <th key={col.key} style={{ padding: '8px 10px', width: '100px', height: '1px' }}></th>
                     ))}
+                    {formData.targetingCategory && (
+                      <th style={{ padding: '8px 10px', width: '100px', height: '1px' }}></th>
+                    )}
                   </tr>
                 </thead>
-                <tbody>
-                  {/* 샘플 데이터 5행 */}
-                  {[1, 2, 3, 4, 5].map((row) => (
-                    <tr key={row}>
-                      {/* 기간 */}
-                      <td style={{ 
-                        padding: '12px 16px', 
-                        fontSize: '13px', 
-                        color: 'hsl(var(--muted-foreground))',
-                        position: 'sticky',
-                        left: 0,
-                        backgroundColor: 'hsl(var(--background))',
-                        zIndex: 10,
-                        whiteSpace: 'nowrap',
-                        borderBottom: '1px solid hsl(var(--border))'
-                      }}>
-                        {formData.period.startYear ? 
-                          formData.periodType === 'quarter'
-                            ? `${formData.period.startYear}-Q${formData.period.startMonth}`
-                            : `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}`
-                          : '—'}
-                      </td>
-                      
-                      {/* 매체 */}
-                      <td style={{ 
-                        padding: '12px 16px', 
-                        fontSize: '13px',
-                        position: 'sticky',
-                        left: '120px',
-                        backgroundColor: 'hsl(var(--background))',
-                        zIndex: 10,
-                        whiteSpace: 'nowrap',
-                        borderBottom: '1px solid hsl(var(--border))'
-                      }}>
-                        {formData.media || '—'}
-                      </td>
-                      
-                      {/* 업종 */}
-                      <td style={{ 
-                        padding: '12px 16px', 
-                        fontSize: '13px', 
-                        color: 'hsl(var(--muted-foreground))',
-                        position: 'sticky',
-                        left: '240px',
-                        backgroundColor: 'hsl(var(--background))',
-                        zIndex: 10,
-                        whiteSpace: 'nowrap',
-                        borderBottom: '1px solid hsl(var(--border))'
-                      }}>
-                        {formData.industries[0]?.split(' > ').join(' > ') || '—'}
-                      </td>
-                      
-                      {/* 광고상품 데이터 (동적) */}
-                      {adProductColumns.map((col, idx) => {
-                        const leftPosition = 420 + (idx * 160)
-                        const isLast = idx === adProductColumns.length - 1 && !formData.targetingCategory
-                        
-                        return (
-                          <td key={col.key} style={{ 
-                            padding: '12px 16px', 
-                            fontSize: '13px', 
-                            color: 'hsl(var(--muted-foreground))',
-                            position: 'sticky',
-                            left: `${leftPosition}px`,
-                            backgroundColor: 'hsl(var(--background))',
-                            zIndex: 10,
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid hsl(var(--border))',
-                            boxShadow: isLast ? '2px 0 4px rgba(0,0,0,0.1)' : 'none'
-                          }}>
-                            —
-                          </td>
-                        )
-                      })}
-                      
-                      {/* 타겟팅 옵션 (있을 경우 고정) */}
-                      {formData.targetingCategory && (
-                        <td style={{ 
-                          padding: '12px 16px', 
-                          fontSize: '13px', 
-                          color: 'hsl(var(--muted-foreground))',
-                          position: 'sticky',
-                          left: `${420 + (adProductColumns.length * 160)}px`,
-                          backgroundColor: 'hsl(var(--background))',
-                          zIndex: 10,
-                          whiteSpace: 'nowrap',
-                          borderBottom: '1px solid hsl(var(--border))',
-                          boxShadow: '2px 0 4px rgba(0,0,0,0.1)'
-                        }}>
-                          {formData.targetingOptions[0] || '—'}
-                        </td>
-                      )}
-                      
-                      {/* 지표 데이터 (스크롤 영역) */}
-                      {formData.metrics.map((metric) => (
-                        <td key={metric} style={{ 
-                          padding: '12px 16px', 
-                          fontSize: '13px', 
-                          textAlign: 'right', 
-                          color: 'hsl(var(--muted-foreground))',
-                          whiteSpace: 'nowrap',
-                          backgroundColor: 'hsl(var(--background))',
-                          borderBottom: '1px solid hsl(var(--border))'
-                        }}>
-                          —
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
               </table>
+              
+              {/* 지표 영역 스크롤바 */}
+              <div 
+                ref={scrollContainerRef}
+                onScroll={handleScrollbarScroll}
+                style={{ 
+                  flex: 1,
+                  overflowX: 'auto',
+                  overflowY: 'hidden'
+                }}
+              >
+                <div style={{ 
+                  height: '1px',
+                  width: metricsTableWidth > 0 ? `${metricsTableWidth + 20}px` : '1px'
+                }} />
+              </div>
             </div>
           </div>
         </div>

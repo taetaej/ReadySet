@@ -245,43 +245,211 @@ export const brandIndustryMap: { [brand: string]: string } = {
   '청호나이스': '가정용전기전자 > 가사용전기전자 > 가습기'
 }
 
-// 매체별 광고상품 데이터
+// 매체별 광고상품 데이터 구조
+export interface AdProductField {
+  label: string
+  key: string
+  required: boolean
+  options: string[]
+}
+
+export interface MediaAdProductStructure {
+  fields: AdProductField[]
+}
+
+// Meta 광고상품 구조
+export const metaAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '캠페인 목표',
+      key: 'campaignObjective',
+      required: true,
+      options: [
+        'POST_ENGAGEMENT',
+        'REACH',
+        'VIDEO_VIEWS',
+        'CONVERSIONS',
+        'LEAD_GENERATION',
+        'OUTCOME_TRAFFIC'
+      ]
+    },
+    {
+      label: '구매 유형',
+      key: 'buyingType',
+      required: false,
+      options: ['AUCTION', 'RESERVED']
+    },
+    {
+      label: '플랫폼',
+      key: 'platform',
+      required: false,
+      options: [
+        'facebook',
+        'instagram',
+        'facebook&instagram',
+        'messenger',
+        'audience_network',
+        'facebook&instagram&messenger'
+      ]
+    },
+    {
+      label: '성과 목표',
+      key: 'performanceGoal',
+      required: false,
+      options: [
+        'CLICKS',
+        'LINK_CLICKS',
+        'OFFSITE_CONVERSIONS',
+        'LEAD_GENERATION',
+        'IMPRESSIONS',
+        'REACH'
+      ]
+    }
+  ]
+}
+
+// Google Ads 광고상품 구조
+export const googleAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '캠페인 유형',
+      key: 'campaignType',
+      required: true,
+      options: ['DEMAND_GEN', 'DISCOVERY', 'DISPLAY', 'MULTI_CHANNEL']
+    },
+    {
+      label: '캠페인 하위 유형',
+      key: 'campaignSubType',
+      required: false,
+      options: ['APP_CAMPAIGN', 'VIDEO_ACTION']
+    },
+    {
+      label: '입찰 전략',
+      key: 'biddingStrategy',
+      required: false,
+      options: ['TARGET_CPA', 'TARGET_CPM']
+    },
+    {
+      label: '광고그룹 유형',
+      key: 'adGroupType',
+      required: false,
+      options: ['DISPLAY_STANDARD', 'UNSPECIFIED', 'UNKNOWN']
+    },
+    {
+      label: '광고 유형',
+      key: 'adType',
+      required: false,
+      options: ['VIDEO_BUMPER_AD', 'VIDEO_RESPONSIVE_AD']
+    }
+  ]
+}
+
+// 카카오 광고상품 구조
+export const kakaoAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '광고 목표',
+      key: 'adGoal',
+      required: true,
+      options: ['CONVERSION', 'REACH', 'VISITING']
+    },
+    {
+      label: '광고 유형',
+      key: 'adType',
+      required: false,
+      options: ['DISPLAY', 'VIDEO', 'TALK_CHANNEL']
+    },
+    {
+      label: '광고 목표 설정',
+      key: 'goalSetting',
+      required: false,
+      options: ['CATALOG', 'TALK_CHANNEL']
+    },
+    {
+      label: '입찰 방식',
+      key: 'biddingMethod',
+      required: false,
+      options: ['CPC', 'CPM', 'CPV']
+    },
+    {
+      label: '소재 유형',
+      key: 'creativeType',
+      required: false,
+      options: ['VIDEO_NATIVE', 'IMAGE_BANNER', 'WIDE_MESSAGE']
+    }
+  ]
+}
+
+// 네이버 GFA 광고상품 구조
+export const naverGfaAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '캠페인 목적',
+      key: 'campaignPurpose',
+      required: true,
+      options: ['SHOPPING', 'CONVERSION', 'INSTALL_APP']
+    },
+    {
+      label: '청구 기준',
+      key: 'billingType',
+      required: false,
+      options: ['CPC', 'CPM', 'CPV']
+    },
+    {
+      label: '게재 위치',
+      key: 'placement',
+      required: false,
+      options: ['F_BANNER', 'M_MAIN']
+    }
+  ]
+}
+
+// 네이버 NOSP 광고상품 구조
+export const naverNospAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '광고상품명',
+      key: 'productName',
+      required: true,
+      options: ['M_메인_브랜딩DA', 'M_메인_브랜딩DA_아웃스트림동영상']
+    },
+    {
+      label: '상품 유형',
+      key: 'productType',
+      required: false,
+      options: ['배너_이미지_확장형', '배너_이미지형']
+    },
+    {
+      label: '과금 유형',
+      key: 'chargeType',
+      required: false,
+      options: ['CPM', 'CPT']
+    }
+  ]
+}
+
+// 매체별 광고상품 구조 매핑
+export const adProductStructureByMedia: { [media: string]: MediaAdProductStructure } = {
+  'Meta': metaAdProductStructure,
+  'Google Ads': googleAdProductStructure,
+  'kakao모먼트': kakaoAdProductStructure,
+  '네이버 성과형 DA': naverGfaAdProductStructure,
+  '네이버 보장형 DA': naverNospAdProductStructure
+}
+
+// 하위 호환성을 위한 기존 데이터 유지
+export const metaAdProducts = {
+  campaignObjectives: metaAdProductStructure.fields[0].options,
+  buyingTypes: metaAdProductStructure.fields[1].options,
+  platforms: metaAdProductStructure.fields[2].options,
+  performanceGoals: metaAdProductStructure.fields[3].options
+}
+
 export interface MetaAdProductCombination {
   campaignObjective: string
   buyingType: string
   performanceGoal: string
   platform: string
-}
-
-export const metaAdProducts = {
-  campaignObjectives: [
-    'POST_ENGAGEMENT',
-    'REACH',
-    'VIDEO_VIEWS',
-    'CONVERSIONS',
-    'LEAD_GENERATION',
-    'OUTCOME_TRAFFIC'
-  ],
-  buyingTypes: [
-    'AUCTION',
-    'RESERVED'
-  ],
-  platforms: [
-    'facebook',
-    'instagram',
-    'facebook&instagram',
-    'messenger',
-    'audience_network',
-    'facebook&instagram&messenger'
-  ],
-  performanceGoals: [
-    'CLICKS',
-    'LINK_CLICKS',
-    'OFFSITE_CONVERSIONS',
-    'LEAD_GENERATION',
-    'IMPRESSIONS',
-    'REACH'
-  ]
 }
 
 export const adProductsByMedia: { [media: string]: string[] } = {
