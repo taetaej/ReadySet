@@ -346,7 +346,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
             </div>
 
             {/* 가로 스크롤바 영역 */}
-            <div style={{ display: 'flex', borderTop: '1px solid hsl(var(--border))' }}>
+            <div style={{ display: 'flex', borderTop: '1px solid hsl(var(--border))', height: '20px' }}>
               {/* 고정 컬럼 영역 - 실제 테이블과 동일한 구조 */}
               <table style={{ 
                 borderCollapse: 'separate',
@@ -378,12 +378,13 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
                 style={{ 
                   flex: 1,
                   overflowX: 'auto',
-                  overflowY: 'hidden'
+                  overflowY: 'hidden',
+                  height: '20px'
                 }}
               >
                 <div style={{ 
-                  height: '1px',
-                  width: metricsTableWidth > 0 ? `${metricsTableWidth + 20}px` : '1px'
+                  height: '20px',
+                  width: metricsTableWidth > 0 ? `${metricsTableWidth}px` : `${formData.metrics.length * 110}px`
                 }} />
               </div>
             </div>

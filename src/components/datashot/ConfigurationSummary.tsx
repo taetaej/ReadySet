@@ -59,7 +59,7 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
             <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
-              Step 1 · Basic Information
+              Step 1 · Selection Overview
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <SummaryItem label="데이터셋명" value={formData.datasetName || '—'} />
