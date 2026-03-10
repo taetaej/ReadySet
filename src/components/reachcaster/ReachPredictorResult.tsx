@@ -1280,6 +1280,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         onClose={() => setSpinXOpen(false)} 
         isDarkMode={isDarkMode}
         scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
+        analysisType="reachPredictor"
       />
     </AppLayout>
   )

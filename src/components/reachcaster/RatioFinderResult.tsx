@@ -1228,6 +1228,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         isOpen={spinxOpen}
         onClose={() => setSpinxOpen(false)}
         isDarkMode={isDarkMode}
+        analysisType="ratioFinder"
       />
     </AppLayout>
   )

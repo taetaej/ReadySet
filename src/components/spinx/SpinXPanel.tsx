@@ -1,4 +1,4 @@
-import { X, Minimize2, Paperclip, Send, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw } from 'lucide-react'
+import { X, Minimize2, Paperclip, Send, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw, Target } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface SpinXPanelProps {
@@ -6,9 +6,10 @@ interface SpinXPanelProps {
   onClose: () => void
   isDarkMode?: boolean
   scenarioName?: string
+  analysisType?: 'ratioFinder' | 'reachPredictor'
 }
 
-export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName = '25-34세 여성 타겟 집중 공략' }: SpinXPanelProps) {
+export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName = '25-34세 여성 타겟 집중 공략', analysisType = 'ratioFinder' }: SpinXPanelProps) {
   const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState(false)
@@ -335,8 +336,17 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 flexShrink: 0
               }}
             >
-              <Scale size={14} />
-              Ratio Finder
+              {analysisType === 'ratioFinder' ? (
+                <>
+                  <Scale size={14} />
+                  Ratio Finder
+                </>
+              ) : (
+                <>
+                  <Target size={14} />
+                  Reach Predictor
+                </>
+              )}
             </span>
             <h4
               style={{
