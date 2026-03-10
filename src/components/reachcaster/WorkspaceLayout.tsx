@@ -929,7 +929,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                   backgroundColor: 'hsl(var(--muted))',
                   borderBottom: '1px solid hsl(var(--border))',
                   fontSize: '12px',
-                  fontWeight: '600'
+                  fontWeight: '500'
                 }} className="text-muted-foreground">
                   {/* 전체 선택 체크박스 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -147,7 +147,7 @@ export function IndustryDualBarChart({ industry = '뷰티', onIndustryChange }: 
         <div style={{ flex: 1 }}>
           <h3 style={{
             fontSize: '16px',
-            fontWeight: '600',
+            fontWeight: '500',
             margin: '0 0 4px 0',
             color: 'hsl(var(--foreground))'
           }}>
