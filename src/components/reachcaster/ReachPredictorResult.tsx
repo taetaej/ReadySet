@@ -9,6 +9,8 @@ import { ReachPredictorScoreCards } from './ReachPredictorScoreCards'
 import { ReachPredictorDetailTable } from './ReachPredictorDetailTable'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
+import { SpinXButton } from '../spinx/SpinXButton'
+import { SpinXPanel } from '../spinx/SpinXPanel'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -164,6 +166,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
+  const [spinXOpen, setSpinXOpen] = useState(false)
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -553,7 +556,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       </div>
 
       {/* Content Area */}
-      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
+      <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden', marginRight: spinXOpen ? '480px' : '0', transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
         {/* 차트 및 스코어카드 영역 - 뷰포트 너비에 맞춤 */}
         <div style={{
           display: 'grid',
@@ -1267,6 +1270,17 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
         </div>
       )}
+
+      {/* SpinX 버튼 */}
+      <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} />
+
+      {/* SpinX 패널 */}
+      <SpinXPanel 
+        isOpen={spinXOpen} 
+        onClose={() => setSpinXOpen(false)} 
+        isDarkMode={isDarkMode}
+        scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
+      />
     </AppLayout>
   )
 }
