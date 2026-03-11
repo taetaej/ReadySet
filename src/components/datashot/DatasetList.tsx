@@ -531,41 +531,41 @@ export function DatasetList() {
                     className="checkbox-custom"
                   />
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '80px' }}>
-                  <button onClick={() => handleSort('id')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '80px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('id')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     ID {renderSortIcon('id')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', minWidth: '200px' }}>
-                  <button onClick={() => handleSort('name')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', minWidth: '200px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('name')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     데이터셋명 {renderSortIcon('name')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '120px' }}>
-                  <button onClick={() => handleSort('media')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '120px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('media')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     매체 {renderSortIcon('media')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px' }}>
-                  <button onClick={() => handleSort('industry')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('industry')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     업종 {renderSortIcon('industry')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '180px' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '180px', color: 'hsl(var(--foreground))' }}>
                   조회 기간
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px' }}>
-                  <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     상태 {renderSortIcon('status')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px' }}>
-                  <button onClick={() => handleSort('creator')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('creator')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     생성자 {renderSortIcon('creator')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '140px' }}>
-                  <button onClick={() => handleSort('created')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0 }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '140px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('created')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     생성일시 {renderSortIcon('created')}
                   </button>
                 </th>
@@ -611,10 +611,10 @@ export function DatasetList() {
                         className="checkbox-custom"
                       />
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {dataset.id}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: '500', color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: '500' }} className={isClickable ? '' : 'text-muted-foreground'}>
                       {dataset.name}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }}>
@@ -626,7 +626,7 @@ export function DatasetList() {
                         <span>{getIndustryDisplay(dataset.industry).text}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {formatPeriod(dataset.startDate, dataset.endDate, dataset.periodType)}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -642,10 +642,10 @@ export function DatasetList() {
                         {dataset.status}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {dataset.creator} ({maskEmail(dataset.creatorId)})
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {dataset.created}
                     </td>
                     <td style={{ textAlign: 'right', paddingRight: '1.5rem' }}>

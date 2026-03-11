@@ -454,7 +454,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      transition: 'background-color 0.2s'
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--foreground))'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -475,7 +476,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      transition: 'background-color 0.2s'
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--foreground))'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -667,16 +669,16 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     backgroundColor: 'hsl(var(--muted))',
                     borderBottom: '1px solid hsl(var(--border))'
                   }}>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>기간</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>매체</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(대)</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(중)</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(소)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>기간</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>매체</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(대)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(중)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(소)</th>
                     {adProductColumns.map((col) => (
-                      <th key={col.key} style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>{col.label}</th>
+                      <th key={col.key} style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>{col.label}</th>
                     ))}
                     {configData.targetingCategory && (
-                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px' }}>{configData.targetingCategory}</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>{configData.targetingCategory}</th>
                     )}
                     {/* 지표 컬럼 - 정렬 가능 */}
                     {configData.metrics.map((metric: string) => (
@@ -686,7 +688,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         style={{ 
                           padding: '12px 8px', 
                           textAlign: 'right', 
-                          fontWeight: '600', 
+                          fontWeight: '500', 
                           whiteSpace: 'nowrap',
                           fontSize: '12px',
                           cursor: 'pointer',
