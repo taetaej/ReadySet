@@ -1,4 +1,4 @@
-import { metaMetrics } from './types'
+import { metaMetrics, adProductStructureByMedia } from './types'
 
 interface ConfigurationSummaryProps {
   formData: {
@@ -22,23 +22,30 @@ interface ConfigurationSummaryProps {
 }
 
 export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }: ConfigurationSummaryProps) {
-  const calculateMetaProductCount = () => {
+  const calculateProductCount = () => {
+    if (formData.products.length === 0) return 0
+    
     try {
+      const productStructure = adProductStructureByMedia[formData.media]
+      if (!productStructure) return formData.products.length
+      
       const groups = formData.products.map(p => JSON.parse(p))
-      return groups.reduce((sum, g) => {
-        const buyingCount = g.buyingTypes?.length || 2
-        const platformCount = g.platforms?.length || 6
-        const goalCount = g.performanceGoals?.length || 6
-        return sum + (buyingCount * platformCount * goalCount)
+      return groups.reduce((sum, group) => {
+        let count = 1
+        productStructure.fields.forEach(field => {
+          const value = group[field.key]
+          if (Array.isArray(value)) {
+            count *= value.length || field.options.length
+          }
+        })
+        return sum + count
       }, 0)
     } catch {
       return formData.products.length
     }
   }
 
-  const productCount = formData.media === 'Meta' 
-    ? calculateMetaProductCount() 
-    : formData.products.length
+  const productCount = calculateProductCount()
 
   return (
     <div style={{ position: 'sticky', top: '24px' }}>
@@ -52,7 +59,7 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
             <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
-              Step 1 · Basic Information
+              Step 1 · Selection Overview
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <SummaryItem label="데이터셋명" value={formData.datasetName || '—'} />
@@ -150,83 +157,52 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
                     maxHeight: '200px',
                     overflowY: 'auto'
                   }}>
-                    {formData.media === 'Meta' ? (
-                      formData.products.map((product, idx) => {
-                        try {
-                          const parsed = JSON.parse(product)
-                          
-                          return (
-                            <div
-                              key={idx}
-                              style={{
-                                fontSize: '11px',
-                                color: 'hsl(var(--foreground))',
-                                lineHeight: '1.6',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '2px'
-                              }}
-                            >
-                              <div>
-                                <span style={{ fontWeight: '500' }}>조건 {idx + 1}</span>
-                              </div>
-                              
-                              {/* 캠페인 목표 (필수, 단일) */}
-                              {parsed.objective && (
-                                <div>
-                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>캠페인 목표</span>
-                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                                  <span style={{ fontWeight: '500' }}>{parsed.objective}</span>
-                                </div>
-                              )}
-                              
-                              {/* 구매유형 (선택, 다중) */}
-                              {parsed.buyingTypes && (
-                                <div>
-                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>구매유형</span>
-                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                                  <span>{parsed.buyingTypes.length > 0 ? parsed.buyingTypes.join(', ') : '전체'}</span>
-                                </div>
-                              )}
-                              
-                              {/* 플랫폼 (선택, 다중) */}
-                              {parsed.platforms && (
-                                <div>
-                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>플랫폼</span>
-                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                                  <span>{parsed.platforms.length > 0 ? parsed.platforms.join(', ') : '전체'}</span>
-                                </div>
-                              )}
-                              
-                              {/* 성과목표 (선택, 다중) */}
-                              {parsed.performanceGoals && (
-                                <div>
-                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>성과목표</span>
-                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                                  <span>{parsed.performanceGoals.length > 0 ? parsed.performanceGoals.join(', ') : '전체'}</span>
-                                </div>
-                              )}
+                    {formData.products.map((product, idx) => {
+                      try {
+                        const parsed = JSON.parse(product)
+                        const productStructure = adProductStructureByMedia[formData.media]
+                        
+                        if (!productStructure) return null
+                        
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              fontSize: '11px',
+                              color: 'hsl(var(--foreground))',
+                              lineHeight: '1.6',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '2px'
+                            }}
+                          >
+                            <div>
+                              <span style={{ fontWeight: '500' }}>조건 {idx + 1}</span>
                             </div>
-                          )
-                        } catch {
-                          return null
-                        }
-                      })
-                    ) : (
-                      formData.products.map((product, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            fontSize: '11px',
-                            color: 'hsl(var(--foreground))',
-                            lineHeight: '1.4',
-                            fontWeight: '500'
-                          }}
-                        >
-                          {product}
-                        </div>
-                      ))
-                    )}
+                            
+                            {/* 동적으로 필드 표시 */}
+                            {productStructure.fields.map(field => {
+                              const value = parsed[field.key]
+                              if (!value) return null
+                              
+                              const displayValue = Array.isArray(value)
+                                ? (value.length > 0 ? value.join(', ') : '전체')
+                                : value
+                              
+                              return (
+                                <div key={field.key}>
+                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>{field.label}</span>
+                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
+                                  <span style={{ fontWeight: field.required ? '500' : '400' }}>{displayValue}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
+                      } catch {
+                        return null
+                      }
+                    })}
                   </div>
                 )}
               </div>

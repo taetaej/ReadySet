@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { ChevronRight, X } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
@@ -10,11 +10,48 @@ interface IndustryDialogProps {
 }
 
 export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }: IndustryDialogProps) {
-  const [brandSearchQuery, setBrandSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [expandedMajor, setExpandedMajor] = useState<string[]>([])
   const [expandedMid, setExpandedMid] = useState<string[]>([])
   const [showBrandDropdown, setShowBrandDropdown] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+
+  // 브랜드 검색 필터링
+  const filteredBrands = useMemo(() => 
+    Object.entries(brandIndustryMap).filter(([brand]) => 
+      brand.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [searchQuery]
+  )
+
+  // 업종 검색 필터링
+  const filteredIndustryTree = useMemo(() => {
+    if (!searchQuery) return null
+    
+    const query = searchQuery.toLowerCase()
+    const filteredTree: { [major: string]: { [mid: string]: string[] } } = {}
+    
+    Object.entries(industryCategories).forEach(([major, mids]) => {
+      Object.entries(mids).forEach(([mid, minors]) => {
+        const matchedMinors = (minors as string[]).filter(minor =>
+          major.toLowerCase().includes(query) ||
+          mid.toLowerCase().includes(query) ||
+          minor.toLowerCase().includes(query)
+        )
+        
+        if (matchedMinors.length > 0) {
+          if (!filteredTree[major]) {
+            filteredTree[major] = {}
+          }
+          filteredTree[major][mid] = matchedMinors
+        }
+      })
+    })
+    
+    return Object.keys(filteredTree).length > 0 ? filteredTree : {}
+  }, [searchQuery])
+
+  // 브랜드 검색 결과가 있는지 확인
+  const hasBrandResults = searchQuery && filteredBrands.length > 0
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -33,12 +70,64 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     }
   }, [showBrandDropdown])
 
+  // 검색 시 자동 펼치기
+  useEffect(() => {
+    if (searchQuery && filteredIndustryTree) {
+      const majorsToExpand: string[] = []
+      const midsToExpand: string[] = []
+      
+      Object.entries(filteredIndustryTree).forEach(([major, mids]) => {
+        majorsToExpand.push(major)
+        Object.keys(mids).forEach(mid => {
+          midsToExpand.push(`${major}>${mid}`)
+        })
+      })
+      
+      setExpandedMajor(majorsToExpand)
+      setExpandedMid(midsToExpand)
+    }
+  }, [searchQuery, filteredIndustryTree])
+
   if (!isOpen) return null
 
-  // 브랜드 검색 필터링 (대소문자 구분 없이, 부분 일치)
-  const filteredBrands = Object.entries(brandIndustryMap).filter(([brand]) => 
-    brand.toLowerCase().includes(brandSearchQuery.toLowerCase())
-  )
+  // 검색어 하이라이팅 함수
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text
+    
+    const lowerText = text.toLowerCase()
+    const lowerQuery = query.toLowerCase()
+    const index = lowerText.indexOf(lowerQuery)
+    
+    if (index === -1) return text
+    
+    return (
+      <>
+        {text.substring(0, index)}
+        <strong style={{ fontWeight: '700' }}>
+          {text.substring(index, index + query.length)}
+        </strong>
+        {text.substring(index + query.length)}
+      </>
+    )
+  }
+
+  // 표시할 트리 데이터 결정 (검색 중이면 필터링된 트리, 아니면 전체 트리)
+  const displayTree = filteredIndustryTree || industryCategories
+
+  // 검색 결과로 표시된 모든 업종 가져오기
+  const getFilteredIndustries = () => {
+    if (!filteredIndustryTree) return []
+    
+    const industries: string[] = []
+    Object.entries(filteredIndustryTree).forEach(([major, mids]) => {
+      Object.entries(mids).forEach(([mid, minors]) => {
+        (minors as string[]).forEach(minor => {
+          industries.push(`${major} > ${mid} > ${minor}`)
+        })
+      })
+    })
+    return industries
+  }
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -55,25 +144,31 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
         </div>
         
         <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* 브랜드 검색 */}
-          <div ref={searchRef} style={{ marginBottom: '16px', position: 'relative' }}>
-            <div style={{ position: 'relative' }}>
+          {/* 통합 검색 */}
+          <div style={{ marginBottom: '16px' }}>
+            <div ref={searchRef} style={{ position: 'relative' }}>
               <input
                 type="text"
-                value={brandSearchQuery}
+                value={searchQuery}
                 onChange={(e) => {
-                  setBrandSearchQuery(e.target.value)
-                  setShowBrandDropdown(true)
+                  setSearchQuery(e.target.value)
+                  if (e.target.value) {
+                    setShowBrandDropdown(true)
+                  }
                 }}
-                onFocus={() => setShowBrandDropdown(true)}
-                placeholder="브랜드 업종 검색"
+                onFocus={() => {
+                  if (searchQuery) {
+                    setShowBrandDropdown(true)
+                  }
+                }}
+                placeholder="브랜드 또는 업종을 검색하세요"
                 className="input"
                 style={{ width: '100%' }}
               />
-              {brandSearchQuery && (
+              {searchQuery && (
                 <button
                   onClick={() => {
-                    setBrandSearchQuery('')
+                    setSearchQuery('')
                     setShowBrandDropdown(false)
                   }}
                   style={{
@@ -92,57 +187,67 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   <X size={14} />
                 </button>
               )}
-            </div>
-            
-            {/* 브랜드 검색 드롭다운 */}
-            {showBrandDropdown && brandSearchQuery && filteredBrands.length > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                marginTop: '4px',
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                zIndex: 10
-              }}>
-                {filteredBrands.map(([brand, industryPath]) => (
-                  <div
-                    key={brand}
-                    onClick={() => {
-                      if (!selectedIndustries.includes(industryPath)) {
-                        onUpdate([...selectedIndustries, industryPath])
-                      }
-                      setBrandSearchQuery('')
-                      setShowBrandDropdown(false)
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid hsl(var(--border))',
-                      transition: 'background-color 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }}
-                  >
-                    <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
-                      {brand}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                      {industryPath}
-                    </div>
+              
+              {/* 브랜드 검색 드롭다운 */}
+              {showBrandDropdown && hasBrandResults && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '4px',
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  zIndex: 10
+                }}>
+                  <div style={{
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: 'hsl(var(--muted-foreground))',
+                    borderBottom: '1px solid hsl(var(--border))',
+                    backgroundColor: 'hsl(var(--muted) / 0.3)'
+                  }}>
+                    브랜드 ({filteredBrands.length})
                   </div>
-                ))}
-              </div>
-            )}
+                  {filteredBrands.map(([brand, industryPath]) => (
+                    <div
+                      key={brand}
+                      onClick={() => {
+                        if (!selectedIndustries.includes(industryPath)) {
+                          onUpdate([...selectedIndustries, industryPath])
+                        }
+                        setSearchQuery('')
+                        setShowBrandDropdown(false)
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid hsl(var(--border))',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
+                        {brand}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                        {industryPath}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 2단 레이아웃 */}
@@ -163,46 +268,76 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               minHeight: '600px',
               maxHeight: '600px'
             }}>
-              <div style={{ 
-                marginBottom: '12px',
-                paddingBottom: '12px',
-                borderBottom: '1px solid hsl(var(--border))',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span style={{ fontWeight: '600', fontSize: '13px' }}>
-                  업종 분류
-                </span>
-                <button
-                  onClick={() => {
-                    // 전체 업종 선택/해제
-                    const allIndustries: string[] = []
-                    Object.entries(industryCategories).forEach(([major, mids]) => {
-                      Object.entries(mids).forEach(([mid, minors]) => {
-                        (minors as string[]).forEach(minor => {
-                          allIndustries.push(`${major} > ${mid} > ${minor}`)
-                        })
-                      })
-                    })
-                    const allSelected = allIndustries.every(ind => selectedIndustries.includes(ind))
-                    if (allSelected) {
-                      onUpdate([])
-                    } else {
-                      onUpdate(allIndustries)
-                    }
-                  }}
-                  className="btn btn-ghost btn-sm"
-                  style={{ fontSize: '11px' }}
-                >
-                  전체 {selectedIndustries.length === Object.values(industryCategories).reduce((acc, mids) => 
-                    acc + Object.values(mids).reduce((a, minors) => a + (minors as string[]).length, 0), 0
-                  ) ? '해제' : '선택'}
-                </button>
-              </div>
+              {filteredIndustryTree && Object.keys(filteredIndustryTree).length === 0 ? (
+                <div style={{ 
+                  padding: '32px 16px',
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  color: 'hsl(var(--muted-foreground))'
+                }}>
+                  검색 결과가 없습니다
+                </div>
+              ) : (
+                <>
+                  <div style={{ 
+                    marginBottom: '12px',
+                    paddingBottom: '3px',
+                    borderBottom: '1px solid hsl(var(--border))',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    minHeight: '23px'
+                  }}>
+                    <span style={{ fontWeight: '600', fontSize: '12px' }}>
+                      업종 분류
+                    </span>
+                    <button
+                      onClick={() => {
+                        // 검색 중이면 검색 결과만, 아니면 전체 업종 선택/해제
+                        if (filteredIndustryTree) {
+                          const filteredIndustries = getFilteredIndustries()
+                          const allFilteredSelected = filteredIndustries.every(ind => selectedIndustries.includes(ind))
+                          if (allFilteredSelected) {
+                            onUpdate(selectedIndustries.filter(ind => !filteredIndustries.includes(ind)))
+                          } else {
+                            onUpdate([...new Set([...selectedIndustries, ...filteredIndustries])])
+                          }
+                        } else {
+                          const allIndustries: string[] = []
+                          Object.entries(industryCategories).forEach(([major, mids]) => {
+                            Object.entries(mids).forEach(([mid, minors]) => {
+                              (minors as string[]).forEach(minor => {
+                                allIndustries.push(`${major} > ${mid} > ${minor}`)
+                              })
+                            })
+                          })
+                          const allSelected = allIndustries.every(ind => selectedIndustries.includes(ind))
+                          if (allSelected) {
+                            onUpdate([])
+                          } else {
+                            onUpdate(allIndustries)
+                          }
+                        }
+                      }}
+                      className="btn btn-ghost btn-sm"
+                      style={{ fontSize: '11px', padding: '2px 8px', height: '19px' }}
+                    >
+                      전체 {(() => {
+                        if (filteredIndustryTree) {
+                          const filteredIndustries = getFilteredIndustries()
+                          return filteredIndustries.every(ind => selectedIndustries.includes(ind)) ? '해제' : '선택'
+                        } else {
+                          const totalCount = Object.values(industryCategories).reduce((acc, mids) => 
+                            acc + Object.values(mids).reduce((a, minors) => a + (minors as string[]).length, 0), 0
+                          )
+                          return selectedIndustries.length === totalCount ? '해제' : '선택'
+                        }
+                      })()}
+                    </button>
+                  </div>
 
-              {/* 대분류 트리 */}
-              {Object.entries(industryCategories).map(([major, mids]) => {
+                  {/* 대분류 트리 */}
+                  {Object.entries(displayTree).map(([major, mids]) => {
                 const isMajorExpanded = expandedMajor.includes(major)
                 const majorIndustries: string[] = []
                 Object.entries(mids).forEach(([mid, minors]) => {
@@ -252,14 +387,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                       <input
                         type="checkbox"
                         checked={allMajorSelected}
-                        ref={(el) => {
-                          if (el) el.indeterminate = someMajorSelected && !allMajorSelected
-                        }}
-                        onChange={() => {
+                        onChange={(e) => {
+                          e.stopPropagation()
                           if (allMajorSelected) {
                             onUpdate(selectedIndustries.filter(ind => !majorIndustries.includes(ind)))
                           } else {
                             onUpdate([...new Set([...selectedIndustries, ...majorIndustries])])
+                          }
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.indeterminate = someMajorSelected && !allMajorSelected
                           }
                         }}
                         className="checkbox-custom"
@@ -278,7 +416,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                           )
                         }}
                       >
-                        {major}
+                        {highlightText(major, searchQuery)}
                       </span>
                     </div>
 
@@ -330,14 +468,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                 <input
                                   type="checkbox"
                                   checked={allMidSelected}
-                                  ref={(el) => {
-                                    if (el) el.indeterminate = someMidSelected && !allMidSelected
-                                  }}
-                                  onChange={() => {
+                                  onChange={(e) => {
+                                    e.stopPropagation()
                                     if (allMidSelected) {
                                       onUpdate(selectedIndustries.filter(ind => !midIndustries.includes(ind)))
                                     } else {
                                       onUpdate([...new Set([...selectedIndustries, ...midIndustries])])
+                                    }
+                                  }}
+                                  ref={(el) => {
+                                    if (el) {
+                                      el.indeterminate = someMidSelected && !allMidSelected
                                     }
                                   }}
                                   className="checkbox-custom"
@@ -356,7 +497,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                     )
                                   }}
                                 >
-                                  {mid}
+                                  {highlightText(mid, searchQuery)}
                                 </span>
                               </div>
 
@@ -385,7 +526,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                         <input
                                           type="checkbox"
                                           checked={isSelected}
-                                          onChange={() => {
+                                          onChange={(e) => {
+                                            e.stopPropagation()
                                             if (isSelected) {
                                               onUpdate(selectedIndustries.filter(ind => ind !== fullPath))
                                             } else {
@@ -394,7 +536,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                           }}
                                           className="checkbox-custom"
                                         />
-                                        <span>{minor}</span>
+                                        <span>{highlightText(minor, searchQuery)}</span>
                                       </label>
                                     )
                                   })}
@@ -408,6 +550,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   </div>
                 )
               })}
+                </>
+              )}
             </div>
 
             {/* 구분선 */}
@@ -423,14 +567,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               maxHeight: '600px'
             }}>
               <div style={{ 
-                padding: '12px 16px',
+                padding: '6px 16px',
                 borderBottom: '1px solid hsl(var(--border))',
                 backgroundColor: 'hsl(var(--muted))',
                 fontWeight: '600',
                 fontSize: '12px',
                 position: 'sticky',
                 top: 0,
-                zIndex: 1
+                zIndex: 1,
+                minHeight: '28px',
+                display: 'flex',
+                alignItems: 'center'
               }}>
                 선택된 업종 ({selectedIndustries.length})
               </div>

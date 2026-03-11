@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Database, Maximize2, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -8,7 +8,6 @@ import { targetingOptionsByMedia } from './types'
 import { IndustryDialog } from './IndustryDialog'
 import { MetricsDialog } from './MetricsDialog'
 import { AdProductsDialog } from './AdProductsDialog'
-import { MetaAdProductsDialog } from './MetaAdProductsDialog'
 import { DisabledSelectBox } from './DisabledSelectBox'
 import { ConfigurationSummary } from './ConfigurationSummary'
 import { MonthRangePicker } from './MonthRangePicker'
@@ -17,28 +16,6 @@ import { SampleDataModal } from './SampleDataModal'
 interface CreateDatasetProps {
   slotData?: any
 }
-
-const DatabaseSearchIcon = ({ size = 24, style }: { size?: number; style?: React.CSSProperties }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-    style={style}
-  >
-    <path d="M21 11.693V5"/>
-    <path d="m22 22-1.875-1.875"/>
-    <path d="M3 12a9 3 0 0 0 8.697 2.998"/>
-    <path d="M3 5v14a9 3 0 0 0 9.28 2.999"/>
-    <circle cx="18" cy="18" r="3"/>
-    <ellipse cx="12" cy="5" rx="9" ry="3"/>
-  </svg>
-)
 
 export function CreateDataset({ slotData }: CreateDatasetProps) {
   const navigate = useNavigate()
@@ -51,6 +28,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   
   const [formData, setFormData] = useState({
     datasetName: '',
+    description: '',
     media: '',
     industries: [] as string[],
     period: { 
@@ -71,8 +49,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
   const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
   const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
-  const [metaAdProductsDialogOpen, setMetaAdProductsDialogOpen] = useState(false)
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -83,6 +61,16 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       setIsStep1Confirmed(true)
     }
   }, [currentStep])
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
 
   useEffect(() => {
     if (!validationActive) {
@@ -106,9 +94,18 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
 
   // 날짜 범위 유효성 검사
   const validateDateRange = () => {
-    if (!formData.period.startYear || !formData.period.startMonth || 
-        !formData.period.endYear || !formData.period.endMonth) {
-      return { valid: true, message: '' } // 아직 입력 중이면 통과
+    // 유효성 검사가 활성화되었을 때만 미선택 체크
+    if (validationActive) {
+      if (!formData.period.startYear || !formData.period.startMonth || 
+          !formData.period.endYear || !formData.period.endMonth) {
+        return { valid: false, message: '조회기간을 선택해주세요.' }
+      }
+    } else {
+      // 유효성 검사 비활성화 시 입력 중이면 통과
+      if (!formData.period.startYear || !formData.period.startMonth || 
+          !formData.period.endYear || !formData.period.endMonth) {
+        return { valid: true, message: '' }
+      }
     }
 
     const startYear = parseInt(formData.period.startYear)
@@ -174,12 +171,28 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
+      // 실제 API 호출 시뮬레이션
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // 데이터셋 생성 로직
+      console.log('데이터셋 생성:', formData)
+      
+      // 성공 시
+      setShowToast({ 
+        type: 'success', 
+        message: '데이터셋 생성 요청이 완료되었습니다. 데이터셋 목록에서 확인해주세요.' 
+      })
+      
       setTimeout(() => {
         navigate('/datashot')
-      }, 500)
+      }, 2000)
+      
     } catch (error) {
-      // 에러 처리
+      // 실패 시
+      setShowToast({ 
+        type: 'error', 
+        message: '데이터셋 생성 요청에 실패했습니다. 다시 시도해주세요.' 
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -355,6 +368,40 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         </div>
                       )}
                     </div>
+
+                    {/* 설명 */}
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                        설명
+                      </label>
+                      <textarea
+                        value={formData.description || ''}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value.length <= 200) {
+                            setFormData({ ...formData, description: value })
+                          }
+                        }}
+                        placeholder="데이터셋에 대한 설명을 입력하세요."
+                        className="input"
+                        style={{ 
+                          width: '800px',
+                          minHeight: '80px',
+                          resize: 'vertical',
+                          fontFamily: 'inherit'
+                        }}
+                        maxLength={200}
+                      />
+                      <div style={{ 
+                        width: '800px',
+                        textAlign: 'right',
+                        fontSize: '12px',
+                        color: 'hsl(var(--muted-foreground))',
+                        marginTop: '4px'
+                      }}>
+                        {(formData.description || '').length}/200
+                      </div>
+                    </div>
                   </div>
 
                   {/* 2. 상세 설정 */}
@@ -385,6 +432,8 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                                 : 'transparent',
                               borderColor: formData.media === media 
                                 ? 'hsl(var(--primary))' 
+                                : validationActive && !formData.media
+                                ? 'hsl(var(--destructive))'
                                 : 'hsl(var(--border))',
                               transition: 'all 0.2s'
                             }}
@@ -407,6 +456,15 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           </label>
                         ))}
                       </div>
+                      {validationActive && !formData.media && (
+                        <p style={{ 
+                          fontSize: '12px', 
+                          color: 'hsl(var(--destructive))', 
+                          marginTop: '4px' 
+                        }}>
+                          매체를 선택해주세요.
+                        </p>
+                      )}
                     </div>
 
                     {/* 업종 */}
@@ -535,11 +593,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                           boxSizing: 'border-box'
                         }}
                         onClick={() => {
-                          if (formData.media === 'Meta') {
-                            setMetaAdProductsDialogOpen(true)
-                          } else {
-                            setAdProductsDialogOpen(true)
-                          }
+                          setAdProductsDialogOpen(true)
                         }}
                         >
                           <span style={{ 
@@ -758,41 +812,167 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                     </div>
                   </div>
                   
-                  {/* 샘플 데이터 미리보기 버튼 */}
-                  <button
-                    onClick={() => setShowSampleDataModal(true)}
-                    style={{
-                      width: '100%',
-                      padding: '48px 24px',
-                      backgroundColor: 'hsl(var(--muted) / 0.3)',
+                  {/* 샘플 데이터 미리보기 */}
+                  <div style={{ marginBottom: '24px' }}>
+                    {/* 타이틀 */}
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+                      데이터 미리보기
+                    </h3>
+                    <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '16px' }}>
+                      샘플 데이터 5행을 통해 데이터 구조를 확인하세요.
+                    </p>
+                    
+                    {/* 헤더 정보 */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      gap: '12px',
+                      marginBottom: '12px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: 'hsl(var(--muted-foreground))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        <Database size={14} />
+                        추출할 전체 데이터 : {(() => {
+                          // 실제 데이터 행 수 계산
+                          const periodMonths = (() => {
+                            if (!formData.period.startYear || !formData.period.endYear) return 0
+                            const startYear = parseInt(formData.period.startYear)
+                            const startPeriod = parseInt(formData.period.startMonth)
+                            const endYear = parseInt(formData.period.endYear)
+                            const endPeriod = parseInt(formData.period.endMonth)
+                            const multiplier = formData.periodType === 'quarter' ? 3 : 1
+                            const startMonthTotal = startYear * 12 + (startPeriod - 1) * multiplier
+                            const endMonthTotal = endYear * 12 + (endPeriod - 1) * multiplier
+                            return Math.floor((endMonthTotal - startMonthTotal) / multiplier) + 1
+                          })()
+                          
+                          const industriesCount = formData.industries.length || 0
+                          const productsCount = formData.products.length || 0
+                          const targetingCount = formData.targetingOptions.length || 1
+                          
+                          const totalRows = periodMonths * industriesCount * productsCount * targetingCount
+                          return totalRows.toLocaleString()
+                        })()} 개 행
+                      </div>
+                      <button
+                        onClick={() => setShowSampleDataModal(true)}
+                        className="btn btn-sm"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 'hsl(var(--foreground))',
+                          color: 'hsl(var(--background))',
+                          border: 'none'
+                        }}
+                      >
+                        <Maximize2 size={14} />
+                        전체 컬럼 보기
+                      </button>
+                    </div>
+                    
+                    {/* 테이블 컨테이너 */}
+                    <div style={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '16px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
-                      e.currentTarget.style.borderColor = 'hsl(var(--primary))'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
-                      e.currentTarget.style.borderColor = 'hsl(var(--border))'
-                    }}
-                  >
-                    <DatabaseSearchIcon size={40} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-                        샘플 데이터 미리보기
-                      </div>
-                      <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                        클릭하여 추출할 데이터의 샘플을 확인하세요
+                      overflow: 'hidden'
+                    }}>
+                      {/* 테이블 */}
+                      <div style={{ overflow: 'hidden' }}>
+                        <table style={{ 
+                          width: '100%',
+                          borderCollapse: 'collapse',
+                          fontSize: '13px'
+                        }}>
+                          <thead>
+                            <tr style={{ 
+                              backgroundColor: 'hsl(var(--muted))',
+                              borderBottom: '1px solid hsl(var(--border))'
+                            }}>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>기간</th>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>매체</th>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>업종(대)</th>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>업종(중)</th>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>업종(소)</th>
+                              {/* 광고상품 컬럼들 (동적) */}
+                              {(() => {
+                                if (formData.media === 'Meta') {
+                                  return ['캠페인 목표', '구매 유형', '플랫폼', '성과 목표'].map((label) => (
+                                    <th key={label} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>{label}</th>
+                                  ))
+                                }
+                                return <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>광고상품</th>
+                              })()}
+                              {/* 타겟팅 옵션 */}
+                              {formData.targetingCategory && (
+                                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '120px' }}>{formData.targetingCategory}</th>
+                              )}
+                              {/* 선택한 지표 (최대 3개) */}
+                              {formData.metrics.slice(0, 3).map((metric) => (
+                                <th key={metric} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{metric}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[1, 2, 3, 4, 5].map((row) => (
+                              <tr 
+                                key={row}
+                                style={{ 
+                                  borderBottom: row < 5 ? '1px solid hsl(var(--border))' : 'none'
+                                }}
+                              >
+                                <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '100px' }}>
+                                  {formData.period.startYear ? 
+                                    formData.periodType === 'quarter'
+                                      ? `${formData.period.startYear}-Q${formData.period.startMonth}`
+                                      : `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}`
+                                    : '—'}
+                                </td>
+                                <td style={{ padding: '10px 12px', whiteSpace: 'nowrap', width: '120px' }}>{formData.media || '—'}</td>
+                                <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>
+                                  {formData.industries[0]?.split(' > ')[0] || '—'}
+                                </td>
+                                <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>
+                                  {formData.industries[0]?.split(' > ')[1] || '—'}
+                                </td>
+                                <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>
+                                  {formData.industries[0]?.split(' > ')[2] || '—'}
+                                </td>
+                                {/* 광고상품 데이터 (동적) */}
+                                {(() => {
+                                  if (formData.media === 'Meta') {
+                                    return [1, 2, 3, 4].map((i) => (
+                                      <td key={i} style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>—</td>
+                                    ))
+                                  }
+                                  return <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>—</td>
+                                })()}
+                                {/* 타겟팅 옵션 데이터 */}
+                                {formData.targetingCategory && (
+                                  <td style={{ padding: '10px 12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '120px' }}>
+                                    {formData.targetingOptions[0] || '—'}
+                                  </td>
+                                )}
+                                {/* 선택한 지표 데이터 (최대 3개) */}
+                                {formData.metrics.slice(0, 3).map((metric) => (
+                                  <td key={metric} style={{ padding: '10px 12px', textAlign: 'right', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', width: '100px' }}>—</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -810,13 +990,21 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                   </button>
                 )}
                 {currentStep < 2 ? (
-                  <button onClick={handleNext} className="btn btn-primary btn-lg">
+                  <button 
+                    onClick={handleNext} 
+                    disabled={!isStep1Valid()}
+                    className="btn btn-primary btn-lg"
+                    style={{
+                      opacity: !isStep1Valid() ? 0.5 : 1,
+                      cursor: !isStep1Valid() ? 'not-allowed' : 'pointer'
+                    }}
+                  >
                     다음
                     <ChevronRight size={20} />
                   </button>
                 ) : (
                   <button onClick={handleSubmit} disabled={isSubmitting} className="btn btn-primary btn-lg">
-                    {isSubmitting ? '추출 중...' : '데이터 추출 시작'}
+                    {isSubmitting ? '생성 요청 중...' : '데이터셋 생성 요청'}
                   </button>
                 )}
               </div>
@@ -849,14 +1037,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         media={formData.media}
       />
 
-      {/* Meta 광고상품 선택 다이얼로그 */}
-      <MetaAdProductsDialog
-        isOpen={metaAdProductsDialogOpen}
-        onClose={() => setMetaAdProductsDialogOpen(false)}
-        selectedProducts={formData.products}
-        onUpdate={(products) => setFormData({ ...formData, products })}
-      />
-
       {/* 지표 선택 다이얼로그 */}
       <MetricsDialog
         isOpen={metricsDialogOpen}
@@ -872,6 +1052,33 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         onClose={() => setShowSampleDataModal(false)}
         formData={formData}
       />
+
+      {/* 토스트 알림 */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </AppLayout>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Check } from 'lucide-react'
 import { metaMetrics, type MetricGroup } from './types'
 
 interface MetricsDialogProps {
@@ -46,6 +46,17 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
     }
   }
 
+  const toggleAllMetrics = () => {
+    const allMetricIds = metricsData.flatMap(group => group.metrics.map(m => m.id))
+    const allSelected = allMetricIds.every(id => selectedMetrics.includes(id))
+    
+    if (allSelected) {
+      onUpdate([])
+    } else {
+      onUpdate(allMetricIds)
+    }
+  }
+
   const handleReset = () => {
     onUpdate([])
     setSearchQuery('')
@@ -66,9 +77,9 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
         </div>
         
         <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* 검색 */}
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ position: 'relative' }}>
+          {/* 검색 및 전체 선택 */}
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ position: 'relative', flex: 1 }}>
               <input
                 type="text"
                 value={searchQuery}
@@ -97,6 +108,15 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
                 </button>
               )}
             </div>
+            <button
+              onClick={toggleAllMetrics}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              {metricsData.flatMap(g => g.metrics.map(m => m.id)).every(id => selectedMetrics.includes(id))
+                ? '전체 해제'
+                : '전체 선택'}
+            </button>
           </div>
 
           {/* 지표 그룹 리스트 */}
