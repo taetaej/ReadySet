@@ -65,7 +65,7 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
               <SummaryItem label="데이터셋명" value={formData.datasetName || '—'} />
               <SummaryItem label="매체" value={formData.media || '—'} />
               
-              {/* 업종 - 칩 형태로 표시 */}
+              {/* 업종 - 업종(대) 기준으로 그룹화 표시 */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
@@ -87,35 +87,37 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
                     borderRadius: '6px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '4px',
-                    alignItems: 'flex-start'
+                    gap: '8px',
+                    maxHeight: '200px',
+                    overflowY: 'auto'
                   }}>
-                    {formData.industries.slice(0, 20).map((industry, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          fontSize: '10px',
-                          padding: '3px 6px',
-                          borderRadius: '4px',
-                          backgroundColor: 'hsl(var(--muted))',
-                          color: 'hsl(var(--foreground))',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        {industry}
-                      </div>
-                    ))}
-                    {formData.industries.length > 20 && (
-                      <div style={{
-                        fontSize: '10px',
-                        color: 'hsl(var(--muted-foreground))',
-                        fontStyle: 'italic',
-                        marginTop: '4px',
-                        paddingLeft: '6px'
-                      }}>
-                        외 {formData.industries.length - 20}개
-                      </div>
-                    )}
+                    {(() => {
+                      // 업종(대) 기준으로 그룹화
+                      const groupedByLarge: { [key: string]: string[] } = {}
+                      formData.industries.forEach(industry => {
+                        const parts = industry.split(' > ')
+                        const largeCategory = parts[0] || industry
+                        if (!groupedByLarge[largeCategory]) {
+                          groupedByLarge[largeCategory] = []
+                        }
+                        groupedByLarge[largeCategory].push(industry)
+                      })
+                      
+                      return Object.entries(groupedByLarge).map(([largeCategory, industries], idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            fontSize: '11px',
+                            color: 'hsl(var(--foreground))',
+                            lineHeight: '1.6'
+                          }}
+                        >
+                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>{largeCategory}</span>
+                          <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
+                          <span>{industries.length}개</span>
+                        </div>
+                      ))
+                    })()}
                   </div>
                 )}
               </div>
