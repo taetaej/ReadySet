@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { DollarSign, MousePointerClick, TrendingUp, Eye, Link2, FileSpreadsheet, Share2, Database, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Monitor, Calendar, Building2, Package, BarChart3, Target } from 'lucide-react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -30,8 +29,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
-  const [isConfigExpanded, setIsConfigExpanded] = useState(false)
-  const [selectedMetric, setSelectedMetric] = useState<'광고비' | 'CTR' | 'CPC' | 'CPM'>('CTR')
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -64,176 +61,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     setSortConfig({ key, direction })
   }
 
-  // 샘플 Key Metrics 데이터
-  const keyMetrics = [
-    {
-      label: '광고비',
-      value: '1,234,567,890',
-      unit: '원',
-      icon: DollarSign,
-      color: 'hsl(240, 5%, 26%)',
-      key: '광고비' as const
-    },
-    {
-      label: 'CTR',
-      value: '2.34',
-      unit: '%',
-      icon: MousePointerClick,
-      color: 'hsl(240, 5%, 26%)',
-      key: 'CTR' as const
-    },
-    {
-      label: 'CPC',
-      value: '1,250',
-      unit: '원',
-      icon: TrendingUp,
-      color: 'hsl(240, 5%, 26%)',
-      key: 'CPC' as const
-    },
-    {
-      label: 'CPM',
-      value: '8,500',
-      unit: '원',
-      icon: Eye,
-      color: 'hsl(240, 5%, 26%)',
-      key: 'CPM' as const
-    }
-  ]
-
-  // 차트 데이터 생성 (기간별)
-  const generateChartData = () => {
-    const periods = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06']
-    
-    return periods.map((period) => {
-      const baseValues = {
-        '광고비': 1200000000 + Math.random() * 200000000,
-        'CTR': 2.0 + Math.random() * 1.0,
-        'CPC': 1000 + Math.random() * 500,
-        'CPM': 8000 + Math.random() * 2000
-      }
-      
-      return {
-        period,
-        광고비: Math.round(baseValues['광고비']),
-        CTR: Math.round(baseValues['CTR'] * 100) / 100,
-        CPC: Math.round(baseValues['CPC']),
-        CPM: Math.round(baseValues['CPM'])
-      }
-    })
-  }
-
-  const chartData = generateChartData()
-
-  // Top 5 업종 데이터 생성 (선택된 지표 기준)
-  const generateTop5IndustryData = () => {
-    const industries = [
-      '가정용전기전자',
-      '가정용품',
-      '식품',
-      '패션',
-      '전자제품',
-      '건강식품',
-      '화장품',
-      '자동차'
-    ]
-    
-    const data = industries.map((industry) => {
-      const baseValues = {
-        '광고비': 800000000 + Math.random() * 600000000,
-        'CTR': 1.5 + Math.random() * 2.0,
-        'CPC': 800 + Math.random() * 700,
-        'CPM': 6000 + Math.random() * 5000
-      }
-      
-      return {
-        industry,
-        광고비: Math.round(baseValues['광고비']),
-        CTR: Math.round(baseValues['CTR'] * 100) / 100,
-        CPC: Math.round(baseValues['CPC']),
-        CPM: Math.round(baseValues['CPM'])
-      }
-    })
-    
-    // 선택된 지표 기준으로 내림차순 정렬 후 상위 5개만 반환
-    return data
-      .sort((a, b) => b[selectedMetric] - a[selectedMetric])
-      .slice(0, 5)
-  }
-
-  const top5IndustryData = generateTop5IndustryData()
-
-  // 지표별 포맷팅
-  const formatMetricValue = (value: number, metric: string) => {
-    switch (metric) {
-      case '광고비':
-      case 'CPC':
-      case 'CPM':
-        return value.toLocaleString()
-      case 'CTR':
-        return `${value}%`
-      default:
-        return value.toString()
-    }
-  }
-
-  // 커스텀 툴팁 (라인 차트용)
-  const CustomLineTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      return (
-        <div style={{
-          backgroundColor: isDarkMode ? '#18181b' : '#ffffff',
-          border: `1px solid ${isDarkMode ? '#3f3f46' : '#e4e4e7'}`,
-          borderRadius: '8px',
-          padding: '12px',
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-          fontFamily: 'Paperlogy, sans-serif'
-        }}>
-          <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>
-            {data.period}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff9d' }}></div>
-            <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: '12px' }}>{selectedMetric}:</span>
-            <span style={{ fontWeight: '600', marginLeft: 'auto', fontSize: '12px' }}>
-              {formatMetricValue(data[selectedMetric], selectedMetric)}
-            </span>
-          </div>
-        </div>
-      )
-    }
-    return null
-  }
-
-  // 커스텀 툴팁 (막대 차트용)
-  const CustomBarTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      return (
-        <div style={{
-          backgroundColor: isDarkMode ? '#18181b' : '#ffffff',
-          border: `1px solid ${isDarkMode ? '#3f3f46' : '#e4e4e7'}`,
-          borderRadius: '8px',
-          padding: '12px',
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-          fontFamily: 'Paperlogy, sans-serif'
-        }}>
-          <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>
-            {data.industry}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff9d' }}></div>
-            <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: '12px' }}>{selectedMetric}:</span>
-            <span style={{ fontWeight: '600', marginLeft: 'auto', fontSize: '12px' }}>
-              {formatMetricValue(data[selectedMetric], selectedMetric)}
-            </span>
-          </div>
-        </div>
-      )
-    }
-    return null
-  }
-
   // 조회조건 데이터 (실제로는 props나 API에서 받아올 데이터)
   const configData = datasetData?.config || {
     media: 'Meta',
@@ -259,14 +86,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   // 샘플 테이블 데이터 (5000행 제한)
   const generateSampleData = () => {
     const data = []
-    const metricKeys: { [key: string]: string } = {
-      '노출수': 'impressions',
-      '클릭수': 'clicks',
-      '광고비': 'cost',
-      'CTR': 'ctr',
-      'CPC': 'cpc',
-      'CPM': 'cpm'
-    }
     
     for (let i = 0; i < 5000; i++) { // 5000행 생성
       data.push({
@@ -515,7 +334,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       {/* Header - Single Line Layout */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
-          {/* 좌측: 뱃지 + 타이틀 */}
+          {/* 좌측: 타이틀 */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -523,22 +342,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             flex: 1,
             minWidth: 0
           }}>
-            <span style={{
-              padding: '4px 12px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '500',
-              backgroundColor: 'hsl(var(--muted))',
-              color: 'hsl(var(--foreground))',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              flexShrink: 0
-            }}>
-              <Database size={14} />
-              DataShot
-            </span>
-            
             <h1 style={{ 
               fontSize: '20px', 
               fontWeight: '700', 
@@ -553,7 +356,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </h1>
           </div>
 
-          {/* 중앙: 주요 정보 */}
+          {/* 중앙: 조회조건 요약 */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -562,14 +365,28 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             fontFamily: 'Paperlogy, sans-serif',
             flexShrink: 0
           }} className="text-muted-foreground">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontWeight: '500' }}>매체</span>
-              <span>{datasetData?.media || 'Meta'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>매체 1개</span>
+              <SearchCheck size={14} />
             </div>
             <span>•</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontWeight: '500' }}>기준 데이터 일시</span>
-              <span>2024-03-10 14:30:25</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>2024-01 → 2024-06</span>
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>업종 11개</span>
+              <SearchCheck size={14} />
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>광고상품 72개</span>
+              <SearchCheck size={14} />
+            </div>
+            <span>•</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>타겟팅 옵션 1개</span>
+              <SearchCheck size={14} />
             </div>
           </div>
 
@@ -767,606 +584,54 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       {/* Content Area */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
 
-        {/* Key Metrics Summary & Charts - 3단 좌우 배치 */}
-        <div style={{ 
-          display: 'flex',
-          gap: '20px',
-          marginBottom: '32px',
-          width: '100%'
-        }}>
-          {/* 좌측: Key Metrics Summary */}
-          <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              marginBottom: '8px',
-              color: 'hsl(var(--foreground))'
-            }}>
-              Key Metrics Summary
-            </h3>
-            <p style={{
-              fontSize: '12px',
-              color: 'hsl(var(--muted-foreground))',
-              margin: 0,
-              marginBottom: '16px',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}>
-              아래 지표 박스를 클릭하여, 우측 차트에 표시할 기준 지표를 변경할 수 있습니다.
-            </p>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gridTemplateRows: '1fr 1fr',
-              gap: '16px',
-              width: '100%',
-              height: '420px'
-            }}>
-              {keyMetrics.map((metric, index) => {
-                const Icon = metric.icon
-                return (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedMetric(metric.key)}
-                    style={{
-                      backgroundColor: selectedMetric === metric.key ? '#F4F4F5' : 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      transition: 'all 0.2s',
-                      cursor: 'pointer',
-                      boxSizing: 'border-box'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedMetric !== metric.key) {
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        e.currentTarget.style.transform = 'translateY(-2px)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedMetric !== metric.key) {
-                        e.currentTarget.style.boxShadow = 'none'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                      }
-                    }}
-                  >
-                    {/* 헤더 */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '16px'
-                    }}>
-                      <div style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: 'hsl(var(--foreground))',
-                        fontFamily: 'Paperlogy, sans-serif'
-                      }}>
-                        {metric.label}
-                      </div>
-                      <div style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '8px',
-                        backgroundColor: 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: metric.color
-                      }}>
-                        <Icon size={20} />
-                      </div>
-                    </div>
-
-                    {/* 값 */}
-                    <div>
-                      <div style={{
-                        fontSize: '36px',
-                        fontWeight: '700',
-                        color: 'hsl(var(--foreground))',
-                        fontFamily: 'Paperlogy, sans-serif',
-                        display: 'flex',
-                        alignItems: 'baseline',
-                        gap: '4px'
-                      }}>
-                        <span style={{
-                          borderBottom: '3px solid #00ff9d',
-                          paddingBottom: '2px'
-                        }}>
-                          {metric.value}
-                        </span>
-                        <span style={{
-                          fontSize: '16px',
-                          fontWeight: '500',
-                          color: 'hsl(var(--muted-foreground))'
-                        }}>
-                          {metric.unit}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* 중앙: Top 5 업종 가로 막대 그래프 */}
-          <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              marginBottom: '16px',
-              color: 'hsl(var(--foreground))'
-            }}>
-              Top 5 Industries
-            </h3>
-            <div style={{
-              height: '420px',
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '12px',
-              padding: '20px'
-            }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart 
-                  data={top5IndustryData} 
-                  layout="vertical"
-                  margin={{ top: 10, right: 10, left: 80, bottom: 10 }}
-                >
-                  <CartesianGrid 
-                    strokeDasharray="3 3" 
-                    stroke={isDarkMode ? '#27272a' : '#e4e4e7'}
-                    horizontal={false}
-                  />
-                  <XAxis 
-                    type="number"
-                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
-                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
-                    tickFormatter={(value) => {
-                      if (selectedMetric === '광고비') {
-                        return `${(value / 100000000).toFixed(1)}억`
-                      } else if (selectedMetric === 'CTR') {
-                        return `${value}%`
-                      } else {
-                        return value.toLocaleString()
-                      }
-                    }}
-                  />
-                  <YAxis 
-                    type="category"
-                    dataKey="industry"
-                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
-                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
-                    width={70}
-                  />
-                  <Tooltip 
-                    content={<CustomBarTooltip />}
-                    cursor={{ 
-                      fill: isDarkMode ? 'rgba(82, 82, 91, 0.1)' : 'rgba(212, 212, 216, 0.1)'
-                    }}
-                    wrapperStyle={{ outline: 'none' }}
-                  />
-                  <Bar 
-                    dataKey={selectedMetric}
-                    fill="#00ff9d"
-                    radius={[0, 4, 4, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* 우측: Line Chart */}
-          <div style={{ flex: '2 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              marginBottom: '16px',
-              color: 'hsl(var(--foreground))'
-            }}>
-              Metric Trends
-            </h3>
-            <div style={{
-              height: '420px',
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                  <CartesianGrid 
-                    strokeDasharray="3 3" 
-                    stroke={isDarkMode ? '#27272a' : '#e4e4e7'}
-                    vertical={false}
-                  />
-                  <XAxis 
-                    dataKey="period"
-                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
-                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
-                  />
-                  <YAxis 
-                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
-                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
-                    width={60}
-                    tickFormatter={(value) => {
-                      if (selectedMetric === '광고비') {
-                        return `${(value / 100000000).toFixed(1)}억`
-                      } else if (selectedMetric === 'CTR') {
-                        return `${value}%`
-                      } else {
-                        return value.toLocaleString()
-                      }
-                    }}
-                  />
-                  <Tooltip 
-                    content={<CustomLineTooltip />}
-                    cursor={{ 
-                      stroke: isDarkMode ? '#52525b' : '#d4d4d8', 
-                      strokeWidth: 1, 
-                      strokeDasharray: '3 3'
-                    }}
-                    wrapperStyle={{ outline: 'none' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey={selectedMetric}
-                    stroke="#00ff9d" 
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: '#00ff9d', stroke: '#00ff9d', strokeWidth: 1.5 }}
-                    activeDot={{ r: 5, fill: '#00ff9d', stroke: '#00ff9d', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
         {/* 추출 데이터 테이블 */}
         <div style={{ marginBottom: '32px' }}>
-          {/* 테이블 타이틀 및 안내 메시지 */}
+          {/* 테이블 타이틀 */}
           <div style={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            alignItems: 'flex-start', 
             justifyContent: 'space-between',
-            marginBottom: '12px'
+            marginBottom: '12px',
+            gap: '16px'
           }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              color: 'hsl(var(--foreground))'
-            }}>
-              Extracted Data
-            </h3>
-            <div style={{
-              fontSize: '12px',
-              color: 'hsl(var(--muted-foreground))',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <Info size={14} />
-              전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+            <div style={{ flex: 1 }}>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                fontFamily: 'Paperlogy, sans-serif',
+                margin: 0,
+                marginBottom: '8px',
+                color: 'hsl(var(--foreground))'
+              }}>
+                Extracted Data
+              </h3>
+              <div style={{
+                fontSize: '12px',
+                color: 'hsl(var(--muted-foreground))',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <Info size={14} />
+                전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+              </div>
             </div>
           </div>
 
-          {/* Query Configuration - 접기/펼치기 */}
+          {/* 조회 데이터 기준 일시 - 테이블 위 우측 정렬 */}
           <div style={{
-            backgroundColor: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '8px',
-            marginBottom: '16px',
-            overflow: 'hidden'
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '8px'
           }}>
-            {/* 헤더 - 클릭 가능 */}
-            <div
-              onClick={() => setIsConfigExpanded(!isConfigExpanded)}
-              style={{
-                padding: '12px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                backgroundColor: isConfigExpanded ? 'hsl(var(--muted) / 0.3)' : 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                if (!isConfigExpanded) {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.2)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isConfigExpanded) {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                }
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ChevronRight 
-                  size={16} 
-                  style={{ 
-                    transform: isConfigExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s'
-                  }} 
-                />
-                <span style={{ 
-                  fontSize: '13px', 
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  color: 'hsl(var(--muted-foreground))'
-                }}>
-                  Query Configuration
-                </span>
-              </div>
-              <div style={{ 
-                fontSize: '12px', 
-                color: 'hsl(var(--muted-foreground))'
-              }}>
-                {isConfigExpanded ? '접기' : '펼쳐서 조회조건 확인'}
-              </div>
+            <div style={{
+              fontSize: '12px',
+              color: 'hsl(var(--muted-foreground))',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              <span style={{ fontWeight: '500' }}>조회 데이터 기준 일시</span>
+              <span style={{ marginLeft: '8px' }}>2024-03-10 14:30:25</span>
             </div>
-
-            {/* 상세 내용 - 요약 + 상세 구조 */}
-            {isConfigExpanded && (
-              <div style={{
-                padding: '24px',
-                borderTop: '1px solid hsl(var(--border))'
-              }}>
-                {/* 요약 영역 */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '12px',
-                  marginBottom: '24px',
-                  padding: '16px',
-                  backgroundColor: 'hsl(var(--muted) / 0.3)',
-                  borderRadius: '8px'
-                }}>
-                  {/* 매체 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Monitor size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>매체</span>
-                      <span style={{ fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{configData.media}</span>
-                    </div>
-                  </div>
-
-                  {/* 조회기간 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Calendar size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>조회기간</span>
-                      <span style={{ fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>2025-05 → 2026-06</span>
-                    </div>
-                  </div>
-
-                  {/* 업종 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Building2 size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>업종</span>
-                      <span style={{ fontSize: '13px', fontWeight: '600' }}>11개</span>
-                    </div>
-                  </div>
-
-                  {/* 광고상품 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Package size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>광고상품</span>
-                      <span style={{ fontSize: '13px', fontWeight: '600' }}>72개</span>
-                    </div>
-                  </div>
-
-                  {/* 지표 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <BarChart3 size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>지표</span>
-                      <span style={{ fontSize: '13px', fontWeight: '600' }}>10개</span>
-                    </div>
-                  </div>
-
-                  {/* 타겟팅 옵션 */}
-                  {configData.targetingCategory && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Target size={16} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />
-                      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>타겟팅 옵션</span>
-                        <span style={{ fontSize: '13px', fontWeight: '600' }}>1개</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 구분선 */}
-                <div style={{ 
-                  height: '1px', 
-                  backgroundColor: 'hsl(var(--border))',
-                  marginBottom: '24px'
-                }} />
-
-                {/* 상세 영역 */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {/* 업종 상세 */}
-                  <div>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600',
-                      color: 'hsl(var(--foreground))',
-                      marginBottom: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      <Building2 size={14} />
-                      업종 (11개)
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      backgroundColor: 'hsl(var(--muted) / 0.3)',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '6px'
-                    }}>
-                      {[
-                        '가정용전기전자 > 가사용전기전자 > 가사용전기전자기타',
-                        '가정용전기전자 > 가사용전기전자 > 가습기',
-                        '가정용전기전자 > 가사용전기전자 > 다리미',
-                        '가정용전기전자 > 가사용전기전자 > 세탁기',
-                        '가정용전기전자 > 가사용전기전자 > 청소기',
-                        '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타PR',
-                        '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타영고',
-                        '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타',
-                        '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
-                        '가정용품 > 가정용품기타 > 가정용품기타',
-                        '가정용품 > 주방용품 > 주방용품'
-                      ].map((industry, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            fontSize: '11px',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            color: 'hsl(var(--foreground))',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {industry}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 광고상품 상세 */}
-                  <div>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600',
-                      color: 'hsl(var(--foreground))',
-                      marginBottom: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      <Package size={14} />
-                      광고상품 (72개)
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      backgroundColor: 'hsl(var(--muted) / 0.3)',
-                      borderRadius: '6px'
-                    }}>
-                      <div style={{
-                        fontSize: '11px',
-                        color: 'hsl(var(--foreground))',
-                        lineHeight: '1.8',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px'
-                      }}>
-                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>조건 1</div>
-                        <div>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '80px', display: 'inline-block' }}>캠페인 목표</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span style={{ fontWeight: '500' }}>POST_ENGAGEMENT</span>
-                        </div>
-                        <div>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '80px', display: 'inline-block' }}>구매 유형</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>AUCTION, RESERVED</span>
-                        </div>
-                        <div>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '80px', display: 'inline-block' }}>플랫폼</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>facebook, instagram, facebook&instagram, messenger, audience_network, facebook&instagram&messenger</span>
-                        </div>
-                        <div>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '80px', display: 'inline-block' }}>성과 목표</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>CLICKS, LINK_CLICKS, OFFSITE_CONVERSIONS, LEAD_GENERATION, IMPRESSIONS, REACH</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 지표 상세 */}
-                  <div>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600',
-                      color: 'hsl(var(--foreground))',
-                      marginBottom: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      <BarChart3 size={14} />
-                      지표 (10개)
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      backgroundColor: 'hsl(var(--muted) / 0.3)',
-                      borderRadius: '6px'
-                    }}>
-                      <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-                        <div>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '60px', display: 'inline-block' }}>성과</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>클릭(전체), CPC, CPM, CPV, CTR, VTR, 반도, 노출수, 도달수, 광고소진금액</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 타겟팅 옵션 상세 */}
-                  {configData.targetingCategory && (
-                    <div>
-                      <div style={{ 
-                        fontSize: '12px', 
-                        fontWeight: '600',
-                        color: 'hsl(var(--foreground))',
-                        marginBottom: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}>
-                        <Target size={14} />
-                        타겟팅 옵션 (1개)
-                      </div>
-                      <div style={{
-                        padding: '12px',
-                        backgroundColor: 'hsl(var(--muted) / 0.3)',
-                        borderRadius: '6px'
-                      }}>
-                        <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-                          <span style={{ color: 'hsl(var(--muted-foreground))', minWidth: '60px', display: 'inline-block' }}>기기유형</span>
-                          <span style={{ margin: '0 6px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>데스크톱</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
           
           {/* 테이블 */}
