@@ -211,7 +211,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       }}
     >
       <div style={{
-        marginRight: spinXOpen ? '480px' : '0',
+        marginRight: spinXOpen ? '400px' : '0',
         transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
       }}>
       {/* Scenario Header - Single Line */}
@@ -715,11 +715,14 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         <div style={{
           padding: '24px 0',
           borderTop: '1px solid hsl(var(--border))',
-          marginTop: '16px'
+          marginTop: '16px',
+          display: 'flex',
+          justifyContent: 'center'
         }}>
           <button
             onClick={() => navigate('/datashot')}
             style={{
+              maxWidth: '600px',
               width: '100%',
               display: 'flex',
               alignItems: 'center',
