@@ -228,7 +228,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             backgroundColor: 'hsl(var(--muted))',
             borderBottom: '1px solid hsl(var(--border))',
             fontSize: '12px',
-            fontWeight: '600',
+            fontWeight: '500',
             position: 'sticky',
             top: 0,
             zIndex: 10
@@ -299,11 +299,11 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                     pointerEvents: 'none',
                     textAlign: 'left'
                   }}>
-                    <div style={{ fontWeight: '600', marginBottom: '6px' }}>Effective Impression</div>
-                    <div>
+                    <div style={{ fontWeight: '500', marginBottom: '6px' }}>Effective Impression</div>
+                    <div style={{ fontWeight: '400' }}>
                       설정하신 유효 타겟에게 물리적으로 인지 가능한(Viewable) 노출 수치를 의미합니다.
                     </div>
-                    <div style={{ marginTop: '8px' }}>
+                    <div style={{ marginTop: '8px', fontWeight: '400' }}>
                       Reach Caster의 예측 결과값은 해당 데이터를 기반으로 제공됩니다.
                     </div>
                   </div>

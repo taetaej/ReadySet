@@ -1151,7 +1151,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                         </span>
                       </td>
                       <td style={{ 
-                        fontWeight: '500',
+                        fontWeight: '400',
                         color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                         opacity: isClickable ? 1 : 0.6
                       }}>
@@ -1697,7 +1697,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                               {/* 시나리오명 */}
                               <div style={{ 
                                 fontSize: '12px', 
-                                fontWeight: '600',
+                                fontWeight: '500',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
