@@ -858,7 +858,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           }}>
             <h3 style={{
               fontSize: '20px',
-              fontWeight: '600',
+              fontWeight: '500',
               fontFamily: 'Paperlogy, sans-serif',
               display: 'flex',
               alignItems: 'center',
