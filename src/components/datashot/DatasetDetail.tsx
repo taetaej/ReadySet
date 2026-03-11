@@ -24,6 +24,9 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
+  const [configModalOpen, setConfigModalOpen] = useState(false)
+  const [adProductsModalOpen, setAdProductsModalOpen] = useState(false)
+  const [targetingModalOpen, setTargetingModalOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
@@ -366,27 +369,40 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             flexShrink: 0
           }} className="text-muted-foreground">
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>매체 1개</span>
-              <SearchCheck size={14} />
+              <span>매체</span>
+              <span style={{ color: 'hsl(var(--foreground))', fontWeight: '500' }}>{configData.media}</span>
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>2024-01 → 2024-06</span>
+              <span>조회기간</span>
+              <span style={{ color: 'hsl(var(--foreground))', fontWeight: '500' }}>2024-01 → 2024-06</span>
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>업종 11개</span>
-              <SearchCheck size={14} />
+              <SearchCheck 
+                size={14} 
+                style={{ cursor: 'pointer' }}
+                onClick={() => setConfigModalOpen(true)}
+              />
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>광고상품 72개</span>
-              <SearchCheck size={14} />
+              <SearchCheck 
+                size={14} 
+                style={{ cursor: 'pointer' }}
+                onClick={() => setAdProductsModalOpen(true)}
+              />
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>타겟팅 옵션 1개</span>
-              <SearchCheck size={14} />
+              <SearchCheck 
+                size={14} 
+                style={{ cursor: 'pointer' }}
+                onClick={() => setTargetingModalOpen(true)}
+              />
             </div>
           </div>
 
@@ -612,7 +628,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                <Info size={14} />
                 전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
               </div>
             </div>
@@ -759,6 +774,575 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           >
             ×
           </button>
+        </div>
+      )}
+
+      {/* 선택한 업종 모달 */}
+      {configModalOpen && (
+        <div className="dialog-overlay" onClick={() => setConfigModalOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              width: '900px', 
+              maxWidth: '95vw',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 업종</h3>
+              <p className="dialog-description">
+                이 데이터셋에 적용된 업종입니다
+              </p>
+            </div>
+            
+            <div style={{ 
+              padding: '24px', 
+              flex: 1, 
+              overflowY: 'auto'
+            }}>
+              {/* 선택된 업종 테이블 */}
+              <div style={{
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                {/* 테이블 헤더 */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  padding: '12px 16px',
+                  backgroundColor: 'hsl(var(--muted) / 0.5)',
+                  borderBottom: '1px solid hsl(var(--border))',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: 'hsl(var(--muted-foreground))'
+                }}>
+                  선택한 업종 (11개)
+                </div>
+
+                {/* 테이블 바디 */}
+                <div>
+                  {['가정용전기전자 > 가사용전기전자 > 가사용전기전자기타', 
+                    '가정용전기전자 > 가사용전기전자 > 가습기', 
+                    '가정용전기전자 > 가사용전기전자 > 다리미', 
+                    '가정용전기전자 > 가사용전기전자 > 세탁기',
+                    '가정용전기전자 > 가사용전기전자 > 청소기',
+                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타PR',
+                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기업공고',
+                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타',
+                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
+                    '가정용전기전자 > 냉난방기 > 냉난방기기타',
+                    '가정용전기전자 > 냉난방기 > 에어컨'].map((industry, idx) => {
+                    const parts = industry.split(' > ')
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr',
+                          padding: '12px 16px',
+                          alignItems: 'center',
+                          borderBottom: idx < 10 ? '1px solid hsl(var(--border))' : 'none',
+                          fontSize: '13px'
+                        }}
+                      >
+                        <div style={{ lineHeight: '1.4' }}>
+                          {parts.map((part, partIdx) => (
+                            <span key={partIdx}>
+                              {partIdx > 0 && (
+                                <span style={{ 
+                                  color: 'hsl(var(--muted-foreground))',
+                                  margin: '0 4px'
+                                }}>
+                                  {'>'}
+                                </span>
+                              )}
+                              <span style={{ 
+                                color: partIdx === parts.length - 1 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                              }}>
+                                {part}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setConfigModalOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 선택한 광고상품 모달 */}
+      {adProductsModalOpen && (
+        <div className="dialog-overlay" onClick={() => setAdProductsModalOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              width: '900px', 
+              maxWidth: '95vw',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 광고상품</h3>
+              <p className="dialog-description">
+                이 데이터셋에 적용된 광고상품입니다
+              </p>
+            </div>
+            
+            <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+              {/* 조건 1 */}
+              <div style={{
+                marginBottom: '16px',
+                padding: '20px',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                backgroundColor: 'hsl(var(--card))'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
+                    조건 1
+                  </h3>
+                </div>
+
+                {/* 캠페인 목표 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    캠페인 목표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                  </label>
+                  <select
+                    value="POST_ENGAGEMENT"
+                    disabled
+                    className="input"
+                    style={{ 
+                      width: '100%', 
+                      appearance: 'none', 
+                      paddingRight: '32px',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <option value="POST_ENGAGEMENT">POST_ENGAGEMENT</option>
+                  </select>
+                </div>
+
+                {/* 구매 유형 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    구매 유형
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: '100%', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      전체
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      AUCTION
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      RESERVED
+                    </label>
+                  </div>
+                </div>
+
+                {/* 플랫폼 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    플랫폼
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      facebook
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      instagram
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      facebook&instagram
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      audience_network
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      facebook&instagram&messenger
+                    </label>
+                  </div>
+                </div>
+
+                {/* 성과 목표 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    성과 목표
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      OFFSITE_CONVERSIONS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      LINK_CLICKS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      IMPRESSIONS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      LEAD_GENERATION
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      REACH
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* OR 구분선 */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '16px 0',
+                gap: '12px'
+              }}>
+                <div style={{
+                  flex: 1,
+                  height: '1px',
+                  backgroundColor: 'hsl(var(--border))'
+                }} />
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: 'hsl(var(--muted-foreground))',
+                  padding: '4px 12px',
+                  backgroundColor: 'hsl(var(--muted))',
+                  borderRadius: '12px',
+                  border: '1px solid hsl(var(--border))'
+                }}>
+                  OR
+                </span>
+                <div style={{
+                  flex: 1,
+                  height: '1px',
+                  backgroundColor: 'hsl(var(--border))'
+                }} />
+              </div>
+
+              {/* 조건 2 */}
+              <div style={{
+                padding: '20px',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                backgroundColor: 'hsl(var(--card))'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
+                    조건 2
+                  </h3>
+                </div>
+
+                {/* 캠페인 목표 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    캠페인 목표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                  </label>
+                  <select
+                    value="REACH"
+                    disabled
+                    className="input"
+                    style={{ 
+                      width: '100%', 
+                      appearance: 'none', 
+                      paddingRight: '32px',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <option value="REACH">REACH</option>
+                  </select>
+                </div>
+
+                {/* 구매 유형 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    구매 유형
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: '100%', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      전체
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      AUCTION
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      RESERVED
+                    </label>
+                  </div>
+                </div>
+
+                {/* 플랫폼 */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    플랫폼
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      facebook
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      instagram
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      messenger
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      audience_network
+                    </label>
+                  </div>
+                </div>
+
+                {/* 성과 목표 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                    성과 목표
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      LINK_CLICKS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      OFFSITE_CONVERSIONS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      LEAD_GENERATION
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      IMPRESSIONS
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
+                      REACH
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setAdProductsModalOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 선택한 타겟팅 옵션 모달 */}
+      {targetingModalOpen && (
+        <div className="dialog-overlay" onClick={() => setTargetingModalOpen(false)}>
+          <div 
+            className="dialog-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              width: '900px', 
+              maxWidth: '95vw',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 타겟팅 옵션</h3>
+              <p className="dialog-description">
+                이 데이터셋에 적용된 타겟팅 옵션입니다
+              </p>
+            </div>
+            
+            <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
+              {/* 타겟팅 기준 */}
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  타겟팅 기준
+                </label>
+                <select
+                  value="기기유형"
+                  disabled
+                  className="input"
+                  style={{ 
+                    width: '100%', 
+                    height: '36px', 
+                    padding: '8px 12px',
+                    opacity: 0.6,
+                    cursor: 'not-allowed'
+                  }}
+                >
+                  <option value="기기유형">기기유형</option>
+                </select>
+              </div>
+
+              {/* 타겟팅 세부 옵션 */}
+              <div style={{
+                padding: '16px',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '6px',
+                backgroundColor: 'hsl(var(--muted) / 0.1)'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '12px' }}>
+                  기기유형 옵션 (다중 선택 가능)
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px',
+                      border: '1px solid hsl(var(--primary))',
+                      borderRadius: '6px',
+                      backgroundColor: 'hsl(var(--primary) / 0.1)',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked
+                      disabled
+                      className="checkbox-custom"
+                      style={{ cursor: 'not-allowed' }}
+                    />
+                    <span style={{ fontSize: '13px' }}>데스크톱</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px',
+                      backgroundColor: 'transparent',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      disabled
+                      className="checkbox-custom"
+                      style={{ cursor: 'not-allowed' }}
+                    />
+                    <span style={{ fontSize: '13px' }}>모바일 웹</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px',
+                      backgroundColor: 'transparent',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      disabled
+                      className="checkbox-custom"
+                      style={{ cursor: 'not-allowed' }}
+                    />
+                    <span style={{ fontSize: '13px' }}>분류되지 않음</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px',
+                      backgroundColor: 'transparent',
+                      opacity: 0.6,
+                      cursor: 'not-allowed'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      disabled
+                      className="checkbox-custom"
+                      style={{ cursor: 'not-allowed' }}
+                    />
+                    <span style={{ fontSize: '13px' }}>앱 내</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => setTargetingModalOpen(false)}
+                className="btn btn-primary btn-md"
+              >
+                확인
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </AppLayout>
