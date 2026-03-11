@@ -123,6 +123,7 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
   const [viewMode, setViewMode] = useState<'months' | 'years'>('months')
   const [startYear, setStartYear] = useState(2025)
   const [endYear, setEndYear] = useState(2026)
+  const [yearPickerTarget, setYearPickerTarget] = useState<'start' | 'end'>('start')
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -176,15 +177,6 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
       setIsOpen(false)
       setViewMode('months')
     }
-  }
-
-  const handleYearClick = (isStart: boolean, year: number) => {
-    if (isStart) {
-      setStartYear(year)
-    } else {
-      setEndYear(year)
-    }
-    setViewMode('months')
   }
 
   const getDisplayText = () => {
@@ -265,7 +257,10 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
           
           <button
             type="button"
-            onClick={() => setViewMode('years')}
+            onClick={() => {
+              setYearPickerTarget(isStart ? 'start' : 'end')
+              setViewMode('years')
+            }}
             style={{
               fontSize: '14px',
               fontWeight: '600',
@@ -421,9 +416,12 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
           ) : (
             <YearSelectionView 
               onYearClick={(year) => {
-                handleYearClick(true, year)
-                setStartYear(year)
-                setEndYear(year)
+                if (yearPickerTarget === 'start') {
+                  setStartYear(year)
+                } else {
+                  setEndYear(year)
+                }
+                setViewMode('months')
               }}
             />
           )}
