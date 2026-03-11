@@ -61,7 +61,7 @@ export function SlotHeader({ slotId, slotData, onEdit, onDelete }: SlotHeaderPro
           
           <h1 style={{ 
             fontSize: '20px', 
-            fontWeight: '600', 
+            fontWeight: '500', 
             margin: 0,
             whiteSpace: 'nowrap',
             overflow: 'hidden',

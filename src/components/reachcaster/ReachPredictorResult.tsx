@@ -243,7 +243,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             
             <h1 style={{ 
               fontSize: '20px', 
-              fontWeight: '700', 
+              fontWeight: '500', 
               margin: 0,
               fontFamily: 'Paperlogy, sans-serif',
               whiteSpace: 'nowrap',
@@ -575,7 +575,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           <div style={{ minWidth: 0, width: '100%', height: 'fit-content' }}>
             <h3 style={{
               fontSize: '20px',
-              fontWeight: '600',
+              fontWeight: '500',
               fontFamily: 'Paperlogy, sans-serif',
               margin: 0,
               marginBottom: '32px',
@@ -596,7 +596,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             }}>
               <h3 style={{
                 fontSize: '20px',
-                fontWeight: '600',
+                fontWeight: '500',
                 fontFamily: 'Paperlogy, sans-serif',
                 margin: 0,
                 color: 'hsl(var(--foreground))'
@@ -643,7 +643,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           }}>
             <h3 style={{
               fontSize: '20px',
-              fontWeight: '600',
+              fontWeight: '500',
               fontFamily: 'Paperlogy, sans-serif',
               margin: 0,
               color: 'hsl(var(--foreground))'
