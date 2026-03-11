@@ -6,6 +6,7 @@ import { sampleDatasets } from './types'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
+import { maskEmail } from '../../utils/maskEmail'
 
 type SortField = 'id' | 'name' | 'media' | 'industry' | 'startDate' | 'status' | 'created' | 'creator'
 type SortOrder = 'asc' | 'desc'
@@ -32,6 +33,13 @@ export function DatasetList() {
   // 체크박스 선택 상태
   const [selectedDatasets, setSelectedDatasets] = useState<number[]>([])
   const [selectAll, setSelectAll] = useState(false)
+  
+  // 이동 모달 상태
+  const [showMoveDialog, setShowMoveDialog] = useState(false)
+  
+  // 삭제 모달 상태
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deletingDatasets, setDeletingDatasets] = useState<number[]>([])
 
   // 체크박스 전체 선택/해제
   const handleSelectAll = () => {
@@ -290,8 +298,7 @@ export function DatasetList() {
               <>
                 <button
                   onClick={() => {
-                    // TODO: 이동 기능 구현
-                    console.log('이동:', selectedDatasets)
+                    setShowMoveDialog(true)
                   }}
                   className="btn btn-ghost btn-md"
                   style={{ border: '1px solid hsl(var(--border))' }}
@@ -301,11 +308,8 @@ export function DatasetList() {
                 </button>
                 <button
                   onClick={() => {
-                    if (window.confirm(`선택한 ${selectedDatasets.length}개 데이터셋을 삭제하시겠습니까?`)) {
-                      console.log('삭제:', selectedDatasets)
-                      setSelectedDatasets([])
-                      setSelectAll(false)
-                    }
+                    setDeletingDatasets(selectedDatasets)
+                    setShowDeleteDialog(true)
                   }}
                   className="btn btn-md"
                   style={{
@@ -639,7 +643,7 @@ export function DatasetList() {
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                      {dataset.creator} ({dataset.creatorId})
+                      {dataset.creator} ({maskEmail(dataset.creatorId)})
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                       {dataset.created}
@@ -682,7 +686,8 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                // TODO: 이동 기능 구현
+                                setSelectedDatasets([dataset.id])
+                                setShowMoveDialog(true)
                               }}
                               className="dropdown-item"
                             >
@@ -693,7 +698,8 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                // TODO: 삭제 기능 구현
+                                setDeletingDatasets([dataset.id])
+                                setShowDeleteDialog(true)
                               }}
                               className="dropdown-item"
                             >
@@ -859,6 +865,98 @@ export function DatasetList() {
           </div>
         </div>
       </div>
+
+      {/* 이동 다이얼로그 */}
+      {showMoveDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                데이터셋 이동
+              </h3>
+              <p className="dialog-description">
+                선택한 {selectedDatasets.length}개 데이터셋을 다른 Slot으로 이동합니다.
+              </p>
+            </div>
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                  이동할 Slot 선택 (광고주: {slotData.advertiser})
+                </label>
+                <select className="input" style={{ width: '100%' }}>
+                  <option value="">Slot을 선택하세요</option>
+                  <option value="slot-1">삼성 갤럭시 S24 캠페인</option>
+                  <option value="slot-2">삼성 갤럭시 Z Fold 캠페인</option>
+                  <option value="slot-3">삼성 QLED TV 프로모션</option>
+                </select>
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowMoveDialog(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  console.log('이동:', selectedDatasets)
+                  setShowMoveDialog(false)
+                  setSelectedDatasets([])
+                  setSelectAll(false)
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                이동
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 다이얼로그 */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                데이터셋을 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                선택한 {deletingDatasets.length}개 데이터셋을 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+
+            <div className="dialog-footer">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false)
+                  setDeletingDatasets([])
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  console.log('삭제:', deletingDatasets)
+                  setShowDeleteDialog(false)
+                  setDeletingDatasets([])
+                  setSelectedDatasets([])
+                  setSelectAll(false)
+                }}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   )
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ChevronLeft, ChevronRight, Database, Maximize2 } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Database, Maximize2, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -50,6 +50,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
   const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -60,6 +61,16 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       setIsStep1Confirmed(true)
     }
   }, [currentStep])
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
 
   useEffect(() => {
     if (!validationActive) {
@@ -160,12 +171,28 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
+      // 실제 API 호출 시뮬레이션
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // 데이터셋 생성 로직
+      console.log('데이터셋 생성:', formData)
+      
+      // 성공 시
+      setShowToast({ 
+        type: 'success', 
+        message: '데이터셋 생성 요청이 완료되었습니다. 데이터셋 목록에서 확인해주세요.' 
+      })
+      
       setTimeout(() => {
         navigate('/datashot')
-      }, 500)
+      }, 2000)
+      
     } catch (error) {
-      // 에러 처리
+      // 실패 시
+      setShowToast({ 
+        type: 'error', 
+        message: '데이터셋 생성 요청에 실패했습니다. 다시 시도해주세요.' 
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -977,7 +1004,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                   </button>
                 ) : (
                   <button onClick={handleSubmit} disabled={isSubmitting} className="btn btn-primary btn-lg">
-                    {isSubmitting ? '추출 중...' : '데이터 추출 시작'}
+                    {isSubmitting ? '생성 요청 중...' : '데이터셋 생성 요청'}
                   </button>
                 )}
               </div>
@@ -1025,6 +1052,33 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         onClose={() => setShowSampleDataModal(false)}
         formData={formData}
       />
+
+      {/* 토스트 알림 */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </AppLayout>
   )
 }

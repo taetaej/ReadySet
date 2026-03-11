@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { DollarSign, MousePointerClick, TrendingUp, Eye, Link2, FileSpreadsheet, Share2, Database, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Monitor, Calendar, Building2, Package, BarChart3, Target } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -32,7 +32,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [itemsPerPage, setItemsPerPage] = useState(20)
   const [isConfigExpanded, setIsConfigExpanded] = useState(false)
   const [selectedMetric, setSelectedMetric] = useState<'광고비' | 'CTR' | 'CPC' | 'CPM'>('CTR')
-  const [chartInfoTooltipOpen, setChartInfoTooltipOpen] = useState(false)
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
@@ -125,6 +124,44 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
   const chartData = generateChartData()
 
+  // Top 5 업종 데이터 생성 (선택된 지표 기준)
+  const generateTop5IndustryData = () => {
+    const industries = [
+      '가정용전기전자',
+      '가정용품',
+      '식품',
+      '패션',
+      '전자제품',
+      '건강식품',
+      '화장품',
+      '자동차'
+    ]
+    
+    const data = industries.map((industry) => {
+      const baseValues = {
+        '광고비': 800000000 + Math.random() * 600000000,
+        'CTR': 1.5 + Math.random() * 2.0,
+        'CPC': 800 + Math.random() * 700,
+        'CPM': 6000 + Math.random() * 5000
+      }
+      
+      return {
+        industry,
+        광고비: Math.round(baseValues['광고비']),
+        CTR: Math.round(baseValues['CTR'] * 100) / 100,
+        CPC: Math.round(baseValues['CPC']),
+        CPM: Math.round(baseValues['CPM'])
+      }
+    })
+    
+    // 선택된 지표 기준으로 내림차순 정렬 후 상위 5개만 반환
+    return data
+      .sort((a, b) => b[selectedMetric] - a[selectedMetric])
+      .slice(0, 5)
+  }
+
+  const top5IndustryData = generateTop5IndustryData()
+
   // 지표별 포맷팅
   const formatMetricValue = (value: number, metric: string) => {
     switch (metric) {
@@ -139,8 +176,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     }
   }
 
-  // 커스텀 툴팁
-  const CustomTooltip = ({ active, payload }: any) => {
+  // 커스텀 툴팁 (라인 차트용)
+  const CustomLineTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
@@ -154,6 +191,35 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         }}>
           <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>
             {data.period}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff9d' }}></div>
+            <span style={{ color: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: '12px' }}>{selectedMetric}:</span>
+            <span style={{ fontWeight: '600', marginLeft: 'auto', fontSize: '12px' }}>
+              {formatMetricValue(data[selectedMetric], selectedMetric)}
+            </span>
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
+
+  // 커스텀 툴팁 (막대 차트용)
+  const CustomBarTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      return (
+        <div style={{
+          backgroundColor: isDarkMode ? '#18181b' : '#ffffff',
+          border: `1px solid ${isDarkMode ? '#3f3f46' : '#e4e4e7'}`,
+          borderRadius: '8px',
+          padding: '12px',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          fontFamily: 'Paperlogy, sans-serif'
+        }}>
+          <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>
+            {data.industry}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff9d' }}></div>
@@ -701,31 +767,41 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       {/* Content Area */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
 
-        {/* Key Metrics Summary & Chart - 좌우 배치 */}
+        {/* Key Metrics Summary & Charts - 3단 좌우 배치 */}
         <div style={{ 
           display: 'flex',
-          gap: '32px',
-          marginBottom: '32px'
+          gap: '20px',
+          marginBottom: '32px',
+          width: '100%'
         }}>
           {/* 좌측: Key Metrics Summary */}
-          <div style={{ flexShrink: 0, width: '690px' }}>
+          <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
             <h3 style={{
               fontSize: '20px',
               fontWeight: '600',
               fontFamily: 'Paperlogy, sans-serif',
               margin: 0,
-              marginBottom: '16px',
+              marginBottom: '8px',
               color: 'hsl(var(--foreground))'
             }}>
               Key Metrics Summary
             </h3>
+            <p style={{
+              fontSize: '12px',
+              color: 'hsl(var(--muted-foreground))',
+              margin: 0,
+              marginBottom: '16px',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}>
+              아래 지표 박스를 클릭하여, 우측 차트에 표시할 기준 지표를 변경할 수 있습니다.
+            </p>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gridTemplateRows: 'repeat(2, 1fr)',
+              gridTemplateColumns: '1fr 1fr',
+              gridTemplateRows: '1fr 1fr',
               gap: '16px',
               width: '100%',
-              height: '360px'
+              height: '420px'
             }}>
               {keyMetrics.map((metric, index) => {
                 const Icon = metric.icon
@@ -743,8 +819,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       justifyContent: 'center',
                       transition: 'all 0.2s',
                       cursor: 'pointer',
-                      width: '100%',
-                      height: '100%',
                       boxSizing: 'border-box'
                     }}
                     onMouseEnter={(e) => {
@@ -821,59 +895,92 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
           </div>
 
-          {/* 우측: Chart */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <h3 style={{
-                fontSize: '20px',
-                fontWeight: '600',
-                fontFamily: 'Paperlogy, sans-serif',
-                margin: 0,
-                color: 'hsl(var(--foreground))'
-              }}>
-                Chart
-              </h3>
-              <div style={{ position: 'relative' }}>
-                <div
-                  onMouseEnter={() => setChartInfoTooltipOpen(true)}
-                  onMouseLeave={() => setChartInfoTooltipOpen(false)}
-                  style={{ 
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}
-                >
-                  <Info size={16} />
-                </div>
-                
-                {chartInfoTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    marginTop: '8px',
-                    width: '240px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    fontSize: '12px',
-                    lineHeight: '1.5',
-                    color: 'hsl(var(--foreground))',
-                    pointerEvents: 'none'
-                  }}>
-                    좌측 지표 박스를 클릭하여 차트에 표시할 지표를 변경할 수 있습니다.
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* 중앙: Top 5 업종 가로 막대 그래프 */}
+          <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              marginBottom: '16px',
+              color: 'hsl(var(--foreground))'
+            }}>
+              Top 5 Industries
+            </h3>
             <div style={{
-              height: '360px',
+              height: '420px',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '12px',
+              padding: '20px'
+            }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={top5IndustryData} 
+                  layout="vertical"
+                  margin={{ top: 10, right: 10, left: 80, bottom: 10 }}
+                >
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke={isDarkMode ? '#27272a' : '#e4e4e7'}
+                    horizontal={false}
+                  />
+                  <XAxis 
+                    type="number"
+                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
+                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
+                    tickFormatter={(value) => {
+                      if (selectedMetric === '광고비') {
+                        return `${(value / 100000000).toFixed(1)}억`
+                      } else if (selectedMetric === 'CTR') {
+                        return `${value}%`
+                      } else {
+                        return value.toLocaleString()
+                      }
+                    }}
+                  />
+                  <YAxis 
+                    type="category"
+                    dataKey="industry"
+                    stroke={isDarkMode ? '#3f3f46' : '#e4e4e7'}
+                    tick={{ fill: isDarkMode ? '#a1a1aa' : '#71717a', fontSize: 11 }}
+                    width={70}
+                  />
+                  <Tooltip 
+                    content={<CustomBarTooltip />}
+                    cursor={{ 
+                      fill: isDarkMode ? 'rgba(82, 82, 91, 0.1)' : 'rgba(212, 212, 216, 0.1)'
+                    }}
+                    wrapperStyle={{ outline: 'none' }}
+                  />
+                  <Bar 
+                    dataKey={selectedMetric}
+                    fill="#00ff9d"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* 우측: Line Chart */}
+          <div style={{ flex: '2 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              marginBottom: '16px',
+              color: 'hsl(var(--foreground))'
+            }}>
+              Metric Trends
+            </h3>
+            <div style={{
+              height: '420px',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '12px',
+              padding: '20px',
               display: 'flex',
               flexDirection: 'column'
             }}>
@@ -904,7 +1011,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     }}
                   />
                   <Tooltip 
-                    content={<CustomTooltip />}
+                    content={<CustomLineTooltip />}
                     cursor={{ 
                       stroke: isDarkMode ? '#52525b' : '#d4d4d8', 
                       strokeWidth: 1, 
