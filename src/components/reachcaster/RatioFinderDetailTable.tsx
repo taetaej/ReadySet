@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { ChevronRight, Info } from 'lucide-react'
 import { mediaData } from '../scenario/constants'
 
@@ -108,7 +108,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
     return data
   }
 
-  const detailedData = generateDetailedData()
+  const detailedData = useMemo(() => generateDetailedData(), [])
 
   // Sub Total 계산
   const calculateMediaSubTotal = (category: string, media: string) => {

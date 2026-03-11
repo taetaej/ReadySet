@@ -567,7 +567,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   right: 0,
                   marginTop: '8px',
                   width: '200px',
-                  backgroundColor: 'hsl(var(--card))',
+                  backgroundColor: 'hsl(var(--popover))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
                   boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
@@ -588,7 +588,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      transition: 'background-color 0.2s'
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--popover-foreground))'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -609,7 +610,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      transition: 'background-color 0.2s'
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--popover-foreground))'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -630,7 +632,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      transition: 'background-color 0.2s'
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--popover-foreground))'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}

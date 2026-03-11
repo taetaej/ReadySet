@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { ChevronRight, Calendar, Users, Info } from 'lucide-react'
 import { mediaData, targetGrpOptions } from '../scenario/constants'
 
@@ -148,7 +148,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
     return data
   }
 
-  const detailedData = generateDetailedData()
+  const detailedData = useMemo(() => generateDetailedData(), [])
 
   // Sub Total 계산
   const calculateMediaSubTotal = (category: string, media: string) => {
