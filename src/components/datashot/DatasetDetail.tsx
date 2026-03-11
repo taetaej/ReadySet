@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck } from 'lucide-react'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Filter, Clock } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -32,12 +32,55 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
+  
+  // 필터 상태
+  const [columnFilterOpen, setColumnFilterOpen] = useState<string | null>(null)
+  const [filters, setFilters] = useState<{
+    period: string[]
+    media: string[]
+    industryLarge: string[]
+    industryMedium: string[]
+    industrySmall: string[]
+    objective: string[]
+    buyingType: string[]
+    platform: string[]
+    performanceGoal: string[]
+    targetingOption: string[]
+  }>({
+    period: [],
+    media: [],
+    industryLarge: [],
+    industryMedium: [],
+    industrySmall: [],
+    objective: [],
+    buyingType: [],
+    platform: [],
+    performanceGoal: [],
+    targetingOption: []
+  })
+  const [filterTooltipOpen, setFilterTooltipOpen] = useState(false)
+  const [clockTooltipOpen, setClockTooltipOpen] = useState(false)
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
     setDarkModeUtil(newMode)
   }
+
+  // 필터 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (columnFilterOpen && !target.closest('th')) {
+        setColumnFilterOpen(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [columnFilterOpen])
 
   const handleCopyLink = () => {
     const url = window.location.href
@@ -100,7 +143,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         objective: 'Post Engagement',
         buyingType: 'Auction',
         platform: i % 2 === 0 ? 'Facebook' : 'Instagram',
-        performanceGoal: '—',
+        performanceGoal: i % 4 === 0 ? 'OFFSITE_CONVERSIONS' : i % 4 === 1 ? 'LINK_CLICKS' : i % 4 === 2 ? 'IMPRESSIONS' : 'REACH',
         targetingOption: i % 3 === 0 ? 'Mobile' : (i % 3 === 1 ? 'Desktop' : 'Tablet'),
         impressions: 1234567 + i * 1000,
         clicks: 28901 + i * 100,
@@ -134,27 +177,63 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       const aValue = a[dataKey]
       const bValue = b[dataKey]
       
-      // 숫자 비교
-      const aNum = typeof aValue === 'number' ? aValue : parseFloat(aValue) || 0
-      const bNum = typeof bValue === 'number' ? bValue : parseFloat(bValue) || 0
+      // 숫자인지 확인
+      const aIsNumber = typeof aValue === 'number' || !isNaN(parseFloat(aValue))
+      const bIsNumber = typeof bValue === 'number' || !isNaN(parseFloat(bValue))
       
-      if (sortConfig.direction === 'asc') {
-        return aNum - bNum
+      if (aIsNumber && bIsNumber) {
+        // 숫자 비교
+        const aNum = typeof aValue === 'number' ? aValue : parseFloat(aValue)
+        const bNum = typeof bValue === 'number' ? bValue : parseFloat(bValue)
+        
+        if (sortConfig.direction === 'asc') {
+          return aNum - bNum
+        } else {
+          return bNum - aNum
+        }
       } else {
-        return bNum - aNum
+        // 문자열 비교
+        const aStr = String(aValue || '').toLowerCase()
+        const bStr = String(bValue || '').toLowerCase()
+        
+        if (sortConfig.direction === 'asc') {
+          return aStr.localeCompare(bStr)
+        } else {
+          return bStr.localeCompare(aStr)
+        }
       }
     })
     
     return sorted
   }
 
+  // 필터링 적용
+  const getFilteredData = () => {
+    let data = getSortedData()
+    
+    // 컬럼별 필터 적용
+    Object.entries(filters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        data = data.filter((row: any) => values.includes(String(row[key])))
+      }
+    })
+    
+    return data
+  }
+
+  // 고유 값 추출 (필터 옵션용)
+  const getUniqueValues = (key: string) => {
+    const values = sampleData.map((row: any) => String(row[key]))
+    return Array.from(new Set(values)).sort()
+  }
+
   // 페이지네이션 로직
-  const sortedData = getSortedData()
-  const totalItems = sortedData.length
+  const filteredData = getFilteredData()
+  const totalItems = filteredData.length
   const totalPages = Math.ceil(totalItems / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentPageData = sortedData.slice(startIndex, endIndex)
+  const currentPageData = filteredData.slice(startIndex, endIndex)
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -612,44 +691,108 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             marginBottom: '12px',
             gap: '16px'
           }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ 
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
               <h3 style={{
                 fontSize: '20px',
                 fontWeight: '500',
                 fontFamily: 'Paperlogy, sans-serif',
                 margin: 0,
-                marginBottom: '8px',
                 color: 'hsl(var(--foreground))'
               }}>
                 Extracted Data
               </h3>
-              <div style={{
-                fontSize: '12px',
-                color: 'hsl(var(--muted-foreground))',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+              {/* Clock 아이콘 - 데이터 기준 일시 */}
+              <div style={{ position: 'relative' }}>
+                <Clock 
+                  size={18} 
+                  style={{ 
+                    cursor: 'pointer',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}
+                  onMouseEnter={() => setClockTooltipOpen(true)}
+                  onMouseLeave={() => setClockTooltipOpen(false)}
+                />
+                {clockTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginTop: '8px',
+                    width: '220px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px',
+                    lineHeight: '1.5',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    <div style={{ fontWeight: '500', marginBottom: '4px' }}>데이터 기준 일시</div>
+                    <div style={{ color: 'hsl(var(--muted-foreground))' }}>2024-03-10 14:30:25</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* 조회 데이터 기준 일시 - 테이블 위 우측 정렬 */}
+          {/* 액션 바 - 결과 표시 */}
           <div style={{
             display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '8px'
+            gap: '12px',
+            marginBottom: '16px',
+            alignItems: 'center',
+            justifyContent: 'flex-end'
           }}>
+            {/* 결과 개수 */}
             <div style={{
-              fontSize: '12px',
+              fontSize: '13px',
               color: 'hsl(var(--muted-foreground))',
-              fontFamily: 'Paperlogy, sans-serif'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              <span style={{ fontWeight: '500' }}>조회 데이터 기준 일시</span>
-              <span style={{ marginLeft: '8px' }}>2024-03-10 14:30:25</span>
+              <span>{totalItems.toLocaleString()} / {(12345).toLocaleString()} 결과</span>
+              <div style={{ position: 'relative' }}>
+                <Info 
+                  size={16} 
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setFilterTooltipOpen(true)}
+                  onMouseLeave={() => setFilterTooltipOpen(false)}
+                />
+                {filterTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '320px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px',
+                    lineHeight: '1.5',
+                    whiteSpace: 'normal'
+                  }}>
+                    전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
           
           {/* 테이블 */}
           <div style={{
@@ -669,18 +812,747 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     backgroundColor: 'hsl(var(--muted))',
                     borderBottom: '1px solid hsl(var(--border))'
                   }}>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>기간</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>매체</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(대)</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(중)</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>업종(소)</th>
+                    <th 
+                      onClick={() => handleSort('period')}
+                      style={{ 
+                        padding: '12px 8px', 
+                        textAlign: 'left', 
+                        fontWeight: '500', 
+                        whiteSpace: 'nowrap', 
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        기간
+                        {sortConfig?.key === 'period' && (
+                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                        )}
+                        <Filter 
+                          size={12} 
+                          style={{ 
+                            marginLeft: 'auto',
+                            opacity: filters.period.length > 0 ? 1 : 0.4,
+                            color: filters.period.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setColumnFilterOpen(columnFilterOpen === 'period' ? null : 'period')
+                          }}
+                        />
+                      </div>
+                      {columnFilterOpen === 'period' && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            marginTop: '4px',
+                            width: '220px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                            zIndex: 1000,
+                            padding: '12px'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600' }}>기간</span>
+                            {filters.period.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  setFilters(prev => ({ ...prev, period: [] }))
+                                  setCurrentPage(1)
+                                }}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'hsl(var(--primary))',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 6px'
+                                }}
+                              >
+                                초기화
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {getUniqueValues('period').map(value => (
+                              <label
+                                key={value}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={filters.period.includes(value)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked
+                                    setFilters(prev => ({
+                                      ...prev,
+                                      period: checked
+                                        ? [...prev.period, value]
+                                        : prev.period.filter(v => v !== value)
+                                    }))
+                                    setCurrentPage(1)
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span>{value}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </th>
+                    <th 
+                      onClick={() => handleSort('media')}
+                      style={{ 
+                        padding: '12px 8px', 
+                        textAlign: 'left', 
+                        fontWeight: '500', 
+                        whiteSpace: 'nowrap', 
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        매체
+                        {sortConfig?.key === 'media' && (
+                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                        )}
+                        <Filter 
+                          size={12} 
+                          style={{ 
+                            marginLeft: 'auto',
+                            opacity: filters.media.length > 0 ? 1 : 0.4,
+                            color: filters.media.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setColumnFilterOpen(columnFilterOpen === 'media' ? null : 'media')
+                          }}
+                        />
+                      </div>
+                      {columnFilterOpen === 'media' && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            marginTop: '4px',
+                            width: '220px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                            zIndex: 1000,
+                            padding: '12px'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600' }}>매체</span>
+                            {filters.media.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  setFilters(prev => ({ ...prev, media: [] }))
+                                  setCurrentPage(1)
+                                }}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'hsl(var(--primary))',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 6px'
+                                }}
+                              >
+                                초기화
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {getUniqueValues('media').map(value => (
+                              <label
+                                key={value}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={filters.media.includes(value)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked
+                                    setFilters(prev => ({
+                                      ...prev,
+                                      media: checked
+                                        ? [...prev.media, value]
+                                        : prev.media.filter(v => v !== value)
+                                    }))
+                                    setCurrentPage(1)
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span>{value}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </th>
+                    <th 
+                      onClick={() => handleSort('industryLarge')}
+                      style={{ 
+                        padding: '12px 8px', 
+                        textAlign: 'left', 
+                        fontWeight: '500', 
+                        whiteSpace: 'nowrap', 
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        업종(대)
+                        {sortConfig?.key === 'industryLarge' && (
+                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                        )}
+                        <Filter 
+                          size={12} 
+                          style={{ 
+                            marginLeft: 'auto',
+                            opacity: filters.industryLarge.length > 0 ? 1 : 0.4,
+                            color: filters.industryLarge.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setColumnFilterOpen(columnFilterOpen === 'industryLarge' ? null : 'industryLarge')
+                          }}
+                        />
+                      </div>
+                      {columnFilterOpen === 'industryLarge' && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            marginTop: '4px',
+                            width: '220px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                            zIndex: 1000,
+                            padding: '12px'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(대)</span>
+                            {filters.industryLarge.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  setFilters(prev => ({ ...prev, industryLarge: [] }))
+                                  setCurrentPage(1)
+                                }}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'hsl(var(--primary))',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 6px'
+                                }}
+                              >
+                                초기화
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {getUniqueValues('industryLarge').map(value => (
+                              <label
+                                key={value}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={filters.industryLarge.includes(value)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked
+                                    setFilters(prev => ({
+                                      ...prev,
+                                      industryLarge: checked
+                                        ? [...prev.industryLarge, value]
+                                        : prev.industryLarge.filter(v => v !== value)
+                                    }))
+                                    setCurrentPage(1)
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span>{value}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </th>
+                    <th 
+                      onClick={() => handleSort('industryMedium')}
+                      style={{ 
+                        padding: '12px 8px', 
+                        textAlign: 'left', 
+                        fontWeight: '500', 
+                        whiteSpace: 'nowrap', 
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        업종(중)
+                        {sortConfig?.key === 'industryMedium' && (
+                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                        )}
+                        <Filter 
+                          size={12} 
+                          style={{ 
+                            marginLeft: 'auto',
+                            opacity: filters.industryMedium.length > 0 ? 1 : 0.4,
+                            color: filters.industryMedium.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setColumnFilterOpen(columnFilterOpen === 'industryMedium' ? null : 'industryMedium')
+                          }}
+                        />
+                      </div>
+                      {columnFilterOpen === 'industryMedium' && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            marginTop: '4px',
+                            width: '220px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                            zIndex: 1000,
+                            padding: '12px'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(중)</span>
+                            {filters.industryMedium.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  setFilters(prev => ({ ...prev, industryMedium: [] }))
+                                  setCurrentPage(1)
+                                }}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'hsl(var(--primary))',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 6px'
+                                }}
+                              >
+                                초기화
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {getUniqueValues('industryMedium').map(value => (
+                              <label
+                                key={value}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={filters.industryMedium.includes(value)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked
+                                    setFilters(prev => ({
+                                      ...prev,
+                                      industryMedium: checked
+                                        ? [...prev.industryMedium, value]
+                                        : prev.industryMedium.filter(v => v !== value)
+                                    }))
+                                    setCurrentPage(1)
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span>{value}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </th>
+                    <th 
+                      onClick={() => handleSort('industrySmall')}
+                      style={{ 
+                        padding: '12px 8px', 
+                        textAlign: 'left', 
+                        fontWeight: '500', 
+                        whiteSpace: 'nowrap', 
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        업종(소)
+                        {sortConfig?.key === 'industrySmall' && (
+                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                        )}
+                        <Filter 
+                          size={12} 
+                          style={{ 
+                            marginLeft: 'auto',
+                            opacity: filters.industrySmall.length > 0 ? 1 : 0.4,
+                            color: filters.industrySmall.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setColumnFilterOpen(columnFilterOpen === 'industrySmall' ? null : 'industrySmall')
+                          }}
+                        />
+                      </div>
+                      {columnFilterOpen === 'industrySmall' && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            marginTop: '4px',
+                            width: '220px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                            zIndex: 1000,
+                            padding: '12px'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(소)</span>
+                            {filters.industrySmall.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  setFilters(prev => ({ ...prev, industrySmall: [] }))
+                                  setCurrentPage(1)
+                                }}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'hsl(var(--primary))',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 6px'
+                                }}
+                              >
+                                초기화
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {getUniqueValues('industrySmall').map(value => (
+                              <label
+                                key={value}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={filters.industrySmall.includes(value)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked
+                                    setFilters(prev => ({
+                                      ...prev,
+                                      industrySmall: checked
+                                        ? [...prev.industrySmall, value]
+                                        : prev.industrySmall.filter(v => v !== value)
+                                    }))
+                                    setCurrentPage(1)
+                                  }}
+                                  className="checkbox-custom"
+                                />
+                                <span>{value}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </th>
                     {adProductColumns.map((col) => (
-                      <th key={col.key} style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>{col.label}</th>
+                      <th 
+                        key={col.key} 
+                        onClick={() => handleSort(col.key)}
+                        style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'left', 
+                          fontWeight: '500', 
+                          whiteSpace: 'nowrap', 
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          position: 'relative'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {col.label}
+                          {sortConfig?.key === col.key && (
+                            sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                          )}
+                          <Filter 
+                            size={12} 
+                            style={{ 
+                              marginLeft: 'auto',
+                              opacity: filters[col.key as keyof typeof filters]?.length > 0 ? 1 : 0.4,
+                              color: filters[col.key as keyof typeof filters]?.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setColumnFilterOpen(columnFilterOpen === col.key ? null : col.key)
+                            }}
+                          />
+                        </div>
+                        {columnFilterOpen === col.key && (
+                          <div 
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              marginTop: '4px',
+                              width: '220px',
+                              maxHeight: '300px',
+                              overflowY: 'auto',
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                              zIndex: 1000,
+                              padding: '12px'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '600' }}>{col.label}</span>
+                              {filters[col.key as keyof typeof filters]?.length > 0 && (
+                                <button
+                                  onClick={() => {
+                                    setFilters(prev => ({ ...prev, [col.key]: [] }))
+                                    setCurrentPage(1)
+                                  }}
+                                  style={{
+                                    fontSize: '11px',
+                                    color: 'hsl(var(--primary))',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '2px 6px'
+                                  }}
+                                >
+                                  초기화
+                                </button>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {getUniqueValues(col.key).map(value => (
+                                <label
+                                  key={value}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontSize: '12px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={filters[col.key as keyof typeof filters]?.includes(value) || false}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked
+                                      setFilters(prev => ({
+                                        ...prev,
+                                        [col.key]: checked
+                                          ? [...(prev[col.key as keyof typeof prev] || []), value]
+                                          : (prev[col.key as keyof typeof prev] || []).filter(v => v !== value)
+                                      }))
+                                      setCurrentPage(1)
+                                    }}
+                                    className="checkbox-custom"
+                                  />
+                                  <span>{value}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </th>
                     ))}
                     {configData.targetingCategory && (
-                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px' }}>{configData.targetingCategory}</th>
+                      <th 
+                        onClick={() => handleSort('targetingOption')}
+                        style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'left', 
+                          fontWeight: '500', 
+                          whiteSpace: 'nowrap', 
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          position: 'relative'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {configData.targetingCategory}
+                          {sortConfig?.key === 'targetingOption' && (
+                            sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                          )}
+                          <Filter 
+                            size={12} 
+                            style={{ 
+                              marginLeft: 'auto',
+                              opacity: filters.targetingOption.length > 0 ? 1 : 0.4,
+                              color: filters.targetingOption.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setColumnFilterOpen(columnFilterOpen === 'targetingOption' ? null : 'targetingOption')
+                            }}
+                          />
+                        </div>
+                        {columnFilterOpen === 'targetingOption' && (
+                          <div 
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              marginTop: '4px',
+                              width: '220px',
+                              maxHeight: '300px',
+                              overflowY: 'auto',
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                              zIndex: 1000,
+                              padding: '12px'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '600' }}>{configData.targetingCategory}</span>
+                              {filters.targetingOption.length > 0 && (
+                                <button
+                                  onClick={() => {
+                                    setFilters(prev => ({ ...prev, targetingOption: [] }))
+                                    setCurrentPage(1)
+                                  }}
+                                  style={{
+                                    fontSize: '11px',
+                                    color: 'hsl(var(--primary))',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '2px 6px'
+                                  }}
+                                >
+                                  초기화
+                                </button>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {getUniqueValues('targetingOption').map(value => (
+                                <label
+                                  key={value}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontSize: '12px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={filters.targetingOption.includes(value)}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked
+                                      setFilters(prev => ({
+                                        ...prev,
+                                        targetingOption: checked
+                                          ? [...prev.targetingOption, value]
+                                          : prev.targetingOption.filter(v => v !== value)
+                                      }))
+                                      setCurrentPage(1)
+                                    }}
+                                    className="checkbox-custom"
+                                  />
+                                  <span>{value}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </th>
                     )}
-                    {/* 지표 컬럼 - 정렬 가능 */}
+                    {/* 지표 컬럼 - 정렬만 가능 (필터 없음) */}
                     {configData.metrics.map((metric: string) => (
                       <th 
                         key={metric}
