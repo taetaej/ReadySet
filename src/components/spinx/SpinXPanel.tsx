@@ -1,4 +1,4 @@
-import { X, Paperclip, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw, Target, ChevronDown, FileText, ArrowUp } from 'lucide-react'
+import { X, Paperclip, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw, Target, ChevronDown, FileText, ArrowUp, Globe, ChevronRight } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface SpinXPanelProps {
@@ -42,6 +42,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [showModelChangeDialog, setShowModelChangeDialog] = useState(false)
   const [pendingModel, setPendingModel] = useState<LLMModel | null>(null)
   const [isRegeneratingAnalysis, setIsRegeneratingAnalysis] = useState(false)
+  const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
 
   // 패널이 열릴 때 body 스크롤 막기 제거 (결과화면 스크롤 가능하도록)
   // useEffect는 제거
@@ -125,11 +126,21 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       // AI 답변 생성 (예시) - 1초 딜레이
       timeoutRef.current = setTimeout(() => {
         const answer = answerExamples[textToSend]
+        
+        // 웹 검색 질문인 경우 소스 추가
+        const webSources = textToSend === '2026년 5월 주요 뷰티 행사가 있나요?' ? [
+          { title: '2026 코스모프로프 아시아 공식 사이트', url: 'https://www.cosmoprof-asia.com' },
+          { title: 'Beauty World Japan 2026 전시 정보', url: 'https://www.beautyworldjapan.com' },
+          { title: '글로벌 뷰티 전시회 일정 - BeautyExpo', url: 'https://www.beautyexpo.com/calendar' },
+          { title: '2026 아시아 뷰티 트렌드 리포트', url: 'https://www.beautytrends.asia/2026' }
+        ] : undefined
+        
         const aiResponse = {
           role: 'assistant' as const,
           content: answer || '죄송합니다. 해당 질문에 대한 답변을 준비 중입니다. 다른 질문을 선택해주세요.',
           timestamp: '방금 전',
-          originalQuestion: textToSend
+          originalQuestion: textToSend,
+          webSources
         }
         
         setMessages(prev => [...prev, aiResponse])
@@ -596,6 +607,123 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 </div>
               ) : (
                 <div style={{ marginBottom: '8px' }}>
+                  {/* 웹 검색 소스 표시 (있는 경우) */}
+                  {msg.webSources && msg.webSources.length > 0 && (
+                    <div style={{
+                      marginBottom: '12px',
+                      fontFamily: 'Paperlogy, sans-serif'
+                    }}>
+                      {/* 헤더 - 클릭하여 접기/펼치기 */}
+                      <button
+                        onClick={() => {
+                          setExpandedWebSources(prev => {
+                            const newSet = new Set(prev)
+                            if (newSet.has(index)) {
+                              newSet.delete(index)
+                            } else {
+                              newSet.add(index)
+                            }
+                            return newSet
+                          })
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '8px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: 'hsl(var(--muted-foreground))',
+                          transition: 'color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--muted-foreground))'}
+                      >
+                        <Globe size={14} style={{ flexShrink: 0 }} />
+                        <span style={{ flex: 1, textAlign: 'left' }}>
+                          웹 검색 결과 {msg.webSources.length}개
+                        </span>
+                        <ChevronRight 
+                          size={14} 
+                          style={{ 
+                            flexShrink: 0,
+                            transform: expandedWebSources.has(index) ? 'rotate(90deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s'
+                          }} 
+                        />
+                      </button>
+                      
+                      {/* 소스 목록 - 펼쳐진 경우에만 표시 */}
+                      {expandedWebSources.has(index) && (
+                        <div style={{
+                          paddingLeft: '22px',
+                          marginTop: '4px'
+                        }}>
+                          {msg.webSources.map((source, sourceIdx) => (
+                            <a
+                              key={sourceIdx}
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '10px',
+                                padding: '6px 0',
+                                textDecoration: 'none',
+                                color: 'hsl(var(--muted-foreground))',
+                                transition: 'color 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+                              onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--muted-foreground))'}
+                            >
+                              {/* 파비콘 또는 기본 아이콘 */}
+                              <div style={{
+                                width: '14px',
+                                height: '14px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                marginTop: '2px',
+                                opacity: 0.6
+                              }}>
+                                <Globe size={10} />
+                              </div>
+                              
+                              {/* 제목과 URL */}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                  fontSize: '11px',
+                                  fontWeight: '400',
+                                  marginBottom: '2px',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {source.title}
+                                </div>
+                                <div style={{
+                                  fontSize: '10px',
+                                  opacity: 0.6,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {source.url}
+                                </div>
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {typeof msg.content === 'string' ? (
                     <div
                       style={{
@@ -1061,7 +1189,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything..."
+              placeholder="SpinX에게 무엇이든 물어보세요!"
               style={{
                 width: '100%',
                 minHeight: '44px',
@@ -1105,80 +1233,82 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 gap: '4px'
               }}
             >
-              {/* 첨부 버튼 */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={handleAttachClick}
-                  className="btn btn-ghost btn-sm"
-                  style={{ padding: '6px' }}
-                  title="파일 첨부"
-                  disabled={attachedFile !== null}
-                >
-                  <Paperclip size={16} />
-                </button>
-                
-                {attachMenuOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '100%',
-                    right: 0,
-                    marginBottom: '8px',
-                    width: '140px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    overflow: 'hidden'
-                  }}>
-                    <button
-                      onClick={handleImageAdd}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontSize: '13px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'background-color 0.2s',
-                        color: 'hsl(var(--foreground))'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      <ImageIcon size={16} />
-                      <span>이미지 추가</span>
-                    </button>
-                    <button
-                      onClick={handlePdfAdd}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontSize: '13px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'background-color 0.2s',
-                        color: 'hsl(var(--foreground))'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      <FileText size={16} />
-                      <span>PDF 추가</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              {/* 첨부 버튼 - ChatGPT 모델일 때는 숨김 */}
+              {selectedModel !== 'ChatGPT 4o' && (
+                <div style={{ position: 'relative' }}>
+                  <button
+                    onClick={handleAttachClick}
+                    className="btn btn-ghost btn-sm"
+                    style={{ padding: '6px' }}
+                    title="파일 첨부"
+                    disabled={attachedFile !== null}
+                  >
+                    <Paperclip size={16} />
+                  </button>
+                  
+                  {attachMenuOpen && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '100%',
+                      right: 0,
+                      marginBottom: '8px',
+                      width: '140px',
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                      zIndex: 1000,
+                      fontFamily: 'Paperlogy, sans-serif',
+                      overflow: 'hidden'
+                    }}>
+                      <button
+                        onClick={handleImageAdd}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'background-color 0.2s',
+                          color: 'hsl(var(--foreground))'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <ImageIcon size={16} />
+                        <span>이미지 추가</span>
+                      </button>
+                      <button
+                        onClick={handlePdfAdd}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'background-color 0.2s',
+                          color: 'hsl(var(--foreground))'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <FileText size={16} />
+                        <span>PDF 추가</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* 전송 버튼 또는 정지 버튼 */}
               {isLoading ? (

@@ -926,7 +926,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                             
                             {/* TVC 매체 */}
                             {(() => {
-                              const tvcMedia = selectedMedia.filter(key => key.startsWith('TVC_'))
+                              const tvcMedia = selectedMedia.filter(key => key.startsWith('TV_'))
                               const tvcTotal = tvcMedia.reduce((sum, key) => sum + (mediaRatios[key] || 0), 0)
                               
                               if (tvcMedia.length === 0) return null
@@ -1023,31 +1023,101 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                             borderRadius: '6px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '6px'
+                            gap: '12px'
                           }}>
-                            {reachPredictorMedia.map((media, idx) => (
-                              <div
-                                key={idx}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--foreground))',
-                                  lineHeight: '1.4'
-                                }}
-                              >
-                                <span style={{ fontWeight: '500' }}>{media.mediaName}</span>
-                                {media.productName && (
-                                  <>
-                                    <span style={{ 
-                                      margin: '0 4px',
-                                      color: 'hsl(var(--muted-foreground))'
-                                    }}>›</span>
-                                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>
-                                      {media.productName}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            ))}
+                            {/* DIGITAL 매체 */}
+                            {(() => {
+                              const digitalMedia = reachPredictorMedia.filter(m => m.category === 'DIGITAL')
+                              
+                              if (digitalMedia.length === 0) return null
+                              
+                              return (
+                                <div>
+                                  <div style={{ 
+                                    fontSize: '10px', 
+                                    fontWeight: '600',
+                                    color: 'hsl(var(--muted-foreground))',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    marginBottom: '6px'
+                                  }}>
+                                    DIGITAL
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {digitalMedia.map((media, idx) => (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          fontSize: '11px',
+                                          color: 'hsl(var(--foreground))',
+                                          lineHeight: '1.4'
+                                        }}
+                                      >
+                                        <span style={{ fontWeight: '500' }}>{media.mediaName}</span>
+                                        {media.productName && (
+                                          <>
+                                            <span style={{ 
+                                              margin: '0 4px',
+                                              color: 'hsl(var(--muted-foreground))'
+                                            }}>›</span>
+                                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                                              {media.productName}
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })()}
+                            
+                            {/* TVC 매체 */}
+                            {(() => {
+                              const tvcMedia = reachPredictorMedia.filter(m => m.category === 'TVC')
+                              
+                              if (tvcMedia.length === 0) return null
+                              
+                              return (
+                                <div>
+                                  <div style={{ 
+                                    fontSize: '10px', 
+                                    fontWeight: '600',
+                                    color: 'hsl(var(--muted-foreground))',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    marginBottom: '6px'
+                                  }}>
+                                    TVC
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {tvcMedia.map((media, idx) => (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          fontSize: '11px',
+                                          color: 'hsl(var(--foreground))',
+                                          lineHeight: '1.4'
+                                        }}
+                                      >
+                                        <span style={{ fontWeight: '500' }}>{media.mediaName}</span>
+                                        {media.productName && (
+                                          <>
+                                            <span style={{ 
+                                              margin: '0 4px',
+                                              color: 'hsl(var(--muted-foreground))'
+                                            }}>›</span>
+                                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                                              {media.productName}
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </div>
                         )}
                       </div>
