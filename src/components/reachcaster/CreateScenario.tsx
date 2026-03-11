@@ -749,9 +749,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                         borderRadius: '6px',
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '4px',
-                        maxHeight: '120px',
-                        overflowY: 'auto'
+                        gap: '4px'
                       }}>
                         {formData.targetGrp.length === 24 ? (
                           <div style={{
@@ -814,7 +812,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                           fontWeight: '500',
                           color: formData.totalBudget ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                         }}>
-                          {formData.totalBudget ? `${formData.totalBudget.toLocaleString('ko-KR')}천원` : '—'}
+                          {formData.totalBudget ? `${formData.totalBudget.toLocaleString('ko-KR')}` : '—'}
                         </span>
                       </div>
                       
@@ -854,74 +852,147 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                             borderRadius: '6px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '8px',
-                            maxHeight: '200px',
-                            overflowY: 'auto'
+                            gap: '12px'
                           }}>
-                            {selectedMedia.map((mediaKey, idx) => {
-                              const [, ...mediaNameParts] = mediaKey.split('_')
-                              const mediaName = mediaNameParts.join('_')
-                              const mediaRatio = mediaRatios[mediaKey] || 0
-                              const products = productRatios[mediaKey] || {}
+                            {/* DIGITAL 매체 */}
+                            {(() => {
+                              const digitalMedia = selectedMedia.filter(key => key.startsWith('DIGITAL_'))
+                              const digitalTotal = digitalMedia.reduce((sum, key) => sum + (mediaRatios[key] || 0), 0)
+                              
+                              if (digitalMedia.length === 0) return null
                               
                               return (
-                                <div key={idx} style={{ fontSize: '11px' }}>
-                                  {/* 매체명 + 비율 */}
+                                <div>
                                   <div style={{ 
-                                    display: 'flex', 
+                                    display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    marginBottom: '4px'
+                                    marginBottom: '6px'
                                   }}>
-                                    <span style={{ fontWeight: '600', color: 'hsl(var(--foreground))' }}>
-                                      {mediaName}
-                                    </span>
-                                    <span style={{ 
+                                    <div style={{ 
+                                      fontSize: '10px', 
+                                      fontWeight: '600',
+                                      color: 'hsl(var(--muted-foreground))',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.5px'
+                                    }}>
+                                      DIGITAL
+                                    </div>
+                                    <div style={{ 
                                       fontSize: '10px',
                                       padding: '2px 6px',
                                       borderRadius: '4px',
-                                      backgroundColor: 'hsl(var(--primary) / 0.1)',
-                                      color: 'hsl(var(--primary))',
+                                      backgroundColor: 'hsl(var(--foreground))',
+                                      color: 'hsl(var(--background))',
                                       fontWeight: '600'
                                     }}>
-                                      {mediaRatio}%
-                                    </span>
-                                  </div>
-                                  
-                                  {/* 상품 목록 */}
-                                  {Object.keys(products).length > 0 && (
-                                    <div style={{ 
-                                      paddingLeft: '12px',
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      gap: '2px'
-                                    }}>
-                                      {Object.entries(products).map(([productName, ratio], pIdx) => (
-                                        <div 
-                                          key={pIdx}
-                                          style={{ 
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            fontSize: '10px'
-                                          }}
-                                        >
-                                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>
-                                            › {productName}
-                                          </span>
-                                          <span style={{ 
-                                            color: 'hsl(var(--muted-foreground))',
-                                            fontWeight: '500'
-                                          }}>
-                                            {ratio}%
-                                          </span>
-                                        </div>
-                                      ))}
+                                      {digitalTotal}%
                                     </div>
-                                  )}
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {digitalMedia.map((mediaKey, idx) => {
+                                      const [, ...mediaNameParts] = mediaKey.split('_')
+                                      const mediaName = mediaNameParts.join('_')
+                                      const mediaRatio = mediaRatios[mediaKey] || 0
+                                      
+                                      return (
+                                        <div key={idx} style={{ fontSize: '11px' }}>
+                                          <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                          }}>
+                                            <span style={{ fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+                                              {mediaName}
+                                            </span>
+                                            <span style={{ 
+                                              fontSize: '10px',
+                                              padding: '2px 6px',
+                                              borderRadius: '4px',
+                                              backgroundColor: 'hsl(var(--primary) / 0.1)',
+                                              color: 'hsl(var(--primary))',
+                                              fontWeight: '600'
+                                            }}>
+                                              {mediaRatio}%
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
                                 </div>
                               )
-                            })}
+                            })()}
+                            
+                            {/* TVC 매체 */}
+                            {(() => {
+                              const tvcMedia = selectedMedia.filter(key => key.startsWith('TVC_'))
+                              const tvcTotal = tvcMedia.reduce((sum, key) => sum + (mediaRatios[key] || 0), 0)
+                              
+                              if (tvcMedia.length === 0) return null
+                              
+                              return (
+                                <div>
+                                  <div style={{ 
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '6px'
+                                  }}>
+                                    <div style={{ 
+                                      fontSize: '10px', 
+                                      fontWeight: '600',
+                                      color: 'hsl(var(--muted-foreground))',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.5px'
+                                    }}>
+                                      TVC
+                                    </div>
+                                    <div style={{ 
+                                      fontSize: '10px',
+                                      padding: '2px 6px',
+                                      borderRadius: '4px',
+                                      backgroundColor: 'hsl(var(--foreground))',
+                                      color: 'hsl(var(--background))',
+                                      fontWeight: '600'
+                                    }}>
+                                      {tvcTotal}%
+                                    </div>
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {tvcMedia.map((mediaKey, idx) => {
+                                      const [, ...mediaNameParts] = mediaKey.split('_')
+                                      const mediaName = mediaNameParts.join('_')
+                                      const mediaRatio = mediaRatios[mediaKey] || 0
+                                      
+                                      return (
+                                        <div key={idx} style={{ fontSize: '11px' }}>
+                                          <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                          }}>
+                                            <span style={{ fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+                                              {mediaName}
+                                            </span>
+                                            <span style={{ 
+                                              fontSize: '10px',
+                                              padding: '2px 6px',
+                                              borderRadius: '4px',
+                                              backgroundColor: 'hsl(var(--primary) / 0.1)',
+                                              color: 'hsl(var(--primary))',
+                                              fontWeight: '600'
+                                            }}>
+                                              {mediaRatio}%
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </div>
                         )}
                       </div>
@@ -952,9 +1023,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                             borderRadius: '6px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '6px',
-                            maxHeight: '200px',
-                            overflowY: 'auto'
+                            gap: '6px'
                           }}>
                             {reachPredictorMedia.map((media, idx) => (
                               <div

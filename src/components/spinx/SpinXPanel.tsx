@@ -1,4 +1,4 @@
-import { X, Minimize2, Paperclip, Send, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw, Target } from 'lucide-react'
+import { X, Paperclip, Copy, Check, Clock, RotateCcw, Scale, Image as ImageIcon, Rotate3d, Square, RefreshCw, Target, ChevronDown, FileText, ArrowUp } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface SpinXPanelProps {
@@ -9,8 +9,21 @@ interface SpinXPanelProps {
   analysisType?: 'ratioFinder' | 'reachPredictor'
 }
 
+// LLM 모델 타입 정의
+type LLMModel = {
+  provider: string
+  name: string
+  displayName: string
+}
+
+const availableModels: LLMModel[] = [
+  { provider: 'Anthropic', name: 'claude-sonnet-4.5', displayName: 'Claude Sonnet 4.5' },
+  { provider: 'Anthropic', name: 'claude-haiku-4.5', displayName: 'Claude Haiku 4.5' },
+  { provider: 'OpenAI', name: 'gpt-4o', displayName: 'Chat GPT 4o' },
+  { provider: 'Google', name: 'gemini-3pro', displayName: 'Gemini 3pro' }
+]
+
 export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName = '25-34세 여성 타겟 집중 공략', analysisType = 'ratioFinder' }: SpinXPanelProps) {
-  const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState(false)
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null)
@@ -24,6 +37,11 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [currentQuestion, setCurrentQuestion] = useState<string>('')
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[3]) // Gemini 3pro
+  const [modelMenuOpen, setModelMenuOpen] = useState(false)
+  const [showModelChangeDialog, setShowModelChangeDialog] = useState(false)
+  const [pendingModel, setPendingModel] = useState<LLMModel | null>(null)
+  const [isRegeneratingAnalysis, setIsRegeneratingAnalysis] = useState(false)
 
   // 패널이 열릴 때 body 스크롤 막기 제거 (결과화면 스크롤 가능하도록)
   // useEffect는 제거
@@ -169,7 +187,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
+    if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
       setAttachedFile(file)
       setAttachMenuOpen(false)
     }
@@ -181,6 +199,14 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
 
   const handleImageAdd = () => {
     fileInputRef.current?.click()
+    setAttachMenuOpen(false)
+  }
+
+  const handlePdfAdd = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = 'application/pdf'
+      fileInputRef.current.click()
+    }
     setAttachMenuOpen(false)
   }
 
@@ -200,6 +226,53 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     setMessage('')
     setAttachedFile(null)
     setShowResetDialog(false)
+  }
+
+  const handleModelSelect = (model: LLMModel) => {
+    // 선택한 모델이 현재 모델과 같으면 무시
+    if (model.name === selectedModel.name) {
+      setModelMenuOpen(false)
+      return
+    }
+    
+    // 대화가 있으면 경고 다이얼로그 표시
+    if (messages.length > 0) {
+      setPendingModel(model)
+      setShowModelChangeDialog(true)
+      setModelMenuOpen(false)
+    } else {
+      // 대화가 없어도 분석 재생성
+      setSelectedModel(model)
+      setModelMenuOpen(false)
+      
+      // 새 모델로 초기 분석 재생성
+      setIsRegeneratingAnalysis(true)
+      setTimeout(() => {
+        setIsRegeneratingAnalysis(false)
+      }, 1500)
+    }
+  }
+
+  const confirmModelChange = () => {
+    if (pendingModel) {
+      setSelectedModel(pendingModel)
+      setMessages([])
+      setMessage('')
+      setAttachedFile(null)
+      setPendingModel(null)
+      
+      // 새 모델로 초기 분석 재생성
+      setIsRegeneratingAnalysis(true)
+      setTimeout(() => {
+        setIsRegeneratingAnalysis(false)
+      }, 1500) // 1.5초 로딩 후 완료
+    }
+    setShowModelChangeDialog(false)
+  }
+
+  const cancelModelChange = () => {
+    setPendingModel(null)
+    setShowModelChangeDialog(false)
   }
 
   const handleCopy = () => {
@@ -238,8 +311,8 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       style={{
         position: 'fixed',
         top: 0,
-        right: isOpen ? 0 : '-480px',
-        width: '480px',
+        right: isOpen ? 0 : '-400px',
+        width: '400px',
         height: '100vh',
         backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
         borderLeft: '1px solid hsl(var(--border))',
@@ -263,7 +336,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           flexShrink: 0
         }}
       >
-        {/* 좌측: SpinX 타이틀 */}
+        {/* 좌측: 타이틀 */}
         <div>
           <h3
             style={{
@@ -274,7 +347,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
               color: 'hsl(var(--foreground))'
             }}
           >
-            SpinX
+            SpinX for Reach Caster
           </h3>
           <p
             style={{
@@ -287,15 +360,8 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           </p>
         </div>
 
-        {/* 우측: 최소화 + 닫기 버튼 */}
+        {/* 우측: 닫기 버튼 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="btn btn-ghost btn-sm"
-            style={{ padding: '6px' }}
-          >
-            <Minimize2 size={16} />
-          </button>
           <button
             onClick={onClose}
             className="btn btn-ghost btn-sm"
@@ -318,6 +384,37 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         }}
       >
         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        {/* 모델 변경 중 로딩 */}
+        {isRegeneratingAnalysis ? (
+          <div style={{ marginTop: '24px' }}>
+            <div
+              style={{
+                backgroundColor: isDarkMode ? 'hsl(var(--muted))' : 'hsl(var(--muted))',
+                padding: '20px',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+            >
+              <div
+                style={{
+                  animation: 'rotate3d 2s linear infinite',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#00ff9d'
+                }}
+              >
+                <Rotate3d size={24} />
+              </div>
+              <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
+                {selectedModel.displayName}로 분석을 재생성하고 있습니다...
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* NotebookLM 스타일 초기 분석 - 최신 메시지 (입력창 바로 위) */}
         <div style={{ marginTop: '24px' }}>
           {/* 분석 모듈 칩 + 시나리오명 */}
@@ -761,6 +858,8 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           {/* 스크롤 타겟 */}
           <div ref={messagesEndRef} />
         </div>
+        </>
+        )}
         </div>
       </div>
 
@@ -784,16 +883,88 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
             justifyContent: 'space-between'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setModelMenuOpen(!modelMenuOpen)}
               style={{
-                width: '4px',
-                height: '4px',
-                borderRadius: '50%',
-                backgroundColor: '#00ff9d'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                transition: 'background-color 0.2s',
+                fontSize: '10px',
+                color: 'hsl(var(--muted-foreground))'
               }}
-            />
-            Claude Sonnet 4.5
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <div
+                style={{
+                  width: '4px',
+                  height: '4px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00ff9d'
+                }}
+              />
+              {selectedModel.displayName}
+              <ChevronDown size={12} />
+            </button>
+
+            {/* 모델 선택 드롭다운 */}
+            {modelMenuOpen && (
+              <div style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: 0,
+                marginBottom: '8px',
+                width: '200px',
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                zIndex: 1000,
+                fontFamily: 'Paperlogy, sans-serif',
+                overflow: 'hidden'
+              }}>
+                {availableModels.map((model, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleModelSelect(model)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: 'none',
+                      backgroundColor: selectedModel.name === model.name ? 'hsl(var(--muted))' : 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      transition: 'background-color 0.2s',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedModel.name !== model.name) {
+                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedModel.name !== model.name) {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }
+                    }}
+                  >
+                    <span style={{ fontWeight: '500' }}>{model.displayName}</span>
+                    <span style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>{model.provider}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ position: 'relative' }}>
@@ -863,7 +1034,11 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 fontSize: '12px',
                 fontFamily: 'Paperlogy, sans-serif'
               }}>
-                <ImageIcon size={14} />
+                {attachedFile.type === 'application/pdf' ? (
+                  <FileText size={14} />
+                ) : (
+                  <ImageIcon size={14} />
+                )}
                 <span>{attachedFile.name}</span>
                 <button
                   onClick={removeAttachment}
@@ -915,7 +1090,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf"
               onChange={handleFileSelect}
               style={{ display: 'none' }}
             />
@@ -979,6 +1154,28 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                       <ImageIcon size={16} />
                       <span>이미지 추가</span>
                     </button>
+                    <button
+                      onClick={handlePdfAdd}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'background-color 0.2s',
+                        color: 'hsl(var(--foreground))'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <FileText size={16} />
+                      <span>PDF 추가</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -1000,15 +1197,22 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 <button
                   onClick={() => handleSend()}
                   disabled={!message.trim() || isLoading}
-                  className="btn btn-primary btn-sm"
                   style={{
                     padding: '6px',
                     opacity: message.trim() && !isLoading ? 1 : 0.5,
-                    cursor: message.trim() && !isLoading ? 'pointer' : 'not-allowed'
+                    cursor: message.trim() && !isLoading ? 'pointer' : 'not-allowed',
+                    backgroundColor: message.trim() && !isLoading ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
+                    color: message.trim() && !isLoading ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
+                    border: 'none',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s'
                   }}
                   title="전송 (Enter)"
                 >
-                  <Send size={16} />
+                  <ArrowUp size={16} strokeWidth={2.5} />
                 </button>
               )}
             </div>
@@ -1079,6 +1283,76 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 style={{ padding: '8px 16px' }}
               >
                 초기화
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 모델 변경 확인 다이얼로그 */}
+      {showModelChangeDialog && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1001
+          }}
+          onClick={cancelModelChange}
+        >
+          <div
+            style={{
+              backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
+              borderRadius: '12px',
+              padding: '24px',
+              width: '320px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                margin: '0 0 12px 0',
+                color: 'hsl(var(--foreground))',
+                fontFamily: 'Paperlogy, sans-serif'
+              }}
+            >
+              모델 변경
+            </h3>
+            <p
+              style={{
+                fontSize: '13px',
+                margin: '0 0 24px 0',
+                color: 'hsl(var(--muted-foreground))',
+                lineHeight: '1.6'
+              }}
+            >
+              모델을 변경하면 현재 대화가 초기화되고<br />
+              새로운 모델로 분석이 재생성됩니다.<br />
+              계속하시겠습니까?
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={cancelModelChange}
+                className="btn btn-ghost"
+                style={{ padding: '8px 16px' }}
+              >
+                취소
+              </button>
+              <button
+                onClick={confirmModelChange}
+                className="btn btn-primary"
+                style={{ padding: '8px 16px' }}
+              >
+                변경
               </button>
             </div>
           </div>
