@@ -344,7 +344,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           }}>
             <h1 style={{ 
               fontSize: '20px', 
-              fontWeight: '700', 
+              fontWeight: '500', 
               margin: 0,
               fontFamily: 'Paperlogy, sans-serif',
               whiteSpace: 'nowrap',
@@ -597,7 +597,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             <div style={{ flex: 1 }}>
               <h3 style={{
                 fontSize: '20px',
-                fontWeight: '600',
+                fontWeight: '500',
                 fontFamily: 'Paperlogy, sans-serif',
                 margin: 0,
                 marginBottom: '8px',
