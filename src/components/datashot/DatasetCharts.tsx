@@ -1,4 +1,5 @@
-import { Database, Package, Target } from 'lucide-react'
+import { Database, Package, Target, Info } from 'lucide-react'
+import { useState } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface DatasetChartsProps {
@@ -6,6 +7,7 @@ interface DatasetChartsProps {
 }
 
 export function DatasetCharts({ data }: DatasetChartsProps) {
+  const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   // 추출 요약 통계
   const extractionStats = {
     totalRows: 8000, // 총 행 수 (실제 추출된 데이터)
@@ -56,16 +58,56 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
         justifyContent: 'space-between',
         marginBottom: '16px'
       }}>
-        <h3 style={{
-          fontSize: '20px',
-          fontWeight: '500',
-          fontFamily: 'Paperlogy, sans-serif',
-          margin: 0,
-          color: 'hsl(var(--foreground))',
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
           width: '300px'
         }}>
-          Extraction Summary
-        </h3>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: '500',
+            fontFamily: 'Paperlogy, sans-serif',
+            margin: 0,
+            color: 'hsl(var(--foreground))'
+          }}>
+            Extraction Summary
+          </h3>
+          <div style={{ position: 'relative' }}>
+            <Info 
+              size={18} 
+              style={{ 
+                cursor: 'pointer',
+                color: 'hsl(var(--muted-foreground))'
+              }}
+              onMouseEnter={() => setInfoTooltipOpen(true)}
+              onMouseLeave={() => setInfoTooltipOpen(false)}
+            />
+            {infoTooltipOpen && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                marginTop: '8px',
+                width: '280px',
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                zIndex: 1000,
+                fontFamily: 'Paperlogy, sans-serif',
+                fontSize: '12px',
+                lineHeight: '1.5',
+                color: 'hsl(var(--foreground))',
+                whiteSpace: 'normal'
+              }}>
+                선택한 조회조건 중 실제 캠페인 데이터가 존재하는 조건의 추출 현황입니다.
+              </div>
+            )}
+          </div>
+        </div>
         <h3 style={{
           fontSize: '20px',
           fontWeight: '500',
@@ -172,17 +214,87 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
                 />
                 
                 <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                  formatter={(value: any, name: string | undefined) => {
-                    if (name === '광고비') return [`${value.toLocaleString()}원`, name]
-                    if (name === 'CTR') return [`${value}%`, name]
-                    if (name === 'CPC') return [`${value}원`, name]
-                    return [value, name]
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div style={{
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          fontSize: '13px',
+                          fontFamily: 'Paperlogy, sans-serif'
+                        }}>
+                          <div style={{ 
+                            fontWeight: '600', 
+                            marginBottom: '8px',
+                            color: 'hsl(var(--foreground))'
+                          }}>
+                            {payload[0].payload.period}
+                          </div>
+                          
+                          {/* 광고비 - 네모 */}
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            marginBottom: '4px'
+                          }}>
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              backgroundColor: chartColors.cost,
+                              borderRadius: '2px'
+                            }} />
+                            <span style={{ color: 'hsl(var(--foreground))' }}>
+                              광고비: {payload[0].value.toLocaleString()}원
+                            </span>
+                          </div>
+
+                          <div style={{
+                            height: '1px',
+                            backgroundColor: 'hsl(var(--border))',
+                            margin: '8px 0'
+                          }} />
+
+                          {/* CTR - 동그라미 */}
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            marginBottom: '4px'
+                          }}>
+                            <div style={{
+                              width: '8px',
+                              height: '8px',
+                              backgroundColor: chartColors.ctr,
+                              borderRadius: '50%'
+                            }} />
+                            <span style={{ color: 'hsl(var(--foreground))' }}>
+                              CTR: {payload[1].value}%
+                            </span>
+                          </div>
+
+                          {/* CPC - 동그라미 */}
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px'
+                          }}>
+                            <div style={{
+                              width: '8px',
+                              height: '8px',
+                              backgroundColor: chartColors.cpc,
+                              borderRadius: '50%'
+                            }} />
+                            <span style={{ color: 'hsl(var(--foreground))' }}>
+                              CPC: {payload[2].value.toLocaleString()}원
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    }
+                    return null
                   }}
                 />
                 
