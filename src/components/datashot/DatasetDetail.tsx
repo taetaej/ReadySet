@@ -5,6 +5,7 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
+import { DatasetCharts } from './DatasetCharts'
 
 interface DatasetDetailProps {
   datasetData?: any
@@ -988,6 +989,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
       {/* Content Area */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
+        {/* 차트 영역 */}
+        <DatasetCharts data={filteredData} configData={configData} />
+
+        {/* 추출 데이터 테이블 */}
         <div style={{ marginBottom: '32px' }}>
           <div style={{ 
             display: 'flex', 

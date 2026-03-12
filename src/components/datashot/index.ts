@@ -1,5 +1,6 @@
 export { DatasetList } from './DatasetList'
 export { DatasetDetail } from './DatasetDetail'
+export { DatasetCharts } from './DatasetCharts'
 export { CreateDataset } from './CreateDataset'
 export { IndustryDialog } from './IndustryDialog'
 export { MetricsDialog } from './MetricsDialog'
