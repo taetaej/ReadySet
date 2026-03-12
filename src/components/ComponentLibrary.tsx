@@ -71,6 +71,12 @@ export function ComponentLibrary() {
   // 공유 메뉴 상태
   const [showShareMenu, setShowShareMenu] = useState(false)
   
+  // 드롭다운 상태
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false)
+  const [showMediaDropdown, setShowMediaDropdown] = useState(false)
+  const [selectedIndustry, setSelectedIndustry] = useState('')
+  const [selectedMedia, setSelectedMedia] = useState('TV')
+  
   // 라디오 버튼 상태
   const [selectedModule, setSelectedModule] = useState('')
   
@@ -593,142 +599,103 @@ export function ComponentLibrary() {
         </Section>
 
         {/* 드롭다운 */}
-        <Section title="Dropdowns & Selects" description="다양한 선택 드롭다운">
-          <ComponentGroup label="Brand Dropdown (with Search & Industry Tag)">
+        <Section title="Dropdowns & Selects" description="실제 사용하는 선택 드롭다운">
+          <ComponentGroup label="Industry Select (업종 선택 - ChevronRight)">
             <div style={{ position: 'relative', width: '400px' }}>
-              <input 
-                type="text" 
-                placeholder="브랜드를 선택하세요" 
+              <button
+                onClick={() => setShowIndustryDropdown(!showIndustryDropdown)}
                 className="input"
-                style={{ width: '100%' }}
-              />
-              <div className="dropdown" style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                marginTop: '4px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                zIndex: 1000
-              }}>
-                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
-                  <span>삼성전자</span>
-                  <span style={{ 
-                    fontSize: '11px', 
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}>
-                    전자/IT
-                  </span>
-                </button>
-                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
-                  <span>카카오</span>
-                  <span style={{ 
-                    fontSize: '11px', 
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}>
-                    IT/서비스
-                  </span>
-                </button>
-                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
-                  <span>현대자동차</span>
-                  <span style={{ 
-                    fontSize: '11px', 
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}>
-                    자동차
-                  </span>
-                </button>
-              </div>
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <span style={{ color: selectedIndustry ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                  {selectedIndustry || '업종을 선택하세요'}
+                </span>
+                <ChevronRight size={16} />
+              </button>
+
+              {showIndustryDropdown && (
+                <div className="dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '4px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  zIndex: 1000
+                }}>
+                  {['전자/IT', '자동차', '식품/음료', '화장품/뷰티', '금융/보험', '유통/서비스'].map((industry) => (
+                    <button
+                      key={industry}
+                      onClick={() => {
+                        setSelectedIndustry(industry)
+                        setShowIndustryDropdown(false)
+                      }}
+                      className="dropdown-item"
+                      style={{
+                        backgroundColor: selectedIndustry === industry ? 'hsl(var(--muted))' : 'transparent'
+                      }}
+                    >
+                      {industry}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </ComponentGroup>
 
-          <ComponentGroup label="Industry Select (with ChevronRight)">
-            <button
-              className="input"
-              style={{
-                width: '400px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span style={{ color: 'hsl(var(--muted-foreground))' }}>업종을 선택하세요</span>
-              <ChevronRight size={16} />
-            </button>
-          </ComponentGroup>
+          <ComponentGroup label="Media Select (매체 선택 - ChevronDown)">
+            <div style={{ position: 'relative', width: '300px' }}>
+              <button
+                onClick={() => setShowMediaDropdown(!showMediaDropdown)}
+                className="input"
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <span>{selectedMedia}</span>
+                <ChevronDown size={16} />
+              </button>
 
-          <ComponentGroup label="Media Select (with ChevronDown)">
-            <button
-              className="input"
-              style={{
-                width: '400px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span>TV</span>
-              <ChevronDown size={16} />
-            </button>
-          </ComponentGroup>
-
-          <ComponentGroup label="Period Type Select">
-            <button
-              className="input"
-              style={{
-                width: '200px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span>일</span>
-              <ChevronDown size={16} />
-            </button>
-            <button
-              className="input"
-              style={{
-                width: '200px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span>월</span>
-              <ChevronDown size={16} />
-            </button>
-            <button
-              className="input"
-              style={{
-                width: '200px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span>분기</span>
-              <ChevronDown size={16} />
-            </button>
+              {showMediaDropdown && (
+                <div className="dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '4px',
+                  zIndex: 1000
+                }}>
+                  {['TV', 'Digital', 'Radio', 'Print', 'OOH'].map((media) => (
+                    <button
+                      key={media}
+                      onClick={() => {
+                        setSelectedMedia(media)
+                        setShowMediaDropdown(false)
+                      }}
+                      className="dropdown-item"
+                      style={{
+                        backgroundColor: selectedMedia === media ? 'hsl(var(--muted))' : 'transparent'
+                      }}
+                    >
+                      {media}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </ComponentGroup>
         </Section>
 
@@ -966,90 +933,217 @@ export function ComponentLibrary() {
         </Section>
 
         {/* 페이지네이션 */}
-        <Section title="Pagination" description="페이지 네비게이션">
-          <ComponentGroup label="Pagination Controls">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              {/* 첫 페이지로 */}
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className="btn btn-ghost btn-sm"
-                style={{ 
-                  width: '32px',
-                  height: '32px',
-                  padding: '0',
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                <ChevronsLeft size={16} />
-              </button>
+        <Section title="Tables & Pagination" description="데이터 테이블 및 페이지 네비게이션">
+          <ComponentGroup label="Data Table (Slot List Style)">
+            <div style={{ 
+              width: '100%', 
+              maxWidth: '1200px',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ 
+                    backgroundColor: 'hsl(var(--muted))',
+                    borderBottom: '1px solid hsl(var(--border))'
+                  }}>
+                    <th style={{ 
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--muted-foreground))',
+                      width: '80px'
+                    }}>ID</th>
+                    <th style={{ 
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--muted-foreground))'
+                    }}>Slot</th>
+                    <th style={{ 
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--muted-foreground))'
+                    }}>광고주</th>
+                    <th style={{ 
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--muted-foreground))',
+                      width: '100px'
+                    }}>가시성</th>
+                    <th style={{ 
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      color: 'hsl(var(--muted-foreground))',
+                      width: '120px'
+                    }}>수정일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: 'S001', name: '2024 Q4 캠페인', advertiser: '삼성전자', visibility: 'Private', date: '2024.03.10' },
+                    { id: 'S002', name: '신제품 런칭', advertiser: '카카오', visibility: 'Shared', date: '2024.03.09' },
+                    { id: 'S003', name: '브랜드 인지도 향상', advertiser: '현대자동차', visibility: 'Private', date: '2024.03.08' }
+                  ].map((row, idx) => (
+                    <tr key={idx} style={{ 
+                      borderBottom: '1px solid hsl(var(--border))',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: 'hsl(var(--muted-foreground))'
+                      }}>{row.id}</td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: 'hsl(var(--foreground))'
+                      }}>{row.name}</td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: 'hsl(var(--foreground))'
+                      }}>{row.advertiser}</td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px'
+                      }}>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '500',
+                          backgroundColor: row.visibility === 'Private' ? 'hsl(var(--muted))' : 'hsl(var(--primary) / 0.1)',
+                          color: row.visibility === 'Private' ? 'hsl(var(--muted-foreground))' : 'hsl(var(--primary))',
+                          border: `1px solid ${row.visibility === 'Private' ? 'hsl(var(--border))' : 'hsl(var(--primary) / 0.3)'}`
+                        }}>
+                          {row.visibility}
+                        </span>
+                      </td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: 'hsl(var(--muted-foreground))'
+                      }}>{row.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </ComponentGroup>
 
-              {/* 이전 페이지 */}
-              <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="btn btn-ghost btn-sm"
-                style={{ 
-                  width: '32px',
-                  height: '32px',
-                  padding: '0',
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                <ChevronLeft size={16} />
-              </button>
-
-              {/* 페이지 번호 */}
-              {[1, 2, 3, 4, 5].map((page) => (
+          <ComponentGroup label="Pagination with Page Count">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {/* 첫 페이지로 */}
                 <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="btn btn-ghost btn-sm"
                   style={{ 
                     width: '32px',
                     height: '32px',
                     padding: '0',
-                    fontSize: '14px',
-                    fontWeight: currentPage === page ? '600' : '400'
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {page}
+                  <ChevronsLeft size={16} />
                 </button>
-              ))}
 
-              {/* 다음 페이지 */}
-              <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="btn btn-ghost btn-sm"
-                style={{ 
-                  width: '32px',
-                  height: '32px',
-                  padding: '0',
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                <ChevronRight size={16} />
-              </button>
+                {/* 이전 페이지 */}
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px',
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                </button>
 
-              {/* 마지막 페이지로 */}
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="btn btn-ghost btn-sm"
-                style={{ 
-                  width: '32px',
-                  height: '32px',
-                  padding: '0',
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                <ChevronsRight size={16} />
-              </button>
+                {/* 페이지 번호 */}
+                {[1, 2, 3, 4, 5].map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
+                    style={{ 
+                      width: '32px',
+                      height: '32px',
+                      padding: '0',
+                      fontSize: '14px',
+                      fontWeight: currentPage === page ? '600' : '400'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                {/* 다음 페이지 */}
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px',
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronRight size={16} />
+                </button>
+
+                {/* 마지막 페이지로 */}
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-ghost btn-sm"
+                  style={{ 
+                    width: '32px',
+                    height: '32px',
+                    padding: '0',
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <ChevronsRight size={16} />
+                </button>
+              </div>
+
+              {/* 페이지 정보 */}
+              <div style={{ 
+                fontSize: '13px', 
+                color: 'hsl(var(--muted-foreground))',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>Page {currentPage} of {totalPages}</span>
+                <span style={{ color: 'hsl(var(--border))' }}>|</span>
+                <span>Total 247 items</span>
+              </div>
             </div>
           </ComponentGroup>
         </Section>
@@ -1144,61 +1238,6 @@ export function ComponentLibrary() {
             <button className="btn btn-primary" onClick={() => setShowTargetDialog(true)}>
               타겟 GRP 다이얼로그 열기
             </button>
-          </ComponentGroup>
-
-          <ComponentGroup label="Dialog Structure Preview">
-            <div style={{ 
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              maxWidth: '500px',
-              backgroundColor: 'hsl(var(--card))'
-            }}>
-              {/* Dialog Header */}
-              <div style={{ 
-                padding: '24px 24px 16px',
-                borderBottom: '1px solid hsl(var(--border))'
-              }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
-                  다이얼로그 제목
-                </h3>
-                <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                  다이얼로그 설명이 여기에 표시됩니다.
-                </p>
-              </div>
-              
-              {/* Dialog Content */}
-              <div style={{ padding: '24px' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
-                    입력 필드
-                  </label>
-                  <input type="text" placeholder="값을 입력하세요" className="input" style={{ width: '100%' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
-                    선택 필드
-                  </label>
-                  <button className="input" style={{ width: '100%', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>옵션을 선택하세요</span>
-                    <ChevronDown size={16} />
-                  </button>
-                </div>
-              </div>
-              
-              {/* Dialog Footer */}
-              <div style={{ 
-                padding: '16px 24px',
-                borderTop: '1px solid hsl(var(--border))',
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '8px',
-                backgroundColor: 'hsl(var(--muted) / 0.3)'
-              }}>
-                <button className="btn btn-secondary btn-md">취소</button>
-                <button className="btn btn-primary btn-md">확인</button>
-              </div>
-            </div>
           </ComponentGroup>
         </Section>
 
