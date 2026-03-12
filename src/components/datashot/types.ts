@@ -224,8 +224,67 @@ export const industryCategories: { [major: string]: { [mid: string]: string[] } 
   '가정용품': {
     '가정용품기타': ['가정용품기타'],
     '주방용품': ['주방용품']
+  },
+  '건설, 건재및부동산': {
+    '건설, 건재및부동산기타': ['건설, 건재및부동산기타']
+  },
+  '관공서및단체': {
+    '관공서및단체기타': ['관공서및단체기타']
+  },
+  '교육및복지후생': {
+    '교육및복지후생기타': ['교육및복지후생기타']
+  },
+  '금융, 보험및증권': {
+    '금융, 보험및증권기타': ['금융, 보험및증권기타']
+  },
+  '그룹및기업광고': {
+    '그룹및기업광고기타': ['그룹및기업광고기타']
+  },
+  '기초재': {
+    '기초재기타': ['기초재기타']
+  },
+  '산업기기': {
+    '산업기기기타': ['산업기기기타']
+  },
+  '서비스': {
+    '서비스기타': ['서비스기타']
+  },
+  '수송기기': {
+    '수송기기기타': ['수송기기기타']
+  },
+  '식품': {
+    '식품기타': ['식품기타']
+  },
+  '유통': {
+    '유통기타': ['유통기타']
+  },
+  '음료및기호식품': {
+    '음료및기호식품기타': ['음료및기호식품기타']
+  },
+  '정밀기기및사무기기': {
+    '정밀기기및사무기기기타': ['정밀기기및사무기기기타']
+  },
+  '제약및의료': {
+    '제약및의료기타': ['제약및의료기타']
+  },
+  '출판': {
+    '출판기타': ['출판기타']
+  },
+  '컴퓨터및정보통신': {
+    '컴퓨터및정보통신기타': ['컴퓨터및정보통신기타']
+  },
+  '패션': {
+    '패션기타': ['패션기타']
+  },
+  '화장품및보건용품': {
+    '화장품및보건용품기타': ['화장품및보건용품기타']
+  },
+  '화학공업': {
+    '화학공업기타': ['화학공업기타']
+  },
+  'N': {
+    'N기타': ['N기타']
   }
-  // TODO: 나머지 20개 대분류 추가 예정
 }
 
 // 브랜드-업종 매핑 (검색용)
@@ -255,194 +314,6 @@ export interface AdProductField {
 
 export interface MediaAdProductStructure {
   fields: AdProductField[]
-}
-
-// Meta 광고상품 구조
-export const metaAdProductStructure: MediaAdProductStructure = {
-  fields: [
-    {
-      label: '캠페인 목표',
-      key: 'campaignObjective',
-      required: true,
-      options: [
-        'POST_ENGAGEMENT',
-        'REACH',
-        'VIDEO_VIEWS',
-        'CONVERSIONS',
-        'LEAD_GENERATION',
-        'OUTCOME_TRAFFIC'
-      ]
-    },
-    {
-      label: '구매 유형',
-      key: 'buyingType',
-      required: false,
-      options: ['AUCTION', 'RESERVED']
-    },
-    {
-      label: '플랫폼',
-      key: 'platform',
-      required: false,
-      options: [
-        'facebook',
-        'instagram',
-        'facebook&instagram',
-        'messenger',
-        'audience_network',
-        'facebook&instagram&messenger'
-      ]
-    },
-    {
-      label: '성과 목표',
-      key: 'performanceGoal',
-      required: false,
-      options: [
-        'CLICKS',
-        'LINK_CLICKS',
-        'OFFSITE_CONVERSIONS',
-        'LEAD_GENERATION',
-        'IMPRESSIONS',
-        'REACH'
-      ]
-    }
-  ]
-}
-
-// Google Ads 광고상품 구조
-export const googleAdProductStructure: MediaAdProductStructure = {
-  fields: [
-    {
-      label: '캠페인 유형',
-      key: 'campaignType',
-      required: true,
-      options: ['DEMAND_GEN', 'DISCOVERY', 'DISPLAY', 'MULTI_CHANNEL']
-    },
-    {
-      label: '캠페인 하위 유형',
-      key: 'campaignSubType',
-      required: false,
-      options: ['APP_CAMPAIGN', 'VIDEO_ACTION']
-    },
-    {
-      label: '입찰 전략',
-      key: 'biddingStrategy',
-      required: false,
-      options: ['TARGET_CPA', 'TARGET_CPM']
-    },
-    {
-      label: '광고그룹 유형',
-      key: 'adGroupType',
-      required: false,
-      options: ['DISPLAY_STANDARD', 'UNSPECIFIED', 'UNKNOWN']
-    },
-    {
-      label: '광고 유형',
-      key: 'adType',
-      required: false,
-      options: ['VIDEO_BUMPER_AD', 'VIDEO_RESPONSIVE_AD']
-    }
-  ]
-}
-
-// 카카오 광고상품 구조
-export const kakaoAdProductStructure: MediaAdProductStructure = {
-  fields: [
-    {
-      label: '광고 목표',
-      key: 'adGoal',
-      required: true,
-      options: ['CONVERSION', 'REACH', 'VISITING']
-    },
-    {
-      label: '광고 유형',
-      key: 'adType',
-      required: false,
-      options: ['DISPLAY', 'VIDEO', 'TALK_CHANNEL']
-    },
-    {
-      label: '광고 목표 설정',
-      key: 'goalSetting',
-      required: false,
-      options: ['CATALOG', 'TALK_CHANNEL']
-    },
-    {
-      label: '입찰 방식',
-      key: 'biddingMethod',
-      required: false,
-      options: ['CPC', 'CPM', 'CPV']
-    },
-    {
-      label: '소재 유형',
-      key: 'creativeType',
-      required: false,
-      options: ['VIDEO_NATIVE', 'IMAGE_BANNER', 'WIDE_MESSAGE']
-    }
-  ]
-}
-
-// 네이버 GFA 광고상품 구조
-export const naverGfaAdProductStructure: MediaAdProductStructure = {
-  fields: [
-    {
-      label: '캠페인 목적',
-      key: 'campaignPurpose',
-      required: true,
-      options: ['SHOPPING', 'CONVERSION', 'INSTALL_APP']
-    },
-    {
-      label: '청구 기준',
-      key: 'billingType',
-      required: false,
-      options: ['CPC', 'CPM', 'CPV']
-    },
-    {
-      label: '게재 위치',
-      key: 'placement',
-      required: false,
-      options: ['F_BANNER', 'M_MAIN']
-    }
-  ]
-}
-
-// 네이버 NOSP 광고상품 구조
-export const naverNospAdProductStructure: MediaAdProductStructure = {
-  fields: [
-    {
-      label: '광고상품명',
-      key: 'productName',
-      required: true,
-      options: ['M_메인_브랜딩DA', 'M_메인_브랜딩DA_아웃스트림동영상']
-    },
-    {
-      label: '상품 유형',
-      key: 'productType',
-      required: false,
-      options: ['배너_이미지_확장형', '배너_이미지형']
-    },
-    {
-      label: '과금 유형',
-      key: 'chargeType',
-      required: false,
-      options: ['CPM', 'CPT']
-    }
-  ]
-}
-
-// 매체별 광고상품 구조 매핑
-export const adProductStructureByMedia: { [media: string]: MediaAdProductStructure } = {
-  'Meta': metaAdProductStructure,
-  'Google Ads': googleAdProductStructure,
-  'kakao모먼트': kakaoAdProductStructure,
-  '네이버 성과형 DA': naverGfaAdProductStructure,
-  '네이버 보장형 DA': naverNospAdProductStructure
-}
-
-// 하위 호환성을 위한 기존 데이터 유지
-export const metaAdProducts = {
-  campaignObjectives: metaAdProductStructure.fields[0].options,
-  buyingTypes: metaAdProductStructure.fields[1].options,
-  platforms: metaAdProductStructure.fields[2].options,
-  performanceGoals: metaAdProductStructure.fields[3].options
 }
 
 export interface MetaAdProductCombination {
@@ -562,6 +433,172 @@ export const metaMetrics: MetricGroup[] = [
       { id: 'cost_per_registration', label: '등록 완료당 비용', selected: false },
       { id: 'install', label: '설치수', selected: false },
       { id: 'cost_per_install', label: '설치당 비용', selected: false }
+    ]
+  }
+]
+
+// Google Ads 지표
+export const googleMetrics: MetricGroup[] = [
+  {
+    group: '실적',
+    metrics: [
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'cost', label: '광고비', selected: false },
+      { id: 'conversions', label: '조회수', selected: false },
+      { id: 'video_views_25', label: '25% 재생수', selected: false },
+      { id: 'video_views_50', label: '50% 재생수', selected: false },
+      { id: 'video_views_75', label: '75% 재생수', selected: false },
+      { id: 'video_views_100', label: '100% 재생수', selected: false },
+      { id: 'ctr', label: '클릭률(CTR)', selected: false },
+      { id: 'vtr', label: '조회율(VTR)', selected: false },
+      { id: 'video_views_25_rate', label: '25% 재생 진행률', selected: false },
+      { id: 'video_views_50_rate', label: '50% 재생 진행률', selected: false },
+      { id: 'video_views_75_rate', label: '75% 재생 진행률', selected: false },
+      { id: 'video_views_100_rate', label: '100% 재생 진행률', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
+      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
+      { id: 'cpv', label: '조회당 비용(CPV)', selected: false }
+    ]
+  },
+  {
+    group: '전환',
+    metrics: [
+      { id: 'all_conversions', label: '전환수', selected: false },
+      { id: 'conversions_value', label: '설치수', selected: false },
+      { id: 'purchases', label: '구매수', selected: false },
+      { id: 'cost_per_conversion', label: '구매당 비용', selected: false },
+      { id: 'conversion_value', label: '전환율(전체)', selected: false },
+      { id: 'installs', label: '설치율', selected: false },
+      { id: 'cost_per_install', label: '전환당 비용', selected: false },
+      { id: 'install_rate', label: '설치당 비용', selected: false }
+    ]
+  }
+]
+
+// Kakao Moment 지표
+export const kakaoMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'cpc', label: '클릭당 비용', selected: false },
+      { id: 'cpm', label: '노출당 비용', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'cost', label: '비용', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'cpv', label: '재생당 비용', selected: false }
+    ]
+  },
+  {
+    group: '동영상',
+    metrics: [
+      { id: 'video_views_100_rate', label: '동영상 100% 진행률', selected: false },
+      { id: 'video_views_25_rate', label: '동영상 25% 진행률', selected: false },
+      { id: 'video_views_50_rate', label: '동영상 50% 진행률', selected: false },
+      { id: 'video_views_75_rate', label: '동영상 75% 진행률', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'video_views', label: '재생수', selected: false },
+      { id: 'video_views_25', label: '25% 재생수', selected: false },
+      { id: 'video_views_50', label: '50% 재생수', selected: false },
+      { id: 'video_views_75', label: '75% 재생수', selected: false },
+      { id: 'video_views_100', label: '100% 재생수', selected: false },
+      { id: 'video_play_time', label: '재생수', selected: false },
+      { id: 'video_play_time_avg', label: '재생당 비용', selected: false },
+      { id: 'video_views_15s_cost', label: '15초 이상 재생당 비용', selected: false },
+      { id: 'video_views_10s_cost', label: '10초 이상 재생당 비용', selected: false }
+    ]
+  },
+  {
+    group: '발송',
+    metrics: [
+      { id: 'message_open', label: '열람수', selected: false },
+      { id: 'message_click', label: '전체 클릭수', selected: false },
+      { id: 'message_open_rate', label: '열람률', selected: false },
+      { id: 'message_click_rate', label: '메시지 클릭률', selected: false }
+    ]
+  },
+  {
+    group: '카카오 친구',
+    metrics: [
+      { id: 'channel_add_cpa', label: 'CPA', selected: false },
+      { id: 'channel_add_cvr', label: 'CVR', selected: false }
+    ]
+  },
+  {
+    group: '동영상',
+    metrics: [
+      { id: 'video_views_3s', label: '3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '10초 재생수', selected: false },
+      { id: 'video_views_15s', label: '15초 재생수', selected: false },
+      { id: 'video_views_30s', label: '30초 재생수', selected: false },
+      { id: 'video_views_60s', label: '60초 재생수', selected: false }
+    ]
+  }
+]
+
+// Naver GFA (성과형 DA) 지표
+export const naverGfaMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'cost', label: '매출(소진금액)', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false }
+    ]
+  },
+  {
+    group: '전환',
+    metrics: [
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'cost_per_conversion', label: '전환당 비용', selected: false }
+    ]
+  },
+  {
+    group: '재생',
+    metrics: [
+      { id: 'video_views', label: '비디오 재생 횟수', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'cpv', label: '조회당 비용', selected: false }
+    ]
+  },
+  {
+    group: '기본',
+    metrics: [
+      { id: 'cpc', label: '클릭당 비용', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용', selected: false }
+    ]
+  }
+]
+
+// Naver NOSP (보장형 DA) 지표
+export const naverNospMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'cost', label: '광고비', selected: false },
+      { id: 'cost_guaranteed', label: '집행금액', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'video_views', label: '동영상 조회수', selected: false },
+      { id: 'cpc', label: 'CPC', selected: false },
+      { id: 'cpm', label: 'CPM', selected: false },
+      { id: 'cpv', label: 'CPV', selected: false },
+      { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'vtr', label: 'VTR', selected: false }
+    ]
+  },
+  {
+    group: '재생 상세',
+    metrics: [
+      { id: 'video_views_25', label: '동영상 25% 재생수', selected: false },
+      { id: 'video_views_50', label: '동영상 50% 재생수', selected: false },
+      { id: 'video_views_75', label: '동영상 75% 재생수', selected: false },
+      { id: 'video_views_100', label: '동영상 100% 재생수', selected: false },
+      { id: 'video_views_3s', label: '동영상 3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '동영상 10초 재생수', selected: false }
     ]
   }
 ]

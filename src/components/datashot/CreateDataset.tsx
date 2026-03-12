@@ -51,6 +51,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [adProductsDialogOpen, setAdProductsDialogOpen] = useState(false)
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  
+  // 타겟팅 옵션 searchable dropdown 상태
+  const [targetingDropdownOpen, setTargetingDropdownOpen] = useState(false)
+  const [targetingSearchQuery, setTargetingSearchQuery] = useState('')
 
   useEffect(() => {
     setDarkModeUtil(isDarkMode)
@@ -61,6 +65,21 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       setIsStep1Confirmed(true)
     }
   }, [currentStep])
+
+  // 타겟팅 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (targetingDropdownOpen && !target.closest('.targeting-dropdown-container')) {
+        setTargetingDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [targetingDropdownOpen])
 
   // 토스트 자동 닫기
   useEffect(() => {
@@ -346,7 +365,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         }}
                         placeholder="데이터셋명을 입력하세요."
                         className="input"
-                        style={{ width: '800px' }}
+                        style={{ 
+                          width: '800px',
+                          borderColor: validationActive && !formData.datasetName.trim() ? 'hsl(var(--destructive))' : undefined
+                        }}
                         maxLength={30}
                       />
                       <div style={{ 
@@ -358,6 +380,15 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       }}>
                         {formData.datasetName.length}/30
                       </div>
+                      {validationActive && !formData.datasetName.trim() && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          데이터셋명을 입력해주세요.
+                        </div>
+                      )}
                       {validationActive && formData.datasetName.trim().length === 0 && formData.datasetName.length > 0 && (
                         <div style={{
                           fontSize: '12px',
@@ -635,53 +666,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       )}
                     </div>
 
-                    {/* 지표 */}
-                    <div style={{ marginBottom: '24px' }}>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                        지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                      </label>
-                      
-                      {!formData.media ? (
-                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
-                      ) : (
-                        <div style={{
-                          width: '800px',
-                          height: '36px',
-                          padding: '8px 12px',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '6px',
-                          backgroundColor: 'hsl(var(--background))',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          boxSizing: 'border-box'
-                        }}
-                        onClick={() => setMetricsDialogOpen(true)}
-                        >
-                          <span style={{ 
-                            fontSize: '14px',
-                            lineHeight: '16.5px',
-                            color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                          }}>
-                            {formData.metrics.length > 0 
-                              ? `${formData.metrics.length}개 지표 선택됨` 
-                              : '지표를 선택하세요'}
-                          </span>
-                          <ChevronRight size={16} />
-                        </div>
-                      )}
-                      {validationActive && formData.metrics.length === 0 && (
-                        <div style={{
-                          fontSize: '12px',
-                          color: 'hsl(var(--destructive))',
-                          marginTop: '4px'
-                        }}>
-                          지표를 선택해주세요.
-                        </div>
-                      )}
-                    </div>
-
                     {/* 타겟팅 옵션 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
@@ -692,27 +676,81 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         <DisabledSelectBox message="매체를 먼저 선택하세요" />
                       ) : (
                         <div style={{ width: '800px' }}>
-                          {/* 타겟팅 기준 선택 */}
-                          <div style={{ marginBottom: '12px' }}>
-                            <select
-                              value={formData.targetingCategory}
+                          {/* 타겟팅 기준 선택 - Searchable Dropdown */}
+                          <div className="targeting-dropdown-container" style={{ marginBottom: '12px', position: 'relative' }}>
+                            <input
+                              type="text"
+                              value={formData.targetingCategory || targetingSearchQuery}
                               onChange={(e) => {
+                                setTargetingSearchQuery(e.target.value)
                                 setFormData({ 
                                   ...formData, 
-                                  targetingCategory: e.target.value,
-                                  targetingOptions: [] // 기준 변경 시 세부 옵션 초기화
+                                  targetingCategory: '',
+                                  targetingOptions: []
                                 })
+                                setTargetingDropdownOpen(true)
                               }}
+                              onFocus={() => setTargetingDropdownOpen(true)}
+                              placeholder="선택 안 함"
                               className="input"
                               style={{ width: '100%', height: '36px', padding: '8px 12px', boxSizing: 'border-box' }}
-                            >
-                              <option value="">선택 안 함</option>
-                              {targetingOptionsByMedia[formData.media]?.map((targeting) => (
-                                <option key={targeting.category} value={targeting.category}>
-                                  {targeting.category}
-                                </option>
-                              ))}
-                            </select>
+                            />
+                            {targetingDropdownOpen && (
+                              <div className="dropdown" style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                right: 0,
+                                marginTop: '4px',
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                zIndex: 1000
+                              }}>
+                                <button
+                                  onClick={() => {
+                                    setFormData({ 
+                                      ...formData, 
+                                      targetingCategory: '',
+                                      targetingOptions: []
+                                    })
+                                    setTargetingSearchQuery('')
+                                    setTargetingDropdownOpen(false)
+                                  }}
+                                  className="dropdown-item"
+                                >
+                                  선택 안 함
+                                </button>
+                                {targetingOptionsByMedia[formData.media]
+                                  ?.filter(targeting => 
+                                    targeting.category.toLowerCase().includes(targetingSearchQuery.toLowerCase())
+                                  )
+                                  .map((targeting) => (
+                                    <button
+                                      key={targeting.category}
+                                      onClick={() => {
+                                        setFormData({ 
+                                          ...formData, 
+                                          targetingCategory: targeting.category,
+                                          targetingOptions: []
+                                        })
+                                        setTargetingSearchQuery('')
+                                        setTargetingDropdownOpen(false)
+                                      }}
+                                      className="dropdown-item"
+                                    >
+                                      {targeting.category}
+                                    </button>
+                                  ))}
+                                {targetingOptionsByMedia[formData.media]
+                                  ?.filter(targeting => 
+                                    targeting.category.toLowerCase().includes(targetingSearchQuery.toLowerCase())
+                                  ).length === 0 && (
+                                  <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                                    검색 결과가 없습니다
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* 타겟팅 세부 옵션 (다중 선택) */}
@@ -777,6 +815,53 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                               )}
                             </div>
                           )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 지표 */}
+                    <div style={{ marginBottom: '24px' }}>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                        지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                      </label>
+                      
+                      {!formData.media ? (
+                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
+                      ) : (
+                        <div style={{
+                          width: '800px',
+                          height: '36px',
+                          padding: '8px 12px',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px',
+                          backgroundColor: 'hsl(var(--background))',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          boxSizing: 'border-box'
+                        }}
+                        onClick={() => setMetricsDialogOpen(true)}
+                        >
+                          <span style={{ 
+                            fontSize: '14px',
+                            lineHeight: '16.5px',
+                            color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                          }}>
+                            {formData.metrics.length > 0 
+                              ? `${formData.metrics.length}개 지표 선택됨` 
+                              : '지표를 선택하세요'}
+                          </span>
+                          <ChevronRight size={16} />
+                        </div>
+                      )}
+                      {validationActive && formData.metrics.length === 0 && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          지표를 선택해주세요.
                         </div>
                       )}
                     </div>

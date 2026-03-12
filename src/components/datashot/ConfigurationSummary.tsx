@@ -1,4 +1,5 @@
-import { metaMetrics, adProductStructureByMedia } from './types'
+import { metaMetrics } from './types'
+import { adProductStructureByMedia } from './sampleData'
 
 interface ConfigurationSummaryProps {
   formData: {
@@ -209,6 +210,39 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
                 )}
               </div>
               
+              {/* 타겟팅 옵션 - 상세 리스트 표시 */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                    타겟팅 옵션
+                  </span>
+                  <span style={{ 
+                    fontSize: '13px', 
+                    fontWeight: '500',
+                    color: formData.targetingCategory ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                  }}>
+                    {formData.targetingCategory 
+                      ? (formData.targetingOptions.length > 0 ? `${formData.targetingOptions.length}개` : '선택 안 함')
+                      : '선택 안 함'}
+                  </span>
+                </div>
+                {formData.targetingCategory && formData.targetingOptions.length > 0 && (
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '8px',
+                    backgroundColor: 'hsl(var(--muted) / 0.3)',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    color: 'hsl(var(--foreground))',
+                    lineHeight: '1.6'
+                  }}>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>{formData.targetingCategory}</span>
+                    <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
+                    <span>{formData.targetingOptions.join(', ')}</span>
+                  </div>
+                )}
+              </div>
+              
               {/* 지표 - 그룹별 표시 */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -249,39 +283,6 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
                         </div>
                       )
                     })}
-                  </div>
-                )}
-              </div>
-              
-              {/* 타겟팅 옵션 - 상세 리스트 표시 */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                    타겟팅 옵션
-                  </span>
-                  <span style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '500',
-                    color: formData.targetingCategory ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                  }}>
-                    {formData.targetingCategory 
-                      ? (formData.targetingOptions.length > 0 ? `${formData.targetingOptions.length}개` : '선택 안 함')
-                      : '선택 안 함'}
-                  </span>
-                </div>
-                {formData.targetingCategory && formData.targetingOptions.length > 0 && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    color: 'hsl(var(--foreground))',
-                    lineHeight: '1.6'
-                  }}>
-                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>{formData.targetingCategory}</span>
-                    <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                    <span>{formData.targetingOptions.join(', ')}</span>
                   </div>
                 )}
               </div>

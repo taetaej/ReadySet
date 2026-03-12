@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, Filter, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2, List } from 'lucide-react'
+import { Plus, Search, Filter, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { SlotHeader } from '../reachcaster/SlotHeader'
 import { sampleDatasets } from './types'
@@ -249,29 +249,8 @@ export function DatasetList() {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          {/* 좌측: 리스트 아이콘 + 데이터셋 개수 */}
+          {/* 좌측: 데이터셋 개수 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* 리스트 아이콘 */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
-              overflow: 'hidden'
-            }}>
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{
-                  borderRadius: 0,
-                  border: 'none',
-                  backgroundColor: 'hsl(var(--muted))',
-                  padding: '8px 12px'
-                }}
-              >
-                <List size={16} />
-              </button>
-            </div>
-            
             {/* 데이터셋 개수 */}
             <div style={{ 
               fontSize: '14px',
@@ -523,7 +502,7 @@ export function DatasetList() {
                 backgroundColor: 'hsl(var(--muted) / 0.5)',
                 borderBottom: '1px solid hsl(var(--border))'
               }}>
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '14px', fontWeight: '600', width: '50px' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '14px', fontWeight: '500', width: '50px' }}>
                   <input
                     type="checkbox"
                     checked={selectAll}
@@ -531,45 +510,47 @@ export function DatasetList() {
                     className="checkbox-custom"
                   />
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '80px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('id')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '80px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('id')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     ID {renderSortIcon('id')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', minWidth: '200px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('name')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', minWidth: '200px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('name')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     데이터셋명 {renderSortIcon('name')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '120px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('media')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '120px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('media')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     매체 {renderSortIcon('media')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('industry')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('industry')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     업종 {renderSortIcon('industry')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '180px', color: 'hsl(var(--foreground))' }}>
-                  조회 기간
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '180px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('startDate')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                    조회 기간 {renderSortIcon('startDate')}
+                  </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     상태 {renderSortIcon('status')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '100px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('creator')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('creator')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     생성자 {renderSortIcon('creator')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '600', width: '140px', color: 'hsl(var(--foreground))' }}>
-                  <button onClick={() => handleSort('created')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '140px', color: 'hsl(var(--foreground))' }}>
+                  <button onClick={() => handleSort('created')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     생성일시 {renderSortIcon('created')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '14px', fontWeight: '600', width: '60px' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '14px', fontWeight: '500', width: '60px' }}>
                 </th>
               </tr>
             </thead>

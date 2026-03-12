@@ -1,0 +1,66 @@
+{
+  "description": "kakao value - 한글 맵핑",
+  "last_updated": "2025-06-04",
+  "column_definitions": {
+    "campaign_kko_campaign_type": "캠페인 유형 - 카카오 광고 플랫폼에서 제공하는 광고 상품 종류",
+    "campaign_objective": "캠페인 목표 - 광고를 통해 달성하고자 하는 비즈니스 목표",
+    "campaign_kko_objective_type": "목표 유형 - 캠페인 목표 달성을 위한 최적화 방식",
+    "adset_kko_pricing_type": "과금 방식 - 광고비가 부과되는 기준",
+    "ad_kakao_format": "광고 포맷 - 실제 노출되는 광고의 형식과 레이아웃"
+  },  
+  "mappings": {
+    "campaign_kko_campaign_type": {
+      "DISPLAY": "디스플레이",
+      "FOCUS_FULL_VIEW": "포커스 풀뷰",
+      "PC_TALK_BOTTOM": "포커스 보드",
+      "PC_TALK_RICH_POP": "리치팝 올데이",
+      "PRODUCT_CATALOG": "상품 카탈로그",
+      "PROFILE_FULL_VIEW": "프로필 풀뷰",
+      "SPONSORED_BOARD": "스폰서드 보드",
+      "TALK_BIZ_BOARD": "카카오톡비즈보드",
+      "TALK_BIZ_BOARD_RESERVED": "카카오 비즈보드 CPT",
+      "TALK_CHANNEL": "카카오톡 채널",
+      "VIDEO": "동영상"
+    },
+    "campaign_objective": {
+      "CONVERSION": "전환",
+      "VISITING": "방문",
+      "REACH": "도달",
+      "VIEW": "조회"
+    },
+    "campaign_kko_objective_type": {
+      "PIXEL_AND_SDK": "픽셀&SDK",
+      "TALK_CHANNEL": "카카오톡채널",
+      "CATALOG": "카탈로그 광고 최적화"
+    },
+    "adset_kko_pricing_type": {
+      "CPC": "CPC",
+      "CPA": "CPA",
+      "CPM": "CPM",
+      "CPT": "CPT",
+      "CPMS": "CPMS",
+      "CPV": "CPV"
+    },
+    "ad_kakao_format": {
+      "CATALOG_MANUAL": "이미지 카탈로그",
+      "IMAGE_BANNER": "이미지 배너",
+      "IMAGE_NATIVE": "이미지 네이티브",
+      "VIDEO_NATIVE": "비디오 네이티브",
+      "RICH_NATIVE": "리치 네이티브",
+      "CATALOG_DYNAMIC": "다이나믹 카탈로그",
+      "SERVICE_CONTENT": "콘텐츠",
+      "BASIC_TEXT_MESSAGE": "기본 텍스트",
+      "CAROUSEL_COMMERCE_MESSAGE": "캐러셀 커머스",
+      "CAROUSEL_FEED_MESSAGE": "캐러셀 피드",
+      "PREMIUM_VIDEO_MESSAGE": "프리미엄 동영상",
+      "WIDE_LIST_MESSAGE": "와이드 리스트",
+      "WIDE_MESSAGE": "와이드 이미지"
+    },
+    "device": {
+      "iOS": "iOS",
+      "Android": "Android",
+      "기타": "기타",
+      "PC": "PC"
+    }
+  }
+}

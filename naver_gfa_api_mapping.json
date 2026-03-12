@@ -1,0 +1,39 @@
+{
+  "description": "네이버 GFA value - 한글 맵핑",
+  "last_updated": "2025-06-04",
+  "column_definitions": {
+    "campaign_objective": "캠페인 목표 - 네이버 GFA에서 제공하는 광고 목적 유형",
+    "campaign_ng_pricing_name": "과금 방식 - 네이버 광고비가 부과되는 기준",
+    "adset_placement": "광고 게재 위치 - 네이버 서비스 내 광고가 노출되는 지면"
+  },
+  "mappings": {
+    "campaign_objective": {
+      "SHOPPING": "쇼핑 프로모션",
+      "INSTALL_APP": "앱 전환",
+      "CONVERSION": "웹사이트 전환",
+      "WEB_SITE_TRAFFIC": "인지도 및 트래픽",
+      "LEAD": "참여 유도",
+      "WATCH_VIDEO": "동영상 조회",
+      "CATALOG": "카탈로그 판매"
+    },
+    "campaign_ng_pricing_name": {
+      "CPC": "CPC",
+      "CPM": "CPM",
+      "CPV": "CPV"
+    },
+    "adset_placement": {
+      "M_MAIN": "네이버 > 배너 영역 > 네이버 메인",
+      "M_BANNER": "네이버 > 배너 영역 > 서비스 통합",
+      "N_SHOPPING": "네이버 > 쇼핑 영역",
+      "F_BANNER": "네이버 패밀리 매체 > 배너 영역",
+      "N_COMMUNICATION": "네이버 > 커뮤니케이션 영역",
+      "M_FEED": "네이버 > 피드 영역",
+      "F_SMARTCHANNEL": "네이버 패밀리 매체 > 스마트채널",
+      "BAND": "네이버 패밀리 매체 > 피드 영역",
+      "M_SMARTCHANNEL": "네이버 > 스마트채널",
+      "NW_BANNER": "네이버 퍼포먼스 네트워크 > 배너 영역",
+      "NW_SMARTCHANNEL": "네이버 퍼포먼스 네트워크 > 스마트채널",
+      "N_INSTREAM": "네이버 > 인스트림 영역"
+    }
+  }
+}
