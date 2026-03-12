@@ -335,19 +335,29 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
-              backgroundColor: selectedValues.length > 0 ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-              border: selectedValues.length > 0 ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+              backgroundColor: selectedValues.length > 0 ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
+              border: selectedValues.length > 0 ? '1px solid hsl(var(--foreground) / 0.2)' : '1px solid hsl(var(--border))'
             }}
           >
             <span style={{ 
               overflow: 'hidden', 
               textOverflow: 'ellipsis', 
               whiteSpace: 'nowrap',
-              color: selectedValues.length > 0 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'
+              color: selectedValues.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+              fontWeight: selectedValues.length > 0 ? '500' : '400'
             }}>
-              {selectedValues.length > 0 ? `${selectedValues.length}개 선택` : '전체'}
+              {selectedValues.length === 0 
+                ? '전체' 
+                : selectedValues.length === 1 
+                  ? selectedValues[0]
+                  : allSelected 
+                    ? '전체'
+                    : `${selectedValues.length}개 선택`
+              }
             </span>
-            <ChevronDown size={14} />
+            <ChevronDown size={14} style={{ 
+              color: selectedValues.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+            }} />
           </button>
 
           {openFilterDropdown === columnKey && (
@@ -541,8 +551,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               height: '32px',
               padding: '4px',
               fontSize: '12px',
-              backgroundColor: filter.operator && filter.value ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-              border: filter.operator && filter.value ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+              backgroundColor: filter.operator && filter.value ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
+              border: filter.operator && filter.value ? '1px solid hsl(var(--foreground) / 0.2)' : '1px solid hsl(var(--border))',
+              color: filter.operator && filter.value ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
+              fontWeight: filter.operator && filter.value ? '500' : '400'
             }}
           >
             <option value="=">=</option>
@@ -569,8 +581,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               padding: '4px 8px',
               fontSize: '12px',
               minWidth: '80px',
-              backgroundColor: filter.value ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-              border: filter.value ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+              backgroundColor: filter.value ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
+              border: filter.value ? '1px solid hsl(var(--foreground) / 0.2)' : '1px solid hsl(var(--border))',
+              color: filter.value ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
+              fontWeight: filter.value ? '500' : '400'
             }}
           />
         </div>

@@ -619,11 +619,12 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                   color: 'hsl(var(--muted-foreground))',
                                   margin: '0 4px'
                                 }}>
-                                  {'>'}
+                                  {','}
                                 </span>
                               )}
                               <span style={{ 
-                                color: idx === parts.length - 1 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                                color: idx === parts.length - 1 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                                fontWeight: part === '관공서및단체' ? '500' : 'normal'
                               }}>
                                 {part}
                               </span>

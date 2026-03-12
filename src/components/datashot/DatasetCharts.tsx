@@ -1,4 +1,4 @@
-import { Database, Package, Target, Info } from 'lucide-react'
+import { Database, Package, Calendar, Info } from 'lucide-react'
 import { useState } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -12,28 +12,52 @@ export function DatasetCharts() {
       extracted: 87, // 실제 수집된 광고상품 수
       percentage: ((87 / 144) * 100) // 수집률
     },
-    targetingOptions: {
-      requested: 13, // 요청한 타겟팅 옵션 조건 수
-      extracted: 11, // 실제 수집된 타겟팅 옵션 수
-      percentage: ((11 / 13) * 100) // 수집률
+    period: {
+      requested: 10, // 요청한 조회기간 수 (2025-01 ~ 2025-10)
+      extracted: 8, // 실제 데이터가 있는 기간 수 (2025-06, 07 제외)
+      percentage: ((8 / 10) * 100) // 수집률
     }
   }
 
-  // 기간별 지표 트렌드 데이터 생성
-  const trendData = [
+  // 기간별 지표 트렌드 데이터 생성 (원본 데이터)
+  const rawTrendData = [
     { period: '2024-01', cost: 12500000, ctr: 1.85, cpc: 427 },
     { period: '2024-02', cost: 15800000, ctr: 2.12, cpc: 398 },
     { period: '2024-03', cost: 18200000, ctr: 2.68, cpc: 365 },
-    { period: '2024-04', cost: 16900000, ctr: 3.15, cpc: 382 },
-    { period: '2024-05', cost: 19500000, ctr: 3.82, cpc: 341 },
-    { period: '2024-06', cost: 21300000, ctr: 4.25, cpc: 325 },
-    { period: '2024-07', cost: 23100000, ctr: 4.58, cpc: 312 },
-    { period: '2024-08', cost: 20800000, ctr: 4.92, cpc: 298 },
-    { period: '2024-09', cost: 22400000, ctr: 5.21, cpc: 285 },
-    { period: '2024-10', cost: 24700000, ctr: 5.48, cpc: 273 },
-    { period: '2024-11', cost: 26300000, ctr: 5.75, cpc: 261 },
-    { period: '2024-12', cost: 28500000, ctr: 6.02, cpc: 249 }
+    { period: '2024-04', cost: 16900000, ctr: 3.15, cpc: 342 },
+    { period: '2024-05', cost: 19500000, ctr: 3.82, cpc: 318 },
+    { period: '2024-06', cost: 21300000, ctr: 4.25, cpc: 295 },
+    { period: '2024-07', cost: 23100000, ctr: 4.58, cpc: 278 },
+    { period: '2024-08', cost: 20800000, ctr: 4.92, cpc: 265 },
+    { period: '2024-09', cost: 22400000, ctr: 5.21, cpc: 251 },
+    { period: '2024-10', cost: 24700000, ctr: 5.48, cpc: 238 },
+    { period: '2024-11', cost: 26300000, ctr: 5.75, cpc: 227 },
+    { period: '2024-12', cost: 28500000, ctr: 6.02, cpc: 215 }
   ]
+
+  // CTR과 CPC의 최소/최대값 계산
+  const ctrValues = rawTrendData.map(d => d.ctr)
+  const cpcValues = rawTrendData.map(d => d.cpc)
+  const ctrMin = Math.min(...ctrValues)
+  const ctrMax = Math.max(...ctrValues)
+  const cpcMin = Math.min(...cpcValues)
+  const cpcMax = Math.max(...cpcValues)
+
+  // 정규화 함수 (0-100 범위로 변환)
+  const normalize = (value: number, min: number, max: number) => {
+    if (max === min) return 50 // 모든 값이 같으면 중간값
+    return ((value - min) / (max - min)) * 100
+  }
+
+  // 정규화된 데이터 생성
+  const trendData = rawTrendData.map(d => ({
+    period: d.period,
+    cost: d.cost,
+    ctr: d.ctr,
+    cpc: d.cpc,
+    ctrNormalized: normalize(d.ctr, ctrMin, ctrMax),
+    cpcNormalized: normalize(d.cpc, cpcMin, cpcMax)
+  }))
 
   // 다크모드 상태 가져오기
   const isDarkMode = document.documentElement.classList.contains('dark')
@@ -58,7 +82,7 @@ export function DatasetCharts() {
           display: 'flex', 
           alignItems: 'center', 
           gap: '8px',
-          width: '300px'
+          width: '500px'
         }}>
           <h3 style={{
             fontSize: '20px',
@@ -120,7 +144,7 @@ export function DatasetCharts() {
       {/* 메인 레이아웃: 좌측 스코어카드 3개 + 우측 차트 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '300px 1fr',
+        gridTemplateColumns: '500px 1fr',
         gap: '16px',
         marginBottom: '24px',
         alignItems: 'stretch'
@@ -148,13 +172,13 @@ export function DatasetCharts() {
             color={isDarkMode ? '#f5f5f5' : '#1a1a1a'}
           />
           
-          {/* 3. 타겟팅 옵션 */}
+          {/* 3. 조회기간 */}
           <ProgressCard
-            label="타겟팅 옵션"
-            requested={extractionStats.targetingOptions.requested}
-            extracted={extractionStats.targetingOptions.extracted}
-            percentage={extractionStats.targetingOptions.percentage}
-            icon={<Target size={20} />}
+            label="조회기간"
+            requested={extractionStats.period.requested}
+            extracted={extractionStats.period.extracted}
+            percentage={extractionStats.period.percentage}
+            icon={<Calendar size={20} />}
             color={isDarkMode ? '#f5f5f5' : '#1a1a1a'}
           />
         </div>
@@ -195,14 +219,15 @@ export function DatasetCharts() {
                   }}
                 />
                 
-                {/* Y축 우측: 지표 (CTR, CPC) */}
+                {/* Y축 우측: 정규화된 지표 (0-100) */}
                 <YAxis 
                   yAxisId="right"
                   orientation="right"
+                  domain={[0, 100]}
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                   label={{ 
-                    value: 'CTR (%) / CPC (원)', 
+                    value: '지표 인덱스 (0-100)', 
                     angle: 90, 
                     position: 'insideRight',
                     style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
@@ -212,6 +237,7 @@ export function DatasetCharts() {
                 <Tooltip 
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
+                      const data = payload[0].payload
                       return (
                         <div style={{
                           backgroundColor: 'hsl(var(--card))',
@@ -226,7 +252,7 @@ export function DatasetCharts() {
                             marginBottom: '8px',
                             color: 'hsl(var(--foreground))'
                           }}>
-                            {payload[0].payload.period}
+                            {data.period}
                           </div>
                           
                           {/* 광고비 - 네모 */}
@@ -243,7 +269,7 @@ export function DatasetCharts() {
                               borderRadius: '2px'
                             }} />
                             <span style={{ color: 'hsl(var(--foreground))' }}>
-                              광고비: {payload[0].value.toLocaleString()}원
+                              광고비: {data.cost.toLocaleString()}원
                             </span>
                           </div>
 
@@ -253,7 +279,7 @@ export function DatasetCharts() {
                             margin: '8px 0'
                           }} />
 
-                          {/* CTR - 동그라미 */}
+                          {/* CTR - 동그라미 (실제 값 표시) */}
                           <div style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -267,11 +293,11 @@ export function DatasetCharts() {
                               borderRadius: '50%'
                             }} />
                             <span style={{ color: 'hsl(var(--foreground))' }}>
-                              CTR: {payload[1].value}%
+                              CTR: {data.ctr}%
                             </span>
                           </div>
 
-                          {/* CPC - 동그라미 */}
+                          {/* CPC - 동그라미 (실제 값 표시) */}
                           <div style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -284,7 +310,7 @@ export function DatasetCharts() {
                               borderRadius: '50%'
                             }} />
                             <span style={{ color: 'hsl(var(--foreground))' }}>
-                              CPC: {payload[2].value.toLocaleString()}원
+                              CPC: {data.cpc.toLocaleString()}원
                             </span>
                           </div>
                         </div>
@@ -304,11 +330,11 @@ export function DatasetCharts() {
                   radius={[4, 4, 0, 0]}
                 />
                 
-                {/* CTR - 라인 그래프 */}
+                {/* CTR - 라인 그래프 (정규화된 값 사용) */}
                 <Line 
                   yAxisId="right"
                   type="monotone" 
-                  dataKey="ctr" 
+                  dataKey="ctrNormalized" 
                   name="CTR"
                   stroke={chartColors.ctr}
                   strokeWidth={2}
@@ -316,11 +342,11 @@ export function DatasetCharts() {
                   activeDot={{ r: 6 }}
                 />
                 
-                {/* CPC - 라인 그래프 */}
+                {/* CPC - 라인 그래프 (정규화된 값 사용) */}
                 <Line 
                   yAxisId="right"
                   type="monotone" 
-                  dataKey="cpc" 
+                  dataKey="cpcNormalized" 
                   name="CPC"
                   stroke={chartColors.cpc}
                   strokeWidth={2}
@@ -454,21 +480,17 @@ function TotalRowsCard({
       }}>
         <div style={{
           fontSize: '13px',
-          fontWeight: '600',
+          fontWeight: '500',
           color: 'hsl(var(--foreground))',
           fontFamily: 'Paperlogy, sans-serif'
         }}>
           총 행 수
         </div>
         <div style={{
-          width: '34px',
-          height: '34px',
-          borderRadius: '8px',
-          backgroundColor: 'hsl(240, 5%, 26%, 0.15)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'hsl(240, 5%, 26%)'
+          color: 'hsl(var(--muted-foreground))'
         }}>
           {icon}
         </div>
@@ -548,21 +570,17 @@ function ProgressCard({
       }}>
         <div style={{
           fontSize: '13px',
-          fontWeight: '600',
+          fontWeight: '500',
           color: 'hsl(var(--foreground))',
           fontFamily: 'Paperlogy, sans-serif'
         }}>
           {label}
         </div>
         <div style={{
-          width: '34px',
-          height: '34px',
-          borderRadius: '8px',
-          backgroundColor: 'hsl(240, 5%, 26%, 0.15)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'hsl(240, 5%, 26%)'
+          color: 'hsl(var(--muted-foreground))'
         }}>
           {icon}
         </div>
@@ -613,20 +631,6 @@ function ProgressCard({
             boxShadow: `0 0 8px ${color}`,
             transition: 'width 0.3s ease'
           }} />
-        </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center'
-        }}>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: '600',
-            color,
-            fontFamily: 'Paperlogy, sans-serif'
-          }}>
-            {percentage.toFixed(1)}%
-          </span>
         </div>
       </div>
     </div>
