@@ -270,11 +270,13 @@ export function AdProductsModal({ isOpen, onClose, products }: AdProductsModalPr
 interface MetricsModalProps {
   isOpen: boolean
   onClose: () => void
-  metrics: string[]
+  metricGroups: { group: string; metrics: string[] }[]
 }
 
-export function MetricsModal({ isOpen, onClose, metrics }: MetricsModalProps) {
+export function MetricsModal({ isOpen, onClose, metricGroups }: MetricsModalProps) {
   if (!isOpen) return null
+
+  const totalMetrics = metricGroups.reduce((sum, group) => sum + group.metrics.length, 0)
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -282,9 +284,9 @@ export function MetricsModal({ isOpen, onClose, metrics }: MetricsModalProps) {
         className="dialog-content" 
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: '600px', 
+          width: '900px', 
           maxWidth: '95vw',
-          maxHeight: '80vh',
+          maxHeight: '85vh',
           display: 'flex',
           flexDirection: 'column'
         }}
@@ -321,37 +323,74 @@ export function MetricsModal({ isOpen, onClose, metrics }: MetricsModalProps) {
             borderRadius: '8px',
             overflow: 'hidden'
           }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr',
-              padding: '12px 16px',
-              backgroundColor: 'hsl(var(--muted) / 0.5)',
-              borderBottom: '1px solid hsl(var(--border))',
-              fontSize: '12px',
-              fontWeight: '600',
-              color: 'hsl(var(--muted-foreground))'
-            }}>
-              선택한 지표 ({metrics.length}개)
-            </div>
-
-            <div>
-              {metrics.map((metric, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr',
-                    padding: '12px 16px',
-                    alignItems: 'center',
-                    borderBottom: idx < metrics.length - 1 ? '1px solid hsl(var(--border))' : 'none',
-                    fontSize: '13px',
-                    color: 'hsl(var(--foreground))'
-                  }}
-                >
-                  {metric}
+            {metricGroups.map((group, groupIndex) => (
+              <div 
+                key={group.group} 
+                style={{ 
+                  borderBottom: groupIndex < metricGroups.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+                }}
+              >
+                {/* 그룹 헤더 */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 100px 80px',
+                  alignItems: 'center',
+                  padding: '12px',
+                  backgroundColor: 'hsl(var(--muted) / 0.2)'
+                }}>
+                  <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                    {group.group}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    {group.metrics.length}개 지표
+                  </div>
+                  <div style={{
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    backgroundColor: 'hsl(var(--primary))',
+                    color: 'hsl(var(--primary-foreground))',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    width: 'fit-content',
+                    marginLeft: 'auto'
+                  }}>
+                    {group.metrics.length}
+                  </div>
                 </div>
-              ))}
-            </div>
+
+                {/* 지표 리스트 */}
+                <div style={{ backgroundColor: 'hsl(var(--background))' }}>
+                  {group.metrics.map((metric, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '40px 1fr',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        borderTop: '1px solid hsl(var(--border))',
+                        backgroundColor: 'hsl(var(--primary) / 0.05)'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked
+                        disabled
+                        className="checkbox-custom"
+                        style={{ marginLeft: '8px', cursor: 'not-allowed', opacity: 0.6 }}
+                      />
+                      <span style={{ 
+                        fontSize: '13px',
+                        fontWeight: '500'
+                      }}>
+                        {metric}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -360,7 +399,7 @@ export function MetricsModal({ isOpen, onClose, metrics }: MetricsModalProps) {
             onClick={onClose}
             className="btn btn-primary btn-md"
           >
-            확인
+            확인 ({totalMetrics}개 선택)
           </button>
         </div>
       </div>

@@ -93,6 +93,25 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
   const [clockTooltipOpen, setClockTooltipOpen] = useState(false)
 
+  // 지표 데이터 (모달에 전달할 데이터)
+  const metricsData = [
+    {
+      group: '성과',
+      metrics: ['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']
+    },
+    {
+      group: '참여',
+      metrics: ['링크 클릭 수', '링크 클릭률', '게시물 참여수']
+    },
+    {
+      group: '전환',
+      metrics: ['구매수', '구매당 비용', '등록 완료수']
+    }
+  ]
+
+  // 전체 지표 개수 계산
+  const totalMetricsCount = metricsData.reduce((sum, group) => sum + group.metrics.length, 0)
+
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
@@ -791,7 +810,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>지표 6개</span>
+              <span>지표 {totalMetricsCount}개</span>
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
@@ -1377,7 +1396,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       <MetricsModal
         isOpen={metricsModalOpen}
         onClose={() => setMetricsModalOpen(false)}
-        metrics={['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']}
+        metricGroups={metricsData}
       />
     </AppLayout>
   )
