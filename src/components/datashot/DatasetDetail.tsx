@@ -135,17 +135,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
   const handleCopyLink = () => {
     const url = window.location.href
-    navigator.clipboard.writeText(url).then(() => {
-      setShowToast({ type: 'success', message: '링크가 클립보드에 복사되었습니다.' })
-      setExportMenuOpen(false)
-    }).catch(() => {
-      setShowToast({ type: 'error', message: '링크 복사에 실패했습니다.' })
-    })
+    navigator.clipboard.writeText(url)
+    setExportMenuOpen(false)
   }
 
   const handleExportCSV = () => {
     console.log('CSV 다운로드')
-    setShowToast({ type: 'success', message: 'CSV 파일을 다운로드합니다.' })
     setExportMenuOpen(false)
   }
 
