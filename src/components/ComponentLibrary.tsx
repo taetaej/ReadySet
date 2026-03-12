@@ -66,6 +66,8 @@ export function ComponentLibrary() {
   
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(20)
+  const [showItemsPerPageDropdown, setShowItemsPerPageDropdown] = useState(false)
   const totalPages = 10
   
   // 공유 메뉴 상태
@@ -1132,17 +1134,71 @@ export function ComponentLibrary() {
                 </button>
               </div>
 
-              {/* 페이지 정보 */}
+              {/* 페이지 정보 및 항목 수 선택 */}
               <div style={{ 
                 fontSize: '13px', 
                 color: 'hsl(var(--muted-foreground))',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '12px'
               }}>
                 <span>Page {currentPage} of {totalPages}</span>
                 <span style={{ color: 'hsl(var(--border))' }}>|</span>
                 <span>Total 247 items</span>
+                <span style={{ color: 'hsl(var(--border))' }}>|</span>
+                
+                {/* 페이지당 항목 수 선택 */}
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Show</span>
+                  <button
+                    onClick={() => setShowItemsPerPageDropdown(!showItemsPerPageDropdown)}
+                    className="input"
+                    style={{
+                      width: '70px',
+                      padding: '4px 8px',
+                      height: '28px',
+                      minHeight: '28px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      fontSize: '13px'
+                    }}
+                  >
+                    <span>{itemsPerPage}</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  <span>per page</span>
+
+                  {showItemsPerPageDropdown && (
+                    <div className="dropdown" style={{
+                      position: 'absolute',
+                      bottom: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      marginBottom: '4px',
+                      minWidth: '70px',
+                      zIndex: 1000
+                    }}>
+                      {[10, 20, 50, 100].map((count) => (
+                        <button
+                          key={count}
+                          onClick={() => {
+                            setItemsPerPage(count)
+                            setShowItemsPerPageDropdown(false)
+                          }}
+                          className="dropdown-item"
+                          style={{
+                            backgroundColor: itemsPerPage === count ? 'hsl(var(--muted))' : 'transparent',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </ComponentGroup>
