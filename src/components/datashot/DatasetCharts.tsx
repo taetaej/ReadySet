@@ -19,8 +19,8 @@ export function DatasetCharts() {
     }
   }
 
-  // 기간별 지표 트렌드 데이터 생성 (원본 데이터)
-  const rawTrendData = [
+  // 기간별 지표 트렌드 데이터 생성
+  const trendData = [
     { period: '2024-01', cost: 12500000, ctr: 1.85, cpc: 427 },
     { period: '2024-02', cost: 15800000, ctr: 2.12, cpc: 398 },
     { period: '2024-03', cost: 18200000, ctr: 2.68, cpc: 365 },
@@ -34,30 +34,6 @@ export function DatasetCharts() {
     { period: '2024-11', cost: 26300000, ctr: 5.75, cpc: 227 },
     { period: '2024-12', cost: 28500000, ctr: 6.02, cpc: 215 }
   ]
-
-  // CTR과 CPC의 최소/최대값 계산
-  const ctrValues = rawTrendData.map(d => d.ctr)
-  const cpcValues = rawTrendData.map(d => d.cpc)
-  const ctrMin = Math.min(...ctrValues)
-  const ctrMax = Math.max(...ctrValues)
-  const cpcMin = Math.min(...cpcValues)
-  const cpcMax = Math.max(...cpcValues)
-
-  // 정규화 함수 (0-100 범위로 변환)
-  const normalize = (value: number, min: number, max: number) => {
-    if (max === min) return 50 // 모든 값이 같으면 중간값
-    return ((value - min) / (max - min)) * 100
-  }
-
-  // 정규화된 데이터 생성
-  const trendData = rawTrendData.map(d => ({
-    period: d.period,
-    cost: d.cost,
-    ctr: d.ctr,
-    cpc: d.cpc,
-    ctrNormalized: normalize(d.ctr, ctrMin, ctrMax),
-    cpcNormalized: normalize(d.cpc, cpcMin, cpcMax)
-  }))
 
   // 다크모드 상태 가져오기
   const isDarkMode = document.documentElement.classList.contains('dark')
@@ -269,6 +245,27 @@ export function DatasetCharts() {
 
           {/* Recharts */}
           <div style={{ position: 'relative', flex: 1 }}>
+            {/* Y축 라벨 (상단) */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '0 80px 0 60px',
+              fontSize: '12px',
+              fontFamily: 'Paperlogy, sans-serif',
+              color: 'hsl(var(--muted-foreground))',
+              zIndex: 10
+            }}>
+              <span>광고비 (원)</span>
+              <div style={{ display: 'flex', gap: '80px' }}>
+                <span>CTR (%)</span>
+                <span>CPC (원)</span>
+              </div>
+            </div>
+            
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={trendData}
@@ -289,27 +286,26 @@ export function DatasetCharts() {
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                   tickFormatter={(value) => `${(value / 10000000).toFixed(0)}M`}
-                  label={{ 
-                    value: '광고비 (원)', 
-                    angle: -90, 
-                    position: 'insideLeft',
-                    style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
-                  }}
                 />
                 
-                {/* Y축 우측: 정규화된 지표 (0-100) */}
+                {/* Y축 중앙: CTR (%) */}
+                <YAxis 
+                  yAxisId="center"
+                  orientation="right"
+                  domain={[0, 10]}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  tickFormatter={(value) => `${value}%`}
+                />
+                
+                {/* Y축 우측: CPC (원) */}
                 <YAxis 
                   yAxisId="right"
                   orientation="right"
-                  domain={[0, 100]}
+                  domain={[0, 500]}
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
-                  label={{ 
-                    value: '지표 인덱스 (0-100)', 
-                    angle: 90, 
-                    position: 'insideRight',
-                    style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
-                  }}
+                  tickFormatter={(value) => `${value}원`}
                 />
                 
                 <Tooltip 
@@ -408,11 +404,11 @@ export function DatasetCharts() {
                   radius={[4, 4, 0, 0]}
                 />
                 
-                {/* CTR - 라인 그래프 (정규화된 값 사용) */}
+                {/* CTR - 라인 그래프 */}
                 <Line 
-                  yAxisId="right"
+                  yAxisId="center"
                   type="monotone" 
-                  dataKey="ctrNormalized" 
+                  dataKey="ctr" 
                   name="CTR"
                   stroke={chartColors.ctr}
                   strokeWidth={2}
@@ -420,11 +416,11 @@ export function DatasetCharts() {
                   activeDot={{ r: 6 }}
                 />
                 
-                {/* CPC - 라인 그래프 (정규화된 값 사용) */}
+                {/* CPC - 라인 그래프 */}
                 <Line 
                   yAxisId="right"
                   type="monotone" 
-                  dataKey="cpcNormalized" 
+                  dataKey="cpc" 
                   name="CPC"
                   stroke={chartColors.cpc}
                   strokeWidth={2}
