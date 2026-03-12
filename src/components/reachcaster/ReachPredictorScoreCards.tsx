@@ -100,7 +100,7 @@ export function ReachPredictorScoreCards({ data, isDarkMode = false }: ReachPred
           }}>
             <div style={{
               fontSize: '13px',
-              fontWeight: '600',
+              fontWeight: '500',
               color: 'hsl(var(--foreground))',
               fontFamily: 'Paperlogy, sans-serif'
             }}>

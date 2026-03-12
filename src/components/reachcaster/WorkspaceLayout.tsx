@@ -783,7 +783,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                       >
                         {/* 광고주 필터 */}
                         <div style={{ marginBottom: '16px' }}>
-                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>광고주</div>
+                          <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>광고주</div>
                           
                           {/* 광고주 검색 */}
                           <div style={{ position: 'relative', marginBottom: '8px' }}>
@@ -846,7 +846,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
                         {/* 가시성 필터 */}
                         <div style={{ marginBottom: '16px' }}>
-                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>가시성</div>
+                          <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>가시성</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {['Internal', 'Private', 'Shared'].map(visibility => (
                               <label key={visibility} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>

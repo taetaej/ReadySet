@@ -949,7 +949,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                 }}>
                   {/* 분석 모듈 필터 */}
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>분석 모듈</div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>분석 모듈</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       {['Ratio Finder', 'Reach Predictor'].map(module => (
                         <label key={module} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -973,7 +973,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
 
                   {/* 상태 필터 */}
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>상태</div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>상태</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       {['Completed', 'Processing', 'Pending', 'Error'].map(status => (
                         <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -997,7 +997,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
 
                   {/* 업종 필터 */}
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>업종</div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>업종</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
                       {Array.from(new Set(sampleScenarios.map(s => s.industry))).map(industry => (
                         <label key={industry} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
