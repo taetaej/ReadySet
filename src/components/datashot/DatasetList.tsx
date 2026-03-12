@@ -552,7 +552,9 @@ export function DatasetList() {
                   </button>
                 </th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '180px', color: 'hsl(var(--foreground))' }}>
-                  조회 기간
+                  <button onClick={() => handleSort('startDate')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
+                    조회 기간 {renderSortIcon('startDate')}
+                  </button>
                 </th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
                   <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
