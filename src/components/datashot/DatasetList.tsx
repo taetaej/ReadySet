@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, Filter, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2, List } from 'lucide-react'
+import { Plus, Search, Filter, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, MoreVertical, Copy, ArrowRightLeft, Trash2, Building2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { SlotHeader } from '../reachcaster/SlotHeader'
 import { sampleDatasets } from './types'
@@ -249,29 +249,8 @@ export function DatasetList() {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          {/* 좌측: 리스트 아이콘 + 데이터셋 개수 */}
+          {/* 좌측: 데이터셋 개수 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* 리스트 아이콘 */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
-              overflow: 'hidden'
-            }}>
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{
-                  borderRadius: 0,
-                  border: 'none',
-                  backgroundColor: 'hsl(var(--muted))',
-                  padding: '8px 12px'
-                }}
-              >
-                <List size={16} />
-              </button>
-            </div>
-            
             {/* 데이터셋 개수 */}
             <div style={{ 
               fontSize: '14px',
