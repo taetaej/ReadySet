@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, ChevronDown } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { adProductStructureByMedia, MediaAdProductStructure } from './types'
 
 interface ConditionGroup {
@@ -19,6 +19,9 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
   const [conditionGroups, setConditionGroups] = useState<ConditionGroup[]>([])
   const [validationActive, setValidationActive] = useState(false)
   
+  // Searchable dropdown 상태 (각 그룹별로 관리)
+  const [dropdownStates, setDropdownStates] = useState<{ [groupId: string]: { open: boolean; search: string } }>({})
+  
   // 매체별 광고상품 구조 가져오기
   const productStructure: MediaAdProductStructure | undefined = adProductStructureByMedia[media]
 
@@ -27,7 +30,7 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
       // 기존 선택값이 있으면 파싱, 없으면 기본 그룹 1개
       if (selectedProducts.length > 0) {
         try {
-          const parsed = selectedProducts.map(p => JSON.parse(p))
+          const parsed = selectedProducts.map(p => JSON.parse(p)) as ConditionGroup[]
           setConditionGroups(parsed)
         } catch {
           setConditionGroups([createNewGroup()])
@@ -35,18 +38,37 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
       } else {
         setConditionGroups([createNewGroup()])
       }
+      // 드롭다운 상태 초기화
+      setDropdownStates({})
     }
   }, [isOpen, selectedProducts, productStructure])
 
   // 매체가 변경되면 conditionGroups 초기화
   useEffect(() => {
     if (productStructure) {
-      setConditionGroups([createNewGroup()])
+      const newGroup = createNewGroup()
+      setConditionGroups([newGroup])
+      setDropdownStates({})
     }
   }, [media])
 
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('.searchable-dropdown-container')) {
+        setDropdownStates({})
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   const createNewGroup = (): ConditionGroup => {
-    const group: ConditionGroup = {
+    const group: any = {
       id: `group-${Date.now()}-${Math.random()}`
     }
     
@@ -58,7 +80,7 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
       })
     }
     
-    return group
+    return group as ConditionGroup
   }
 
   const addGroup = () => {
@@ -90,7 +112,7 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
 
   const updateGroup = (id: string, updates: Partial<ConditionGroup>) => {
     setConditionGroups(conditionGroups.map(g => 
-      g.id === id ? { ...g, ...updates } : g
+      g.id === id ? { ...g, ...updates } as ConditionGroup : g
     ))
   }
 
@@ -248,7 +270,6 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
                   const isRequired = field.required
                   const value = group[field.key]
                   const isSelect = isRequired
-                  const isCheckboxGroup = !isRequired
                   const showError = validationActive && isRequired && !value
 
                   return (
@@ -258,39 +279,74 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
                       </label>
                       
                       {isSelect ? (
-                        // 필수 필드: 드롭다운
+                        // 필수 필드: Searchable Dropdown
                         <>
-                          <div style={{ position: 'relative' }}>
-                            <select
-                              value={value as string}
-                              onChange={(e) => updateGroup(group.id, { [field.key]: e.target.value })}
+                          <div className="searchable-dropdown-container" style={{ position: 'relative' }}>
+                            <input
+                              type="text"
+                              value={value as string || dropdownStates[group.id]?.search || ''}
+                              onChange={(e) => {
+                                setDropdownStates({
+                                  ...dropdownStates,
+                                  [group.id]: { open: true, search: e.target.value }
+                                })
+                                if (!e.target.value) {
+                                  updateGroup(group.id, { [field.key]: '' })
+                                }
+                              }}
+                              onFocus={() => {
+                                setDropdownStates({
+                                  ...dropdownStates,
+                                  [group.id]: { open: true, search: dropdownStates[group.id]?.search || '' }
+                                })
+                              }}
+                              placeholder="선택하세요"
                               className="input"
                               style={{ 
-                                width: '100%', 
-                                appearance: 'none', 
-                                paddingRight: '32px',
+                                width: '100%',
                                 borderColor: showError ? 'hsl(var(--destructive))' : undefined
                               }}
-                            >
-                              <option value="">선택하세요</option>
-                              {getAvailableOptions(field.key, field.options, group.id).map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                              {value && !getAvailableOptions(field.key, field.options, group.id).includes(value as string) && (
-                                <option key={value as string} value={value as string}>{value as string}</option>
-                              )}
-                            </select>
-                            <ChevronDown 
-                              size={16} 
-                              style={{ 
-                                position: 'absolute', 
-                                right: '12px', 
-                                top: '50%', 
-                                transform: 'translateY(-50%)',
-                                pointerEvents: 'none',
-                                color: 'hsl(var(--muted-foreground))'
-                              }} 
                             />
+                            {dropdownStates[group.id]?.open && (
+                              <div className="dropdown" style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                right: 0,
+                                marginTop: '4px',
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                zIndex: 1000
+                              }}>
+                                {getAvailableOptions(field.key, field.options, group.id)
+                                  .filter(opt => 
+                                    opt.toLowerCase().includes((dropdownStates[group.id]?.search || '').toLowerCase())
+                                  )
+                                  .map(opt => (
+                                    <button
+                                      key={opt}
+                                      onClick={() => {
+                                        updateGroup(group.id, { [field.key]: opt })
+                                        setDropdownStates({
+                                          ...dropdownStates,
+                                          [group.id]: { open: false, search: '' }
+                                        })
+                                      }}
+                                      className="dropdown-item"
+                                    >
+                                      {opt}
+                                    </button>
+                                  ))}
+                                {getAvailableOptions(field.key, field.options, group.id)
+                                  .filter(opt => 
+                                    opt.toLowerCase().includes((dropdownStates[group.id]?.search || '').toLowerCase())
+                                  ).length === 0 && (
+                                  <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                                    검색 결과가 없습니다
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           {showError && (
                             <p style={{ 

@@ -365,7 +365,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         }}
                         placeholder="데이터셋명을 입력하세요."
                         className="input"
-                        style={{ width: '800px' }}
+                        style={{ 
+                          width: '800px',
+                          borderColor: validationActive && !formData.datasetName.trim() ? 'hsl(var(--destructive))' : undefined
+                        }}
                         maxLength={30}
                       />
                       <div style={{ 
@@ -377,6 +380,15 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       }}>
                         {formData.datasetName.length}/30
                       </div>
+                      {validationActive && !formData.datasetName.trim() && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          데이터셋명을 입력해주세요.
+                        </div>
+                      )}
                       {validationActive && formData.datasetName.trim().length === 0 && formData.datasetName.length > 0 && (
                         <div style={{
                           fontSize: '12px',
