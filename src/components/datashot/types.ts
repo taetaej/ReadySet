@@ -437,6 +437,107 @@ export const metaMetrics: MetricGroup[] = [
   }
 ]
 
+// Google Ads 지표
+export const googleMetrics: MetricGroup[] = [
+  {
+    group: '실적',
+    metrics: [
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'cost', label: '광고비', selected: false },
+      { id: 'conversions', label: '조회수', selected: false },
+      { id: 'video_views_25', label: '25% 재생수', selected: false },
+      { id: 'video_views_50', label: '50% 재생수', selected: false },
+      { id: 'video_views_75', label: '75% 재생수', selected: false },
+      { id: 'video_views_100', label: '100% 재생수', selected: false },
+      { id: 'ctr', label: '클릭률(CTR)', selected: false },
+      { id: 'vtr', label: '조회율(VTR)', selected: false },
+      { id: 'video_views_25_rate', label: '25% 재생 진행률', selected: false },
+      { id: 'video_views_50_rate', label: '50% 재생 진행률', selected: false },
+      { id: 'video_views_75_rate', label: '75% 재생 진행률', selected: false },
+      { id: 'video_views_100_rate', label: '100% 재생 진행률', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
+      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
+      { id: 'cpv', label: '조회당 비용(CPV)', selected: false }
+    ]
+  },
+  {
+    group: '전환',
+    metrics: [
+      { id: 'all_conversions', label: '전환수', selected: false },
+      { id: 'conversions_value', label: '설치수', selected: false },
+      { id: 'purchases', label: '구매수', selected: false },
+      { id: 'cost_per_conversion', label: '구매당 비용', selected: false },
+      { id: 'conversion_value', label: '전환율(전체)', selected: false },
+      { id: 'installs', label: '설치율', selected: false },
+      { id: 'cost_per_install', label: '전환당 비용', selected: false },
+      { id: 'install_rate', label: '설치당 비용', selected: false }
+    ]
+  }
+]
+
+// Kakao Moment 지표
+export const kakaoMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'impressions', label: '클릭당 비용', selected: false },
+      { id: 'clicks', label: '노출당 비용', selected: false },
+      { id: 'cost', label: '클릭수', selected: false },
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'spend', label: '비용', selected: false },
+      { id: 'clicks_all', label: '클릭률', selected: false },
+      { id: 'impressions_all', label: '노출수', selected: false },
+      { id: 'video_views', label: '재생당 비용', selected: false }
+    ]
+  },
+  {
+    group: '동영상',
+    metrics: [
+      { id: 'video_views_100', label: '동영상 100% 진행률', selected: false },
+      { id: 'video_views_25', label: '동영상 25% 진행률', selected: false },
+      { id: 'video_views_50', label: '동영상 50% 진행률', selected: false },
+      { id: 'video_views_75', label: '동영상 75% 진행률', selected: false },
+      { id: 'video_play_actions', label: '조회율', selected: false },
+      { id: 'video_play_count', label: '재생수', selected: false },
+      { id: 'video_views_25_count', label: '25% 재생수', selected: false },
+      { id: 'video_views_50_count', label: '50% 재생수', selected: false },
+      { id: 'video_views_75_count', label: '75% 재생수', selected: false },
+      { id: 'video_views_100_count', label: '100% 재생수', selected: false },
+      { id: 'video_play_time', label: '재생수', selected: false },
+      { id: 'video_play_time_avg', label: '재생당 비용', selected: false },
+      { id: 'video_views_15s', label: '15초 이상 재생당 비용', selected: false },
+      { id: 'video_views_10s', label: '10초 이상 재생당 비용', selected: false }
+    ]
+  },
+  {
+    group: '발송',
+    metrics: [
+      { id: 'message_sent', label: '열람수', selected: false },
+      { id: 'message_click', label: '전체 클릭수', selected: false },
+      { id: 'message_open', label: '열람률', selected: false },
+      { id: 'message_click_unique', label: '메시지 클릭률', selected: false }
+    ]
+  },
+  {
+    group: '기가오 친구',
+    metrics: [
+      { id: 'channel_add_direct', label: 'CPA', selected: false },
+      { id: 'channel_add_total', label: 'CVR', selected: false }
+    ]
+  },
+  {
+    group: '동영상',
+    metrics: [
+      { id: 'video_views_3s', label: '3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '10초 재생수', selected: false },
+      { id: 'video_views_15s', label: '15초 재생수', selected: false },
+      { id: 'video_views_30s', label: '30초 재생수', selected: false },
+      { id: 'video_views_60s', label: '60초 재생수', selected: false }
+    ]
+  }
+]
+
 // 년도 및 월/분기 옵션
 export const yearOptions = ['2023', '2024', '2025', '2026']
 export const monthOptions = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']

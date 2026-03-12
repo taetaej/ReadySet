@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { X, Check } from 'lucide-react'
-import { metaMetrics, type MetricGroup } from './types'
+import { useState, useEffect } from 'react'
+import { metaMetrics, googleMetrics, kakaoMetrics, MetricGroup } from './types'
 
 interface MetricsDialogProps {
   isOpen: boolean
@@ -11,55 +10,104 @@ interface MetricsDialogProps {
 }
 
 export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, media }: MetricsDialogProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [metricGroups, setMetricGroups] = useState<MetricGroup[]>([])
 
-  if (!isOpen) return null
-
-  // Meta 지표만 지원 (추후 다른 매체 추가 가능)
-  const metricsData = media === 'Meta' ? metaMetrics : []
-
-  // 검색 필터링
-  const filteredMetrics = metricsData.map(group => ({
-    ...group,
-    metrics: group.metrics.filter(metric =>
-      metric.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      metric.id.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(group => group.metrics.length > 0)
-
-  const toggleMetric = (metricId: string) => {
-    if (selectedMetrics.includes(metricId)) {
-      onUpdate(selectedMetrics.filter(id => id !== metricId))
-    } else {
-      onUpdate([...selectedMetrics, metricId])
+  // 매체별 지표 데이터 가져오기
+  const getMetricsByMedia = (mediaName: string): MetricGroup[] => {
+    switch (mediaName) {
+      case 'Meta':
+        return metaMetrics
+      case 'Google Ads':
+        return googleMetrics
+      case 'kakao모먼트':
+        return kakaoMetrics
+      default:
+        return []
     }
   }
 
-  const toggleGroupAll = (group: MetricGroup) => {
-    const groupMetricIds = group.metrics.map(m => m.id)
-    const allSelected = groupMetricIds.every(id => selectedMetrics.includes(id))
-    
-    if (allSelected) {
-      onUpdate(selectedMetrics.filter(id => !groupMetricIds.includes(id)))
-    } else {
-      onUpdate([...new Set([...selectedMetrics, ...groupMetricIds])])
+  useEffect(() => {
+    if (isOpen) {
+      const metrics = getMetricsByMedia(media)
+      // 선택된 지표 반영
+      const updatedMetrics = metrics.map(group => ({
+        ...group,
+        metrics: group.metrics.map(metric => ({
+          ...metric,
+          selected: selectedMetrics.includes(metric.id)
+        }))
+      }))
+      setMetricGroups(updatedMetrics)
     }
+  }, [isOpen, selectedMetrics, media])
+
+  const toggleMetric = (groupIndex: number, metricId: string) => {
+    const newGroups = [...metricGroups]
+    const metric = newGroups[groupIndex].metrics.find(m => m.id === metricId)
+    if (metric) {
+      metric.selected = !metric.selected
+    }
+    setMetricGroups(newGroups)
   }
 
-  const toggleAllMetrics = () => {
-    const allMetricIds = metricsData.flatMap(group => group.metrics.map(m => m.id))
-    const allSelected = allMetricIds.every(id => selectedMetrics.includes(id))
-    
-    if (allSelected) {
-      onUpdate([])
-    } else {
-      onUpdate(allMetricIds)
-    }
+  const toggleGroup = (groupIndex: number) => {
+    const newGroups = [...metricGroups]
+    const allSelected = newGroups[groupIndex].metrics.every(m => m.selected)
+    newGroups[groupIndex].metrics.forEach(m => {
+      m.selected = !allSelected
+    })
+    setMetricGroups(newGroups)
   }
 
   const handleReset = () => {
-    onUpdate([])
-    setSearchQuery('')
+    const metrics = getMetricsByMedia(media)
+    setMetricGroups(metrics.map(group => ({
+      ...group,
+      metrics: group.metrics.map(metric => ({
+        ...metric,
+        selected: false
+      }))
+    })))
+  }
+
+  const handleConfirm = () => {
+    const selected = metricGroups.flatMap(group => 
+      group.metrics.filter(m => m.selected).map(m => m.id)
+    )
+    onUpdate(selected)
+    onClose()
+  }
+
+  const totalSelected = metricGroups.reduce((sum, group) => 
+    sum + group.metrics.filter(m => m.selected).length, 0
+  )
+
+  if (!isOpen) return null
+
+  if (metricGroups.length === 0) {
+    return (
+      <div className="dialog-overlay" onClick={onClose}>
+        <div 
+          className="dialog-content" 
+          onClick={(e) => e.stopPropagation()}
+          style={{ 
+            maxWidth: '500px',
+            padding: '24px',
+            textAlign: 'center'
+          }}
+        >
+          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px' }}>
+            지원하지 않는 매체
+          </h3>
+          <p style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', marginBottom: '24px' }}>
+            {media} 매체는 아직 지표가 정의되지 않았습니다.
+          </p>
+          <button onClick={onClose} className="btn btn-primary btn-md">
+            확인
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -67,176 +115,118 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
       <div 
         className="dialog-content" 
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '900px', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+        style={{ 
+          width: '900px', 
+          maxWidth: '95vw',
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">지표 선택</h3>
           <p className="dialog-description">
-            데이터 추출에 포함할 지표를 선택하세요
+            추출할 지표를 선택하세요
           </p>
         </div>
         
-        <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* 검색 및 전체 선택 */}
-          <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="지표 검색"
-                className="input"
-                style={{ width: '100%' }}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  style={{
-                    position: 'absolute',
-                    right: '8px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center'
+        <div style={{ 
+          padding: '24px', 
+          flex: 1, 
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '8px',
+            overflow: 'hidden'
+          }}>
+            {metricGroups.map((group, groupIndex) => {
+              const groupSelectedCount = group.metrics.filter(m => m.selected).length
+              const allSelected = groupSelectedCount === group.metrics.length
+              
+              return (
+                <div 
+                  key={group.group} 
+                  style={{ 
+                    borderBottom: groupIndex < metricGroups.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                   }}
                 >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-            <button
-              onClick={toggleAllMetrics}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap', flexShrink: 0 }}
-            >
-              {metricsData.flatMap(g => g.metrics.map(m => m.id)).every(id => selectedMetrics.includes(id))
-                ? '전체 해제'
-                : '전체 선택'}
-            </button>
-          </div>
-
-          {/* 지표 그룹 리스트 */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {filteredMetrics.length === 0 ? (
-              <div style={{
-                padding: '40px',
-                textAlign: 'center',
-                color: 'hsl(var(--muted-foreground))',
-                fontSize: '13px'
-              }}>
-                {searchQuery ? '검색 결과가 없습니다' : '지표를 불러올 수 없습니다'}
-              </div>
-            ) : (
-              <div style={{
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}>
-                {filteredMetrics.map((group, groupIndex) => {
-                  const groupMetricIds = group.metrics.map(m => m.id)
-                  const allSelected = groupMetricIds.every(id => selectedMetrics.includes(id))
-                  const selectedCount = group.metrics.filter(m => selectedMetrics.includes(m.id)).length
-                  
-                  return (
-                    <div 
-                      key={group.group} 
-                      style={{ 
-                        borderBottom: groupIndex < filteredMetrics.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-                      }}
-                    >
-                      {/* 그룹 헤더 */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 100px 80px 40px',
-                        alignItems: 'center',
-                        padding: '12px',
-                        backgroundColor: 'hsl(var(--muted) / 0.2)'
-                      }}>
-                        <div style={{ fontSize: '14px', fontWeight: '600' }}>
-                          {group.group}
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                          {group.metrics.length}개 지표
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleGroupAll(group)
-                          }}
-                          className="btn btn-ghost btn-sm"
-                          style={{ fontSize: '11px', padding: '4px 8px' }}
-                        >
-                          {allSelected ? '전체 해제' : '전체 선택'}
-                        </button>
-                        {selectedCount > 0 && (
-                          <div style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            borderRadius: '10px',
-                            backgroundColor: 'hsl(var(--primary))',
-                            color: 'hsl(var(--primary-foreground))',
-                            fontWeight: '600',
-                            textAlign: 'center'
-                          }}>
-                            {selectedCount}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 지표 리스트 (항상 표시) */}
-                      <div style={{ backgroundColor: 'hsl(var(--background))' }}>
-                        {group.metrics.map((metric) => {
-                          const isSelected = selectedMetrics.includes(metric.id)
-                          return (
-                            <label
-                              key={metric.id}
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: '40px 1fr',
-                                alignItems: 'center',
-                                padding: '10px 12px',
-                                cursor: 'pointer',
-                                borderTop: '1px solid hsl(var(--border))',
-                                backgroundColor: isSelected ? 'hsl(var(--primary) / 0.05)' : 'transparent',
-                                transition: 'background-color 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.2)'
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = 'transparent'
-                                }
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => toggleMetric(metric.id)}
-                                className="checkbox-custom"
-                                style={{ marginLeft: '8px' }}
-                              />
-                              <span style={{ 
-                                fontSize: '13px',
-                                fontWeight: isSelected ? '500' : '400'
-                              }}>
-                                {metric.label}
-                              </span>
-                            </label>
-                          )
-                        })}
-                      </div>
+                  {/* 그룹 헤더 */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '40px 1fr 100px 80px',
+                    alignItems: 'center',
+                    padding: '12px',
+                    backgroundColor: 'hsl(var(--muted) / 0.2)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => toggleGroup(groupIndex)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={() => toggleGroup(groupIndex)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="checkbox-custom"
+                      style={{ marginLeft: '8px' }}
+                    />
+                    <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                      {group.group}
                     </div>
-                  )
-                })}
-              </div>
-            )}
+                    <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                      {group.metrics.length}개 지표
+                    </div>
+                    <div style={{
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      backgroundColor: groupSelectedCount > 0 ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
+                      color: groupSelectedCount > 0 ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
+                      fontWeight: '600',
+                      textAlign: 'center',
+                      width: 'fit-content',
+                      marginLeft: 'auto'
+                    }}>
+                      {groupSelectedCount}
+                    </div>
+                  </div>
+
+                  {/* 지표 리스트 */}
+                  <div style={{ backgroundColor: 'hsl(var(--background))' }}>
+                    {group.metrics.map((metric, idx) => (
+                      <div
+                        key={metric.id}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '40px 1fr',
+                          alignItems: 'center',
+                          padding: '10px 12px',
+                          borderTop: '1px solid hsl(var(--border))',
+                          backgroundColor: metric.selected ? 'hsl(var(--muted) / 0.3)' : 'transparent',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => toggleMetric(groupIndex, metric.id)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={metric.selected}
+                          onChange={() => toggleMetric(groupIndex, metric.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="checkbox-custom"
+                          style={{ marginLeft: '8px' }}
+                        />
+                        <span style={{ 
+                          fontSize: '13px',
+                          fontWeight: metric.selected ? '500' : '400'
+                        }}>
+                          {metric.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -255,10 +245,10 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
             취소
           </button>
           <button
-            onClick={onClose}
+            onClick={handleConfirm}
             className="btn btn-primary btn-md"
           >
-            확인 ({selectedMetrics.length}개 선택)
+            확인 ({totalSelected}개 선택)
           </button>
         </div>
       </div>

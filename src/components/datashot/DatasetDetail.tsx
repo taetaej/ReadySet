@@ -1417,16 +1417,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         media="Meta"
         products={[
           {
-            objective: 'POST_ENGAGEMENT',
-            buyingTypes: ['AUCTION', 'RESERVED'],
-            platforms: ['facebook', 'instagram', 'facebook&instagram', 'audience_network', 'facebook&instagram&messenger'],
-            performanceGoals: ['OFFSITE_CONVERSIONS', 'LINK_CLICKS', 'IMPRESSIONS', 'LEAD_GENERATION', 'REACH']
-          },
-          {
-            objective: 'REACH',
-            buyingTypes: ['AUCTION', 'RESERVED'],
-            platforms: ['facebook', 'instagram', 'messenger', 'audience_network'],
-            performanceGoals: ['LINK_CLICKS', 'OFFSITE_CONVERSIONS']
+            campaignObjective: '게시물 참여',
+            buyingType: ['경매', '예약'],
+            platform: ['facebook', 'instagram', 'facebook&instagram', 'audience_network', 'facebook&instagram&messenger'],
+            performanceGoal: ['앱 이벤트 수 극대화', '링크 클릭수 극대화', '노출', '잠재 고객 수 극대화', '일일 고유 도달 극대화']
           }
         ]}
       />

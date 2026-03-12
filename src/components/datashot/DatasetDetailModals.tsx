@@ -1,4 +1,5 @@
 import { X } from 'lucide-react'
+import { adProductStructureByMedia } from './sampleData'
 
 interface IndustryModalProps {
   isOpen: boolean
@@ -128,8 +129,18 @@ interface AdProductsModalProps {
   products: any[]
 }
 
-export function AdProductsModal({ isOpen, onClose, products }: AdProductsModalProps) {
+export function AdProductsModal({ isOpen, onClose, media, products }: AdProductsModalProps) {
   if (!isOpen) return null
+
+  // 매체별 광고상품 구조 가져오기
+  const productStructure = adProductStructureByMedia[media]
+  
+  if (!productStructure) {
+    return null
+  }
+
+  // 샘플 데이터 생성 (products가 비어있으면 샘플 데이터 사용)
+  const displayProducts = products.length > 0 ? products : generateSampleProducts(productStructure, 2)
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -137,11 +148,12 @@ export function AdProductsModal({ isOpen, onClose, products }: AdProductsModalPr
         className="dialog-content" 
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: '900px', 
-          maxWidth: '95vw',
-          maxHeight: '80vh',
-          display: 'flex',
-          flexDirection: 'column'
+          width: '1200px', 
+          height: '80vh',
+          maxWidth: '95vw', 
+          maxHeight: '90vh', 
+          display: 'flex', 
+          flexDirection: 'column' 
         }}
       >
         <div className="dialog-header">
@@ -166,90 +178,119 @@ export function AdProductsModal({ isOpen, onClose, products }: AdProductsModalPr
           </button>
         </div>
         
-        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {products.map((product, idx) => (
-            <div
-              key={idx}
-              style={{
-                padding: '20px',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                backgroundColor: 'hsl(var(--card))'
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px'
-              }}>
-                <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
-                  조건 {idx + 1}
-                </h3>
-              </div>
-
-              {/* 캠페인 목표 */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                  캠페인 목표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                </label>
-                <input
-                  type="text"
-                  value={product.objective || ''}
-                  disabled
-                  className="input"
-                  style={{ 
-                    width: '100%',
-                    opacity: 0.6,
-                    cursor: 'not-allowed'
-                  }}
-                />
-              </div>
-
-              {/* 구매 유형 */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                  구매 유형
-                </label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {product.buyingTypes?.map((type: string) => (
-                    <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      {type}
-                    </label>
-                  ))}
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {displayProducts.map((product, index) => (
+            <div key={index}>
+              <div
+                style={{
+                  marginBottom: index < displayProducts.length - 1 ? '16px' : '0',
+                  padding: '20px',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  backgroundColor: 'hsl(var(--card))'
+                }}
+              >
+                {/* 그룹 헤더 */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
+                    조건 {index + 1}
+                  </h3>
                 </div>
-              </div>
 
-              {/* 플랫폼 */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                  플랫폼
-                </label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {product.platforms?.map((platform: string) => (
-                    <label key={platform} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      {platform}
-                    </label>
-                  ))}
-                </div>
-              </div>
+                {/* 동적 필드 렌더링 */}
+                {productStructure.fields.map((field, fieldIdx) => {
+                  const fieldValue = product[field.key]
+                  const isArray = Array.isArray(fieldValue)
+                  const hasValue = isArray ? fieldValue && fieldValue.length > 0 : fieldValue
 
-              {/* 성과 목표 */}
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                  성과 목표
-                </label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {product.performanceGoals?.map((goal: string) => (
-                    <label key={goal} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      {goal}
-                    </label>
-                  ))}
-                </div>
+                  return (
+                    <div key={field.key} style={{ marginBottom: fieldIdx < productStructure.fields.length - 1 ? '16px' : '0' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                        {field.label} {field.required && <span style={{ color: 'hsl(var(--destructive))' }}>*</span>}
+                      </label>
+                      
+                      {isArray ? (
+                        // 배열 값 (체크박스로 표시)
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: '100%', opacity: 0.6 }}>
+                            <input
+                              type="checkbox"
+                              checked={fieldValue.length === field.options.length}
+                              disabled
+                              className="checkbox-custom"
+                              style={{ cursor: 'not-allowed' }}
+                            />
+                            전체
+                          </label>
+                          {field.options.map(opt => (
+                            <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
+                              <input
+                                type="checkbox"
+                                checked={hasValue && fieldValue.includes(opt)}
+                                disabled
+                                className="checkbox-custom"
+                                style={{ cursor: 'not-allowed' }}
+                              />
+                              {opt}
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        // 단일 값 (텍스트 입력으로 표시)
+                        <input
+                          type="text"
+                          value={fieldValue || ''}
+                          disabled
+                          className="input"
+                          style={{ 
+                            width: '100%',
+                            opacity: 0.6,
+                            cursor: 'not-allowed'
+                          }}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
               </div>
+              
+              {/* OR 구분선 */}
+              {index < displayProducts.length - 1 && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '16px 0',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    flex: 1,
+                    height: '1px',
+                    backgroundColor: 'hsl(var(--border))'
+                  }} />
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: 'hsl(var(--muted-foreground))',
+                    padding: '4px 12px',
+                    backgroundColor: 'hsl(var(--muted))',
+                    borderRadius: '12px',
+                    border: '1px solid hsl(var(--border))'
+                  }}>
+                    OR
+                  </span>
+                  <div style={{
+                    flex: 1,
+                    height: '1px',
+                    backgroundColor: 'hsl(var(--border))'
+                  }} />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -265,6 +306,34 @@ export function AdProductsModal({ isOpen, onClose, products }: AdProductsModalPr
       </div>
     </div>
   )
+}
+
+// 샘플 광고상품 데이터 생성 함수
+function generateSampleProducts(structure: any, count: number = 2): any[] {
+  const products = []
+  
+  for (let i = 0; i < count; i++) {
+    const product: any = {}
+    
+    structure.fields.forEach((field: any, idx: number) => {
+      if (field.required) {
+        // 필수 필드: 첫 번째 옵션 선택
+        product[field.key] = field.options[i % field.options.length]
+      } else {
+        // 선택 필드: 랜덤하게 30개 정도 선택
+        const totalOptions = field.options.length
+        const selectCount = Math.min(30, Math.ceil(totalOptions * 0.7)) // 70% 정도 선택
+        
+        // 랜덤하게 옵션 선택
+        const shuffled = [...field.options].sort(() => Math.random() - 0.5)
+        product[field.key] = shuffled.slice(0, selectCount)
+      }
+    })
+    
+    products.push(product)
+  }
+  
+  return products
 }
 
 interface MetricsModalProps {
