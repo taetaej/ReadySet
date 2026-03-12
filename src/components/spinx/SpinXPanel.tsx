@@ -32,6 +32,9 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string | { type: 'chart', data: any } | { type: 'error', message: string }, timestamp: string, originalQuestion?: string }>>([])
   const [attachMenuOpen, setAttachMenuOpen] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [attachedUrl, setAttachedUrl] = useState<string>('')
+  const [showUrlDialog, setShowUrlDialog] = useState(false)
+  const [urlInput, setUrlInput] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -123,6 +126,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       setMessages(prev => [...prev, userMessage])
       setMessage('')
       setAttachedFile(null) // 첨부파일 초기화
+      setAttachedUrl('') // 첨부 URL 초기화
       setCurrentQuestion(textToSend) // 현재 질문 저장
       setIsLoading(true)
       
@@ -266,9 +270,28 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
 
   const removeAttachment = () => {
     setAttachedFile(null)
+    setAttachedUrl('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const handleUrlAdd = () => {
+    setShowUrlDialog(true)
+    setAttachMenuOpen(false)
+  }
+
+  const handleUrlSubmit = () => {
+    if (urlInput.trim()) {
+      setAttachedUrl(urlInput.trim())
+      setUrlInput('')
+      setShowUrlDialog(false)
+    }
+  }
+
+  const handleUrlCancel = () => {
+    setUrlInput('')
+    setShowUrlDialog(false)
   }
 
   const handleReset = () => {
@@ -279,6 +302,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     setMessages([])
     setMessage('')
     setAttachedFile(null)
+    setAttachedUrl('')
     setShowResetDialog(false)
   }
 
@@ -313,6 +337,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       setMessages([])
       setMessage('')
       setAttachedFile(null)
+      setAttachedUrl('')
       setPendingModel(null)
       
       // 새 모델로 초기 분석 재생성
@@ -1208,8 +1233,8 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         >
           {/* 입력창 */}
           <div style={{ flex: 1, position: 'relative', minWidth: 0, maxWidth: '100%' }}>
-            {/* 첨부 파일 칩 */}
-            {attachedFile && (
+            {/* 첨부 파일/URL 칩 */}
+            {(attachedFile || attachedUrl) && (
               <div style={{
                 marginBottom: '8px',
                 display: 'inline-flex',
@@ -1219,14 +1244,38 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 backgroundColor: 'hsl(var(--muted))',
                 borderRadius: '6px',
                 fontSize: '12px',
-                fontFamily: 'Paperlogy, sans-serif'
+                fontFamily: 'Paperlogy, sans-serif',
+                maxWidth: '100%'
               }}>
-                {attachedFile.type === 'application/pdf' ? (
-                  <FileText size={14} />
+                {attachedFile ? (
+                  <>
+                    {attachedFile.type === 'application/pdf' ? (
+                      <FileText size={14} style={{ flexShrink: 0 }} />
+                    ) : (
+                      <ImageIcon size={14} style={{ flexShrink: 0 }} />
+                    )}
+                    <span style={{ 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap',
+                      minWidth: 0
+                    }}>
+                      {attachedFile.name}
+                    </span>
+                  </>
                 ) : (
-                  <ImageIcon size={14} />
+                  <>
+                    <Globe size={14} style={{ flexShrink: 0 }} />
+                    <span style={{ 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap',
+                      minWidth: 0
+                    }}>
+                      {attachedUrl}
+                    </span>
+                  </>
                 )}
-                <span>{attachedFile.name}</span>
                 <button
                   onClick={removeAttachment}
                   style={{
@@ -1236,7 +1285,8 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                     padding: '2px',
                     display: 'flex',
                     alignItems: 'center',
-                    color: 'hsl(var(--muted-foreground))'
+                    color: 'hsl(var(--muted-foreground))',
+                    flexShrink: 0
                   }}
                 >
                   <X size={14} />
@@ -1300,7 +1350,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                     className="btn btn-ghost btn-sm"
                     style={{ padding: '6px' }}
                     title="파일 첨부"
-                    disabled={attachedFile !== null}
+                    disabled={attachedFile !== null || attachedUrl !== ''}
                   >
                     <Paperclip size={16} />
                   </button>
@@ -1363,6 +1413,28 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                       >
                         <FileText size={16} />
                         <span>PDF 추가</span>
+                      </button>
+                      <button
+                        onClick={handleUrlAdd}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'background-color 0.2s',
+                          color: 'hsl(var(--foreground))'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <Globe size={16} />
+                        <span>URL 추가</span>
                       </button>
                     </div>
                   )}
@@ -1542,6 +1614,96 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 style={{ padding: '8px 16px' }}
               >
                 변경
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* URL 입력 다이얼로그 */}
+      {showUrlDialog && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1001
+          }}
+          onClick={handleUrlCancel}
+        >
+          <div
+            style={{
+              backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
+              borderRadius: '12px',
+              padding: '24px',
+              width: '340px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                margin: '0 0 4px 0',
+                color: 'hsl(var(--foreground))',
+                fontFamily: 'Paperlogy, sans-serif'
+              }}
+            >
+              URL 추가
+            </h3>
+            <p
+              style={{
+                fontSize: '12px',
+                margin: '0 0 16px 0',
+                color: 'hsl(var(--muted-foreground))',
+                lineHeight: '1.5'
+              }}
+            >
+              분석하고 싶은 웹페이지 URL을 입력하세요
+            </p>
+            <input
+              type="url"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleUrlSubmit()
+                }
+              }}
+              placeholder="https://example.com"
+              autoFocus
+              className="input"
+              style={{
+                width: '100%',
+                marginBottom: '20px',
+                fontSize: '13px',
+                fontFamily: 'Paperlogy, sans-serif'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleUrlCancel}
+                className="btn btn-secondary btn-md"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleUrlSubmit}
+                disabled={!urlInput.trim()}
+                className="btn btn-primary btn-md"
+                style={{
+                  opacity: urlInput.trim() ? 1 : 0.5,
+                  cursor: urlInput.trim() ? 'pointer' : 'not-allowed'
+                }}
+              >
+                추가
               </button>
             </div>
           </div>
