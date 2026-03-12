@@ -666,53 +666,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                       )}
                     </div>
 
-                    {/* 지표 */}
-                    <div style={{ marginBottom: '24px' }}>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                        지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                      </label>
-                      
-                      {!formData.media ? (
-                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
-                      ) : (
-                        <div style={{
-                          width: '800px',
-                          height: '36px',
-                          padding: '8px 12px',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '6px',
-                          backgroundColor: 'hsl(var(--background))',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          boxSizing: 'border-box'
-                        }}
-                        onClick={() => setMetricsDialogOpen(true)}
-                        >
-                          <span style={{ 
-                            fontSize: '14px',
-                            lineHeight: '16.5px',
-                            color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                          }}>
-                            {formData.metrics.length > 0 
-                              ? `${formData.metrics.length}개 지표 선택됨` 
-                              : '지표를 선택하세요'}
-                          </span>
-                          <ChevronRight size={16} />
-                        </div>
-                      )}
-                      {validationActive && formData.metrics.length === 0 && (
-                        <div style={{
-                          fontSize: '12px',
-                          color: 'hsl(var(--destructive))',
-                          marginTop: '4px'
-                        }}>
-                          지표를 선택해주세요.
-                        </div>
-                      )}
-                    </div>
-
                     {/* 타겟팅 옵션 */}
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
@@ -862,6 +815,53 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                               )}
                             </div>
                           )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 지표 */}
+                    <div style={{ marginBottom: '24px' }}>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                        지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+                      </label>
+                      
+                      {!formData.media ? (
+                        <DisabledSelectBox message="매체를 먼저 선택하세요" />
+                      ) : (
+                        <div style={{
+                          width: '800px',
+                          height: '36px',
+                          padding: '8px 12px',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px',
+                          backgroundColor: 'hsl(var(--background))',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          boxSizing: 'border-box'
+                        }}
+                        onClick={() => setMetricsDialogOpen(true)}
+                        >
+                          <span style={{ 
+                            fontSize: '14px',
+                            lineHeight: '16.5px',
+                            color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
+                          }}>
+                            {formData.metrics.length > 0 
+                              ? `${formData.metrics.length}개 지표 선택됨` 
+                              : '지표를 선택하세요'}
+                          </span>
+                          <ChevronRight size={16} />
+                        </div>
+                      )}
+                      {validationActive && formData.metrics.length === 0 && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'hsl(var(--destructive))',
+                          marginTop: '4px'
+                        }}>
+                          지표를 선택해주세요.
                         </div>
                       )}
                     </div>
