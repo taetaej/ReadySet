@@ -2,11 +2,7 @@ import { Database, Package, Target, Info } from 'lucide-react'
 import { useState } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-interface DatasetChartsProps {
-  data: any[]
-}
-
-export function DatasetCharts({ data }: DatasetChartsProps) {
+export function DatasetCharts() {
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   // 추출 요약 통계
   const extractionStats = {

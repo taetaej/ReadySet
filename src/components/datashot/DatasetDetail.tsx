@@ -6,6 +6,7 @@ import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { DatasetCharts } from './DatasetCharts'
+import { IndustryModal, AdProductsModal, MetricsModal } from './DatasetDetailModals'
 
 interface DatasetDetailProps {
   datasetData?: any
@@ -31,14 +32,16 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
-  const [configModalOpen, setConfigModalOpen] = useState(false)
-  const [adProductsModalOpen, setAdProductsModalOpen] = useState(false)
-  const [targetingModalOpen, setTargetingModalOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
+  
+  // 모달 상태
+  const [industryModalOpen, setIndustryModalOpen] = useState(false)
+  const [adProductsModalOpen, setAdProductsModalOpen] = useState(false)
+  const [metricsModalOpen, setMetricsModalOpen] = useState(false)
   
   // 필터 상태 - 목록형 필터
   const [listFilters, setListFilters] = useState<{
@@ -774,7 +777,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
-                onClick={() => setConfigModalOpen(true)}
+                onClick={() => setIndustryModalOpen(true)}
               />
             </div>
             <span>•</span>
@@ -788,11 +791,11 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>타겟팅 옵션 1개</span>
+              <span>지표 6개</span>
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
-                onClick={() => setTargetingModalOpen(true)}
+                onClick={() => setMetricsModalOpen(true)}
               />
             </div>
           </div>
@@ -989,7 +992,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       {/* Content Area */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
         {/* 차트 영역 */}
-        <DatasetCharts data={filteredData} />
+        <DatasetCharts />
 
         {/* 추출 데이터 테이블 */}
         <div style={{ marginBottom: '32px' }}>
@@ -1331,6 +1334,51 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           </button>
         </div>
       )}
+
+      {/* 모달들 */}
+      <IndustryModal
+        isOpen={industryModalOpen}
+        onClose={() => setIndustryModalOpen(false)}
+        industries={[
+          '가정용전기전자 > 가사용전기전자 > 가사용전기전자기타',
+          '가정용전기전자 > 가사용전기전자 > 가습기',
+          '가정용전기전자 > 가사용전기전자 > 다리미',
+          '가정용전기전자 > 가사용전기전자 > 세탁기',
+          '가정용전기전자 > 가사용전기전자 > 청소기',
+          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타PR',
+          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기업공고',
+          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타',
+          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
+          '가정용전기전자 > 냉난방기 > 냉난방기기타',
+          '가정용전기전자 > 냉난방기 > 에어컨'
+        ]}
+      />
+
+      <AdProductsModal
+        isOpen={adProductsModalOpen}
+        onClose={() => setAdProductsModalOpen(false)}
+        media="Meta"
+        products={[
+          {
+            objective: 'POST_ENGAGEMENT',
+            buyingTypes: ['AUCTION', 'RESERVED'],
+            platforms: ['facebook', 'instagram', 'facebook&instagram', 'audience_network', 'facebook&instagram&messenger'],
+            performanceGoals: ['OFFSITE_CONVERSIONS', 'LINK_CLICKS', 'IMPRESSIONS', 'LEAD_GENERATION', 'REACH']
+          },
+          {
+            objective: 'REACH',
+            buyingTypes: ['AUCTION', 'RESERVED'],
+            platforms: ['facebook', 'instagram', 'messenger', 'audience_network'],
+            performanceGoals: ['LINK_CLICKS', 'OFFSITE_CONVERSIONS']
+          }
+        ]}
+      />
+
+      <MetricsModal
+        isOpen={metricsModalOpen}
+        onClose={() => setMetricsModalOpen(false)}
+        metrics={['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']}
+      />
     </AppLayout>
   )
 }
