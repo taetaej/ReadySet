@@ -7,6 +7,7 @@ import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { DatasetCharts } from './DatasetCharts'
 import { IndustryModal, AdProductsModal, MetricsModal } from './DatasetDetailModals'
+import { generateSampleData } from './sampleData'
 
 interface DatasetDetailProps {
   datasetData?: any
@@ -175,32 +176,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const adProductColumns = getAdProductColumns()
 
   // 샘플 테이블 데이터
-  const generateSampleData = () => {
-    const data = []
-    
-    for (let i = 0; i < 100; i++) {
-      data.push({
-        period: '2024-01',
-        media: configData.media,
-        industryLarge: '제조업',
-        industryMedium: '전자제품',
-        industrySmall: '스마트폰',
-        objective: 'Post Engagement',
-        buyingType: 'Auction',
-        platform: i % 2 === 0 ? 'Facebook' : 'Instagram',
-        performanceGoal: i % 4 === 0 ? 'OFFSITE_CONVERSIONS' : i % 4 === 1 ? 'LINK_CLICKS' : i % 4 === 2 ? 'IMPRESSIONS' : 'REACH',
-        targetingOption: i % 3 === 0 ? 'Mobile' : (i % 3 === 1 ? 'Desktop' : 'Tablet'),
-        impressions: 1234567 + i * 1000,
-        clicks: 28901 + i * 100,
-        cost: 12345678 + i * 10000,
-        ctr: 2.34 + (i * 0.01),
-        cpc: 427 + i,
-        cpm: 9987 + i * 10
-      })
-    }
-    return data
-  }
-
   const sampleData = generateSampleData()
 
   // 지표 이름을 데이터 키로 매핑

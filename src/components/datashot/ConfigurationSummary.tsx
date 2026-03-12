@@ -1,4 +1,5 @@
-import { metaMetrics, adProductStructureByMedia } from './types'
+import { metaMetrics } from './types'
+import { adProductStructureByMedia } from './sampleData'
 
 interface ConfigurationSummaryProps {
   formData: {

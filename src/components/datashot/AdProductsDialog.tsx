@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
-import { adProductStructureByMedia, MediaAdProductStructure } from './types'
+import { MediaAdProductStructure } from './types'
+import { adProductStructureByMedia } from './sampleData'
 
 interface ConditionGroup {
   id: string

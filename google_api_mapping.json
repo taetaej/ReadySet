@@ -1,0 +1,89 @@
+{
+  "description": "google value - 한글 맵핑",
+  "last_updated": "2025-06-04",
+  "column_definitions": {
+    "campaign_objective": "캠페인 유형 - Google Ads에서 제공하는 캠페인 종류",
+    "campaign_advertising_channel_sub_type": "광고 채널 하위 유형 - 캠페인의 세부 광고 형식",
+    "campaign_bidding_strategy_type": "입찰 전략 유형 - 광고 비용 최적화 방식",
+    "adset_google_adgroup_type": "광고그룹 유형 - 광고그룹의 광고 형식 분류",
+    "ad_google_ad_type": "광고 유형 - 실제 노출되는 광고의 구체적인 형식"
+  },
+  "mappings": {
+    "campaign_objective": {
+      "VIDEO": "동영상",
+      "DEMAND_GEN": "디맨드젠 캠페인",
+      "DISCOVERY": "디맨드젠 캠페인",
+      "MULTI_CHANNEL": "앱",
+      "DISPLAY": "디스플레이",
+      "PERFORMANCE_MAX": "실적 최대화"
+    },
+    "campaign_advertising_channel_sub_type": {
+      "UNSPECIFIED": "지정되지 않음",
+      "VIDEO_NON_SKIPPABLE": "건너뛸 수 없음",
+      "APP_CAMPAIGN_FOR_ENGAGEMENT": "앱 참여",
+      "VIDEO_REACH_TARGET_FREQUENCY": "타겟 게재빈도",
+      "VIDEO_SEQUENCE": "광고 순서",
+      "VIDEO_ACTION": "전환 유도",
+      "DISPLAY_SMART_CAMPAIGN": "스마트 디스플레이 캠페인",
+      "VIDEO_OUTSTREAM": "아웃스트림",
+      "APP_CAMPAIGN": "앱 설치"
+    },
+    "campaign_bidding_strategy_type": {
+      "UNRECOGNIZED": "고정 CPM",
+      "TARGET_CPM": "타겟 CPM",
+      "MAXIMIZE_CONVERSION_VALUE": "전환 가치 극대화",
+      "MAXIMIZE_CONVERSIONS": "전환수 최대화",
+      "TARGET_CPA": "타겟 CPA",
+      "TARGET_SPEND": "클릭수 최대화",
+      "TARGET_ROAS": "타겟 광고 투자수익(ROAS)",
+      "ENHANCED_CPC": "전환 가치 극대화",
+      "MANUAL_CPC": "수동 CPC",
+      "MANUAL_CPM": "조회 가능 CPM",
+      "MANUAL_CPV": "최대 CPV",
+      "FIXED_CPM" : "고정 CPM",
+      "TARGET_CPV" : "타겟 CPV",
+      "UNKNOWN" : "타겟 CPV"
+    },
+    "adset_google_adgroup_type": {
+      "UNKNOWN": "마스트헤드",
+      "VIDEO_NON_SKIPPABLE_IN_STREAM": "건너뛸 수 없는 인스트림",
+      "VIDEO_EFFICIENT_REACH": "효율적 잠재고객 도달",
+      "UNSPECIFIED": "지정되지 않음",
+      "DISPLAY_STANDARD": "디스플레이",
+      "VIDEO_BUMPER": "범퍼",
+      "VIDEO_RESPONSIVE": "반응형 동영상 광고",
+      "VIDEO_TRUE_VIEW_IN_STREAM": "건너뛸 수 있는 인스트림",
+      "VIDEO_OUTSTREAM": "아웃스트림",
+      "VIDEO_TRUE_VIEW_IN_DISPLAY": "인피드 광고 동영상"
+    },
+    "ad_google_ad_type": {
+      "UNKNOWN": "마스트헤드 광고",
+      "VIDEO_NON_SKIPPABLE_IN_STREAM_AD": "건너뛸 수 없는 인스트림 광고",
+      "VIDEO_BUMPER_AD": "범퍼 광고",
+      "VIDEO_TRUEVIEW_IN_STREAM_AD": "건너뛸 수 있는 인스트림 광고",
+      "DEMAND_GEN_VIDEO_RESPONSIVE_AD": "디맨드젠 동영상 광고",
+      "DISCOVERY_VIDEO_RESPONSIVE_AD": "디맨드젠 동영상 광고",
+      "DEMAND_GEN_MULTI_ASSET_AD": "디맨드젠 이미지 광고",
+      "DISCOVERY_MULTI_ASSET_AD": "디맨드젠 이미지 광고",
+      "DEMAND_GEN_PRODUCT_AD": "디맨드젠 제품 광고",
+      "DEMAND_GEN_CAROUSEL_AD": "디맨드젠 캐러셀 광고",
+      "DISCOVERY_CAROUSEL_AD": "디맨드젠 캐러셀 광고",
+      "APP_ENGAGEMENT_AD": "앱 참여 광고",
+      "RESPONSIVE_DISPLAY_AD": "반응형 이미지 광고",
+      "RESPONSIVE_SEARCH_AD": "반응형 이미지 광고",
+      "VIDEO_RESPONSIVE_AD": "반응형 동영상 광고",
+      "IMAGE_AD": "이미지 광고",
+      "VIDEO_OUTSTREAM_AD": "아웃스트림 광고",
+      "APP_AD": "앱 설치 광고",
+      "IN_FEED_VIDEO_AD": "인피드 동영상 광고",
+      "HTML5_UPLOAD_AD": "HTML5 광고"
+    },
+    "device": {
+      "TABLET": "앱 내",
+      "DESKTOP": "모바일 웹",
+      "MOBILE": "데스크톱",
+      "CONNECTED_TV" : "분류되지 않음",
+      "OTHER" : "기타"
+    }
+  }
+}
