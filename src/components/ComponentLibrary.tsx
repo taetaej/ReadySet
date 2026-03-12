@@ -1048,7 +1048,40 @@ export function ComponentLibrary() {
           </ComponentGroup>
 
           <ComponentGroup label="Pagination with Page Count">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '1200px' }}>
+              {/* 왼쪽: 페이지당 표시 */}
+              <div style={{ 
+                fontSize: '13px', 
+                color: 'hsl(var(--muted-foreground))',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>페이지당 표시:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value))
+                    setCurrentPage(1)
+                  }}
+                  className="input"
+                  style={{
+                    width: '70px',
+                    padding: '4px 8px',
+                    height: '28px',
+                    minHeight: '28px',
+                    cursor: 'pointer',
+                    fontSize: '13px'
+                  }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+
+              {/* 중앙: 페이지 버튼들 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {/* 첫 페이지로 */}
                 <button
@@ -1133,45 +1166,12 @@ export function ComponentLibrary() {
                 </button>
               </div>
 
-              {/* 페이지 정보 및 항목 수 선택 */}
+              {/* 오른쪽: 페이지 정보 */}
               <div style={{ 
                 fontSize: '13px', 
-                color: 'hsl(var(--muted-foreground))',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
+                color: 'hsl(var(--muted-foreground))'
               }}>
-                <span>Page {currentPage} of {totalPages}</span>
-                <span style={{ color: 'hsl(var(--border))' }}>|</span>
-                
-                {/* 페이지당 항목 수 선택 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>페이지당 표시:</span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value))
-                      setCurrentPage(1)
-                    }}
-                    className="input"
-                    style={{
-                      width: '70px',
-                      padding: '4px 8px',
-                      height: '28px',
-                      minHeight: '28px',
-                      cursor: 'pointer',
-                      fontSize: '13px'
-                    }}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-                </div>
-                
-                <span style={{ color: 'hsl(var(--border))' }}>|</span>
-                <span>Total 247 items</span>
+                1-20 / 247개
               </div>
             </div>
           </ComponentGroup>
