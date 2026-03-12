@@ -3,7 +3,7 @@ import { AppLayout } from './layout/AppLayout'
 import { Avatar } from './common/Avatar'
 import { MonthRangePicker } from './datashot/MonthRangePicker'
 import { CustomDateRangePicker } from './reachcaster/CustomDateRangePicker'
-import { Search, Plus, Filter, Download, Share2, X, Info, Scale, Target, ChevronRight, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertCircle } from 'lucide-react'
+import { Search, Plus, Filter, Share2, X, Info, Scale, Target, ChevronRight, ChevronDown, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertCircle, ChevronLeft, ChevronsLeft, ChevronsRight, Link2, FileSpreadsheet, FileText } from 'lucide-react'
 
 export function ComponentLibrary() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -60,6 +60,16 @@ export function ComponentLibrary() {
     endYear: '',
     endMonth: ''
   })
+  
+  // 툴팁 상태
+  const [showTooltip, setShowTooltip] = useState(false)
+  
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1)
+  const totalPages = 10
+  
+  // 공유 메뉴 상태
+  const [showShareMenu, setShowShareMenu] = useState(false)
   
   // 라디오 버튼 상태
   const [selectedModule, setSelectedModule] = useState('')
@@ -144,28 +154,111 @@ export function ComponentLibrary() {
 
         {/* 버튼 섹션 */}
         <Section title="Buttons" description="실제 프로젝트에서 사용하는 버튼 스타일">
-          <ComponentGroup label="Primary Action Buttons">
-            <button className="btn btn-primary">
-              <Plus size={16} />
+          <ComponentGroup label="Primary Action Buttons (Rounded)">
+            <button 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '24px',
+                fontWeight: '600',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                height: '48px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <Plus size={18} />
+              New Slot
+            </button>
+            <button 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '24px',
+                fontWeight: '600',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                height: '48px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <Plus size={18} />
               New Scenario
             </button>
-            <button className="btn btn-primary">
-              <Plus size={16} />
+            <button 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '24px',
+                fontWeight: '600',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                height: '48px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <Plus size={18} />
               New Dataset
             </button>
-            <button className="btn btn-primary btn-sm">Small Button</button>
-            <button className="btn btn-primary btn-lg">Large Button</button>
           </ComponentGroup>
 
-          <ComponentGroup label="Secondary & Ghost Buttons">
-            <button className="btn btn-secondary">취소</button>
-            <button className="btn btn-ghost">
-              <Download size={16} />
-              다운로드
+          <ComponentGroup label="Action Buttons (Form Footer)">
+            <button className="btn btn-secondary btn-md">취소</button>
+            <button className="btn btn-primary btn-md">확인</button>
+            <button className="btn btn-primary btn-md">
+              <Plus size={16} />
+              생성
             </button>
-            <button className="btn btn-ghost">
+          </ComponentGroup>
+
+          <ComponentGroup label="Icon Only Buttons">
+            <button className="btn btn-ghost btn-sm" style={{ padding: '6px' }}>
+              <Info size={16} />
+            </button>
+            <button className="btn btn-ghost btn-sm" style={{ padding: '6px' }}>
               <Share2 size={16} />
-              공유
+            </button>
+            <button className="btn btn-ghost btn-sm" style={{ padding: '4px' }}>
+              <MoreVertical size={16} />
             </button>
           </ComponentGroup>
 
@@ -499,6 +592,146 @@ export function ComponentLibrary() {
           </ComponentGroup>
         </Section>
 
+        {/* 드롭다운 */}
+        <Section title="Dropdowns & Selects" description="다양한 선택 드롭다운">
+          <ComponentGroup label="Brand Dropdown (with Search & Industry Tag)">
+            <div style={{ position: 'relative', width: '400px' }}>
+              <input 
+                type="text" 
+                placeholder="브랜드를 선택하세요" 
+                className="input"
+                style={{ width: '100%' }}
+              />
+              <div className="dropdown" style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '4px',
+                maxHeight: '200px',
+                overflowY: 'auto',
+                zIndex: 1000
+              }}>
+                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
+                  <span>삼성전자</span>
+                  <span style={{ 
+                    fontSize: '11px', 
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    전자/IT
+                  </span>
+                </button>
+                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
+                  <span>카카오</span>
+                  <span style={{ 
+                    fontSize: '11px', 
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    IT/서비스
+                  </span>
+                </button>
+                <button className="dropdown-item" style={{ justifyContent: 'space-between' }}>
+                  <span>현대자동차</span>
+                  <span style={{ 
+                    fontSize: '11px', 
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    자동차
+                  </span>
+                </button>
+              </div>
+            </div>
+          </ComponentGroup>
+
+          <ComponentGroup label="Industry Select (with ChevronRight)">
+            <button
+              className="input"
+              style={{
+                width: '400px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>업종을 선택하세요</span>
+              <ChevronRight size={16} />
+            </button>
+          </ComponentGroup>
+
+          <ComponentGroup label="Media Select (with ChevronDown)">
+            <button
+              className="input"
+              style={{
+                width: '400px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span>TV</span>
+              <ChevronDown size={16} />
+            </button>
+          </ComponentGroup>
+
+          <ComponentGroup label="Period Type Select">
+            <button
+              className="input"
+              style={{
+                width: '200px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span>일</span>
+              <ChevronDown size={16} />
+            </button>
+            <button
+              className="input"
+              style={{
+                width: '200px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span>월</span>
+              <ChevronDown size={16} />
+            </button>
+            <button
+              className="input"
+              style={{
+                width: '200px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span>분기</span>
+              <ChevronDown size={16} />
+            </button>
+          </ComponentGroup>
+        </Section>
+
         {/* 캘린더 */}
         <Section title="Date & Period Pickers" description="일/월/분기 선택 캘린더">
           <ComponentGroup label="Date Range Picker (일 → 일)">
@@ -727,6 +960,303 @@ export function ComponentLibrary() {
                     <X size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
                   </button>
                 </div>
+              </div>
+            </div>
+          </ComponentGroup>
+        </Section>
+
+        {/* 페이지네이션 */}
+        <Section title="Pagination" description="페이지 네비게이션">
+          <ComponentGroup label="Pagination Controls">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {/* 첫 페이지로 */}
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="btn btn-ghost btn-sm"
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  padding: '0',
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <ChevronsLeft size={16} />
+              </button>
+
+              {/* 이전 페이지 */}
+              <button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="btn btn-ghost btn-sm"
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  padding: '0',
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {/* 페이지 번호 */}
+              {[1, 2, 3, 4, 5].map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ 
+                    width: '32px',
+                    height: '32px',
+                    padding: '0',
+                    fontSize: '14px',
+                    fontWeight: currentPage === page ? '600' : '400'
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* 다음 페이지 */}
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="btn btn-ghost btn-sm"
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  padding: '0',
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <ChevronRight size={16} />
+              </button>
+
+              {/* 마지막 페이지로 */}
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="btn btn-ghost btn-sm"
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  padding: '0',
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <ChevronsRight size={16} />
+              </button>
+            </div>
+          </ComponentGroup>
+        </Section>
+
+        {/* 툴팁 */}
+        <Section title="Tooltips" description="정보 표시 툴팁">
+          <ComponentGroup label="Info Tooltip">
+            <div style={{ position: 'relative' }}>
+              <button
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+              >
+                <Info size={16} />
+              </button>
+              
+              {showTooltip && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  marginTop: '8px',
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  minWidth: '200px',
+                  maxWidth: '300px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  zIndex: 1000
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+                    정보
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.5' }}>
+                    이 항목에 대한 추가 정보가 여기에 표시됩니다.
+                  </div>
+                </div>
+              )}
+            </div>
+          </ComponentGroup>
+        </Section>
+
+        {/* 공유 버튼 */}
+        <Section title="Share Button" description="공유 기능 버튼">
+          <ComponentGroup label="Share Menu">
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+              >
+                <Share2 size={16} />
+              </button>
+
+              {showShareMenu && (
+                <div className="dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  minWidth: '180px',
+                  padding: '4px',
+                  zIndex: 1000
+                }}>
+                  <button className="dropdown-item">
+                    <Link2 size={14} />
+                    <span>링크 복사</span>
+                  </button>
+                  <button className="dropdown-item">
+                    <FileSpreadsheet size={14} />
+                    <span>Excel 다운로드</span>
+                  </button>
+                  <button className="dropdown-item">
+                    <FileText size={14} />
+                    <span>PDF 다운로드</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </ComponentGroup>
+        </Section>
+
+        {/* 다이얼로그 */}
+        <Section title="Dialogs & Modals" description="다이얼로그 및 모달 예시">
+          <ComponentGroup label="Dialog Trigger Buttons">
+            <button className="btn btn-primary" onClick={() => setShowDialog(true)}>
+              기본 다이얼로그 열기
+            </button>
+            <button className="btn btn-primary" onClick={() => setShowTargetDialog(true)}>
+              타겟 GRP 다이얼로그 열기
+            </button>
+          </ComponentGroup>
+
+          <ComponentGroup label="Dialog Structure Preview">
+            <div style={{ 
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              maxWidth: '500px',
+              backgroundColor: 'hsl(var(--card))'
+            }}>
+              {/* Dialog Header */}
+              <div style={{ 
+                padding: '24px 24px 16px',
+                borderBottom: '1px solid hsl(var(--border))'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+                  다이얼로그 제목
+                </h3>
+                <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                  다이얼로그 설명이 여기에 표시됩니다.
+                </p>
+              </div>
+              
+              {/* Dialog Content */}
+              <div style={{ padding: '24px' }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+                    입력 필드
+                  </label>
+                  <input type="text" placeholder="값을 입력하세요" className="input" style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+                    선택 필드
+                  </label>
+                  <button className="input" style={{ width: '100%', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>옵션을 선택하세요</span>
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Dialog Footer */}
+              <div style={{ 
+                padding: '16px 24px',
+                borderTop: '1px solid hsl(var(--border))',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '8px',
+                backgroundColor: 'hsl(var(--muted) / 0.3)'
+              }}>
+                <button className="btn btn-secondary btn-md">취소</button>
+                <button className="btn btn-primary btn-md">확인</button>
+              </div>
+            </div>
+          </ComponentGroup>
+        </Section>
+
+        {/* Form Footer Buttons */}
+        <Section title="Form Footer Buttons" description="생성/수정 화면 하단 버튼">
+          <ComponentGroup label="Creation Form Footer">
+            <div style={{ 
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '8px',
+              padding: '16px 24px',
+              borderTop: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--muted) / 0.3)',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: '800px'
+            }}>
+              <button className="btn btn-secondary btn-md">취소</button>
+              <button className="btn btn-primary btn-md">
+                <Plus size={16} />
+                생성
+              </button>
+            </div>
+          </ComponentGroup>
+
+          <ComponentGroup label="Edit Form Footer">
+            <div style={{ 
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '8px',
+              padding: '16px 24px',
+              borderTop: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--muted) / 0.3)',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: '800px'
+            }}>
+              <button className="btn btn-secondary btn-md">취소</button>
+              <button className="btn btn-primary btn-md">저장</button>
+            </div>
+          </ComponentGroup>
+
+          <ComponentGroup label="Multi-step Form Footer">
+            <div style={{ 
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '8px',
+              padding: '16px 24px',
+              borderTop: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--muted) / 0.3)',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: '800px'
+            }}>
+              <button className="btn btn-secondary btn-md">이전</button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-secondary btn-md">취소</button>
+                <button className="btn btn-primary btn-md">다음</button>
               </div>
             </div>
           </ComponentGroup>
