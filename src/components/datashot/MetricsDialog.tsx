@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { metaMetrics, googleMetrics, kakaoMetrics, MetricGroup } from './types'
+import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, MetricGroup } from './types'
 
 interface MetricsDialogProps {
   isOpen: boolean
@@ -21,6 +21,10 @@ export function MetricsDialog({ isOpen, onClose, selectedMetrics, onUpdate, medi
         return googleMetrics
       case 'kakao모먼트':
         return kakaoMetrics
+      case '네이버 성과형 DA':
+        return naverGfaMetrics
+      case '네이버 보장형 DA':
+        return naverNospMetrics
       default:
         return []
     }

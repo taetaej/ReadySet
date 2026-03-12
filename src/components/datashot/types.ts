@@ -481,49 +481,49 @@ export const kakaoMetrics: MetricGroup[] = [
   {
     group: '기본',
     metrics: [
-      { id: 'impressions', label: '클릭당 비용', selected: false },
-      { id: 'clicks', label: '노출당 비용', selected: false },
-      { id: 'cost', label: '클릭수', selected: false },
+      { id: 'cpc', label: '클릭당 비용', selected: false },
+      { id: 'cpm', label: '노출당 비용', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
       { id: 'conversions', label: '전환수', selected: false },
-      { id: 'spend', label: '비용', selected: false },
-      { id: 'clicks_all', label: '클릭률', selected: false },
-      { id: 'impressions_all', label: '노출수', selected: false },
-      { id: 'video_views', label: '재생당 비용', selected: false }
+      { id: 'cost', label: '비용', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'cpv', label: '재생당 비용', selected: false }
     ]
   },
   {
     group: '동영상',
     metrics: [
-      { id: 'video_views_100', label: '동영상 100% 진행률', selected: false },
-      { id: 'video_views_25', label: '동영상 25% 진행률', selected: false },
-      { id: 'video_views_50', label: '동영상 50% 진행률', selected: false },
-      { id: 'video_views_75', label: '동영상 75% 진행률', selected: false },
-      { id: 'video_play_actions', label: '조회율', selected: false },
-      { id: 'video_play_count', label: '재생수', selected: false },
-      { id: 'video_views_25_count', label: '25% 재생수', selected: false },
-      { id: 'video_views_50_count', label: '50% 재생수', selected: false },
-      { id: 'video_views_75_count', label: '75% 재생수', selected: false },
-      { id: 'video_views_100_count', label: '100% 재생수', selected: false },
+      { id: 'video_views_100_rate', label: '동영상 100% 진행률', selected: false },
+      { id: 'video_views_25_rate', label: '동영상 25% 진행률', selected: false },
+      { id: 'video_views_50_rate', label: '동영상 50% 진행률', selected: false },
+      { id: 'video_views_75_rate', label: '동영상 75% 진행률', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'video_views', label: '재생수', selected: false },
+      { id: 'video_views_25', label: '25% 재생수', selected: false },
+      { id: 'video_views_50', label: '50% 재생수', selected: false },
+      { id: 'video_views_75', label: '75% 재생수', selected: false },
+      { id: 'video_views_100', label: '100% 재생수', selected: false },
       { id: 'video_play_time', label: '재생수', selected: false },
       { id: 'video_play_time_avg', label: '재생당 비용', selected: false },
-      { id: 'video_views_15s', label: '15초 이상 재생당 비용', selected: false },
-      { id: 'video_views_10s', label: '10초 이상 재생당 비용', selected: false }
+      { id: 'video_views_15s_cost', label: '15초 이상 재생당 비용', selected: false },
+      { id: 'video_views_10s_cost', label: '10초 이상 재생당 비용', selected: false }
     ]
   },
   {
     group: '발송',
     metrics: [
-      { id: 'message_sent', label: '열람수', selected: false },
+      { id: 'message_open', label: '열람수', selected: false },
       { id: 'message_click', label: '전체 클릭수', selected: false },
-      { id: 'message_open', label: '열람률', selected: false },
-      { id: 'message_click_unique', label: '메시지 클릭률', selected: false }
+      { id: 'message_open_rate', label: '열람률', selected: false },
+      { id: 'message_click_rate', label: '메시지 클릭률', selected: false }
     ]
   },
   {
-    group: '기가오 친구',
+    group: '카카오 친구',
     metrics: [
-      { id: 'channel_add_direct', label: 'CPA', selected: false },
-      { id: 'channel_add_total', label: 'CVR', selected: false }
+      { id: 'channel_add_cpa', label: 'CPA', selected: false },
+      { id: 'channel_add_cvr', label: 'CVR', selected: false }
     ]
   },
   {
@@ -534,6 +534,71 @@ export const kakaoMetrics: MetricGroup[] = [
       { id: 'video_views_15s', label: '15초 재생수', selected: false },
       { id: 'video_views_30s', label: '30초 재생수', selected: false },
       { id: 'video_views_60s', label: '60초 재생수', selected: false }
+    ]
+  }
+]
+
+// Naver GFA (성과형 DA) 지표
+export const naverGfaMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'cost', label: '매출(소진금액)', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false }
+    ]
+  },
+  {
+    group: '전환',
+    metrics: [
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'cost_per_conversion', label: '전환당 비용', selected: false }
+    ]
+  },
+  {
+    group: '재생',
+    metrics: [
+      { id: 'video_views', label: '비디오 재생 횟수', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'cpv', label: '조회당 비용', selected: false }
+    ]
+  },
+  {
+    group: '기본',
+    metrics: [
+      { id: 'cpc', label: '클릭당 비용', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용', selected: false }
+    ]
+  }
+]
+
+// Naver NOSP (보장형 DA) 지표
+export const naverNospMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'cost', label: '광고비', selected: false },
+      { id: 'cost_guaranteed', label: '집행금액', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'video_views', label: '동영상 조회수', selected: false },
+      { id: 'cpc', label: 'CPC', selected: false },
+      { id: 'cpm', label: 'CPM', selected: false },
+      { id: 'cpv', label: 'CPV', selected: false },
+      { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'vtr', label: 'VTR', selected: false }
+    ]
+  },
+  {
+    group: '재생 상세',
+    metrics: [
+      { id: 'video_views_25', label: '동영상 25% 재생수', selected: false },
+      { id: 'video_views_50', label: '동영상 50% 재생수', selected: false },
+      { id: 'video_views_75', label: '동영상 75% 재생수', selected: false },
+      { id: 'video_views_100', label: '동영상 100% 재생수', selected: false },
+      { id: 'video_views_3s', label: '동영상 3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '동영상 10초 재생수', selected: false }
     ]
   }
 ]
