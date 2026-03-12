@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Filter, Clock } from 'lucide-react'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Clock, Search, X } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -8,6 +8,12 @@ import { maskEmail } from '../../utils/maskEmail'
 
 interface DatasetDetailProps {
   datasetData?: any
+}
+
+// 지표 필터 타입
+interface MetricFilter {
+  operator: '>' | '<' | '=' | '≥' | '≤' | ''
+  value: string
 }
 
 export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailProps) {
@@ -33,9 +39,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
   
-  // 필터 상태
-  const [columnFilterOpen, setColumnFilterOpen] = useState<string | null>(null)
-  const [filters, setFilters] = useState<{
+  // 필터 상태 - 목록형 필터
+  const [listFilters, setListFilters] = useState<{
     period: string[]
     media: string[]
     industryLarge: string[]
@@ -58,6 +63,30 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     performanceGoal: [],
     targetingOption: []
   })
+
+  // 지표 필터 상태
+  const [metricFilters, setMetricFilters] = useState<{
+    impressions: MetricFilter
+    clicks: MetricFilter
+    cost: MetricFilter
+    ctr: MetricFilter
+    cpc: MetricFilter
+    cpm: MetricFilter
+  }>({
+    impressions: { operator: '', value: '' },
+    clicks: { operator: '', value: '' },
+    cost: { operator: '', value: '' },
+    ctr: { operator: '', value: '' },
+    cpc: { operator: '', value: '' },
+    cpm: { operator: '', value: '' }
+  })
+
+  // 필터 드롭다운 열림 상태
+  const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(null)
+  
+  // 필터 드롭다운 내 검색어
+  const [filterSearchTerms, setFilterSearchTerms] = useState<{ [key: string]: string }>({})
+
   const [filterTooltipOpen, setFilterTooltipOpen] = useState(false)
   const [clockTooltipOpen, setClockTooltipOpen] = useState(false)
 
@@ -71,8 +100,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
-      if (columnFilterOpen && !target.closest('th')) {
-        setColumnFilterOpen(null)
+      if (openFilterDropdown && !target.closest('.filter-dropdown-container')) {
+        setOpenFilterDropdown(null)
       }
     }
 
@@ -80,7 +109,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [columnFilterOpen])
+  }, [openFilterDropdown])
 
   const handleCopyLink = () => {
     const url = window.location.href
@@ -93,7 +122,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   }
 
   const handleExportCSV = () => {
-    // CSV 다운로드 로직 (추후 구현)
     console.log('CSV 다운로드')
     setShowToast({ type: 'success', message: 'CSV 파일을 다운로드합니다.' })
     setExportMenuOpen(false)
@@ -107,7 +135,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     setSortConfig({ key, direction })
   }
 
-  // 조회조건 데이터 (실제로는 props나 API에서 받아올 데이터)
+  // 조회조건 데이터
   const configData = datasetData?.config || {
     media: 'Meta',
     targetingCategory: '기기유형',
@@ -129,11 +157,11 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
   const adProductColumns = getAdProductColumns()
 
-  // 샘플 테이블 데이터 (5000행 제한)
+  // 샘플 테이블 데이터
   const generateSampleData = () => {
     const data = []
     
-    for (let i = 0; i < 5000; i++) { // 5000행 생성
+    for (let i = 0; i < 100; i++) {
       data.push({
         period: '2024-01',
         media: configData.media,
@@ -148,7 +176,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         impressions: 1234567 + i * 1000,
         clicks: 28901 + i * 100,
         cost: 12345678 + i * 10000,
-        ctr: 2.34,
+        ctr: 2.34 + (i * 0.01),
         cpc: 427 + i,
         cpm: 9987 + i * 10
       })
@@ -177,12 +205,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       const aValue = a[dataKey]
       const bValue = b[dataKey]
       
-      // 숫자인지 확인
       const aIsNumber = typeof aValue === 'number' || !isNaN(parseFloat(aValue))
       const bIsNumber = typeof bValue === 'number' || !isNaN(parseFloat(bValue))
       
       if (aIsNumber && bIsNumber) {
-        // 숫자 비교
         const aNum = typeof aValue === 'number' ? aValue : parseFloat(aValue)
         const bNum = typeof bValue === 'number' ? bValue : parseFloat(bValue)
         
@@ -192,7 +218,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           return bNum - aNum
         }
       } else {
-        // 문자열 비교
         const aStr = String(aValue || '').toLowerCase()
         const bStr = String(bValue || '').toLowerCase()
         
@@ -211,10 +236,30 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const getFilteredData = () => {
     let data = getSortedData()
     
-    // 컬럼별 필터 적용
-    Object.entries(filters).forEach(([key, values]) => {
+    // 목록형 필터 적용
+    Object.entries(listFilters).forEach(([key, values]) => {
       if (values.length > 0) {
         data = data.filter((row: any) => values.includes(String(row[key])))
+      }
+    })
+    
+    // 지표 필터 적용
+    Object.entries(metricFilters).forEach(([key, filter]) => {
+      if (filter.operator && filter.value) {
+        const filterValue = parseFloat(filter.value)
+        if (!isNaN(filterValue)) {
+          data = data.filter((row: any) => {
+            const rowValue = row[key]
+            switch (filter.operator) {
+              case '>': return rowValue > filterValue
+              case '<': return rowValue < filterValue
+              case '=': return rowValue === filterValue
+              case '≥': return rowValue >= filterValue
+              case '≤': return rowValue <= filterValue
+              default: return true
+            }
+          })
+        }
       }
     })
     
@@ -239,6 +284,284 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     setCurrentPage(page)
   }
 
+  // 목록형 필터 렌더링
+  const renderListFilter = (columnKey: string) => {
+    const uniqueValues = getUniqueValues(columnKey)
+    const searchTerm = filterSearchTerms[columnKey] || ''
+    const filteredValues = uniqueValues.filter(v => 
+      v.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    const selectedValues = listFilters[columnKey as keyof typeof listFilters] || []
+    const allSelected = selectedValues.length === uniqueValues.length
+
+    return (
+      <td 
+        key={columnKey}
+        style={{ 
+          padding: '8px', 
+          position: 'relative',
+          backgroundColor: 'hsl(var(--muted) / 0.3)'
+        }}
+        className="filter-dropdown-container"
+      >
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setOpenFilterDropdown(openFilterDropdown === columnKey ? null : columnKey)}
+            className="input"
+            style={{
+              width: '100%',
+              height: '32px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              backgroundColor: selectedValues.length > 0 ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+              border: selectedValues.length > 0 ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+            }}
+          >
+            <span style={{ 
+              overflow: 'hidden', 
+              textOverflow: 'ellipsis', 
+              whiteSpace: 'nowrap',
+              color: selectedValues.length > 0 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'
+            }}>
+              {selectedValues.length > 0 ? `${selectedValues.length}개 선택` : '전체'}
+            </span>
+            <ChevronDown size={14} />
+          </button>
+
+          {openFilterDropdown === columnKey && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              marginTop: '4px',
+              width: '240px',
+              maxHeight: '320px',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {/* 검색 입력 */}
+              <div style={{ padding: '12px', borderBottom: '1px solid hsl(var(--border))' }}>
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ 
+                    position: 'absolute', 
+                    left: '8px', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)',
+                    color: 'hsl(var(--muted-foreground))'
+                  }} />
+                  <input
+                    type="text"
+                    placeholder="검색..."
+                    value={searchTerm}
+                    onChange={(e) => setFilterSearchTerms(prev => ({ ...prev, [columnKey]: e.target.value }))}
+                    className="input"
+                    style={{
+                      width: '100%',
+                      height: '32px',
+                      paddingLeft: '32px',
+                      paddingRight: searchTerm ? '32px' : '8px',
+                      fontSize: '12px'
+                    }}
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setFilterSearchTerms(prev => ({ ...prev, [columnKey]: '' }))}
+                      style={{
+                        position: 'absolute',
+                        right: '8px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        color: 'hsl(var(--muted-foreground))'
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 전체 선택 */}
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid hsl(var(--border))' }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      setListFilters(prev => ({
+                        ...prev,
+                        [columnKey]: checked ? uniqueValues : []
+                      }))
+                      setCurrentPage(1)
+                    }}
+                    className="checkbox-custom"
+                  />
+                  <span>전체 선택</span>
+                </label>
+              </div>
+
+              {/* 옵션 목록 */}
+              <div style={{ 
+                flex: 1, 
+                overflowY: 'auto', 
+                padding: '8px 12px',
+                maxHeight: '200px'
+              }}>
+                {filteredValues.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {filteredValues.map(value => (
+                      <label
+                        key={value}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedValues.includes(value)}
+                          onChange={(e) => {
+                            const checked = e.target.checked
+                            setListFilters(prev => ({
+                              ...prev,
+                              [columnKey]: checked
+                                ? [...selectedValues, value]
+                                : selectedValues.filter(v => v !== value)
+                            }))
+                            setCurrentPage(1)
+                          }}
+                          className="checkbox-custom"
+                        />
+                        <span>{value}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: 'hsl(var(--muted-foreground))',
+                    textAlign: 'center',
+                    padding: '12px'
+                  }}>
+                    검색 결과가 없습니다
+                  </div>
+                )}
+              </div>
+
+              {/* 초기화 버튼 */}
+              {selectedValues.length > 0 && (
+                <div style={{ padding: '8px 12px', borderTop: '1px solid hsl(var(--border))' }}>
+                  <button
+                    onClick={() => {
+                      setListFilters(prev => ({ ...prev, [columnKey]: [] }))
+                      setCurrentPage(1)
+                    }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ width: '100%', fontSize: '12px' }}
+                  >
+                    초기화
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </td>
+    )
+  }
+
+  // 지표 필터 렌더링
+  const renderMetricFilter = (metricKey: string) => {
+    const filter = metricFilters[metricKey as keyof typeof metricFilters]
+
+    return (
+      <td 
+        key={metricKey}
+        style={{ 
+          padding: '8px', 
+          backgroundColor: 'hsl(var(--muted) / 0.3)'
+        }}
+      >
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <select
+            value={filter.operator}
+            onChange={(e) => {
+              setMetricFilters(prev => ({
+                ...prev,
+                [metricKey]: { ...prev[metricKey as keyof typeof prev], operator: e.target.value as any }
+              }))
+              setCurrentPage(1)
+            }}
+            className="input"
+            style={{
+              width: '60px',
+              height: '32px',
+              padding: '4px',
+              fontSize: '12px',
+              backgroundColor: filter.operator ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+              border: filter.operator ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+            }}
+          >
+            <option value="">-</option>
+            <option value=">">{'>'}</option>
+            <option value="<">{'<'}</option>
+            <option value="=">=</option>
+            <option value="≥">≥</option>
+            <option value="≤">≤</option>
+          </select>
+          <input
+            type="number"
+            placeholder="값"
+            value={filter.value}
+            onChange={(e) => {
+              setMetricFilters(prev => ({
+                ...prev,
+                [metricKey]: { ...prev[metricKey as keyof typeof prev], value: e.target.value }
+              }))
+              setCurrentPage(1)
+            }}
+            className="input"
+            style={{
+              flex: 1,
+              height: '32px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              minWidth: '80px',
+              backgroundColor: filter.value ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+              border: filter.value ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+            }}
+          />
+        </div>
+      </td>
+    )
+  }
+
   // 페이지네이션 컴포넌트
   const renderPagination = () => {
     const startItem = (currentPage - 1) * itemsPerPage + 1
@@ -251,7 +574,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         justifyContent: 'space-between',
         marginTop: '0'
       }}>
-        {/* 좌측: 페이지 크기 선택 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px' }} className="text-muted-foreground">
             페이지당 표시:
@@ -278,16 +600,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           </select>
         </div>
 
-        {/* 우측: 페이지 정보 및 네비게이션 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          {/* 페이지 정보 */}
           <span style={{ fontSize: '14px' }} className="text-muted-foreground">
             {startItem}-{endItem} / {totalItems}개
           </span>
 
-          {/* 페이지 네비게이션 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {/* 첫 페이지로 */}
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
@@ -304,7 +622,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               <ChevronLeft size={14} style={{ marginLeft: '-8px' }} />
             </button>
 
-            {/* 이전 페이지 */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -320,7 +637,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               <ChevronLeft size={14} />
             </button>
 
-            {/* 페이지 번호들 */}
             {(() => {
               const pages = []
               const maxVisible = 5
@@ -355,7 +671,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               return pages
             })()}
 
-            {/* 다음 페이지 */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -371,7 +686,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               <ChevronRight size={14} />
             </button>
 
-            {/* 마지막 페이지로 */}
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
@@ -416,7 +730,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       {/* Header - Single Line Layout */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
-          {/* 좌측: 타이틀 */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -438,7 +751,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </h1>
           </div>
 
-          {/* 중앙: 조회조건 요약 */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -493,9 +805,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             flexShrink: 0
           }} />
 
-          {/* 우측: 액션 버튼들 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            {/* Export 드롭다운 */}
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
@@ -568,7 +878,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               )}
             </div>
             
-            {/* Info 아이콘 */}
             <div style={{ position: 'relative' }}>
               <button
                 data-info-tooltip
@@ -622,7 +931,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               )}
             </div>
 
-            {/* Menu 버튼 */}
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setContextMenuOpen(!contextMenuOpen)}
@@ -680,10 +988,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
       {/* Content Area */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
-
-        {/* 추출 데이터 테이블 */}
         <div style={{ marginBottom: '32px' }}>
-          {/* 테이블 타이틀 */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'flex-start', 
@@ -706,7 +1011,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               }}>
                 Extracted Data
               </h3>
-              {/* Clock 아이콘 - 데이터 기준 일시 */}
               <div style={{ position: 'relative' }}>
                 <Clock 
                   size={18} 
@@ -744,7 +1048,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
           </div>
 
-          {/* 액션 바 - 결과 표시 */}
           <div style={{
             display: 'flex',
             gap: '12px',
@@ -752,7 +1055,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             alignItems: 'center',
             justifyContent: 'flex-end'
           }}>
-            {/* 결과 개수 */}
             <div style={{
               fontSize: '13px',
               color: 'hsl(var(--muted-foreground))',
@@ -786,15 +1088,13 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     lineHeight: '1.5',
                     whiteSpace: 'normal'
                   }}>
-                    전체 {(12345).toLocaleString()}행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+                    전체 {(12345).toLocaleString()}행 중 100행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          
-          {/* 테이블 */}
           <div style={{
             backgroundColor: 'hsl(var(--card))',
             border: '1px solid hsl(var(--border))',
@@ -808,6 +1108,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                 borderCollapse: 'collapse'
               }}>
                 <thead>
+                  {/* 헤더 행 */}
                   <tr style={{ 
                     backgroundColor: 'hsl(var(--muted))',
                     borderBottom: '1px solid hsl(var(--border))'
@@ -821,8 +1122,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         whiteSpace: 'nowrap', 
                         fontSize: '12px',
                         cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'relative'
+                        userSelect: 'none'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -830,92 +1130,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {sortConfig?.key === 'period' && (
                           sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         )}
-                        <Filter 
-                          size={12} 
-                          style={{ 
-                            marginLeft: 'auto',
-                            opacity: filters.period.length > 0 ? 1 : 0.4,
-                            color: filters.period.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setColumnFilterOpen(columnFilterOpen === 'period' ? null : 'period')
-                          }}
-                        />
                       </div>
-                      {columnFilterOpen === 'period' && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '4px',
-                            width: '220px',
-                            maxHeight: '300px',
-                            overflowY: 'auto',
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                            zIndex: 1000,
-                            padding: '12px'
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', fontWeight: '600' }}>기간</span>
-                            {filters.period.length > 0 && (
-                              <button
-                                onClick={() => {
-                                  setFilters(prev => ({ ...prev, period: [] }))
-                                  setCurrentPage(1)
-                                }}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--primary))',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  padding: '2px 6px'
-                                }}
-                              >
-                                초기화
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {getUniqueValues('period').map(value => (
-                              <label
-                                key={value}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={filters.period.includes(value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked
-                                    setFilters(prev => ({
-                                      ...prev,
-                                      period: checked
-                                        ? [...prev.period, value]
-                                        : prev.period.filter(v => v !== value)
-                                    }))
-                                    setCurrentPage(1)
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span>{value}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </th>
                     <th 
                       onClick={() => handleSort('media')}
@@ -926,8 +1141,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         whiteSpace: 'nowrap', 
                         fontSize: '12px',
                         cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'relative'
+                        userSelect: 'none'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -935,92 +1149,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {sortConfig?.key === 'media' && (
                           sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         )}
-                        <Filter 
-                          size={12} 
-                          style={{ 
-                            marginLeft: 'auto',
-                            opacity: filters.media.length > 0 ? 1 : 0.4,
-                            color: filters.media.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setColumnFilterOpen(columnFilterOpen === 'media' ? null : 'media')
-                          }}
-                        />
                       </div>
-                      {columnFilterOpen === 'media' && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '4px',
-                            width: '220px',
-                            maxHeight: '300px',
-                            overflowY: 'auto',
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                            zIndex: 1000,
-                            padding: '12px'
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', fontWeight: '600' }}>매체</span>
-                            {filters.media.length > 0 && (
-                              <button
-                                onClick={() => {
-                                  setFilters(prev => ({ ...prev, media: [] }))
-                                  setCurrentPage(1)
-                                }}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--primary))',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  padding: '2px 6px'
-                                }}
-                              >
-                                초기화
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {getUniqueValues('media').map(value => (
-                              <label
-                                key={value}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={filters.media.includes(value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked
-                                    setFilters(prev => ({
-                                      ...prev,
-                                      media: checked
-                                        ? [...prev.media, value]
-                                        : prev.media.filter(v => v !== value)
-                                    }))
-                                    setCurrentPage(1)
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span>{value}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </th>
                     <th 
                       onClick={() => handleSort('industryLarge')}
@@ -1031,8 +1160,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         whiteSpace: 'nowrap', 
                         fontSize: '12px',
                         cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'relative'
+                        userSelect: 'none'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1040,92 +1168,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {sortConfig?.key === 'industryLarge' && (
                           sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         )}
-                        <Filter 
-                          size={12} 
-                          style={{ 
-                            marginLeft: 'auto',
-                            opacity: filters.industryLarge.length > 0 ? 1 : 0.4,
-                            color: filters.industryLarge.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setColumnFilterOpen(columnFilterOpen === 'industryLarge' ? null : 'industryLarge')
-                          }}
-                        />
                       </div>
-                      {columnFilterOpen === 'industryLarge' && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '4px',
-                            width: '220px',
-                            maxHeight: '300px',
-                            overflowY: 'auto',
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                            zIndex: 1000,
-                            padding: '12px'
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(대)</span>
-                            {filters.industryLarge.length > 0 && (
-                              <button
-                                onClick={() => {
-                                  setFilters(prev => ({ ...prev, industryLarge: [] }))
-                                  setCurrentPage(1)
-                                }}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--primary))',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  padding: '2px 6px'
-                                }}
-                              >
-                                초기화
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {getUniqueValues('industryLarge').map(value => (
-                              <label
-                                key={value}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={filters.industryLarge.includes(value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked
-                                    setFilters(prev => ({
-                                      ...prev,
-                                      industryLarge: checked
-                                        ? [...prev.industryLarge, value]
-                                        : prev.industryLarge.filter(v => v !== value)
-                                    }))
-                                    setCurrentPage(1)
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span>{value}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </th>
                     <th 
                       onClick={() => handleSort('industryMedium')}
@@ -1136,8 +1179,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         whiteSpace: 'nowrap', 
                         fontSize: '12px',
                         cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'relative'
+                        userSelect: 'none'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1145,92 +1187,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {sortConfig?.key === 'industryMedium' && (
                           sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         )}
-                        <Filter 
-                          size={12} 
-                          style={{ 
-                            marginLeft: 'auto',
-                            opacity: filters.industryMedium.length > 0 ? 1 : 0.4,
-                            color: filters.industryMedium.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setColumnFilterOpen(columnFilterOpen === 'industryMedium' ? null : 'industryMedium')
-                          }}
-                        />
                       </div>
-                      {columnFilterOpen === 'industryMedium' && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '4px',
-                            width: '220px',
-                            maxHeight: '300px',
-                            overflowY: 'auto',
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                            zIndex: 1000,
-                            padding: '12px'
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(중)</span>
-                            {filters.industryMedium.length > 0 && (
-                              <button
-                                onClick={() => {
-                                  setFilters(prev => ({ ...prev, industryMedium: [] }))
-                                  setCurrentPage(1)
-                                }}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--primary))',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  padding: '2px 6px'
-                                }}
-                              >
-                                초기화
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {getUniqueValues('industryMedium').map(value => (
-                              <label
-                                key={value}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={filters.industryMedium.includes(value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked
-                                    setFilters(prev => ({
-                                      ...prev,
-                                      industryMedium: checked
-                                        ? [...prev.industryMedium, value]
-                                        : prev.industryMedium.filter(v => v !== value)
-                                    }))
-                                    setCurrentPage(1)
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span>{value}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </th>
                     <th 
                       onClick={() => handleSort('industrySmall')}
@@ -1241,8 +1198,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         whiteSpace: 'nowrap', 
                         fontSize: '12px',
                         cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'relative'
+                        userSelect: 'none'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1250,92 +1206,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {sortConfig?.key === 'industrySmall' && (
                           sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         )}
-                        <Filter 
-                          size={12} 
-                          style={{ 
-                            marginLeft: 'auto',
-                            opacity: filters.industrySmall.length > 0 ? 1 : 0.4,
-                            color: filters.industrySmall.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setColumnFilterOpen(columnFilterOpen === 'industrySmall' ? null : 'industrySmall')
-                          }}
-                        />
                       </div>
-                      {columnFilterOpen === 'industrySmall' && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            marginTop: '4px',
-                            width: '220px',
-                            maxHeight: '300px',
-                            overflowY: 'auto',
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                            zIndex: 1000,
-                            padding: '12px'
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', fontWeight: '600' }}>업종(소)</span>
-                            {filters.industrySmall.length > 0 && (
-                              <button
-                                onClick={() => {
-                                  setFilters(prev => ({ ...prev, industrySmall: [] }))
-                                  setCurrentPage(1)
-                                }}
-                                style={{
-                                  fontSize: '11px',
-                                  color: 'hsl(var(--primary))',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  padding: '2px 6px'
-                                }}
-                              >
-                                초기화
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {getUniqueValues('industrySmall').map(value => (
-                              <label
-                                key={value}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={filters.industrySmall.includes(value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked
-                                    setFilters(prev => ({
-                                      ...prev,
-                                      industrySmall: checked
-                                        ? [...prev.industrySmall, value]
-                                        : prev.industrySmall.filter(v => v !== value)
-                                    }))
-                                    setCurrentPage(1)
-                                  }}
-                                  className="checkbox-custom"
-                                />
-                                <span>{value}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </th>
                     {adProductColumns.map((col) => (
                       <th 
@@ -1348,8 +1219,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           whiteSpace: 'nowrap', 
                           fontSize: '12px',
                           cursor: 'pointer',
-                          userSelect: 'none',
-                          position: 'relative'
+                          userSelect: 'none'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1357,92 +1227,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           {sortConfig?.key === col.key && (
                             sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                           )}
-                          <Filter 
-                            size={12} 
-                            style={{ 
-                              marginLeft: 'auto',
-                              opacity: filters[col.key as keyof typeof filters]?.length > 0 ? 1 : 0.4,
-                              color: filters[col.key as keyof typeof filters]?.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setColumnFilterOpen(columnFilterOpen === col.key ? null : col.key)
-                            }}
-                          />
                         </div>
-                        {columnFilterOpen === col.key && (
-                          <div 
-                            style={{
-                              position: 'absolute',
-                              top: '100%',
-                              left: 0,
-                              marginTop: '4px',
-                              width: '220px',
-                              maxHeight: '300px',
-                              overflowY: 'auto',
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                              zIndex: 1000,
-                              padding: '12px'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '600' }}>{col.label}</span>
-                              {filters[col.key as keyof typeof filters]?.length > 0 && (
-                                <button
-                                  onClick={() => {
-                                    setFilters(prev => ({ ...prev, [col.key]: [] }))
-                                    setCurrentPage(1)
-                                  }}
-                                  style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--primary))',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '2px 6px'
-                                  }}
-                                >
-                                  초기화
-                                </button>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              {getUniqueValues(col.key).map(value => (
-                                <label
-                                  key={value}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '12px',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={filters[col.key as keyof typeof filters]?.includes(value) || false}
-                                    onChange={(e) => {
-                                      const checked = e.target.checked
-                                      setFilters(prev => ({
-                                        ...prev,
-                                        [col.key]: checked
-                                          ? [...(prev[col.key as keyof typeof prev] || []), value]
-                                          : (prev[col.key as keyof typeof prev] || []).filter(v => v !== value)
-                                      }))
-                                      setCurrentPage(1)
-                                    }}
-                                    className="checkbox-custom"
-                                  />
-                                  <span>{value}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </th>
                     ))}
                     {configData.targetingCategory && (
@@ -1455,8 +1240,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           whiteSpace: 'nowrap', 
                           fontSize: '12px',
                           cursor: 'pointer',
-                          userSelect: 'none',
-                          position: 'relative'
+                          userSelect: 'none'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1464,95 +1248,9 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           {sortConfig?.key === 'targetingOption' && (
                             sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                           )}
-                          <Filter 
-                            size={12} 
-                            style={{ 
-                              marginLeft: 'auto',
-                              opacity: filters.targetingOption.length > 0 ? 1 : 0.4,
-                              color: filters.targetingOption.length > 0 ? 'hsl(var(--primary))' : 'currentColor'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setColumnFilterOpen(columnFilterOpen === 'targetingOption' ? null : 'targetingOption')
-                            }}
-                          />
                         </div>
-                        {columnFilterOpen === 'targetingOption' && (
-                          <div 
-                            style={{
-                              position: 'absolute',
-                              top: '100%',
-                              left: 0,
-                              marginTop: '4px',
-                              width: '220px',
-                              maxHeight: '300px',
-                              overflowY: 'auto',
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                              zIndex: 1000,
-                              padding: '12px'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '600' }}>{configData.targetingCategory}</span>
-                              {filters.targetingOption.length > 0 && (
-                                <button
-                                  onClick={() => {
-                                    setFilters(prev => ({ ...prev, targetingOption: [] }))
-                                    setCurrentPage(1)
-                                  }}
-                                  style={{
-                                    fontSize: '11px',
-                                    color: 'hsl(var(--primary))',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '2px 6px'
-                                  }}
-                                >
-                                  초기화
-                                </button>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              {getUniqueValues('targetingOption').map(value => (
-                                <label
-                                  key={value}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '12px',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={filters.targetingOption.includes(value)}
-                                    onChange={(e) => {
-                                      const checked = e.target.checked
-                                      setFilters(prev => ({
-                                        ...prev,
-                                        targetingOption: checked
-                                          ? [...prev.targetingOption, value]
-                                          : prev.targetingOption.filter(v => v !== value)
-                                      }))
-                                      setCurrentPage(1)
-                                    }}
-                                    className="checkbox-custom"
-                                  />
-                                  <span>{value}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </th>
                     )}
-                    {/* 지표 컬럼 - 정렬만 가능 (필터 없음) */}
                     {configData.metrics.map((metric: string) => (
                       <th 
                         key={metric}
@@ -1575,6 +1273,23 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         </div>
                       </th>
                     ))}
+                  </tr>
+
+                  {/* 필터 행 */}
+                  <tr style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+                    {renderListFilter('period')}
+                    {renderListFilter('media')}
+                    {renderListFilter('industryLarge')}
+                    {renderListFilter('industryMedium')}
+                    {renderListFilter('industrySmall')}
+                    {adProductColumns.map((col) => renderListFilter(col.key))}
+                    {configData.targetingCategory && renderListFilter('targetingOption')}
+                    {renderMetricFilter('impressions')}
+                    {renderMetricFilter('clicks')}
+                    {renderMetricFilter('cost')}
+                    {renderMetricFilter('ctr')}
+                    {renderMetricFilter('cpc')}
+                    {renderMetricFilter('cpm')}
                   </tr>
                 </thead>
                 <tbody>
@@ -1615,7 +1330,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {row.cost.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{row.ctr}%</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{row.ctr.toFixed(2)}%</td>
                       <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
                         {row.cpc.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
@@ -1631,12 +1346,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
           </div>
 
-          {/* 페이지네이션 */}
           {renderPagination()}
         </div>
       </div>
 
-      {/* Toast 알림 */}
       {showToast && (
         <div className={`toast toast--${showToast.type}`}>
           <div className="toast__content">
@@ -1650,575 +1363,25 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           </button>
         </div>
       )}
-
-      {/* 선택한 업종 모달 */}
-      {configModalOpen && (
-        <div className="dialog-overlay" onClick={() => setConfigModalOpen(false)}>
-          <div 
-            className="dialog-content" 
-            onClick={(e) => e.stopPropagation()}
-            style={{ 
-              width: '900px', 
-              maxWidth: '95vw',
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <div className="dialog-header">
-              <h3 className="dialog-title">선택한 업종</h3>
-              <p className="dialog-description">
-                이 데이터셋에 적용된 업종입니다
-              </p>
-            </div>
-            
-            <div style={{ 
-              padding: '24px', 
-              flex: 1, 
-              overflowY: 'auto'
-            }}>
-              {/* 선택된 업종 테이블 */}
-              <div style={{
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}>
-                {/* 테이블 헤더 */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr',
-                  padding: '12px 16px',
-                  backgroundColor: 'hsl(var(--muted) / 0.5)',
-                  borderBottom: '1px solid hsl(var(--border))',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: 'hsl(var(--muted-foreground))'
-                }}>
-                  선택한 업종 (11개)
-                </div>
-
-                {/* 테이블 바디 */}
-                <div>
-                  {['가정용전기전자 > 가사용전기전자 > 가사용전기전자기타', 
-                    '가정용전기전자 > 가사용전기전자 > 가습기', 
-                    '가정용전기전자 > 가사용전기전자 > 다리미', 
-                    '가정용전기전자 > 가사용전기전자 > 세탁기',
-                    '가정용전기전자 > 가사용전기전자 > 청소기',
-                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타PR',
-                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기업공고',
-                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타',
-                    '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
-                    '가정용전기전자 > 냉난방기 > 냉난방기기타',
-                    '가정용전기전자 > 냉난방기 > 에어컨'].map((industry, idx) => {
-                    const parts = industry.split(' > ')
-                    return (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '1fr',
-                          padding: '12px 16px',
-                          alignItems: 'center',
-                          borderBottom: idx < 10 ? '1px solid hsl(var(--border))' : 'none',
-                          fontSize: '13px'
-                        }}
-                      >
-                        <div style={{ lineHeight: '1.4' }}>
-                          {parts.map((part, partIdx) => (
-                            <span key={partIdx}>
-                              {partIdx > 0 && (
-                                <span style={{ 
-                                  color: 'hsl(var(--muted-foreground))',
-                                  margin: '0 4px'
-                                }}>
-                                  {'>'}
-                                </span>
-                              )}
-                              <span style={{ 
-                                color: partIdx === parts.length - 1 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                              }}>
-                                {part}
-                              </span>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="dialog-footer">
-              <button
-                onClick={() => setConfigModalOpen(false)}
-                className="btn btn-primary btn-md"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 선택한 광고상품 모달 */}
-      {adProductsModalOpen && (
-        <div className="dialog-overlay" onClick={() => setAdProductsModalOpen(false)}>
-          <div 
-            className="dialog-content" 
-            onClick={(e) => e.stopPropagation()}
-            style={{ 
-              width: '900px', 
-              maxWidth: '95vw',
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <div className="dialog-header">
-              <h3 className="dialog-title">선택한 광고상품</h3>
-              <p className="dialog-description">
-                이 데이터셋에 적용된 광고상품입니다
-              </p>
-            </div>
-            
-            <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-              {/* 조건 1 */}
-              <div style={{
-                marginBottom: '16px',
-                padding: '20px',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                backgroundColor: 'hsl(var(--card))'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
-                    조건 1
-                  </h3>
-                </div>
-
-                {/* 캠페인 목표 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    캠페인 목표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                  </label>
-                  <select
-                    value="POST_ENGAGEMENT"
-                    disabled
-                    className="input"
-                    style={{ 
-                      width: '100%', 
-                      appearance: 'none', 
-                      paddingRight: '32px',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <option value="POST_ENGAGEMENT">POST_ENGAGEMENT</option>
-                  </select>
-                </div>
-
-                {/* 구매 유형 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    구매 유형
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: '100%', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      전체
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      AUCTION
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      RESERVED
-                    </label>
-                  </div>
-                </div>
-
-                {/* 플랫폼 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    플랫폼
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      facebook
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      instagram
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      facebook&instagram
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      audience_network
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      facebook&instagram&messenger
-                    </label>
-                  </div>
-                </div>
-
-                {/* 성과 목표 */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    성과 목표
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      OFFSITE_CONVERSIONS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      LINK_CLICKS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      IMPRESSIONS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      LEAD_GENERATION
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      REACH
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* OR 구분선 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '16px 0',
-                gap: '12px'
-              }}>
-                <div style={{
-                  flex: 1,
-                  height: '1px',
-                  backgroundColor: 'hsl(var(--border))'
-                }} />
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: 'hsl(var(--muted-foreground))',
-                  padding: '4px 12px',
-                  backgroundColor: 'hsl(var(--muted))',
-                  borderRadius: '12px',
-                  border: '1px solid hsl(var(--border))'
-                }}>
-                  OR
-                </span>
-                <div style={{
-                  flex: 1,
-                  height: '1px',
-                  backgroundColor: 'hsl(var(--border))'
-                }} />
-              </div>
-
-              {/* 조건 2 */}
-              <div style={{
-                padding: '20px',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                backgroundColor: 'hsl(var(--card))'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
-                    조건 2
-                  </h3>
-                </div>
-
-                {/* 캠페인 목표 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    캠페인 목표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-                  </label>
-                  <select
-                    value="REACH"
-                    disabled
-                    className="input"
-                    style={{ 
-                      width: '100%', 
-                      appearance: 'none', 
-                      paddingRight: '32px',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <option value="REACH">REACH</option>
-                  </select>
-                </div>
-
-                {/* 구매 유형 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    구매 유형
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: '100%', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      전체
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      AUCTION
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      RESERVED
-                    </label>
-                  </div>
-                </div>
-
-                {/* 플랫폼 */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    플랫폼
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      facebook
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      instagram
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      messenger
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      audience_network
-                    </label>
-                  </div>
-                </div>
-
-                {/* 성과 목표 */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                    성과 목표
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      LINK_CLICKS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      OFFSITE_CONVERSIONS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      LEAD_GENERATION
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      IMPRESSIONS
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', width: 'calc(50% - 4px)', opacity: 0.6 }}>
-                      <input type="checkbox" checked disabled className="checkbox-custom" style={{ cursor: 'not-allowed' }} />
-                      REACH
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="dialog-footer">
-              <button
-                onClick={() => setAdProductsModalOpen(false)}
-                className="btn btn-primary btn-md"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 선택한 타겟팅 옵션 모달 */}
-      {targetingModalOpen && (
-        <div className="dialog-overlay" onClick={() => setTargetingModalOpen(false)}>
-          <div 
-            className="dialog-content" 
-            onClick={(e) => e.stopPropagation()}
-            style={{ 
-              width: '900px', 
-              maxWidth: '95vw',
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <div className="dialog-header">
-              <h3 className="dialog-title">선택한 타겟팅 옵션</h3>
-              <p className="dialog-description">
-                이 데이터셋에 적용된 타겟팅 옵션입니다
-              </p>
-            </div>
-            
-            <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
-              {/* 타겟팅 기준 */}
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                  타겟팅 기준
-                </label>
-                <select
-                  value="기기유형"
-                  disabled
-                  className="input"
-                  style={{ 
-                    width: '100%', 
-                    height: '36px', 
-                    padding: '8px 12px',
-                    opacity: 0.6,
-                    cursor: 'not-allowed'
-                  }}
-                >
-                  <option value="기기유형">기기유형</option>
-                </select>
-              </div>
-
-              {/* 타겟팅 세부 옵션 */}
-              <div style={{
-                padding: '16px',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-                backgroundColor: 'hsl(var(--muted) / 0.1)'
-              }}>
-                <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '12px' }}>
-                  기기유형 옵션 (다중 선택 가능)
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '10px',
-                      border: '1px solid hsl(var(--primary))',
-                      borderRadius: '6px',
-                      backgroundColor: 'hsl(var(--primary) / 0.1)',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked
-                      disabled
-                      className="checkbox-custom"
-                      style={{ cursor: 'not-allowed' }}
-                    />
-                    <span style={{ fontSize: '13px' }}>데스크톱</span>
-                  </label>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '10px',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px',
-                      backgroundColor: 'transparent',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={false}
-                      disabled
-                      className="checkbox-custom"
-                      style={{ cursor: 'not-allowed' }}
-                    />
-                    <span style={{ fontSize: '13px' }}>모바일 웹</span>
-                  </label>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '10px',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px',
-                      backgroundColor: 'transparent',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={false}
-                      disabled
-                      className="checkbox-custom"
-                      style={{ cursor: 'not-allowed' }}
-                    />
-                    <span style={{ fontSize: '13px' }}>분류되지 않음</span>
-                  </label>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '10px',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px',
-                      backgroundColor: 'transparent',
-                      opacity: 0.6,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={false}
-                      disabled
-                      className="checkbox-custom"
-                      style={{ cursor: 'not-allowed' }}
-                    />
-                    <span style={{ fontSize: '13px' }}>앱 내</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="dialog-footer">
-              <button
-                onClick={() => setTargetingModalOpen(false)}
-                className="btn btn-primary btn-md"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </AppLayout>
+  )
+}
+
+// ChevronDown 아이콘 컴포넌트 (lucide-react에 없는 경우 직접 정의)
+function ChevronDown({ size = 16, ...props }: { size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      {...props}
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
   )
 }
