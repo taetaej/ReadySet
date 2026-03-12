@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Clock, Search, X } from 'lucide-react'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Search, X } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -88,7 +88,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   // 필터 드롭다운 내 검색어
   const [filterSearchTerms, setFilterSearchTerms] = useState<{ [key: string]: string }>({})
 
-  const [filterTooltipOpen, setFilterTooltipOpen] = useState(false)
   const [clockTooltipOpen, setClockTooltipOpen] = useState(false)
 
   const handleToggleDarkMode = () => {
@@ -1017,7 +1016,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                 Extracted Data
               </h3>
               <div style={{ position: 'relative' }}>
-                <Clock 
+                <Info 
                   size={18} 
                   style={{ 
                     cursor: 'pointer',
@@ -1033,55 +1032,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     left: '50%',
                     transform: 'translateX(-50%)',
                     marginTop: '8px',
-                    width: '220px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    padding: '10px 12px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    fontSize: '12px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    <div style={{ fontWeight: '500', marginBottom: '4px' }}>데이터 기준 일시</div>
-                    <div style={{ color: 'hsl(var(--muted-foreground))' }}>2024-03-10 14:30:25</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '16px',
-            alignItems: 'center',
-            justifyContent: 'flex-end'
-          }}>
-            <div style={{
-              fontSize: '13px',
-              color: 'hsl(var(--muted-foreground))',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <span>{totalItems.toLocaleString()} / {(12345).toLocaleString()} 결과</span>
-              <div style={{ position: 'relative' }}>
-                <Info 
-                  size={16} 
-                  style={{ cursor: 'pointer' }}
-                  onMouseEnter={() => setFilterTooltipOpen(true)}
-                  onMouseLeave={() => setFilterTooltipOpen(false)}
-                />
-                {filterTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '8px',
-                    width: '320px',
+                    width: '280px',
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
@@ -1093,12 +1044,24 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     lineHeight: '1.5',
                     whiteSpace: 'normal'
                   }}>
-                    전체 {(12345).toLocaleString()}행 중 100행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+                    전체 8,000행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
                   </div>
                 )}
               </div>
             </div>
+            
+            {/* 데이터 기준 일시 */}
+            <div style={{
+              fontSize: '13px',
+              color: 'hsl(var(--muted-foreground))',
+              fontFamily: 'Paperlogy, sans-serif',
+              whiteSpace: 'nowrap'
+            }}>
+              데이터 기준 일시: 2024-03-10 14:30:25
+            </div>
           </div>
+
+          {/* 결과 개수는 제거 */}
 
           <div style={{
             backgroundColor: 'hsl(var(--card))',
