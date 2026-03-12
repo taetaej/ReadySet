@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut } from 'lucide-react'
+import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut, Info } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
@@ -113,88 +113,108 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 3,
       isNew: true,
+      status: 'success',
+      type: 'task',
       resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 2,
-      solution: 'Reach Caster',
-      scenarioName: '브랜드 인지도 측정',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 15,
+      solution: 'DataShot',
+      scenarioName: '2026년 3월 데이터',
+      message: '최신 데이터가 업데이트되었습니다.',
+      completedMinutesAgo: 5,
       isNew: true,
-      resultUrl: '/reachcaster/scenario/ratio-finder/result'
+      status: 'info',
+      type: 'notice',
+      resultUrl: null
     },
     {
       id: 3,
+      solution: 'DataShot',
+      scenarioName: '2024 Q4 캠페인 데이터',
+      message: '데이터셋 생성이 완료되었습니다.',
+      completedMinutesAgo: 8,
+      isNew: true,
+      status: 'success',
+      type: 'task',
+      resultUrl: '/datashot/dataset/detail'
+    },
+    {
+      id: 4,
+      solution: 'Reach Caster',
+      scenarioName: '브랜드 인지도 측정',
+      message: '시나리오 생성이 실패했습니다.',
+      completedMinutesAgo: 15,
+      isNew: true,
+      status: 'error',
+      type: 'task',
+      resultUrl: '/reachcaster'
+    },
+    {
+      id: 5,
+      solution: 'DataShot',
+      scenarioName: '메타 광고 성과 분석',
+      message: '데이터셋 생성이 실패했습니다.',
+      completedMinutesAgo: 25,
+      isNew: false,
+      status: 'error',
+      type: 'task',
+      resultUrl: '/datashot'
+    },
+    {
+      id: 6,
       solution: 'Reach Caster',
       scenarioName: '연령별 선호도 분석',
       message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 45,
       isNew: false,
+      status: 'success',
+      type: 'task',
       resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
-      id: 4,
+      id: 7,
+      solution: 'DataShot',
+      scenarioName: '구글 애즈 데이터 추출',
+      message: '데이터셋 생성이 완료되었습니다.',
+      completedMinutesAgo: 90,
+      isNew: false,
+      status: 'success',
+      type: 'task',
+      resultUrl: '/datashot/dataset/detail'
+    },
+    {
+      id: 8,
       solution: 'Reach Caster',
       scenarioName: '할인율 최적화',
       message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 120,
       isNew: false,
-      resultUrl: '/reachcaster/scenario/ratio-finder/result'
-    },
-    {
-      id: 5,
-      solution: 'Reach Caster',
-      scenarioName: 'CTR 개선 분석',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 180,
-      isNew: false,
-      resultUrl: '/reachcaster/scenario/reach-predictor/result'
-    },
-    {
-      id: 6,
-      solution: 'Reach Caster',
-      scenarioName: '지역별 배송 선호도',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 240,
-      isNew: false,
-      resultUrl: '/reachcaster/scenario/ratio-finder/result'
-    },
-    {
-      id: 7,
-      solution: 'Reach Caster',
-      scenarioName: '요금제 비교',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 300,
-      isNew: false,
-      resultUrl: '/reachcaster/scenario/reach-predictor/result'
-    },
-    {
-      id: 8,
-      solution: 'Reach Caster',
-      scenarioName: '고객 만족도 조사',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 360,
-      isNew: false,
+      status: 'success',
+      type: 'task',
       resultUrl: '/reachcaster/scenario/ratio-finder/result'
     },
     {
       id: 9,
       solution: 'Reach Caster',
-      scenarioName: '데이터 사용량 분석',
+      scenarioName: 'CTR 개선 분석',
       message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 420,
+      completedMinutesAgo: 180,
       isNew: false,
+      status: 'success',
+      type: 'task',
       resultUrl: '/reachcaster/scenario/reach-predictor/result'
     },
     {
       id: 10,
-      solution: 'Reach Caster',
-      scenarioName: '배송비 정책 테스트',
-      message: '시나리오 생성이 완료되었습니다.',
-      completedMinutesAgo: 480,
+      solution: 'DataShot',
+      scenarioName: '네이버 DA 캠페인 데이터',
+      message: '데이터셋 생성이 완료되었습니다.',
+      completedMinutesAgo: 240,
       isNew: false,
-      resultUrl: '/reachcaster/scenario/ratio-finder/result'
+      status: 'success',
+      type: 'task',
+      resultUrl: '/datashot/dataset/detail'
     }
   ]
 
@@ -467,19 +487,29 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                   key={notification.id}
                   style={{
                     padding: '12px 16px',
-                    cursor: 'pointer',
+                    cursor: notification.resultUrl ? 'pointer' : 'default',
                     transition: 'all 0.2s',
-                    borderLeft: notification.isNew ? '3px solid hsl(var(--primary))' : '3px solid transparent'
+                    borderLeft: notification.isNew 
+                      ? `3px solid ${
+                          notification.status === 'error' ? '#ef4444' : 
+                          notification.status === 'info' ? '#3b82f6' : 
+                          'hsl(var(--primary))'
+                        }`
+                      : '3px solid transparent'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                    if (notification.resultUrl) {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                    }
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'transparent'
                   }}
                   onClick={() => {
-                    navigate(notification.resultUrl)
-                    setShowNotificationLayer(false)
+                    if (notification.resultUrl) {
+                      navigate(notification.resultUrl)
+                      setShowNotificationLayer(false)
+                    }
                   }}
                 >
                   <div style={{ marginBottom: '4px' }}>
@@ -489,21 +519,43 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                       marginBottom: '6px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
-                    }} className="text-foreground">
-                      {notification.message}
-                      {notification.isNew && (
-                        <span style={{
-                          fontSize: '10px',
-                          backgroundColor: 'hsl(var(--primary))',
-                          color: 'hsl(var(--primary-foreground))',
-                          padding: '1px 4px',
-                          borderRadius: '4px',
-                          fontWeight: '600'
-                        }}>
-                          NEW
-                        </span>
+                      gap: '6px',
+                      color: notification.status === 'error' ? '#ef4444' : 
+                             notification.status === 'info' ? '#3b82f6' : 
+                             'hsl(var(--foreground))'
+                    }}>
+                      {notification.type === 'notice' && (
+                        <Info size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
                       )}
+                      {notification.message}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {notification.type === 'notice' && (
+                          <span style={{
+                            fontSize: '10px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}>
+                            Notice
+                          </span>
+                        )}
+                        {notification.isNew && (
+                          <span style={{
+                            fontSize: '10px',
+                            backgroundColor: notification.status === 'error' ? '#ef4444' : 
+                                            notification.status === 'info' ? '#3b82f6' : 
+                                            'hsl(var(--primary))',
+                            color: 'white',
+                            padding: '1px 4px',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}>
+                            NEW
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div style={{ 
                       fontSize: '12px',

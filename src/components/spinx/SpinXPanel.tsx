@@ -43,6 +43,9 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [pendingModel, setPendingModel] = useState<LLMModel | null>(null)
   const [isRegeneratingAnalysis, setIsRegeneratingAnalysis] = useState(false)
   const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
+  const [loadingMessage, setLoadingMessage] = useState('질문을 분석하고 있어요...')
+  const loadingMessageIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [retryCount, setRetryCount] = useState<Map<string, number>>(new Map())
 
   // 패널이 열릴 때 body 스크롤 막기 제거 (결과화면 스크롤 가능하도록)
   // useEffect는 제거
@@ -123,8 +126,28 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       setCurrentQuestion(textToSend) // 현재 질문 저장
       setIsLoading(true)
       
-      // AI 답변 생성 (예시) - 1초 딜레이
+      // 로딩 메시지 순차 변경
+      const loadingMessages = [
+        '질문을 분석하고 있어요...',
+        '관련 데이터를 찾고 있어요...',
+        '답변을 생성하고 있어요...'
+      ]
+      let messageIndex = 0
+      setLoadingMessage(loadingMessages[0])
+      
+      loadingMessageIntervalRef.current = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length
+        setLoadingMessage(loadingMessages[messageIndex])
+      }, 800) // 0.8초마다 메시지 변경
+      
+      // AI 답변 생성 (예시) - 3초 딜레이
       timeoutRef.current = setTimeout(() => {
+        // 로딩 메시지 인터벌 정리
+        if (loadingMessageIntervalRef.current) {
+          clearInterval(loadingMessageIntervalRef.current)
+          loadingMessageIntervalRef.current = null
+        }
+        
         const answer = answerExamples[textToSend]
         
         // 웹 검색 질문인 경우 소스 추가
@@ -147,12 +170,26 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         setIsLoading(false)
         setCurrentQuestion('')
         timeoutRef.current = null
-      }, 1000)
+      }, 3000)
     }
   }
 
   const handleRetry = (originalQuestion: string) => {
     if (!isLoading) {
+      const currentRetryCount = retryCount.get(originalQuestion) || 0
+      
+      if (currentRetryCount >= 1) {
+        // 이미 1번 재시도했으면 더 이상 재시도 불가
+        return
+      }
+      
+      // 재시도 횟수 증가
+      setRetryCount(prev => {
+        const newMap = new Map(prev)
+        newMap.set(originalQuestion, currentRetryCount + 1)
+        return newMap
+      })
+      
       handleSend(originalQuestion)
     }
   }
@@ -162,6 +199,12 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
+    }
+    
+    // 로딩 메시지 인터벌 정리
+    if (loadingMessageIntervalRef.current) {
+      clearInterval(loadingMessageIntervalRef.current)
+      loadingMessageIntervalRef.current = null
     }
     
     setIsLoading(false)
@@ -775,36 +818,52 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                       }}>
                         {msg.content.message}
                       </div>
-                      <button
-                        onClick={() => handleRetry(msg.originalQuestion || '')}
-                        disabled={isLoading}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          fontSize: '12px',
-                          padding: '8px 14px',
-                          borderRadius: '6px',
-                          border: '1px solid hsl(var(--border))',
-                          backgroundColor: 'transparent',
-                          color: 'hsl(var(--foreground))',
-                          fontFamily: 'Paperlogy, sans-serif',
-                          cursor: isLoading ? 'not-allowed' : 'pointer',
-                          opacity: isLoading ? 0.5 : 1,
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isLoading) {
-                            e.currentTarget.style.backgroundColor = 'hsl(var(--accent))'
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent'
-                        }}
-                      >
-                        <RefreshCw size={14} />
-                        재시도
-                      </button>
+                      {(() => {
+                        const currentRetryCount = retryCount.get(msg.originalQuestion || '') || 0
+                        const canRetry = currentRetryCount < 1
+                        
+                        return canRetry ? (
+                          <button
+                            onClick={() => handleRetry(msg.originalQuestion || '')}
+                            disabled={isLoading}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              fontSize: '12px',
+                              padding: '8px 14px',
+                              borderRadius: '6px',
+                              border: '1px solid hsl(var(--border))',
+                              backgroundColor: 'transparent',
+                              color: 'hsl(var(--foreground))',
+                              fontFamily: 'Paperlogy, sans-serif',
+                              cursor: isLoading ? 'not-allowed' : 'pointer',
+                              opacity: isLoading ? 0.5 : 1,
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isLoading) {
+                                e.currentTarget.style.backgroundColor = 'hsl(var(--accent))'
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent'
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                            재시도
+                          </button>
+                        ) : (
+                          <div style={{
+                            fontSize: '11px',
+                            color: 'hsl(var(--muted-foreground))',
+                            fontFamily: 'Paperlogy, sans-serif',
+                            marginTop: '8px'
+                          }}>
+                            재시도 횟수를 초과했습니다. 다른 질문을 시도해주세요.
+                          </div>
+                        )
+                      })()}
                     </div>
                   ) : (
                     // 차트 렌더링
@@ -978,7 +1037,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                   <Rotate3d size={20} />
                 </div>
                 <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                  답변을 기다리고 있어요...
+                  {loadingMessage}
                 </div>
               </div>
             </div>
