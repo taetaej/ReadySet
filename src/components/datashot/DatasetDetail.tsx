@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Search, X } from 'lucide-react'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Search, X, RefreshCcw } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -1092,6 +1092,61 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           </div>
 
           {/* 결과 개수는 제거 */}
+
+          {/* 필터 초기화 버튼 */}
+          {(Object.values(listFilters).some(arr => arr.length > 0) || 
+            Object.values(metricFilters).some(filter => filter.value !== '')) && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-start', 
+              marginBottom: '12px' 
+            }}>
+              <button
+                onClick={() => {
+                  setListFilters({
+                    period: [],
+                    media: [],
+                    industryLarge: [],
+                    industryMedium: [],
+                    industrySmall: [],
+                    objective: [],
+                    buyingType: [],
+                    platform: [],
+                    performanceGoal: [],
+                    targetingOption: []
+                  })
+                  setMetricFilters({
+                    impressions: { operator: '=', value: '' },
+                    clicks: { operator: '=', value: '' },
+                    cost: { operator: '=', value: '' },
+                    ctr: { operator: '=', value: '' },
+                    cpc: { operator: '=', value: '' },
+                    cpm: { operator: '=', value: '' }
+                  })
+                  setCurrentPage(1)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: 'hsl(var(--foreground))',
+                  color: 'hsl(var(--background))',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              >
+                <RefreshCcw size={14} />
+                필터 초기화
+              </button>
+            </div>
+          )}
 
           <div style={{
             backgroundColor: 'hsl(var(--card))',

@@ -189,12 +189,90 @@ export function DatasetCharts() {
           flexDirection: 'column',
           height: '100%'
         }}>
+          {/* 범례 (상단) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
+            fontSize: '13px',
+            fontFamily: 'Paperlogy, sans-serif',
+            color: 'hsl(var(--muted-foreground))',
+            marginBottom: '12px',
+            paddingTop: '8px'
+          }}>
+            {/* 광고비 (막대) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                width: '24px',
+                height: '12px',
+                backgroundColor: chartColors.cost,
+                borderRadius: '2px'
+              }} />
+              <span>광고비</span>
+            </div>
+            
+            {/* CTR (라인 + 원) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                position: 'relative',
+                width: '24px',
+                height: '12px'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: chartColors.ctr
+                }} />
+                <div style={{
+                  width: '100%',
+                  height: '2px',
+                  backgroundColor: chartColors.ctr
+                }} />
+              </div>
+              <span>CTR</span>
+            </div>
+            
+            {/* CPC (라인 + 원) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                position: 'relative',
+                width: '24px',
+                height: '12px'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: chartColors.cpc
+                }} />
+                <div style={{
+                  width: '100%',
+                  height: '2px',
+                  backgroundColor: chartColors.cpc
+                }} />
+              </div>
+              <span>CPC</span>
+            </div>
+          </div>
+
           {/* Recharts */}
           <div style={{ position: 'relative', flex: 1 }}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={trendData}
-                margin={{ top: 40, right: 60, left: 20, bottom: 50 }}
+                margin={{ top: 20, right: 60, left: 20, bottom: 3 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 
@@ -355,85 +433,6 @@ export function DatasetCharts() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
-
-            {/* 범례 (중앙 하단) - Ratio Finder 스타일 */}
-            <div style={{
-              position: 'absolute',
-              bottom: '15px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              fontSize: '13px',
-              fontFamily: 'Paperlogy, sans-serif',
-              color: 'hsl(var(--muted-foreground))'
-            }}>
-              {/* 광고비 (막대) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  width: '24px',
-                  height: '12px',
-                  backgroundColor: chartColors.cost,
-                  borderRadius: '2px'
-                }} />
-                <span>광고비</span>
-              </div>
-              
-              {/* CTR (라인 + 원) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  position: 'relative',
-                  width: '24px',
-                  height: '12px'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: chartColors.ctr
-                  }} />
-                  <div style={{
-                    width: '100%',
-                    height: '2px',
-                    backgroundColor: chartColors.ctr
-                  }} />
-                </div>
-                <span>CTR</span>
-              </div>
-              
-              {/* CPC (라인 + 원) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  position: 'relative',
-                  width: '24px',
-                  height: '12px'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: chartColors.cpc
-                  }} />
-                  <div style={{
-                    width: '100%',
-                    height: '2px',
-                    backgroundColor: chartColors.cpc
-                  }} />
-                </div>
-                <span>CPC</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
