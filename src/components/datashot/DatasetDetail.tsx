@@ -783,12 +783,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           }} className="text-muted-foreground">
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>매체</span>
-              <span style={{ color: 'hsl(var(--foreground))', fontWeight: '500' }}>{configData.media}</span>
+              <span style={{ color: 'hsl(var(--muted-foreground))', fontWeight: '500' }}>{configData.media}</span>
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>조회기간</span>
-              <span style={{ color: 'hsl(var(--foreground))', fontWeight: '500' }}>2024-01 → 2024-06</span>
+              <span style={{ color: 'hsl(var(--muted-foreground))', fontWeight: '500' }}>2024-01 → 2024-06</span>
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

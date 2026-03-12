@@ -370,7 +370,7 @@ export function MetricsModal({ isOpen, onClose, metricGroups }: MetricsModalProp
                         alignItems: 'center',
                         padding: '10px 12px',
                         borderTop: '1px solid hsl(var(--border))',
-                        backgroundColor: 'hsl(var(--primary) / 0.05)'
+                        backgroundColor: 'transparent'
                       }}
                     >
                       <input
