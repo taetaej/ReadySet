@@ -1,5 +1,5 @@
 import { Database, Package, Target } from 'lucide-react'
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface DatasetChartsProps {
   data: any[]
@@ -23,17 +23,33 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
 
   // 기간별 지표 트렌드 데이터 생성
   const trendData = [
-    { period: '2024-01', cost: 12500000, ctr: 2.34, cpc: 427 },
-    { period: '2024-02', cost: 15800000, ctr: 2.56, cpc: 398 },
-    { period: '2024-03', cost: 18200000, ctr: 2.89, cpc: 365 },
-    { period: '2024-04', cost: 16900000, ctr: 2.71, cpc: 382 },
-    { period: '2024-05', cost: 19500000, ctr: 3.12, cpc: 341 },
-    { period: '2024-06', cost: 21300000, ctr: 3.28, cpc: 325 }
+    { period: '2024-01', cost: 12500000, ctr: 1.85, cpc: 427 },
+    { period: '2024-02', cost: 15800000, ctr: 2.12, cpc: 398 },
+    { period: '2024-03', cost: 18200000, ctr: 2.68, cpc: 365 },
+    { period: '2024-04', cost: 16900000, ctr: 3.15, cpc: 382 },
+    { period: '2024-05', cost: 19500000, ctr: 3.82, cpc: 341 },
+    { period: '2024-06', cost: 21300000, ctr: 4.25, cpc: 325 },
+    { period: '2024-07', cost: 23100000, ctr: 4.58, cpc: 312 },
+    { period: '2024-08', cost: 20800000, ctr: 4.92, cpc: 298 },
+    { period: '2024-09', cost: 22400000, ctr: 5.21, cpc: 285 },
+    { period: '2024-10', cost: 24700000, ctr: 5.48, cpc: 273 },
+    { period: '2024-11', cost: 26300000, ctr: 5.75, cpc: 261 },
+    { period: '2024-12', cost: 28500000, ctr: 6.02, cpc: 249 }
   ]
+
+  // 다크모드 상태 가져오기
+  const isDarkMode = document.documentElement.classList.contains('dark')
+
+  // Ratio Finder 색상 (다크모드/라이트모드)
+  const chartColors = {
+    cost: '#00FF9D', // Digital 색상 (네온 그린)
+    ctr: isDarkMode ? '#f5f5f5' : '#1a1a1a', // TVC 색상
+    cpc: '#B794F6' // Reach 색상 (보라)
+  }
 
   return (
     <div style={{ marginBottom: '32px' }}>
-      {/* 차트 헤더 */}
+      {/* 타이틀 - 동일 라인 */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -45,9 +61,21 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
           fontWeight: '500',
           fontFamily: 'Paperlogy, sans-serif',
           margin: 0,
-          color: 'hsl(var(--foreground))'
+          color: 'hsl(var(--foreground))',
+          width: '300px'
         }}>
           Extraction Summary
+        </h3>
+        <h3 style={{
+          fontSize: '20px',
+          fontWeight: '500',
+          fontFamily: 'Paperlogy, sans-serif',
+          margin: 0,
+          color: 'hsl(var(--foreground))',
+          flex: 1,
+          paddingLeft: '16px'
+        }}>
+          Metrics Trend
         </h3>
       </div>
 
@@ -56,13 +84,15 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
         display: 'grid',
         gridTemplateColumns: '300px 1fr',
         gap: '16px',
-        marginBottom: '24px'
+        marginBottom: '24px',
+        alignItems: 'stretch'
       }}>
         {/* 좌측: 스코어카드 3개 세로 배치 */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '16px',
+          height: '100%'
         }}>
           {/* 1. 총 행 수 */}
           <TotalRowsCard
@@ -77,7 +107,7 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
             extracted={extractionStats.adProducts.extracted}
             percentage={extractionStats.adProducts.percentage}
             icon={<Package size={20} />}
-            color="#00D9FF"
+            color={isDarkMode ? '#f5f5f5' : '#1a1a1a'}
           />
           
           {/* 3. 타겟팅 옵션 */}
@@ -87,137 +117,190 @@ export function DatasetCharts({ data }: DatasetChartsProps) {
             extracted={extractionStats.targetingOptions.extracted}
             percentage={extractionStats.targetingOptions.percentage}
             icon={<Target size={20} />}
-            color="#FF6B9D"
+            color={isDarkMode ? '#f5f5f5' : '#1a1a1a'}
           />
         </div>
 
-        {/* 우측: 차트 영역 (단일 박스) */}
+        {/* 우측: 차트 영역 */}
         <div style={{
-          backgroundColor: 'hsl(var(--card))',
-          border: '1px solid hsl(var(--border))',
-          borderRadius: '12px',
-          padding: '24px',
-          minHeight: '448px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          height: '100%'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '20px'
-          }}>
-            <h4 style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              color: 'hsl(var(--foreground))'
-            }}>
-              Metrics Trend
-            </h4>
-          </div>
-          
           {/* Recharts */}
-          <ResponsiveContainer width="100%" height={380}>
-            <ComposedChart
-              data={trendData}
-              margin={{ top: 10, right: 60, left: 20, bottom: 10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <div style={{ position: 'relative', flex: 1 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={trendData}
+                margin={{ top: 40, right: 60, left: 20, bottom: 50 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                
+                {/* X축: 기간 */}
+                <XAxis 
+                  dataKey="period" 
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                />
+                
+                {/* Y축 왼쪽: 광고비 */}
+                <YAxis 
+                  yAxisId="left"
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  tickFormatter={(value) => `${(value / 10000000).toFixed(0)}M`}
+                  label={{ 
+                    value: '광고비 (원)', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
+                  }}
+                />
+                
+                {/* Y축 우측: 지표 (CTR, CPC) */}
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  label={{ 
+                    value: 'CTR (%) / CPC (원)', 
+                    angle: 90, 
+                    position: 'insideRight',
+                    style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
+                  }}
+                />
+                
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}
+                  formatter={(value: any, name: string | undefined) => {
+                    if (name === '광고비') return [`${value.toLocaleString()}원`, name]
+                    if (name === 'CTR') return [`${value}%`, name]
+                    if (name === 'CPC') return [`${value}원`, name]
+                    return [value, name]
+                  }}
+                />
+                
+                {/* 광고비 - 막대 그래프 */}
+                <Bar 
+                  yAxisId="left"
+                  dataKey="cost" 
+                  name="광고비"
+                  fill={chartColors.cost}
+                  opacity={0.8}
+                  radius={[4, 4, 0, 0]}
+                />
+                
+                {/* CTR - 라인 그래프 */}
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="ctr" 
+                  name="CTR"
+                  stroke={chartColors.ctr}
+                  strokeWidth={2}
+                  dot={{ fill: chartColors.ctr, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                
+                {/* CPC - 라인 그래프 */}
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="cpc" 
+                  name="CPC"
+                  stroke={chartColors.cpc}
+                  strokeWidth={2}
+                  dot={{ fill: chartColors.cpc, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+
+            {/* 범례 (중앙 하단) - Ratio Finder 스타일 */}
+            <div style={{
+              position: 'absolute',
+              bottom: '15px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              fontSize: '13px',
+              fontFamily: 'Paperlogy, sans-serif',
+              color: 'hsl(var(--muted-foreground))'
+            }}>
+              {/* 광고비 (막대) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '12px',
+                  backgroundColor: chartColors.cost,
+                  borderRadius: '2px'
+                }} />
+                <span>광고비</span>
+              </div>
               
-              {/* X축: 기간 */}
-              <XAxis 
-                dataKey="period" 
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
-              />
+              {/* CTR (라인 + 원) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  position: 'relative',
+                  width: '24px',
+                  height: '12px'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: chartColors.ctr
+                  }} />
+                  <div style={{
+                    width: '100%',
+                    height: '2px',
+                    backgroundColor: chartColors.ctr
+                  }} />
+                </div>
+                <span>CTR</span>
+              </div>
               
-              {/* Y축 왼쪽: 광고비 */}
-              <YAxis 
-                yAxisId="left"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
-                tickFormatter={(value) => `${(value / 10000000).toFixed(0)}M`}
-                label={{ 
-                  value: '광고비 (원)', 
-                  angle: -90, 
-                  position: 'insideLeft',
-                  style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
-                }}
-              />
-              
-              {/* Y축 우측: 지표 (CTR, CPC) */}
-              <YAxis 
-                yAxisId="right"
-                orientation="right"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
-                label={{ 
-                  value: 'CTR (%) / CPC (원)', 
-                  angle: 90, 
-                  position: 'insideRight',
-                  style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 }
-                }}
-              />
-              
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  fontSize: '12px'
-                }}
-                formatter={(value: any, name: string | undefined) => {
-                  if (name === '광고비') return [`${value.toLocaleString()}원`, name]
-                  if (name === 'CTR') return [`${value}%`, name]
-                  if (name === 'CPC') return [`${value}원`, name]
-                  return [value, name]
-                }}
-              />
-              
-              <Legend 
-                wrapperStyle={{
-                  fontSize: '12px',
-                  fontFamily: 'Paperlogy, sans-serif'
-                }}
-              />
-              
-              {/* 광고비 - 막대 그래프 */}
-              <Bar 
-                yAxisId="left"
-                dataKey="cost" 
-                name="광고비"
-                fill="#00ff9d"
-                opacity={0.8}
-                radius={[4, 4, 0, 0]}
-              />
-              
-              {/* CTR - 라인 그래프 */}
-              <Line 
-                yAxisId="right"
-                type="monotone" 
-                dataKey="ctr" 
-                name="CTR"
-                stroke="#00D9FF"
-                strokeWidth={2}
-                dot={{ fill: '#00D9FF', r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-              
-              {/* CPC - 라인 그래프 */}
-              <Line 
-                yAxisId="right"
-                type="monotone" 
-                dataKey="cpc" 
-                name="CPC"
-                stroke="#FF6B9D"
-                strokeWidth={2}
-                dot={{ fill: '#FF6B9D', r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+              {/* CPC (라인 + 원) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  position: 'relative',
+                  width: '24px',
+                  height: '12px'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: chartColors.cpc
+                  }} />
+                  <div style={{
+                    width: '100%',
+                    height: '2px',
+                    backgroundColor: chartColors.cpc
+                  }} />
+                </div>
+                <span>CPC</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
