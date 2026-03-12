@@ -77,12 +77,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     cpc: MetricFilter
     cpm: MetricFilter
   }>({
-    impressions: { operator: '', value: '' },
-    clicks: { operator: '', value: '' },
-    cost: { operator: '', value: '' },
-    ctr: { operator: '', value: '' },
-    cpc: { operator: '', value: '' },
-    cpm: { operator: '', value: '' }
+    impressions: { operator: '=', value: '' },
+    clicks: { operator: '=', value: '' },
+    cost: { operator: '=', value: '' },
+    ctr: { operator: '=', value: '' },
+    cpc: { operator: '=', value: '' },
+    cpm: { operator: '=', value: '' }
   })
 
   // 필터 드롭다운 열림 상태
@@ -541,14 +541,13 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               height: '32px',
               padding: '4px',
               fontSize: '12px',
-              backgroundColor: filter.operator ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-              border: filter.operator ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
+              backgroundColor: filter.operator && filter.value ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+              border: filter.operator && filter.value ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))'
             }}
           >
-            <option value="">-</option>
+            <option value="=">=</option>
             <option value=">">{'>'}</option>
             <option value="<">{'<'}</option>
-            <option value="=">=</option>
             <option value="≥">≥</option>
             <option value="≤">≤</option>
           </select>
