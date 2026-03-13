@@ -550,7 +550,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                         조회기간 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
                       </label>
                       <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
-                        조회기간은 최대 2년으로 설정해주세요.
+                        최근 2년치 데이터를 조회할 수 있습니다.
                       </p>
                       
                       {/* 월별/분기별 선택 */}
