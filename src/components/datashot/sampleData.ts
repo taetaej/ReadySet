@@ -447,7 +447,7 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
 export const naverGfaAdProductStructure: MediaAdProductStructure = {
   fields: [
     {
-      label: '캠페인 목표',
+      label: '캠페인 목적',
       key: 'campaignObjective',
       required: true,
       options: [
@@ -461,7 +461,7 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '과금 방식',
+      label: '청구 기준',
       key: 'pricingType',
       required: false,
       options: ['CPC', 'CPM', 'CPV']
