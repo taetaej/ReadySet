@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X, ChevronRight } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
@@ -21,93 +21,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   const [selectedMajors, setSelectedMajors] = useState<string[]>([])
   const [selectedMids, setSelectedMids] = useState<string[]>([])
   const [selectedMinors, setSelectedMinors] = useState<string[]>([])
-
-  // 검색어 하이라이팅 함수
-  const highlightText = (text: string, query: string) => {
-    if (!query) return text
-    
-    const lowerText = text.toLowerCase()
-    const lowerQuery = query.toLowerCase()
-    const index = lowerText.indexOf(lowerQuery)
-    
-    if (index === -1) return text
-    
-    return (
-      <>
-        {text.substring(0, index)}
-        <strong style={{ fontWeight: '700', color: 'hsl(var(--primary))' }}>
-          {text.substring(index, index + query.length)}
-        </strong>
-        {text.substring(index + query.length)}
-      </>
-    )
-  }
-
-  // 검색어 변경 시 자동으로 상위 카테고리 선택
-  useEffect(() => {
-    if (searchQuery && searchType === 'industry') {
-      const query = searchQuery.toLowerCase()
-      
-      // 매칭되는 대분류 찾기
-      const matchedMajors = new Set<string>()
-      const matchedMids = new Set<string>()
-      
-      Object.entries(industryCategories).forEach(([major, mids]) => {
-        Object.entries(mids).forEach(([mid, minors]) => {
-          // 중분류 매칭
-          if (mid.toLowerCase().includes(query)) {
-            matchedMajors.add(major)
-            matchedMids.add(mid)
-          }
-          
-          // 소분류 매칭
-          (minors as string[]).forEach(minor => {
-            if (minor.toLowerCase().includes(query)) {
-              matchedMajors.add(major)
-              matchedMids.add(mid)
-            }
-          })
-        })
-        
-        // 대분류 자체 매칭
-        if (major.toLowerCase().includes(query)) {
-          matchedMajors.add(major)
-        }
-      })
-      
-      // 자동 선택
-      setSelectedMajors(Array.from(matchedMajors))
-      setSelectedMids(Array.from(matchedMids))
-    } else if (!searchQuery) {
-      // 검색어 지우면 선택 초기화
-      setSelectedMajors([])
-      setSelectedMids([])
-      setSelectedMinors([])
-    }
-  }, [searchQuery, searchType])
-  const getMidOptions = (): string[] => {
-    if (selectedMajors.length === 0) return []
-    
-    const mids = new Set<string>()
-    selectedMajors.forEach(major => {
-      Object.keys(industryCategories[major] || {}).forEach(mid => mids.add(mid))
-    })
-    return Array.from(mids)
-  }
-
-  // 소분류 옵션 (선택된 대분류 + 중분류 기준)
-  const getMinorOptions = (): string[] => {
-    if (selectedMajors.length === 0 || selectedMids.length === 0) return []
-    
-    const minors = new Set<string>()
-    selectedMajors.forEach(major => {
-      selectedMids.forEach(mid => {
-        const minorList = industryCategories[major]?.[mid] as string[] || []
-        minorList.forEach(minor => minors.add(minor))
-      })
-    })
-    return Array.from(minors)
-  }
 
   // 검색 필터링 (업종 대/중/소 모두) + 자동 상위 선택
   const getFilteredMajors = () => {
@@ -142,15 +55,19 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   }
 
   const getFilteredMids = () => {
-    const mids = getMidOptions()
-    if (!searchQuery || searchType === 'brand') return mids
+    // 검색어가 없으면 선택된 대분류 기준으로 중분류 표시
+    if (!searchQuery || searchType === 'brand') {
+      return getMidOptions()
+    }
     
     const query = searchQuery.toLowerCase()
     
+    // 검색 시: 필터링된 대분류들에서 중/소분류 검색
     // 소분류에서 매칭되는 경우 상위 중분류도 포함
     const matchedMids = new Set<string>()
+    const majorsToSearch = getFilteredMajors()
     
-    selectedMajors.forEach(major => {
+    majorsToSearch.forEach(major => {
       Object.entries(industryCategories[major] || {}).forEach(([mid, minors]) => {
         // 중분류 자체가 매칭
         if (mid.toLowerCase().includes(query)) {
@@ -170,13 +87,75 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   }
 
   const getFilteredMinors = () => {
-    const minors = getMinorOptions()
-    if (!searchQuery || searchType === 'brand') return minors
+    // 검색어가 없으면 선택된 대/중분류 기준으로 소분류 표시
+    if (!searchQuery || searchType === 'brand') {
+      return getMinorOptions()
+    }
     
     const query = searchQuery.toLowerCase()
-    return minors.filter(minor => 
-      minor.toLowerCase().includes(query)
+    
+    // 검색 시: 필터링된 대분류와 중분류들에서 소분류 검색
+    const matchedMinors = new Set<string>()
+    const majorsToSearch = getFilteredMajors()
+    
+    majorsToSearch.forEach(major => {
+      Object.entries(industryCategories[major] || {}).forEach(([mid, minors]) => {
+        (minors as string[]).forEach(minor => {
+          if (minor.toLowerCase().includes(query)) {
+            matchedMinors.add(minor)
+          }
+        })
+      })
+    })
+    
+    return Array.from(matchedMinors)
+  }
+
+  // 검색어 하이라이팅 함수
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text
+    
+    const lowerText = text.toLowerCase()
+    const lowerQuery = query.toLowerCase()
+    const index = lowerText.indexOf(lowerQuery)
+    
+    if (index === -1) return text
+    
+    return (
+      <>
+        {text.substring(0, index)}
+        <strong style={{ fontWeight: '700', color: 'hsl(var(--primary))' }}>
+          {text.substring(index, index + query.length)}
+        </strong>
+        {text.substring(index + query.length)}
+      </>
     )
+  }
+
+  // 검색어 변경 시 자동으로 상위 카테고리 선택 - 제거
+  // 이제 하이라이팅만 하고 자동 선택은 하지 않음
+  const getMidOptions = (): string[] => {
+    if (selectedMajors.length === 0) return []
+    
+    const mids = new Set<string>()
+    selectedMajors.forEach(major => {
+      Object.keys(industryCategories[major] || {}).forEach(mid => mids.add(mid))
+    })
+    return Array.from(mids)
+  }
+
+  // 소분류 옵션 (선택된 대분류 + 중분류 기준)
+  const getMinorOptions = (): string[] => {
+    if (selectedMajors.length === 0 || selectedMids.length === 0) return []
+    
+    const minors = new Set<string>()
+    selectedMajors.forEach(major => {
+      selectedMids.forEach(mid => {
+        const minorList = industryCategories[major]?.[mid] as string[] || []
+        minorList.forEach(minor => minors.add(minor))
+      })
+    })
+    return Array.from(minors)
   }
 
   // 브랜드 검색 실행
@@ -527,7 +506,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                opacity: selectedMajors.length === 0 ? 0.5 : 1
+                opacity: selectedMajors.length === 0 && !searchQuery ? 0.5 : 1
               }}>
                 <div style={{
                   padding: '12px',
@@ -538,7 +517,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   alignItems: 'center'
                 }}>
                   <span style={{ fontSize: '13px', fontWeight: '600' }}>업종(중)</span>
-                  {selectedMajors.length > 0 && (
+                  {(selectedMajors.length > 0 || searchQuery) && (
                     <button
                       onClick={handleMidSelectAll}
                       className="btn btn-ghost btn-sm"
@@ -549,7 +528,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   )}
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                  {selectedMajors.length === 0 ? (
+                  {selectedMajors.length === 0 && !searchQuery ? (
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -596,7 +575,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                opacity: selectedMids.length === 0 ? 0.5 : 1
+                opacity: selectedMids.length === 0 && !searchQuery ? 0.5 : 1
               }}>
                 <div style={{
                   padding: '12px',
@@ -607,7 +586,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   alignItems: 'center'
                 }}>
                   <span style={{ fontSize: '13px', fontWeight: '600' }}>업종(소)</span>
-                  {selectedMids.length > 0 && (
+                  {(selectedMids.length > 0 || searchQuery) && (
                     <button
                       onClick={handleMinorSelectAll}
                       className="btn btn-ghost btn-sm"
@@ -618,7 +597,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   )}
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                  {selectedMids.length === 0 ? (
+                  {selectedMids.length === 0 && !searchQuery ? (
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
