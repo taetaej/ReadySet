@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 // ReachCaster 컴포넌트
 import { SlotBoardLayout } from './components/reachcaster/WorkspaceLayout'
+import { SlotHome } from './components/reachcaster/SlotHome'
 import { CreateScenario } from './components/reachcaster/CreateScenario'
 import { RatioFinderResult } from './components/reachcaster/RatioFinderResult'
 import { ReachPredictorResult } from './components/reachcaster/ReachPredictorResult'
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SlotBoardLayout />} />
         <Route path="/slotboard" element={<SlotBoardLayout />} />
+        <Route path="/slot/:slotId" element={<SlotHome />} />
         <Route path="/reachcaster" element={<SlotBoardLayout initialView="slotDetail" />} />
         <Route path="/reachcaster/scenario/new" element={<CreateScenario />} />
         <Route path="/reachcaster/scenario/ratio-finder/result" element={<RatioFinderResult />} />

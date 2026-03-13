@@ -258,11 +258,9 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
     if (selectedFolders.length > 0) {
       toggleFolderSelection(folder.title)
     } else {
-      // 선택된 항목이 없으면 Slot 상세로 이동
-      console.log('Slot 상세로 이동:', folder.title)
-      setSelectedSlot(folder)
-      setCurrentView('slotDetail')
-      navigate('/reachcaster')
+      // 선택된 항목이 없으면 SlotHome으로 이동
+      console.log('SlotHome으로 이동:', folder.title)
+      navigate(`/slot/${folder.id}`, { state: { slotData: folder } })
     }
   }
 
