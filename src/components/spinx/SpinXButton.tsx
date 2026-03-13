@@ -5,9 +5,10 @@ interface SpinXButtonProps {
   onClick: () => void
   hasNewMessage?: boolean
   isDarkMode?: boolean
+  style?: React.CSSProperties
 }
 
-export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false }: SpinXButtonProps) {
+export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false, style }: SpinXButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -35,7 +36,8 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
         transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         transform: isHovered ? 'scale(1.05)' : 'scale(1)',
         zIndex: 1000,
-        animation: 'spinx-bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        animation: 'spinx-bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        ...style
       }}
     >
       {/* SpinX 아이콘 - 데굴데굴 구르는 효과 */}

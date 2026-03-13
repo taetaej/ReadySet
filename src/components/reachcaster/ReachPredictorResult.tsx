@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, SearchCheck, Users, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight } from 'lucide-react'
+import { Info, Target, Share2, Link2, FileSpreadsheet, FileText, SearchCheck, Users, MoreVertical, Copy, ArrowRightLeft, Trash2, Database, ArrowRight, GitCompare } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { targetGrpOptions } from '../scenario/constants'
@@ -11,6 +11,8 @@ import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
+import { ScenarioComparisonPanel } from './ScenarioComparisonPanel'
+import { ScenarioComparisonResult } from './ScenarioComparisonResult'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -167,11 +169,45 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
   const [spinXOpen, setSpinXOpen] = useState(false)
+  const [comparisonPanelOpen, setComparisonPanelOpen] = useState(false)
+  const [comparisonResultOpen, setComparisonResultOpen] = useState(false)
+  const [comparisonScenarios, setComparisonScenarios] = useState<any[]>([])
+  const [comparisonPurpose, setComparisonPurpose] = useState<string>('')
+  const [hasComparisonResult, setHasComparisonResult] = useState(false) // 비교 결과 저장 여부
 
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
     setDarkModeUtil(newMode)
+  }
+
+  const handleCompare = (purpose: string, scenarios: any[]) => {
+    setComparisonPurpose(purpose)
+    setComparisonScenarios(scenarios)
+    setComparisonPanelOpen(false)
+    setComparisonResultOpen(true)
+    setHasComparisonResult(true) // 비교 결과 생성됨
+  }
+
+  const handleCloseComparison = () => {
+    setComparisonResultOpen(false)
+    // 비교 결과는 유지됨 (hasComparisonResult는 그대로)
+  }
+
+  const handleOpenComparisonPanel = () => {
+    if (hasComparisonResult) {
+      // 이미 비교 결과가 있으면 바로 결과 페이지로
+      setComparisonResultOpen(true)
+    } else {
+      // 비교 결과가 없으면 설정 패널 열기
+      setComparisonPanelOpen(true)
+    }
+  }
+
+  const handleNewComparison = () => {
+    // 새로운 비교 설정
+    setComparisonResultOpen(false)
+    setComparisonPanelOpen(true)
   }
 
   const handleCopyLink = () => {
@@ -210,10 +246,22 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         onNavigateToWorkspace: () => navigate('/slotboard')
       }}
     >
-      <div style={{
-        marginRight: spinXOpen ? '400px' : '0',
-        transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
-      }}>
+      {comparisonResultOpen ? (
+        // 비교 결과 화면 (컨텐츠 영역만 대체)
+        <ScenarioComparisonResult
+          isOpen={comparisonResultOpen}
+          onClose={handleCloseComparison}
+          onNewComparison={handleNewComparison}
+          baseScenario={{
+            id: scenarioData?.id || '1',
+            name: scenarioData?.name || 'Reach Predictor 시나리오'
+          }}
+          comparisonScenarios={comparisonScenarios}
+          isDarkMode={isDarkMode}
+        />
+      ) : (
+        // 기본 결과 화면
+        <>
       {/* Scenario Header - Single Line */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
@@ -1280,10 +1328,67 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </div>
         </div>
       )}
-      </div>
 
-      {/* SpinX 버튼 */}
-      <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} />
+      {/* 플로팅 버튼 그룹 */}
+      {!comparisonPanelOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            zIndex: 998
+          }}
+        >
+          {/* 시나리오 비교 버튼 */}
+          <button
+            onClick={handleOpenComparisonPanel}
+            style={{
+              height: '56px',
+              padding: '0 24px',
+              borderRadius: '28px',
+              backgroundColor: 'hsl(var(--foreground))',
+              color: 'hsl(var(--background))',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s',
+              fontSize: '14px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+            }}
+          >
+            <GitCompare size={20} />
+            시나리오 비교
+          </button>
+
+          {/* SpinX 버튼 */}
+          <SpinXButton 
+            onClick={() => setSpinXOpen(true)} 
+            hasNewMessage={false}
+            style={{
+              position: 'relative',
+              bottom: 'auto',
+              right: 'auto',
+              width: '56px',
+              height: '56px'
+            }}
+          />
+        </div>
+      )}
 
       {/* SpinX 패널 */}
       <SpinXPanel 
@@ -1293,6 +1398,21 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
         analysisType="reachPredictor"
       />
+
+      {/* 시나리오 비교 패널 */}
+      <ScenarioComparisonPanel
+        isOpen={comparisonPanelOpen}
+        onClose={() => setComparisonPanelOpen(false)}
+        baseScenario={{
+          id: scenarioData?.id || '1',
+          name: scenarioData?.name || 'Reach Predictor 시나리오'
+        }}
+        slotName={slotData.title}
+        onCompare={handleCompare}
+        isDarkMode={isDarkMode}
+      />
+      </>
+      )}
     </AppLayout>
   )
 }
