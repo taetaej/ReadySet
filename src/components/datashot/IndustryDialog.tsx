@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, ChevronRight } from 'lucide-react'
+import { X, ChevronRight, PlusCircle } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
 interface IndustryDialogProps {
@@ -189,6 +189,62 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     }
   }
 
+  // 선택된 업종 삭제 (우측 리스트에서 X 버튼 클릭 시)
+  const handleRemoveIndustry = (industry: string) => {
+    // 우측 리스트에서 제거
+    onUpdate(selectedIndustries.filter(i => i !== industry))
+    
+    // 좌측 체크박스도 해제
+    const parts = industry.split(' > ')
+    
+    if (parts.length === 1) {
+      // 대분류만 있는 경우
+      setSelectedMajors(prev => prev.filter(m => m !== parts[0]))
+      setSelectedMids([])
+      setSelectedMinors([])
+    } else if (parts.length === 2) {
+      // 대 > 중
+      const [major, mid] = parts
+      setSelectedMids(prev => prev.filter(m => m !== mid))
+      setSelectedMinors([])
+      
+      // 해당 대분류에 속한 다른 중분류가 선택되어 있는지 확인
+      const otherMidsInSameMajor = selectedMids.filter(m => {
+        return m !== mid && Object.keys(industryCategories[major] || {}).includes(m)
+      })
+      
+      // 다른 중분류가 없으면 대분류도 해제
+      if (otherMidsInSameMajor.length === 0) {
+        setSelectedMajors(prev => prev.filter(m => m !== major))
+      }
+    } else if (parts.length === 3) {
+      // 대 > 중 > 소
+      const [major, mid, minor] = parts
+      setSelectedMinors(prev => prev.filter(m => m !== minor))
+      
+      // 해당 중분류에 속한 다른 소분류가 선택되어 있는지 확인
+      const minorsInSameMid = industryCategories[major]?.[mid] as string[] || []
+      const otherMinorsInSameMid = selectedMinors.filter(m => {
+        return m !== minor && minorsInSameMid.includes(m)
+      })
+      
+      // 다른 소분류가 없으면 중분류도 해제
+      if (otherMinorsInSameMid.length === 0) {
+        setSelectedMids(prev => prev.filter(m => m !== mid))
+        
+        // 해당 대분류에 속한 다른 중분류가 선택되어 있는지 확인
+        const otherMidsInSameMajor = selectedMids.filter(m => {
+          return m !== mid && Object.keys(industryCategories[major] || {}).includes(m)
+        })
+        
+        // 다른 중분류가 없으면 대분류도 해제
+        if (otherMidsInSameMajor.length === 0) {
+          setSelectedMajors(prev => prev.filter(m => m !== major))
+        }
+      }
+    }
+  }
+
   // 브랜드 선택 - 우측 리스트에 바로 추가
   const handleBrandSelect = (path: string) => {
     if (!selectedIndustries.includes(path)) {
@@ -198,7 +254,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
 
   // 초기화
   const handleReset = () => {
+    // 선택된 업종 초기화
     onUpdate([])
+    // 검색 필터 초기화
+    setSearchType('industry')
+    setSearchQuery('')
+    setBrandSearchResults([])
+    setHasSearched(false)
+    // 업종 선택 UI 초기화
+    setSelectedMajors([])
+    setSelectedMids([])
+    setSelectedMinors([])
   }
 
   // 대분류 체크박스 핸들러
@@ -225,9 +291,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
         ? prev.filter(m => m !== mid)
         : [...prev, mid]
       
-      // 중분류 변경 시 소분류 초기화 (선택 해제 시에만)
+      // 중분류 선택 시 소분류 초기화 (선택 해제 시에만)
       if (prev.includes(mid)) {
         setSelectedMinors([])
+      } else {
+        // 중분류 선택 시: 해당 중분류가 속한 대분류를 자동 선택
+        const parentMajor = Object.keys(industryCategories).find(major => 
+          Object.keys(industryCategories[major]).includes(mid)
+        )
+        if (parentMajor && !selectedMajors.includes(parentMajor)) {
+          setSelectedMajors(prevMajors => [...prevMajors, parentMajor])
+        }
       }
       
       return newSelection
@@ -236,17 +310,44 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
 
   // 소분류 체크박스 핸들러
   const handleMinorToggle = (minor: string) => {
-    setSelectedMinors(prev =>
-      prev.includes(minor)
+    setSelectedMinors(prev => {
+      const isRemoving = prev.includes(minor)
+      const newSelection = isRemoving
         ? prev.filter(m => m !== minor)
         : [...prev, minor]
-    )
+      
+      if (!isRemoving) {
+        // 소분류 선택 시: 해당 소분류가 속한 대분류와 중분류를 자동 선택
+        let parentMajor = ''
+        let parentMid = ''
+        
+        Object.entries(industryCategories).forEach(([major, midCategories]) => {
+          Object.entries(midCategories).forEach(([mid, minors]) => {
+            if ((minors as string[]).includes(minor)) {
+              parentMajor = major
+              parentMid = mid
+            }
+          })
+        })
+        
+        if (parentMajor && !selectedMajors.includes(parentMajor)) {
+          setSelectedMajors(prevMajors => [...prevMajors, parentMajor])
+        }
+        if (parentMid && !selectedMids.includes(parentMid)) {
+          setSelectedMids(prevMids => [...prevMids, parentMid])
+        }
+      }
+      
+      return newSelection
+    })
   }
 
   // 대분류 전체 선택/해제
   const handleMajorSelectAll = () => {
     const allMajors = getFilteredMajors()
-    if (selectedMajors.length === allMajors.length && allMajors.length > 0) {
+    const isAllSelected = selectedMajors.length === allMajors.length && allMajors.length > 0
+    
+    if (isAllSelected) {
       setSelectedMajors([])
       setSelectedMids([])
       setSelectedMinors([])
@@ -258,21 +359,51 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   // 중분류 전체 선택/해제
   const handleMidSelectAll = () => {
     const allMids = getFilteredMids()
-    if (selectedMids.length === allMids.length && allMids.length > 0) {
+    const isAllSelected = selectedMids.length === allMids.length && allMids.length > 0
+    
+    if (isAllSelected) {
       setSelectedMids([])
       setSelectedMinors([])
     } else {
       setSelectedMids(allMids)
+      // 중분류 전체 선택 시 관련된 대분류도 자동 선택
+      const parentMajors = new Set<string>()
+      allMids.forEach(mid => {
+        const parentMajor = Object.keys(industryCategories).find(major => 
+          Object.keys(industryCategories[major]).includes(mid)
+        )
+        if (parentMajor) parentMajors.add(parentMajor)
+      })
+      setSelectedMajors(prev => [...new Set([...prev, ...Array.from(parentMajors)])])
     }
   }
 
   // 소분류 전체 선택/해제
   const handleMinorSelectAll = () => {
     const allMinors = getFilteredMinors()
-    if (selectedMinors.length === allMinors.length && allMinors.length > 0) {
+    const isAllSelected = selectedMinors.length === allMinors.length && allMinors.length > 0
+    
+    if (isAllSelected) {
       setSelectedMinors([])
     } else {
       setSelectedMinors(allMinors)
+      // 소분류 전체 선택 시 관련된 대분류와 중분류도 자동 선택
+      const parentMajors = new Set<string>()
+      const parentMids = new Set<string>()
+      
+      allMinors.forEach(minor => {
+        Object.entries(industryCategories).forEach(([major, midCategories]) => {
+          Object.entries(midCategories).forEach(([mid, minors]) => {
+            if ((minors as string[]).includes(minor)) {
+              parentMajors.add(major)
+              parentMids.add(mid)
+            }
+          })
+        })
+      })
+      
+      setSelectedMajors(prev => [...new Set([...prev, ...Array.from(parentMajors)])])
+      setSelectedMids(prev => [...new Set([...prev, ...Array.from(parentMids)])])
     }
   }
 
@@ -384,6 +515,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 {brandSearchResults.map(({ brand, path }) => (
                   <div
                     key={brand}
+                    onClick={() => handleBrandSelect(path)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -393,7 +525,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '6px',
                       backgroundColor: 'hsl(var(--background))',
-                      fontSize: '13px'
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
+                      e.currentTarget.style.borderColor = 'hsl(var(--primary))'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))'
+                      e.currentTarget.style.borderColor = 'hsl(var(--border))'
                     }}
                   >
                     <div style={{ flex: 1 }}>
@@ -402,20 +544,14 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                         {path}
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleBrandSelect(path)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'hsl(var(--primary))'
-                      }}
-                    >
-                      <ChevronRight size={20} />
-                    </button>
+                    <PlusCircle 
+                      size={20} 
+                      style={{ 
+                        color: 'hsl(var(--primary))',
+                        flexShrink: 0,
+                        marginLeft: '12px'
+                      }} 
+                    />
                   </div>
                 ))}
               </div>
@@ -468,7 +604,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                     className="btn btn-ghost btn-sm"
                     style={{ fontSize: '11px', padding: '2px 8px', height: '24px' }}
                   >
-                    {selectedMajors.length === filteredMajors.length ? '해제' : '전체'}
+                    {selectedMajors.length === filteredMajors.length && filteredMajors.length > 0 ? '전체 해제' : '전체 선택'}
                   </button>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
@@ -523,7 +659,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                       className="btn btn-ghost btn-sm"
                       style={{ fontSize: '11px', padding: '2px 8px', height: '24px' }}
                     >
-                      {selectedMids.length === filteredMids.length ? '해제' : '전체'}
+                      {selectedMids.length === filteredMids.length && filteredMids.length > 0 ? '전체 해제' : '전체 선택'}
                     </button>
                   )}
                 </div>
@@ -592,7 +728,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                       className="btn btn-ghost btn-sm"
                       style={{ fontSize: '11px', padding: '2px 8px', height: '24px' }}
                     >
-                      {selectedMinors.length === filteredMinors.length ? '해제' : '전체'}
+                      {selectedMinors.length === filteredMinors.length && filteredMinors.length > 0 ? '전체 해제' : '전체 선택'}
                     </button>
                   )}
                 </div>
@@ -756,7 +892,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                       >
                         <span style={{ flex: 1, wordBreak: 'break-word' }}>{industry}</span>
                         <button
-                          onClick={() => onUpdate(selectedIndustries.filter(i => i !== industry))}
+                          onClick={() => handleRemoveIndustry(industry)}
                           style={{
                             background: 'none',
                             border: 'none',
