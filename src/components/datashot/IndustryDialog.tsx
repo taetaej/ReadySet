@@ -78,31 +78,22 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
       
       if (selectedMinor) {
         path += ` > ${selectedMinor}`
-      } else {
-        // 중분류까지만 선택 시 해당 중분류의 모든 소분류 추가
-        const minors = getMinorOptions()
-        const paths = minors.map(minor => `${selectedMajor} > ${selectedMid} > ${minor}`)
-        onUpdate([...new Set([...selectedIndustries, ...paths])])
-        resetCascading()
-        return
       }
-    } else {
-      // 대분류만 선택 시 해당 대분류의 모든 업종 추가
-      const allPaths: string[] = []
-      Object.entries(industryCategories[selectedMajor] || {}).forEach(([mid, minors]) => {
-        (minors as string[]).forEach(minor => {
-          allPaths.push(`${selectedMajor} > ${mid} > ${minor}`)
-        })
-      })
-      onUpdate([...new Set([...selectedIndustries, ...allPaths])])
-      resetCascading()
-      return
     }
     
     if (!selectedIndustries.includes(path)) {
       onUpdate([...selectedIndustries, path])
     }
     resetCascading()
+  }
+
+  // 전체 선택 핸들러
+  const handleSelectAll = () => {
+    const allPaths: string[] = []
+    Object.keys(industryCategories).forEach(major => {
+      allPaths.push(major)
+    })
+    onUpdate([...new Set([...selectedIndustries, ...allPaths])])
   }
 
   // Cascading 선택 초기화
@@ -283,15 +274,27 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
 
           {/* Cascading 선택 영역 */}
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ 
-              display: 'block', 
-              fontSize: '13px', 
-              fontWeight: '500', 
-              marginBottom: '8px',
-              color: 'hsl(var(--foreground))'
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '8px'
             }}>
-              업종 선택
-            </label>
+              <label style={{ 
+                fontSize: '13px', 
+                fontWeight: '500',
+                color: 'hsl(var(--foreground))'
+              }}>
+                업종 선택
+              </label>
+              <button
+                onClick={handleSelectAll}
+                className="btn btn-ghost btn-sm"
+                style={{ fontSize: '12px' }}
+              >
+                전체 선택
+              </button>
+            </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {/* 업종(대) */}
               <div style={{ position: 'relative', flex: 1 }}>
@@ -519,7 +522,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {selectedIndustries.map((industry) => {
                     const parts = industry.split(' > ')
-                    const isBrand = Object.values(brandIndustryMap).includes(industry)
                     
                     return (
                       <div
@@ -536,20 +538,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                         }}
                       >
                         <div style={{ flex: 1 }}>
-                          {isBrand && (
-                            <span style={{
-                              display: 'inline-block',
-                              padding: '2px 6px',
-                              marginRight: '8px',
-                              fontSize: '10px',
-                              fontWeight: '600',
-                              backgroundColor: 'hsl(var(--primary))',
-                              color: 'hsl(var(--primary-foreground))',
-                              borderRadius: '4px'
-                            }}>
-                              브랜드
-                            </span>
-                          )}
                           {parts.map((part, idx) => (
                             <span key={idx}>
                               {idx > 0 && (
@@ -557,7 +545,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                                   color: 'hsl(var(--muted-foreground))',
                                   margin: '0 4px'
                                 }}>
-                                  {','}
+                                  {'>'}
                                 </span>
                               )}
                               <span style={{
