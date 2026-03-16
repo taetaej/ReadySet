@@ -55,6 +55,11 @@ export function ScenarioStep2ReachPredictor({
   const [showGlobalTargetDialog, setShowGlobalTargetDialog] = useState(false)
   const [tempPeriod, setTempPeriod] = useState<{ start: string; end: string } | null>(null)
   const [showSummaryTooltip, setShowSummaryTooltip] = useState(false)
+  const [batchToolOpen, setBatchToolOpen] = useState(false)
+  
+  // 일괄 설정용 로컬 state (스텝1 값으로 초기화, 이후 독립적)
+  const [localPeriod, setLocalPeriod] = useState<{ start: string; end: string }>(period)
+  const [localTargetGrp, setLocalTargetGrp] = useState<string[]>(targetGrp)
   
   // 매체 삭제
   const handleRemoveMedia = (id: string) => {
@@ -161,125 +166,35 @@ export function ScenarioStep2ReachPredictor({
 
       {/* 분석 대상 매체 설정 */}
       <div style={{ marginBottom: '24px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '14px',
-          fontWeight: '500',
-          marginBottom: '8px'
-        }}>
-          분석 대상 매체 설정 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
-        </label>
-
-        {/* 전역 설정 */}
         <div style={{
-          border: '1px solid hsl(var(--border))',
-          borderRadius: '8px',
-          padding: '16px',
-          marginBottom: '16px',
-          backgroundColor: 'hsl(var(--muted) / 0.1)'
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '12px'
         }}>
-          <div style={{
-            display: 'flex',
-            gap: '16px',
-            alignItems: 'flex-start'
+          <label style={{
+            fontSize: '14px',
+            fontWeight: '500'
           }}>
-            {/* 캠페인 기간 */}
-            <div style={{ flex: 1 }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span>캠페인 기간</span>
-                <button
-                  onClick={applyGlobalPeriod}
-                  className="btn btn-ghost"
-                  style={{ 
-                    fontSize: '11px',
-                    padding: '4px 8px',
-                    height: 'auto'
-                  }}
-                >
-                  일괄 적용
-                </button>
-              </div>
-              <CustomDateRangePicker
-                value={period}
-                onChange={(range) => onUpdateGlobalSettings?.({ period: range })}
-              />
-            </div>
-
-            {/* 타겟 설정 */}
-            <div style={{ flex: 1 }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span>타겟 설정</span>
-                <button
-                  onClick={applyGlobalTarget}
-                  className="btn btn-ghost"
-                  style={{ 
-                    fontSize: '11px',
-                    padding: '4px 8px',
-                    height: 'auto'
-                  }}
-                >
-                  일괄 적용
-                </button>
-              </div>
-              <button
-                onClick={() => setShowGlobalTargetDialog(true)}
-                className="input"
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '8px 12px',
-                  minHeight: '36px'
-                }}
-              >
-                <span style={{ 
-                  color: targetGrp.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                  fontSize: '13px'
-                }}>
-                  {targetGrp.length === 24 
-                    ? '전체' 
-                    : targetGrp.length > 0 
-                    ? `${targetGrp.length}개 타겟 선택됨` 
-                    : '타겟을 선택하세요'}
-                </span>
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
+            분석 대상 매체 설정 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+          </label>
         </div>
-      </div>
 
-      {/* 매체 추가 버튼 */}
-      <div style={{ marginBottom: '24px' }}>
-        <button
-          onClick={onOpenMediaDialog}
-          className="btn btn-primary btn-md"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <ListPlus size={16} />
-          매체 · 상품(채널) 추가
-        </button>
+        {/* 매체 추가 버튼 */}
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={onOpenMediaDialog}
+            className="btn btn-primary btn-md"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <ListPlus size={16} />
+            매체 · 상품(채널) 추가
+          </button>
+        </div>
       </div>
 
       {/* 매체 설정 테이블 */}
@@ -288,8 +203,145 @@ export function ScenarioStep2ReachPredictor({
           border: '1px solid hsl(var(--border))',
           borderRadius: '8px',
           overflow: 'hidden',
-          marginBottom: '24px'
+          marginBottom: '16px'
         }}>
+          {/* 테이블 상단 바 */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '10px 16px',
+            backgroundColor: 'hsl(var(--muted) / 0.3)',
+            borderBottom: '1px solid hsl(var(--border))'
+          }}>
+            <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+              {reachPredictorMedia.length}개 매체
+            </span>
+            <button
+              onClick={() => setBatchToolOpen(!batchToolOpen)}
+              className="btn btn-ghost btn-sm"
+              style={{
+                fontSize: '12px',
+                padding: '4px 10px',
+                height: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              캠페인 기간 · 타겟 일괄 설정
+              <ChevronRight 
+                size={14} 
+                style={{ 
+                  transform: batchToolOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s'
+                }} 
+              />
+            </button>
+          </div>
+
+          {/* 일괄 설정 패널 (아코디언) */}
+          {batchToolOpen && (
+            <div style={{
+              padding: '16px',
+              borderBottom: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--muted) / 0.1)'
+            }}>
+              <div style={{
+                fontSize: '12px',
+                color: 'hsl(var(--muted-foreground))',
+                marginBottom: '12px'
+              }}>
+                설정을 변경한 뒤 '일괄 적용'을 누르면 모든 매체에 반영됩니다.
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '16px',
+                alignItems: 'flex-start'
+              }}>
+                {/* 캠페인 기간 */}
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>캠페인 기간</span>
+                    <button
+                      onClick={applyGlobalPeriod}
+                      className="btn btn-ghost"
+                      style={{ 
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        height: 'auto'
+                      }}
+                    >
+                      일괄 적용
+                    </button>
+                  </div>
+                  <CustomDateRangePicker
+                    value={localPeriod}
+                    onChange={(range) => setLocalPeriod(range)}
+                  />
+                </div>
+
+                {/* 타겟 설정 */}
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>타겟 설정</span>
+                    <button
+                      onClick={applyGlobalTarget}
+                      className="btn btn-ghost"
+                      style={{ 
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        height: 'auto'
+                      }}
+                    >
+                      일괄 적용
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setShowGlobalTargetDialog(true)}
+                    className="input"
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '8px 12px',
+                      minHeight: '36px'
+                    }}
+                  >
+                    <span style={{ 
+                      color: localTargetGrp.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                      fontSize: '13px'
+                    }}>
+                      {localTargetGrp.length === 24 
+                        ? '전체' 
+                        : localTargetGrp.length > 0 
+                        ? `${localTargetGrp.length}개 타겟 선택됨` 
+                        : '타겟을 선택하세요'}
+                    </span>
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
@@ -1049,17 +1101,17 @@ export function ScenarioStep2ReachPredictor({
                   <button
                     onClick={() => {
                       const allMale = targetGrpOptions.male
-                      const hasAllMale = allMale.every(t => targetGrp.includes(t))
+                      const hasAllMale = allMale.every(t => localTargetGrp.includes(t))
                       
                       if (hasAllMale) {
-                        onUpdateGlobalSettings?.({ targetGrp: targetGrp.filter(t => !allMale.includes(t)) })
+                        setLocalTargetGrp(localTargetGrp.filter(t => !allMale.includes(t)))
                       } else {
-                        onUpdateGlobalSettings?.({ targetGrp: [...new Set([...targetGrp, ...allMale])] })
+                        setLocalTargetGrp([...new Set([...localTargetGrp, ...allMale])])
                       }
                     }}
                     className="btn btn-ghost btn-sm"
                   >
-                    {targetGrpOptions.male.every(t => targetGrp.includes(t)) ? '전체 해제' : '전체 선택'}
+                    {targetGrpOptions.male.every(t => localTargetGrp.includes(t)) ? '전체 해제' : '전체 선택'}
                   </button>
                 </div>
                 <div style={{
@@ -1068,7 +1120,7 @@ export function ScenarioStep2ReachPredictor({
                   gap: '8px'
                 }}>
                   {targetGrpOptions.male.map((target) => {
-                    const isChecked = targetGrp.includes(target)
+                    const isChecked = localTargetGrp.includes(target)
                     
                     return (
                       <label
@@ -1090,9 +1142,9 @@ export function ScenarioStep2ReachPredictor({
                           checked={isChecked}
                           onChange={() => {
                             if (isChecked) {
-                              onUpdateGlobalSettings?.({ targetGrp: targetGrp.filter(t => t !== target) })
+                              setLocalTargetGrp(localTargetGrp.filter(t => t !== target))
                             } else {
-                              onUpdateGlobalSettings?.({ targetGrp: [...targetGrp, target] })
+                              setLocalTargetGrp([...localTargetGrp, target])
                             }
                           }}
                           className="checkbox-custom"
@@ -1118,17 +1170,17 @@ export function ScenarioStep2ReachPredictor({
                   <button
                     onClick={() => {
                       const allFemale = targetGrpOptions.female
-                      const hasAllFemale = allFemale.every(t => targetGrp.includes(t))
+                      const hasAllFemale = allFemale.every(t => localTargetGrp.includes(t))
                       
                       if (hasAllFemale) {
-                        onUpdateGlobalSettings?.({ targetGrp: targetGrp.filter(t => !allFemale.includes(t)) })
+                        setLocalTargetGrp(localTargetGrp.filter(t => !allFemale.includes(t)))
                       } else {
-                        onUpdateGlobalSettings?.({ targetGrp: [...new Set([...targetGrp, ...allFemale])] })
+                        setLocalTargetGrp([...new Set([...localTargetGrp, ...allFemale])])
                       }
                     }}
                     className="btn btn-ghost btn-sm"
                   >
-                    {targetGrpOptions.female.every(t => targetGrp.includes(t)) ? '전체 해제' : '전체 선택'}
+                    {targetGrpOptions.female.every(t => localTargetGrp.includes(t)) ? '전체 해제' : '전체 선택'}
                   </button>
                 </div>
                 <div style={{
@@ -1137,7 +1189,7 @@ export function ScenarioStep2ReachPredictor({
                   gap: '8px'
                 }}>
                   {targetGrpOptions.female.map((target) => {
-                    const isChecked = targetGrp.includes(target)
+                    const isChecked = localTargetGrp.includes(target)
                     
                     return (
                       <label
@@ -1159,9 +1211,9 @@ export function ScenarioStep2ReachPredictor({
                           checked={isChecked}
                           onChange={() => {
                             if (isChecked) {
-                              onUpdateGlobalSettings?.({ targetGrp: targetGrp.filter(t => t !== target) })
+                              setLocalTargetGrp(localTargetGrp.filter(t => t !== target))
                             } else {
-                              onUpdateGlobalSettings?.({ targetGrp: [...targetGrp, target] })
+                              setLocalTargetGrp([...localTargetGrp, target])
                             }
                           }}
                           className="checkbox-custom"
@@ -1178,7 +1230,7 @@ export function ScenarioStep2ReachPredictor({
                 취소
               </button>
               <button onClick={() => setShowGlobalTargetDialog(false)} className="btn btn-primary btn-md">
-                확인 ({targetGrp.length}개 선택)
+                확인 ({localTargetGrp.length}개 선택)
               </button>
             </div>
           </div>

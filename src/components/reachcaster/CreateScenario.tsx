@@ -436,12 +436,8 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
                       validationActive={validationActive}
                       targetGrp={formData.targetGrp}
                       period={formData.period}
-                      onUpdateGlobalSettings={(settings) => {
-                        setFormData({
-                          ...formData,
-                          targetGrp: settings.targetGrp || formData.targetGrp,
-                          period: settings.period || formData.period
-                        })
+                      onUpdateGlobalSettings={() => {
+                        // 스텝2의 일괄 설정은 로컬 state로 관리되므로 스텝1에 영향 없음
                       }}
                       reachCurve={formData.reachCurve}
                       onUpdateReachCurve={(reachCurve) => {
@@ -1242,7 +1238,17 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
         open={rpMediaSelectionDialog}
         onClose={() => setRpMediaSelectionDialog(false)}
         onConfirm={(mediaItems) => {
-          setReachPredictorMedia([...reachPredictorMedia, ...mediaItems])
+          // 중복 제거: 동일 매체명+상품명 조합은 추가하지 않음
+          const filtered = mediaItems.filter(newItem => {
+            return !reachPredictorMedia.some(existing =>
+              existing.mediaName === newItem.mediaName &&
+              existing.productName === newItem.productName &&
+              existing.type === newItem.type
+            )
+          })
+          if (filtered.length > 0) {
+            setReachPredictorMedia([...reachPredictorMedia, ...filtered])
+          }
           setRpMediaSelectionDialog(false)
         }}
         currentMedia={reachPredictorMedia}
