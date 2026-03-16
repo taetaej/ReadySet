@@ -253,7 +253,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
 
   const filteredSelected = [...selectedIndustries]
     .sort((a, b) => a.localeCompare(b, 'ko'))
-    .filter(i => !searchQuery || i.toLowerCase().includes(searchQuery.toLowerCase()))
 
   // 전체선택/전체해제 헬퍼
   const handleSelectAll = (paths: string[]) => {
@@ -595,7 +594,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             </div>
 
             {/* 업종(중) */}
-            <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : (localLevel === 'mid' ? 1 : (!activeMajor && !isIndustrySearchMode ? 0.45 : 1)) }}>
+            <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : 1 }}>
               <div style={colHeaderStyle}>
                 <span>업종(중)</span>
                 {localLevel === 'mid' && <SelectAllButton paths={midItems.filter(({ isMatch }) => isMatch).map(({ major, mid }) => `${major} > ${mid}`)} />}
@@ -621,7 +620,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             </div>
 
             {/* 업종(소) */}
-            <div style={{ ...colStyle, opacity: localLevel !== 'minor' ? 0.3 : (!activeMid && !isIndustrySearchMode ? 0.45 : 1) }}>
+            <div style={{ ...colStyle, opacity: localLevel !== 'minor' ? 0.3 : 1 }}>
               <div style={colHeaderStyle}>
                 <span>업종(소)</span>
                 {localLevel === 'minor' && <SelectAllButton paths={minorItems.map(({ major, mid, minor }) => `${major} > ${mid} > ${minor}`)} />}
@@ -659,9 +658,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                     <div key={industry} style={{ display: 'flex', alignItems: 'flex-start', padding: '7px 10px', marginBottom: '3px', backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '6px', fontSize: '12px', gap: '6px' }}>
                       <span style={{ flex: 1, wordBreak: 'break-word', lineHeight: '1.5' }}>
                         {searchQuery ? highlightText(industry, searchQuery) : industry}
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', flexShrink: 0, alignSelf: 'center' }}>
-                        {childCountMap[industry] !== undefined ? `(${childCountMap[industry]})` : ''}
                       </span>
                       <button onClick={() => handleRemove(industry)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '1px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
