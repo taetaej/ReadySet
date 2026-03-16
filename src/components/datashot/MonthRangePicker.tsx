@@ -17,7 +17,7 @@ interface MonthRangePickerProps {
   }) => void
 }
 
-const AVAILABLE_YEARS = [2023, 2024, 2025, 2026]
+const AVAILABLE_YEARS = [2024, 2025, 2026]
 const ALL_YEARS = Array.from({ length: 22 }, (_, i) => 2019 + i) // 2019-2040
 
 // Year Selection Component
@@ -126,7 +126,7 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
   const [yearPickerTarget, setYearPickerTarget] = useState<'start' | 'end'>('start')
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

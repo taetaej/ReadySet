@@ -1062,3 +1062,11 @@
   .rdp-head_cell {
     color: hsl(var(--muted-foreground)) !important;
   }
+
+/* IndustryDialog row hover */
+.industry-row:hover {
+  background-color: hsl(var(--muted) / 0.3);
+}
+.industry-row:hover .row-action-btn {
+  opacity: 1 !important;
+}

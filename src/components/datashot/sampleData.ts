@@ -188,11 +188,16 @@ export const generateNaverGfaSampleData = () => {
 export const generateSampleData = generateMetaSampleData
 
 // 매체별 광고상품 데이터 구조
+export interface AdProductOption {
+  label: string
+  id: string
+}
+
 export interface AdProductField {
   label: string
   key: string
   required: boolean
-  options: string[]
+  options: string[] | AdProductOption[]
 }
 
 export interface MediaAdProductStructure {
@@ -447,7 +452,7 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
 export const naverGfaAdProductStructure: MediaAdProductStructure = {
   fields: [
     {
-      label: '캠페인 목표',
+      label: '캠페인 목적',
       key: 'campaignObjective',
       required: true,
       options: [
@@ -461,7 +466,7 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '과금 방식',
+      label: '청구 기준',
       key: 'pricingType',
       required: false,
       options: ['CPC', 'CPM', 'CPV']
@@ -495,7 +500,28 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
       label: '광고상품명',
       key: 'productName',
       required: true,
-      options: ['M_메인_브랜딩DA', 'M_메인_브랜딩DA_아웃스트림동영상']
+      options: [
+        { label: 'M_메인_브랜딩DA', id: 'SA100001' },
+        { label: 'M_메인_브랜딩DA_아웃스트림동영상', id: 'SA100002' },
+        { label: 'M_메인_스페셜DA', id: 'SA100003' },
+        { label: 'M_메인_타임보드', id: 'SA100004' },
+        { label: 'M_메인_롤링보드', id: 'SA100005' },
+        { label: 'M_서브_브랜딩DA', id: 'SA100006' },
+        { label: 'M_서브_스페셜DA', id: 'SA100007' },
+        { label: 'PC_메인_브랜딩DA', id: 'SA100008' },
+        { label: 'PC_메인_타임보드', id: 'SA100009' },
+        { label: 'PC_메인_롤링보드', id: 'SA100010' },
+        { label: 'PC_메인_스페셜DA', id: 'SA100011' },
+        { label: 'PC_서브_브랜딩DA', id: 'SA100012' },
+        { label: 'PC_서브_스페셜DA', id: 'SA100013' },
+        { label: 'M_뉴스_브랜딩DA', id: 'SA100014' },
+        { label: 'PC_뉴스_브랜딩DA', id: 'SA100015' },
+        { label: 'M_스포츠_브랜딩DA', id: 'SA100016' },
+        { label: 'PC_스포츠_브랜딩DA', id: 'SA100017' },
+        { label: 'M_연예_브랜딩DA', id: 'SA100018' },
+        { label: 'PC_연예_브랜딩DA', id: 'SA100019' },
+        { label: 'M_쇼핑_브랜딩DA', id: 'SA100020' },
+      ] as AdProductOption[]
     },
     {
       label: '상품 유형',

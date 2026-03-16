@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
-import { MediaAdProductStructure } from './types'
+import { X, ChevronDown, ChevronUp } from 'lucide-react'
 import { adProductStructureByMedia } from './sampleData'
-
-interface ConditionGroup {
-  id: string
-  [key: string]: string | string[]
-}
 
 interface AdProductsDialogProps {
   isOpen: boolean
@@ -16,478 +10,237 @@ interface AdProductsDialogProps {
   media: string
 }
 
+// 저장 형식: JSON.stringify({ [fieldKey]: string[] })
+type SelectionMap = { [fieldKey: string]: string[] }
+
+function parseSelections(selectedProducts: string[]): SelectionMap {
+  if (selectedProducts.length === 0) return {}
+  try { return JSON.parse(selectedProducts[0]) } catch { return {} }
+}
+
 export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, media }: AdProductsDialogProps) {
-  const [conditionGroups, setConditionGroups] = useState<ConditionGroup[]>([])
+  const [selections, setSelections] = useState<SelectionMap>({})
+  const [openField, setOpenField] = useState<string | null>(null)
   const [validationActive, setValidationActive] = useState(false)
-  
-  // Searchable dropdown 상태 (각 그룹별로 관리)
-  const [dropdownStates, setDropdownStates] = useState<{ [groupId: string]: { open: boolean; search: string } }>({})
-  
-  // 매체별 광고상품 구조 가져오기
-  const productStructure: MediaAdProductStructure | undefined = adProductStructureByMedia[media]
+
+  const structure = adProductStructureByMedia[media]
 
   useEffect(() => {
-    if (isOpen && productStructure) {
-      // 기존 선택값이 있으면 파싱, 없으면 기본 그룹 1개
-      if (selectedProducts.length > 0) {
-        try {
-          const parsed = selectedProducts.map(p => JSON.parse(p)) as ConditionGroup[]
-          setConditionGroups(parsed)
-        } catch {
-          setConditionGroups([createNewGroup()])
-        }
-      } else {
-        setConditionGroups([createNewGroup()])
-      }
-      // 드롭다운 상태 초기화
-      setDropdownStates({})
+    if (isOpen) {
+      setSelections(parseSelections(selectedProducts))
+      setOpenField(null)
+      setValidationActive(false)
     }
-  }, [isOpen, selectedProducts, productStructure])
+  }, [isOpen])
 
-  // 매체가 변경되면 conditionGroups 초기화
   useEffect(() => {
-    if (productStructure) {
-      const newGroup = createNewGroup()
-      setConditionGroups([newGroup])
-      setDropdownStates({})
-    }
+    setSelections({})
+    setOpenField(null)
+    setValidationActive(false)
   }, [media])
 
-  // 드롭다운 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      if (!target.closest('.searchable-dropdown-container')) {
-        setDropdownStates({})
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  const createNewGroup = (): ConditionGroup => {
-    const group: any = {
-      id: `group-${Date.now()}-${Math.random()}`
-    }
-    
-    // 필드 초기화
-    if (productStructure) {
-      productStructure.fields.forEach(field => {
-        // 필수 필드는 빈 문자열, 선택 필드는 전체 옵션 선택
-        group[field.key] = field.required ? '' : [...field.options]
-      })
-    }
-    
-    return group as ConditionGroup
-  }
-
-  const addGroup = () => {
-    if (conditionGroups.length >= 5) {
-      return
-    }
-    setConditionGroups([...conditionGroups, createNewGroup()])
-  }
-
-  const removeGroup = (id: string) => {
-    if (conditionGroups.length > 1) {
-      setConditionGroups(conditionGroups.filter(g => g.id !== id))
-    }
-  }
-
-  // 이미 선택된 필수 필드 값 목록
-  const getSelectedRequiredValues = (fieldKey: string, excludeGroupId?: string): string[] => {
-    return conditionGroups
-      .filter(g => g.id !== excludeGroupId && g[fieldKey])
-      .map(g => g[fieldKey] as string)
-      .filter(v => v !== '')
-  }
-
-  // 선택 가능한 필수 필드 옵션 (이미 선택된 것 제외)
-  const getAvailableOptions = (fieldKey: string, options: string[], groupId: string): string[] => {
-    const selected = getSelectedRequiredValues(fieldKey, groupId)
-    return options.filter(opt => !selected.includes(opt))
-  }
-
-  const updateGroup = (id: string, updates: Partial<ConditionGroup>) => {
-    setConditionGroups(conditionGroups.map(g => 
-      g.id === id ? { ...g, ...updates } as ConditionGroup : g
-    ))
-  }
-
-  const toggleArrayItem = (array: string[], item: string): string[] => {
-    return array.includes(item)
-      ? array.filter(i => i !== item)
-      : [...array, item]
-  }
-
-  const handleReset = () => {
-    setConditionGroups([createNewGroup()])
-    setValidationActive(false)
-  }
-
-  const handleConfirm = () => {
-    if (!productStructure) return
-    
-    setValidationActive(true)
-    
-    // 필수 필드 확인
-    const requiredField = productStructure.fields.find(f => f.required)
-    if (!requiredField) return
-    
-    // 모든 그룹이 필수 필드를 가지고 있는지 확인
-    const allValid = conditionGroups.every(g => g[requiredField.key])
-    
-    if (!allValid) {
-      // 유효하지 않은 그룹이 있으면 창을 닫지 않음
-      return
-    }
-
-    // JSON 문자열로 변환하여 저장
-    const products = conditionGroups.map(g => JSON.stringify(g))
-    onUpdate(products)
-    setValidationActive(false)
-    onClose()
-  }
-
-  // 조합 개수 계산
-  const calculateCombinations = (group: ConditionGroup): number => {
-    if (!productStructure) return 0
-    
-    const requiredField = productStructure.fields.find(f => f.required)
-    if (!requiredField || !group[requiredField.key]) return 0
-    
-    let count = 1
-    productStructure.fields.forEach(field => {
-      const value = group[field.key]
-      if (Array.isArray(value)) {
-        count *= value.length || field.options.length
-      } else if (value) {
-        count *= 1
-      }
-    })
-    
-    return count
-  }
-
-  const totalCombinations = conditionGroups.reduce((sum, group) => sum + calculateCombinations(group), 0)
-
   if (!isOpen) return null
-  
-  if (!productStructure) {
+
+  if (!structure) {
     return (
       <div className="dialog-overlay" onClick={onClose}>
-        <div 
-          className="dialog-content" 
-          onClick={(e) => e.stopPropagation()}
-          style={{ 
-            maxWidth: '500px',
-            padding: '24px',
-            textAlign: 'center'
-          }}
-        >
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px' }}>
-            지원하지 않는 매체
-          </h3>
+        <div className="dialog-content" onClick={e => e.stopPropagation()}
+          style={{ maxWidth: '500px', padding: '24px', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px' }}>지원하지 않는 매체</h3>
           <p style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', marginBottom: '24px' }}>
             {media} 매체는 아직 광고상품 구조가 정의되지 않았습니다.
           </p>
-          <button onClick={onClose} className="btn btn-primary btn-md">
-            확인
-          </button>
+          <button onClick={onClose} className="btn btn-primary btn-md">확인</button>
         </div>
       </div>
     )
   }
 
+  const requiredField = structure.fields[0]
+  const requiredSelected = selections[requiredField.key] ?? []
+  const isRequiredValid = requiredSelected.length > 0
+
+  // 선택된 첫 번째 필드 값들의 합집합으로 나머지 필드 옵션 제공
+  // (현재 구조상 options는 고정이므로 그대로 사용, 추후 의존 관계 추가 가능)
+  const isFieldEnabled = (fieldKey: string) => {
+    if (fieldKey === requiredField.key) return true
+    return isRequiredValid
+  }
+
+  const toggleValue = (fieldKey: string, value: string) => {
+    setSelections(prev => {
+      const current = prev[fieldKey] ?? []
+      const next = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value]
+      if (next.length === 0) {
+        const { [fieldKey]: _, ...rest } = prev
+        return rest
+      }
+      return { ...prev, [fieldKey]: next }
+    })
+  }
+
+  const clearField = (fieldKey: string) => {
+    setSelections(prev => {
+      const { [fieldKey]: _, ...rest } = prev
+      return rest
+    })
+  }
+
+  const handleReset = () => {
+    setSelections({})
+    setOpenField(null)
+    setValidationActive(false)
+  }
+
+  const handleConfirm = () => {
+    setValidationActive(true)
+    if (!isRequiredValid) return
+    onUpdate(Object.keys(selections).length > 0 ? [JSON.stringify(selections)] : [])
+    onClose()
+  }
+
+  const totalSelected = Object.values(selections).reduce((sum, arr) => sum + arr.length, 0)
+
   return (
     <div className="dialog-overlay" onClick={onClose}>
-      <div 
-        className="dialog-content" 
-        onClick={(e) => e.stopPropagation()}
-        style={{ 
-          width: '1200px', 
-          height: '80vh',
-          maxWidth: '95vw', 
-          maxHeight: '90vh', 
-          display: 'flex', 
-          flexDirection: 'column' 
-        }}
-      >
+      <div className="dialog-content" onClick={e => e.stopPropagation()}
+        style={{ width: '600px', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+
         <div className="dialog-header">
-          <h3 className="dialog-title">광고상품 선택</h3>
+          <h3 className="dialog-title">{media} 광고상품 선택</h3>
           <p className="dialog-description">
-            {productStructure.fields.find(f => f.required)?.label}을(를) 선택하고 필요시 세부 조건을 추가하세요
+            {requiredField.label}은(는) 필수 선택입니다. 나머지 항목은 선택 사항이며 모두 다중 선택 가능합니다.
           </p>
         </div>
-        
-        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          {conditionGroups.map((group, index) => (
-            <div key={group.id}>
-              <div
-                style={{
-                  marginBottom: index < conditionGroups.length - 1 ? '16px' : '24px',
-                  padding: '20px',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  backgroundColor: 'hsl(var(--card))'
-                }}
-              >
-                {/* 그룹 헤더 */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>
-                    조건 {index + 1}
-                  </h3>
-                  {conditionGroups.length > 1 && (
-                    <button
-                      onClick={() => removeGroup(group.id)}
-                      style={{
-                        padding: '6px',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        cursor: 'pointer',
-                        color: 'hsl(var(--destructive))',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        fontSize: '12px'
-                      }}
-                    >
-                      <Trash2 size={14} />
-                      삭제
-                    </button>
+
+        <div style={{ padding: '20px 24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {structure.fields.map((field, idx) => {
+            const selected = selections[field.key] ?? []
+            const enabled = isFieldEnabled(field.key)
+            const isOpen = openField === field.key
+            const isRequired = idx === 0
+            const showError = validationActive && isRequired && selected.length === 0
+
+            return (
+              <div key={field.key} style={{ opacity: enabled ? 1 : 0.4, pointerEvents: enabled ? 'auto' : 'none' }}>
+                {/* 필드 레이블 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500' }}>{field.label}</span>
+                  {isRequired && <span style={{ color: 'hsl(var(--destructive))', fontSize: '13px' }}>*</span>}
+                  {!isRequired && (
+                    <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>선택</span>
                   )}
                 </div>
 
-                {/* 동적 필드 렌더링 */}
-                {productStructure && productStructure.fields.map((field, fieldIndex) => {
-                  const isRequired = field.required
-                  const value = group[field.key]
-                  const isSelect = isRequired
-                  const showError = validationActive && isRequired && !value
+                {/* 드롭다운 트리거 */}
+                <button
+                  onClick={() => setOpenField(isOpen ? null : field.key)}
+                  className="input"
+                  style={{
+                    width: '100%', textAlign: 'left', cursor: 'pointer',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    borderColor: showError ? 'hsl(var(--destructive))' : undefined,
+                    minHeight: '36px', height: 'auto', padding: '6px 12px',
+                  }}
+                >
+                  <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '4px', minWidth: 0 }}>
+                    {selected.length === 0 ? (
+                      <span style={{ color: 'hsl(var(--muted-foreground))', fontSize: '13px', lineHeight: '22px' }}>
+                        {field.label} 선택
+                      </span>
+                    ) : selected.map(v => (
+                      <span key={v} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '3px',
+                        padding: '2px 8px', backgroundColor: 'hsl(var(--primary) / 0.1)',
+                        border: '1px solid hsl(var(--primary) / 0.3)',
+                        borderRadius: '12px', fontSize: '12px', color: 'hsl(var(--primary))',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {v}
+                        <span
+                          role="button"
+                          onClick={e => { e.stopPropagation(); toggleValue(field.key, v) }}
+                          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary) / 0.6)' }}
+                        >
+                          <X size={10} />
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                  {isOpen ? <ChevronUp size={14} style={{ flexShrink: 0, marginLeft: '8px' }} /> : <ChevronDown size={14} style={{ flexShrink: 0, marginLeft: '8px' }} />}
+                </button>
 
-                  return (
-                    <div key={field.key} style={{ marginBottom: fieldIndex < productStructure.fields.length - 1 ? '16px' : '0' }}>
-                      <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                        {field.label} {isRequired && <span style={{ color: 'hsl(var(--destructive))' }}>*</span>}
-                      </label>
-                      
-                      {isSelect ? (
-                        // 필수 필드: Searchable Dropdown
-                        <>
-                          <div className="searchable-dropdown-container" style={{ position: 'relative' }}>
-                            <input
-                              type="text"
-                              value={value as string || dropdownStates[group.id]?.search || ''}
-                              onChange={(e) => {
-                                setDropdownStates({
-                                  ...dropdownStates,
-                                  [group.id]: { open: true, search: e.target.value }
-                                })
-                                if (!e.target.value) {
-                                  updateGroup(group.id, { [field.key]: '' })
-                                }
-                              }}
-                              onFocus={() => {
-                                setDropdownStates({
-                                  ...dropdownStates,
-                                  [group.id]: { open: true, search: dropdownStates[group.id]?.search || '' }
-                                })
-                              }}
-                              placeholder="선택하세요"
-                              className="input"
-                              style={{ 
-                                width: '100%',
-                                borderColor: showError ? 'hsl(var(--destructive))' : undefined
-                              }}
-                            />
-                            {dropdownStates[group.id]?.open && (
-                              <div className="dropdown" style={{
-                                position: 'absolute',
-                                top: '100%',
-                                left: 0,
-                                right: 0,
-                                marginTop: '4px',
-                                maxHeight: '200px',
-                                overflowY: 'auto',
-                                zIndex: 1000
-                              }}>
-                                {getAvailableOptions(field.key, field.options, group.id)
-                                  .filter(opt => 
-                                    opt.toLowerCase().includes((dropdownStates[group.id]?.search || '').toLowerCase())
-                                  )
-                                  .map(opt => (
-                                    <button
-                                      key={opt}
-                                      onClick={() => {
-                                        updateGroup(group.id, { [field.key]: opt })
-                                        setDropdownStates({
-                                          ...dropdownStates,
-                                          [group.id]: { open: false, search: '' }
-                                        })
-                                      }}
-                                      className="dropdown-item"
-                                    >
-                                      {opt}
-                                    </button>
-                                  ))}
-                                {getAvailableOptions(field.key, field.options, group.id)
-                                  .filter(opt => 
-                                    opt.toLowerCase().includes((dropdownStates[group.id]?.search || '').toLowerCase())
-                                  ).length === 0 && (
-                                  <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                                    검색 결과가 없습니다
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {showError && (
-                            <p style={{ 
-                              fontSize: '12px', 
-                              color: 'hsl(var(--destructive))', 
-                              marginTop: '4px' 
-                            }}>
-                              {field.label}을(를) 선택해주세요.
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        // 선택 필드: 체크박스 그룹
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', width: '100%' }}>
-                            <input
-                              type="checkbox"
-                              checked={(value as string[]).length === field.options.length}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  // 전체 선택: 모든 옵션 선택
-                                  updateGroup(group.id, { [field.key]: [...field.options] })
-                                } else {
-                                  // 전체 해제: 빈 배열
-                                  updateGroup(group.id, { [field.key]: [] })
-                                }
-                              }}
-                              className="checkbox-custom"
-                            />
-                            전체
-                          </label>
-                          {field.options.map(opt => (
-                            <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer', width: 'calc(50% - 4px)' }}>
-                              <input
-                                type="checkbox"
-                                checked={(value as string[]).includes(opt)}
-                                onChange={() => updateGroup(group.id, { 
-                                  [field.key]: toggleArrayItem(value as string[], opt)
-                                })}
-                                className="checkbox-custom"
-                              />
-                              {opt}
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-              
-              {/* OR 구분선 */}
-              {index < conditionGroups.length - 1 && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '16px 0',
-                  gap: '12px'
-                }}>
+                {/* 드롭다운 옵션 목록 */}
+                {isOpen && (
                   <div style={{
-                    flex: 1,
-                    height: '1px',
-                    backgroundColor: 'hsl(var(--border))'
-                  }} />
-                  <span style={{
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: 'hsl(var(--muted-foreground))',
-                    padding: '4px 12px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    borderRadius: '12px',
-                    border: '1px solid hsl(var(--border))'
+                    border: '1px solid hsl(var(--border))', borderRadius: '6px',
+                    marginTop: '4px', maxHeight: '220px', overflowY: 'auto',
+                    backgroundColor: 'hsl(var(--card))',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                   }}>
-                    OR
-                  </span>
-                  <div style={{
-                    flex: 1,
-                    height: '1px',
-                    backgroundColor: 'hsl(var(--border))'
-                  }} />
-                </div>
-              )}
-            </div>
-          ))}
+                    {/* 전체 선택/해제 */}
+                    <div style={{ padding: '8px 12px', borderBottom: '1px solid hsl(var(--border))', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                        {field.options.length}개 항목
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (selected.length === field.options.length) {
+                            clearField(field.key)
+                          } else {
+                            setSelections(prev => ({ ...prev, [field.key]: [...field.options] }))
+                          }
+                        }}
+                        className="btn btn-ghost btn-sm"
+                        style={{ fontSize: '11px' }}
+                      >
+                        {selected.length === field.options.length ? '전체 해제' : '전체 선택'}
+                      </button>
+                    </div>
+                    {field.options.map(opt => {
+                      const isChecked = selected.includes(opt)
+                      return (
+                        <label key={opt}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            padding: '9px 12px', cursor: 'pointer',
+                            backgroundColor: isChecked ? 'hsl(var(--primary) / 0.06)' : 'transparent',
+                            transition: 'background 0.1s',
+                            fontSize: '13px',
+                          }}
+                          onMouseEnter={e => { if (!isChecked) e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' }}
+                          onMouseLeave={e => { e.currentTarget.style.backgroundColor = isChecked ? 'hsl(var(--primary) / 0.06)' : 'transparent' }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleValue(field.key, opt)}
+                            className="checkbox-custom"
+                          />
+                          <span>{opt}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
 
-          {/* 조건 추가 버튼 */}
-          {conditionGroups.length < 5 && (
-            <button
-              onClick={addGroup}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px dashed hsl(var(--border))',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontSize: '13px',
-                color: 'hsl(var(--muted-foreground))',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'hsl(var(--primary))'
-                e.currentTarget.style.color = 'hsl(var(--primary))'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'hsl(var(--border))'
-                e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
-              }}
-            >
-              <Plus size={16} />
-              조건 추가
-            </button>
-          )}
+                {showError && (
+                  <p style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>
+                    {field.label}을(를) 선택해주세요.
+                  </p>
+                )}
+              </div>
+            )
+          })}
         </div>
 
-        {/* 하단 버튼 */}
         <div className="dialog-footer">
-          <button
-            onClick={handleReset}
-            className="btn btn-ghost btn-md"
-            style={{ marginRight: 'auto' }}
-          >
-            초기화
-          </button>
-          <button
-            onClick={onClose}
-            className="btn btn-secondary btn-md"
-          >
-            취소
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="btn btn-primary btn-md"
-          >
-            확인 ({totalCombinations}개 선택)
+          <button onClick={handleReset} className="btn btn-ghost btn-md" style={{ marginRight: 'auto' }}>초기화</button>
+          <button onClick={onClose} className="btn btn-secondary btn-md">취소</button>
+          <button onClick={handleConfirm} className="btn btn-primary btn-md">
+            확인 ({totalSelected}개 선택)
           </button>
         </div>
       </div>
