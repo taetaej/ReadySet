@@ -315,13 +315,16 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     isActive: boolean,
     onNavigate?: () => void,
     parentLabel?: string,
-    isDimmed?: boolean
+    isDimmed?: boolean,
+    columnLevel?: IndustryLevel
   ) => {
     const status = getItemStatus(path, selectedIndustries)
     const isSelected = status === 'selected'
     const isParentSelected = status === 'parent-selected'
     const tooltip = isParentSelected ? getParentTooltip(path, selectedIndustries) : ''
     const childCount = childCountMap[path]
+    // 현재 컬럼 레벨이 선택된 분류 레벨과 다르면 +/- 버튼 숨김
+    const showActions = !columnLevel || columnLevel === localLevel
 
     return (
       <div key={path}
@@ -341,8 +344,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           cursor: hasChildren ? 'pointer' : 'default',
         }}>
 
-        {/* + / - 버튼 (항상 노출, 오른쪽) */}
-        {/* 텍스트 영역 — 행 전체 클릭 = 탐색 */}
+        {/* 텍스트 영역 */}
         <div style={{ flex: 1, padding: '8px 6px 8px 10px', minWidth: 0 }}>
           {parentLabel && (
             <div style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', marginBottom: '1px' }}>{parentLabel}</div>
@@ -355,21 +357,23 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           </span>
         </div>
 
-        {isSelected ? (
-          <button onClick={(e) => { e.stopPropagation(); handleRemove(path) }} title="선택 해제"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--destructive))', flexShrink: 0 }}>
-            <Minus size={14} />
-          </button>
-        ) : isParentSelected ? (
-          <span title={tooltip}
-            style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0, cursor: 'not-allowed', opacity: 0.3 }}>
-            <Plus size={14} />
-          </span>
-        ) : (
-          <button onClick={(e) => { e.stopPropagation(); handleAdd(path) }} title="선택"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary))', flexShrink: 0 }}>
-            <Plus size={14} />
-          </button>
+        {showActions && (
+          isSelected ? (
+            <button onClick={(e) => { e.stopPropagation(); handleRemove(path) }} title="선택 해제"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--destructive))', flexShrink: 0 }}>
+              <Minus size={14} />
+            </button>
+          ) : isParentSelected ? (
+            <span title={tooltip}
+              style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0, cursor: 'not-allowed', opacity: 0.3 }}>
+              <Plus size={14} />
+            </span>
+          ) : (
+            <button onClick={(e) => { e.stopPropagation(); handleAdd(path) }} title="선택"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary))', flexShrink: 0 }}>
+              <Plus size={14} />
+            </button>
+          )
         )}
       </div>
     )
@@ -572,7 +576,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             <div style={colStyle}>
               <div style={colHeaderStyle}>
                 <span>업종(대)</span>
-                <SelectAllButton paths={filteredMajorItems.filter(({ isMatch }) => isMatch).map(({ major }) => major)} />
+                {localLevel === 'major' && <SelectAllButton paths={filteredMajorItems.filter(({ isMatch }) => isMatch).map(({ major }) => major)} />}
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                 {filteredMajors.length === 0
@@ -583,17 +587,18 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                     activeMajor === major && !isIndustrySearchMode,
                     () => { if (!isIndustrySearchMode && localLevel !== 'major') { setActiveMajor(activeMajor === major ? null : major); setActiveMid(null) } },
                     undefined,
-                    isIndustrySearchMode && !isMatch
+                    isIndustrySearchMode && !isMatch,
+                    'major'
                   ))
                 }
               </div>
             </div>
 
             {/* 업종(중) */}
-            <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : (!activeMajor && !isIndustrySearchMode ? 0.45 : 1) }}>
+            <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : (localLevel === 'mid' ? 1 : (!activeMajor && !isIndustrySearchMode ? 0.45 : 1)) }}>
               <div style={colHeaderStyle}>
                 <span>업종(중)</span>
-                {localLevel !== 'major' && <SelectAllButton paths={midItems.filter(({ isMatch }) => isMatch).map(({ major, mid }) => `${major} > ${mid}`)} />}
+                {localLevel === 'mid' && <SelectAllButton paths={midItems.filter(({ isMatch }) => isMatch).map(({ major, mid }) => `${major} > ${mid}`)} />}
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                 {localLevel === 'major'
@@ -608,7 +613,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                         activeMid === mid && activeMajor === major && !isIndustrySearchMode,
                         () => { if (!isIndustrySearchMode && localLevel === 'minor') { setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
                         isIndustrySearchMode ? `${major} >` : undefined,
-                        isIndustrySearchMode && !isMatch
+                        isIndustrySearchMode && !isMatch,
+                        'mid'
                       ))
                 }
               </div>
@@ -630,7 +636,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                       : minorItems.map(({ major, mid, minor }) => renderRow(
                         `${major} > ${mid} > ${minor}`, minor, false,
                         false, undefined,
-                        isIndustrySearchMode ? `${major} > ${mid} >` : undefined
+                        isIndustrySearchMode ? `${major} > ${mid} >` : undefined,
+                        undefined,
+                        'minor'
                       ))
                 }
               </div>
