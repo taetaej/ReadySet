@@ -1,52 +1,28 @@
 import { metaMetrics } from './types'
 import { adProductStructureByMedia } from './sampleData'
+import { FormData } from './createDatasetTypes'
 
 interface ConfigurationSummaryProps {
-  formData: {
-    datasetName: string
-    media: string
-    industries: string[]
-    period: {
-      startYear: string
-      startMonth: string
-      endYear: string
-      endMonth: string
-    }
-    periodType: 'month' | 'quarter'
-    products: string[]
-    metrics: string[]
-    targetingCategory: string
-    targetingOptions: string[]
-  }
+  formData: FormData
   currentStep: number
-  isStep1Confirmed: boolean
 }
 
-export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }: ConfigurationSummaryProps) {
-  const calculateProductCount = () => {
-    if (formData.products.length === 0) return 0
-    
-    try {
-      const productStructure = adProductStructureByMedia[formData.media]
-      if (!productStructure) return formData.products.length
-      
-      const groups = formData.products.map(p => JSON.parse(p))
-      return groups.reduce((sum, group) => {
-        let count = 1
-        productStructure.fields.forEach(field => {
-          const value = group[field.key]
-          if (Array.isArray(value)) {
-            count *= value.length || field.options.length
-          }
-        })
-        return sum + count
-      }, 0)
-    } catch {
-      return formData.products.length
-    }
+export function ConfigurationSummary({ formData, currentStep }: ConfigurationSummaryProps) {
+  // products 배열에서 각 field별 선택값 합산
+  const getFieldValues = (fieldKey: string): string[] => {
+    const values = new Set<string>()
+    formData.products.forEach(p => {
+      try {
+        const parsed = JSON.parse(p)
+        const val = parsed[fieldKey]
+        if (Array.isArray(val)) val.forEach((v: string) => values.add(v))
+        else if (val) values.add(val)
+      } catch {}
+    })
+    return Array.from(values)
   }
 
-  const productCount = calculateProductCount()
+  const structure = formData.media ? adProductStructureByMedia[formData.media] : null
 
   return (
     <div style={{ position: 'sticky', top: '24px' }}>
@@ -56,285 +32,198 @@ export function ConfigurationSummary({ formData, currentStep, isStep1Confirmed }
             Configuration Summary
           </h3>
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Step 1 · BASIC INFORMATION */}
           <div>
-            <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
-              Step 1 · Selection Overview
-            </div>
+            <StepLabel label="BASIC INFORMATION" step={1} currentStep={currentStep} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <SummaryItem label="데이터셋명" value={formData.datasetName || '—'} />
-              <SummaryItem label="매체" value={formData.media || '—'} />
-              
-              {/* 업종 - 업종(대) 기준으로 그룹화 표시 */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                    업종
-                  </span>
-                  <span style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '500',
-                    color: formData.industries.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                  }}>
-                    {formData.industries.length > 0 ? `${formData.industries.length}개` : '—'}
-                  </span>
-                </div>
-                {formData.industries.length > 0 && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    maxHeight: '200px',
-                    overflowY: 'auto'
-                  }}>
-                    {(() => {
-                      // 업종(대) 기준으로 그룹화
-                      const groupedByLarge: { [key: string]: string[] } = {}
-                      formData.industries.forEach(industry => {
-                        const parts = industry.split(' > ')
-                        const largeCategory = parts[0] || industry
-                        if (!groupedByLarge[largeCategory]) {
-                          groupedByLarge[largeCategory] = []
-                        }
-                        groupedByLarge[largeCategory].push(industry)
-                      })
-                      
-                      return Object.entries(groupedByLarge).map(([largeCategory, industries], idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            fontSize: '11px',
-                            color: 'hsl(var(--foreground))',
-                            lineHeight: '1.6'
-                          }}
-                        >
-                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>{largeCategory}</span>
-                          <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                          <span>{industries.length}개</span>
-                        </div>
-                      ))
-                    })()}
-                  </div>
-                )}
-              </div>
-              
-              <SummaryItem 
-                label="조회기간" 
+              <SummaryItem
+                label="조회기간"
                 value={
-                  formData.period.startYear && formData.period.startMonth 
+                  formData.period.startYear && formData.period.startMonth
                     ? formData.periodType === 'quarter'
                       ? `${formData.period.startYear}-Q${formData.period.startMonth} → ${formData.period.endYear}-Q${formData.period.endMonth}`
                       : `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')} → ${formData.period.endYear}-${formData.period.endMonth.padStart(2, '0')}`
                     : '—'
                 }
               />
-              
-              {/* 광고상품 - 동적 표시 */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                    광고상품
-                  </span>
-                  <span style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '500',
-                    color: productCount > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                  }}>
-                    {productCount > 0 ? `${productCount}개` : '—'}
-                  </span>
-                </div>
-                {formData.products.length > 0 && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    maxHeight: '200px',
-                    overflowY: 'auto'
-                  }}>
-                    {formData.products.map((product, idx) => {
-                      try {
-                        const parsed = JSON.parse(product)
-                        const productStructure = adProductStructureByMedia[formData.media]
-                        
-                        if (!productStructure) return null
-                        
-                        return (
-                          <div
-                            key={idx}
-                            style={{
-                              fontSize: '11px',
-                              color: 'hsl(var(--foreground))',
-                              lineHeight: '1.6',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '2px'
-                            }}
-                          >
-                            <div>
-                              <span style={{ fontWeight: '500' }}>조건 {idx + 1}</span>
-                            </div>
-                            
-                            {/* 동적으로 필드 표시 */}
-                            {productStructure.fields.map(field => {
-                              const value = parsed[field.key]
-                              if (!value) return null
-                              
-                              const displayValue = Array.isArray(value)
-                                ? (value.length > 0 ? value.join(', ') : '전체')
-                                : value
-                              
-                              return (
-                                <div key={field.key}>
-                                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>{field.label}</span>
-                                  <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                                  <span style={{ fontWeight: field.required ? '500' : '400' }}>{displayValue}</span>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )
-                      } catch {
-                        return null
-                      }
-                    })}
-                  </div>
-                )}
-              </div>
-              
-              {/* 타겟팅 옵션 - 상세 리스트 표시 */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                    타겟팅 옵션
-                  </span>
-                  <span style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '500',
-                    color: formData.targetingCategory ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                  }}>
-                    {formData.targetingCategory 
-                      ? (formData.targetingOptions.length > 0 ? `${formData.targetingOptions.length}개` : '선택 안 함')
-                      : '선택 안 함'}
-                  </span>
-                </div>
-                {formData.targetingCategory && formData.targetingOptions.length > 0 && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    color: 'hsl(var(--foreground))',
-                    lineHeight: '1.6'
-                  }}>
-                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>{formData.targetingCategory}</span>
-                    <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                    <span>{formData.targetingOptions.join(', ')}</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* 지표 - 그룹별 표시 */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                    지표
-                  </span>
-                  <span style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '500',
-                    color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                  }}>
-                    {formData.metrics.length > 0 ? `${formData.metrics.length}개` : '—'}
-                  </span>
-                </div>
-                {formData.metrics.length > 0 && formData.media === 'Meta' && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    maxHeight: '200px',
-                    overflowY: 'auto'
-                  }}>
-                    {metaMetrics.map((group) => {
-                      const groupMetrics = group.metrics.filter(m => formData.metrics.includes(m.id))
-                      if (groupMetrics.length === 0) return null
-                      
-                      return (
-                        <div key={group.group} style={{ fontSize: '11px', lineHeight: '1.6' }}>
-                          <div>
-                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>{group.group}</span>
-                            <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                            <span>{groupMetrics.map(m => m.label).join(', ')}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
+              <IndustryItem industries={formData.industries} />
             </div>
           </div>
 
           <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
-          
+
+          {/* Step 2 · QUERY SETTINGS */}
           <div>
-            <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
-              Step 2 · Review & Extract
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                  검토
-                </span>
-                <span style={{ 
-                  fontSize: '13px', 
-                  fontWeight: '500',
-                  color: currentStep >= 2 && isStep1Confirmed ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-                }}>
-                  {currentStep >= 2 ? (isStep1Confirmed ? '확인 완료' : '미확인') : '—'}
-                </span>
+            <StepLabel label="QUERY SETTINGS" step={2} currentStep={currentStep} />
+            {!formData.media ? (
+              <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontStyle: 'italic' }}>
+                Pending
               </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {/* 매체 */}
+                <SummaryItem label="매체" value={formData.media} />
+
+                {/* 매체별 광고상품 필드 동적 렌더링 */}
+                {structure && structure.fields.map(field => {
+                  const values = getFieldValues(field.key)
+                  return (
+                    <SummaryItem
+                      key={field.key}
+                      label={field.label}
+                      value={values.length > 0 ? `${values.length}개` : '—'}
+                      detail={values.length > 0 && values.length <= 3 ? values.join(', ') : undefined}
+                    />
+                  )
+                })}
+
+                {/* 타겟팅 옵션 */}
+                <SummaryItem
+                  label="타겟팅 옵션"
+                  value={
+                    formData.targetingCategory
+                      ? formData.targetingOptions.length > 0
+                        ? `${formData.targetingOptions.length}개`
+                        : '선택 안 함'
+                      : '선택 안 함'
+                  }
+                  detail={
+                    formData.targetingCategory && formData.targetingOptions.length > 0
+                      ? `${formData.targetingCategory} › ${formData.targetingOptions.join(', ')}`
+                      : undefined
+                  }
+                />
+
+                {/* 지표 */}
+                <MetricsItem metrics={formData.metrics} media={formData.media} />
+              </div>
+            )}
+          </div>
+
+          <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
+
+          {/* Step 3 · REVIEW & EXTRACT */}
+          <div>
+            <StepLabel label="REVIEW & EXTRACT" step={3} currentStep={currentStep} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>검토</span>
+              <span style={{ fontSize: '13px', fontWeight: '500', color: currentStep >= 3 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                {currentStep >= 3 ? '확인 중' : '—'}
+              </span>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   )
 }
 
-function SummaryItem({ label, value }: { label: string; value: string }) {
-  const hasValue = value !== '—'
+function StepLabel({ label, step, currentStep }: { label: string; step: number; currentStep: number }) {
+  const isActive = currentStep === step
+  const isDone = currentStep > step
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-        {label}
-      </span>
-      <span style={{ 
-        fontSize: '13px', 
-        fontWeight: '500',
-        color: hasValue ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-        textAlign: 'right',
-        maxWidth: '200px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }}>
-        {value}
-      </span>
+    <div style={{
+      fontSize: '10px',
+      fontWeight: '600',
+      textTransform: 'uppercase',
+      letterSpacing: '0.8px',
+      marginBottom: '12px',
+      color: isActive ? 'hsl(var(--primary))' : isDone ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+    }}>
+      Step {step} · {label}
+    </div>
+  )
+}
+
+function SummaryItem({ label, value, detail }: { label: string; value: string; detail?: string }) {
+  const hasValue = value !== '—' && value !== '선택 안 함'
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>{label}</span>
+        <span style={{
+          fontSize: '13px', fontWeight: '500',
+          color: hasValue ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+          textAlign: 'right', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+        }}>
+          {value}
+        </span>
+      </div>
+      {detail && (
+        <div style={{
+          marginTop: '4px',
+          fontSize: '11px',
+          color: 'hsl(var(--muted-foreground))',
+          textAlign: 'right',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}>
+          {detail}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function IndustryItem({ industries }: { industries: string[] }) {
+  const grouped: Record<string, number> = {}
+  industries.forEach(ind => {
+    const key = ind.split(' > ')[0] || ind
+    grouped[key] = (grouped[key] || 0) + 1
+  })
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>업종</span>
+        <span style={{ fontSize: '13px', fontWeight: '500', color: industries.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+          {industries.length > 0 ? `${industries.length}개` : '—'}
+        </span>
+      </div>
+      {industries.length > 0 && (
+        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', maxHeight: '160px', overflowY: 'auto' }}>
+          {Object.entries(grouped).map(([cat, count], i) => (
+            <div key={i} style={{ fontSize: '11px', color: 'hsl(var(--foreground))', lineHeight: '1.6' }}>
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>{cat}</span>
+              <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
+              <span>{count}개</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MetricsItem({ metrics, media }: { metrics: string[]; media: string }) {
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>지표</span>
+        <span style={{ fontSize: '13px', fontWeight: '500', color: metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+          {metrics.length > 0 ? `${metrics.length}개` : '—'}
+        </span>
+      </div>
+      {metrics.length > 0 && media === 'Meta' && (
+        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', maxHeight: '200px', overflowY: 'auto' }}>
+          {metaMetrics.map(group => {
+            const matched = group.metrics.filter(m => metrics.includes(m.id))
+            if (!matched.length) return null
+            return (
+              <div key={group.group} style={{ fontSize: '11px', lineHeight: '1.6' }}>
+                <span style={{ color: 'hsl(var(--muted-foreground))' }}>{group.group}</span>
+                <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
+                <span>{matched.map(m => m.label).join(', ')}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
