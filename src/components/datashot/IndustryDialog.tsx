@@ -9,17 +9,32 @@ function buildBrandCountMap(): { [path: string]: number } {
   const map: { [path: string]: number } = {}
   Object.values(brandIndustryMap).forEach(path => {
     const parts = path.split(' > ')
-    // 소분류 경로
     map[path] = (map[path] || 0) + 1
-    // 중분류 경로
     const midPath = parts.slice(0, 2).join(' > ')
     map[midPath] = (map[midPath] || 0) + 1
-    // 대분류 경로
     map[parts[0]] = (map[parts[0]] || 0) + 1
   })
   return map
 }
 const brandCountMap = buildBrandCountMap()
+
+// 업종 경로별 하위 카테고리 수 계산
+function buildChildCountMap(): { [path: string]: number } {
+  const map: { [path: string]: number } = {}
+  Object.keys(industryCategories).forEach(major => {
+    const mids = Object.keys(industryCategories[major])
+    const validMids = mids.filter(mid => (brandCountMap[`${major} > ${mid}`] || 0) > 0)
+    map[major] = validMids.length
+    validMids.forEach(mid => {
+      const minors = (industryCategories[major][mid] as string[]).filter(
+        minor => (brandCountMap[`${major} > ${mid} > ${minor}`] || 0) > 0
+      )
+      map[`${major} > ${mid}`] = minors.length
+    })
+  })
+  return map
+}
+const childCountMap = buildChildCountMap()
 
 interface IndustryDialogProps {
   isOpen: boolean
@@ -306,7 +321,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     const isSelected = status === 'selected'
     const isParentSelected = status === 'parent-selected'
     const tooltip = isParentSelected ? getParentTooltip(path, selectedIndustries) : ''
-    const brandCount = brandCountMap[path] || 0
+    const childCount = childCountMap[path]
 
     return (
       <div key={path}
@@ -334,8 +349,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           )}
           <span style={{ fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.4' }}>
             {isIndustrySearchMode ? highlightText(label, searchQuery) : label}
-            {' '}
-            <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', fontWeight: 400 }}>({brandCount})</span>
+            {childCount !== undefined && (
+              <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', fontWeight: 400 }}> ({childCount})</span>
+            )}
           </span>
         </div>
 
@@ -637,7 +653,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                         {searchQuery ? highlightText(industry, searchQuery) : industry}
                       </span>
                       <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', flexShrink: 0, alignSelf: 'center' }}>
-                        ({brandCountMap[industry] || 0})
+                        {childCountMap[industry] !== undefined ? `(${childCountMap[industry]})` : ''}
                       </span>
                       <button onClick={() => handleRemove(industry)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '1px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
