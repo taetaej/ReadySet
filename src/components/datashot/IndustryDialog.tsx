@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Plus, Minus, Search, Info, ChevronDown } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
+type IndustryLevel = 'major' | 'mid' | 'minor'
+
 // 업종 경로별 브랜드 수 사전 계산
 function buildBrandCountMap(): { [path: string]: number } {
   const map: { [path: string]: number } = {}
@@ -23,7 +25,8 @@ interface IndustryDialogProps {
   isOpen: boolean
   onClose: () => void
   selectedIndustries: string[]
-  onUpdate: (industries: string[]) => void
+  onUpdate: (industries: string[], level: IndustryLevel) => void
+  industryLevel: IndustryLevel | null
 }
 
 
@@ -46,16 +49,16 @@ function getParentTooltip(path: string, selected: string[]): string {
   return ''
 }
 
-export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }: IndustryDialogProps) {
+export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, industryLevel }: IndustryDialogProps) {
   const [showTooltip, setShowTooltip] = useState(false)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const typeDropdownRef = useRef<HTMLDivElement>(null)
+  const [localLevel, setLocalLevel] = useState<IndustryLevel | null>(industryLevel)
   const [searchType, setSearchType] = useState<'industry' | 'brand'>('industry')
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('') // 실제 검색 실행된 쿼리
   const [brandResults, setBrandResults] = useState<Array<{ brand: string; path: string }>>([])
   const [hasSearched, setHasSearched] = useState(false)
-  const [selectedSearchQuery, setSelectedSearchQuery] = useState('')
   const [activeMajor, setActiveMajor] = useState<string | null>(null)
   const [activeMid, setActiveMid] = useState<string | null>(null)
 
@@ -69,9 +72,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
       setSearchQuery('')
       setBrandResults([])
       setHasSearched(false)
-      setSelectedSearchQuery('')
       setActiveMajor(null)
       setActiveMid(null)
+      // 이미 레벨이 설정된 경우 유지, 없으면 선택 화면으로
+      setLocalLevel(industryLevel)
     }
   }, [isOpen])
 
@@ -95,25 +99,47 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     return <>{text.slice(0, i)}<strong style={{ fontWeight: 700, color: 'hsl(var(--primary))' }}>{text.slice(i, i + query.length)}</strong>{text.slice(i + query.length)}</>
   }
 
-  const getFilteredMajors = () => {
+  const getFilteredMajors = (): Array<{ major: string; isMatch: boolean }> => {
     const majors = Object.keys(industryCategories).filter(m => (brandCountMap[m] || 0) > 0)
-    if (!isIndustrySearchMode) return majors
+    if (!isIndustrySearchMode) return majors.map(major => ({ major, isMatch: true }))
     const q = searchQuery.toLowerCase()
-    return majors.filter(major => {
-      if (major.toLowerCase().includes(q)) return true
-      return Object.entries(industryCategories[major]).some(([mid, minors]) =>
-        mid.toLowerCase().includes(q) || (minors as string[]).some(m => m.toLowerCase().includes(q))
-      )
+    const result: Array<{ major: string; isMatch: boolean }> = []
+    majors.forEach(major => {
+      const directMatch = major.toLowerCase().includes(q)
+      if (localLevel === 'major') {
+        if (directMatch) result.push({ major, isMatch: true })
+      } else if (localLevel === 'mid') {
+        const hasChildMatch = Object.keys(industryCategories[major]).some(mid => mid.toLowerCase().includes(q))
+        if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
+      } else {
+        const hasChildMatch = Object.entries(industryCategories[major]).some(([mid, minors]) =>
+          mid.toLowerCase().includes(q) || (minors as string[]).some(m => m.toLowerCase().includes(q))
+        )
+        if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
+      }
     })
+    return result
   }
 
-  const getFilteredMids = (major: string) => {
+  // 검색 모드에서 중/소분류 순회용 — 대분류 필터 없이 전체 순회
+  const getAllMajors = () =>
+    Object.keys(industryCategories).filter(m => (brandCountMap[m] || 0) > 0)
+
+  const getFilteredMids = (major: string): Array<{ mid: string; isMatch: boolean }> => {
     const mids = Object.keys(industryCategories[major] || {}).filter(mid => (brandCountMap[`${major} > ${mid}`] || 0) > 0)
-    if (!isIndustrySearchMode) return mids
+    if (!isIndustrySearchMode) return mids.map(mid => ({ mid, isMatch: true }))
     const q = searchQuery.toLowerCase()
-    return mids.filter(mid =>
-      mid.toLowerCase().includes(q) || (industryCategories[major][mid] as string[]).some(m => m.toLowerCase().includes(q))
-    )
+    const result: Array<{ mid: string; isMatch: boolean }> = []
+    mids.forEach(mid => {
+      const directMatch = mid.toLowerCase().includes(q)
+      if (localLevel === 'mid') {
+        if (directMatch) result.push({ mid, isMatch: true })
+      } else {
+        const hasChildMatch = (industryCategories[major][mid] as string[]).some(m => m.toLowerCase().includes(q))
+        if (directMatch || hasChildMatch) result.push({ mid, isMatch: directMatch })
+      }
+    })
+    return result
   }
 
   const getFilteredMinors = (major: string, mid: string) => {
@@ -124,14 +150,23 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     return filtered.filter(m => m.toLowerCase().includes(q))
   }
 
-  const handleAdd = (path: string) => {
-    const status = getItemStatus(path, selectedIndustries)
-    if (status === 'selected' || status === 'parent-selected') return
-    const withoutChildren = selectedIndustries.filter(s => !s.startsWith(path + ' > '))
-    onUpdate([...withoutChildren, path])
+  // 레벨에 맞게 경로를 잘라서 반환
+  const trimPathToLevel = (path: string): string => {
+    const parts = path.split(' > ')
+    if (localLevel === 'major') return parts[0]
+    if (localLevel === 'mid') return parts.slice(0, 2).join(' > ')
+    return path
   }
 
-  const handleRemove = (path: string) => onUpdate(selectedIndustries.filter(s => s !== path))
+  const handleAdd = (path: string) => {
+    const trimmed = trimPathToLevel(path)
+    const status = getItemStatus(trimmed, selectedIndustries)
+    if (status === 'selected' || status === 'parent-selected') return
+    const withoutChildren = selectedIndustries.filter(s => !s.startsWith(trimmed + ' > '))
+    onUpdate([...withoutChildren, trimmed], localLevel!)
+  }
+
+  const handleRemove = (path: string) => onUpdate(selectedIndustries.filter(s => s !== path), localLevel!)
 
   // 업종 검색 실행 (엔터 or 버튼)
   const handleIndustrySearch = () => {
@@ -166,20 +201,19 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   }
 
   const handleReset = () => {
-    onUpdate([])
+    onUpdate([], localLevel!)
     setSearchType('industry')
     setSearchInput('')
     setSearchQuery('')
     setBrandResults([])
     setHasSearched(false)
-    setSelectedSearchQuery('')
     setActiveMajor(null)
     setActiveMid(null)
   }
 
-  const getMidItems = (): Array<{ major: string; mid: string }> => {
-    if (activeMajor && !isIndustrySearchMode) return getFilteredMids(activeMajor).map(mid => ({ major: activeMajor, mid }))
-    if (isIndustrySearchMode) return getFilteredMajors().flatMap(major => getFilteredMids(major).map(mid => ({ major, mid })))
+  const getMidItems = (): Array<{ major: string; mid: string; isMatch: boolean }> => {
+    if (activeMajor && !isIndustrySearchMode) return getFilteredMids(activeMajor).map(({ mid }) => ({ major: activeMajor, mid, isMatch: true }))
+    if (isIndustrySearchMode) return getAllMajors().flatMap(major => getFilteredMids(major).map(({ mid, isMatch }) => ({ major, mid, isMatch })))
     return []
   }
 
@@ -187,8 +221,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     if (activeMajor && activeMid && !isIndustrySearchMode)
       return getFilteredMinors(activeMajor, activeMid).map(minor => ({ major: activeMajor, mid: activeMid, minor }))
     if (isIndustrySearchMode)
-      return getFilteredMajors().flatMap(major =>
-        getFilteredMids(major).flatMap(mid =>
+      return getAllMajors().flatMap(major =>
+        getFilteredMids(major).flatMap(({ mid }) =>
           getFilteredMinors(major, mid).map(minor => ({ major, mid, minor }))
         )
       )
@@ -197,23 +231,61 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
 
   if (!isOpen) return null
 
-  const filteredMajors = getFilteredMajors()
+  const filteredMajorItems = getFilteredMajors()
+  const filteredMajors = filteredMajorItems.map(({ major }) => major)
   const midItems = getMidItems()
   const minorItems = getMinorItems()
 
   const filteredSelected = [...selectedIndustries]
     .sort((a, b) => a.localeCompare(b, 'ko'))
-    .filter(i => !selectedSearchQuery || i.toLowerCase().includes(selectedSearchQuery.toLowerCase()))
+    .filter(i => !searchQuery || i.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  // 전체선택/전체해제 헬퍼
+  const handleSelectAll = (paths: string[]) => {
+    const toAdd = paths.filter(p => {
+      const s = getItemStatus(p, selectedIndustries)
+      return s !== 'selected' && s !== 'parent-selected'
+    })
+    if (toAdd.length === 0) return
+    let next = [...selectedIndustries]
+    toAdd.forEach(p => {
+      next = next.filter(s => !s.startsWith(p + ' > '))
+      next.push(p)
+    })
+    onUpdate(next, localLevel!)
+  }
+
+  const handleDeselectAll = (paths: string[]) => {
+    onUpdate(selectedIndustries.filter(s => !paths.includes(s)), localLevel!)
+  }
+
+  const isAllSelected = (paths: string[]) =>
+    paths.length > 0 && paths.every(p => getItemStatus(p, selectedIndustries) === 'selected')
+
+  const SelectAllButton = ({ paths }: { paths: string[] }) => {
+    if (!localLevel || paths.length === 0) return null
+    const allSel = isAllSelected(paths)
+    return (
+      <button
+        onClick={(e) => { e.stopPropagation(); allSel ? handleDeselectAll(paths) : handleSelectAll(paths) }}
+        className="btn btn-ghost btn-sm"
+        style={{ fontSize: '11px' }}
+      >
+        {allSel ? '전체 해제' : '전체 선택'}
+      </button>
+    )
+  }
 
   const colStyle: React.CSSProperties = {
     border: '1px solid hsl(var(--border))', borderRadius: '8px',
     display: 'flex', flexDirection: 'column', overflow: 'hidden'
   }
   const colHeaderStyle: React.CSSProperties = {
-    padding: '10px 12px', borderBottom: '1px solid hsl(var(--border))',
+    padding: '0 12px', borderBottom: '1px solid hsl(var(--border))',
     backgroundColor: 'hsl(var(--muted) / 0.3)',
     fontSize: '12px', fontWeight: '600', color: 'hsl(var(--muted-foreground))',
-    flexShrink: 0
+    flexShrink: 0,
+    height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   }
   const emptyStyle: React.CSSProperties = {
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -227,7 +299,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
     hasChildren: boolean,
     isActive: boolean,
     onNavigate?: () => void,
-    parentLabel?: string
+    parentLabel?: string,
+    isDimmed?: boolean
   ) => {
     const status = getItemStatus(path, selectedIndustries)
     const isSelected = status === 'selected'
@@ -248,7 +321,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
             status === 'child-selected' ? 'hsl(var(--primary) / 0.04)' : 'transparent',
           outline: isActive ? '2px solid hsl(var(--primary) / 0.4)' : 'none',
           outlineOffset: '-2px',
-          opacity: isParentSelected ? 0.55 : 1,
+          opacity: isParentSelected ? 0.55 : isDimmed ? 0.4 : 1,
           transition: 'background 0.12s',
           cursor: hasChildren ? 'pointer' : 'default',
         }}>
@@ -322,16 +395,69 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               )}
             </div>
           </div>
-          <p className="dialog-description">업종명을 클릭하여 하위 업종을 탐색하세요. [+] 로 원하는 업종을 선택할 수 있습니다.</p>
+          <p className="dialog-description">분류 레벨을 먼저 선택한 뒤 업종을 추가하세요. 레벨 변경 시 선택된 업종이 초기화됩니다.</p>
           <button onClick={onClose} style={{ position: 'absolute', right: '24px', top: '24px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'hsl(var(--muted-foreground))' }}>
             <X size={20} />
           </button>
         </div>
 
+        {/* 분류 레벨 — 세그먼트 컨트롤 (상단 고정 영역) */}
+        <div style={{
+          padding: '14px 24px',
+          backgroundColor: 'hsl(var(--muted) / 0.4)',
+          borderBottom: '1px solid hsl(var(--border))',
+          display: 'flex', alignItems: 'center', gap: '12px',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))', flexShrink: 0 }}>분류 레벨</span>
+          <div style={{
+            display: 'inline-flex',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '6px',
+            overflow: 'hidden',
+          }}>
+            {([
+              { value: 'major' as IndustryLevel, label: '대분류', example: '가정용전기전자, 식품, 패션' },
+              { value: 'mid'   as IndustryLevel, label: '중분류', example: '가사용전기전자, 식품기타, 패션기타' },
+              { value: 'minor' as IndustryLevel, label: '소분류', example: '청소기, 세탁기, 가습기' },
+            ]).map(({ value, label, example }, i, arr) => {
+              const isActive = localLevel === value
+              return (
+                <button key={value}
+                  onClick={() => {
+                    if (localLevel !== value) {
+                      setLocalLevel(value)
+                      onUpdate([], value)
+                      setActiveMajor(null)
+                      setActiveMid(null)
+                    }
+                  }}
+                  title={example}
+                  className="btn btn-ghost btn-sm"
+                  style={{
+                    borderRadius: 0,
+                    border: 'none',
+                    borderRight: i < arr.length - 1 ? '1px solid hsl(var(--border))' : 'none',
+                    backgroundColor: isActive ? 'hsl(var(--muted))' : 'transparent',
+                    color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                    padding: '6px 16px',
+                    fontSize: '13px',
+                    fontWeight: isActive ? '500' : '400',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* 스크롤 가능한 콘텐츠 영역 */}
         <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', gap: '12px' }}>
 
           {/* 검색 영역 */}
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', opacity: !localLevel ? 0.4 : 1, pointerEvents: !localLevel ? 'none' : 'auto' }}>
             {/* 타입 드롭다운 */}
             <div style={{ position: 'relative', flexShrink: 0 }} ref={typeDropdownRef}>
               <button
@@ -364,7 +490,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
-                placeholder={searchType === 'industry' ? '업종 검색' : '브랜드명 검색'}
+                placeholder={searchType === 'industry' ? '업종 검색' : '브랜드명으로 업종 검색'}
                 className="input"
                 style={{ paddingLeft: '32px', width: '100%' }}
               />
@@ -385,20 +511,12 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
             >
               검색
             </button>
-            {(searchQuery || hasSearched) && (
-              <button
-                onClick={() => { setSearchInput(''); setSearchQuery(''); setBrandResults([]); setHasSearched(false); setActiveMajor(null); setActiveMid(null) }}
-                className="btn btn-ghost btn-md"
-                style={{ flexShrink: 0 }}
-              >
-                필터 초기화
-              </button>
-            )}
+
           </div>
 
           {/* 브랜드 검색 결과 */}
           {searchType === 'brand' && hasSearched && (
-            <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', maxHeight: '200px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+            <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', maxHeight: '200px', display: 'flex', flexDirection: 'column', flexShrink: 0, opacity: !localLevel ? 0.4 : 1, pointerEvents: !localLevel ? 'none' : 'auto' }}>
               <div style={{ ...colHeaderStyle, display: 'flex', justifyContent: 'space-between' }}>
                 <span>검색 결과 ({brandResults.length}건)</span>
               </div>
@@ -406,10 +524,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                 {brandResults.length === 0 ? (
                   <div style={{ padding: '16px', textAlign: 'center', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>검색 결과가 없습니다</div>
                 ) : brandResults.map(({ brand, path }) => {
-                  const alreadyAdded = selectedIndustries.includes(path)
+                  const trimmed = trimPathToLevel(path)
+                  const alreadyAdded = selectedIndustries.includes(trimmed)
                   return (
                     <div key={brand}
-                      onClick={() => { if (!alreadyAdded) onUpdate([...selectedIndustries, path]) }}
+                      onClick={() => { if (!alreadyAdded) onUpdate([...selectedIndustries, trimmed], localLevel!) }}
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid hsl(var(--border) / 0.5)', cursor: alreadyAdded ? 'default' : 'pointer', opacity: alreadyAdded ? 0.5 : 1, transition: 'background 0.12s' }}
                       onMouseEnter={(e) => { if (!alreadyAdded) e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)' }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}>
@@ -417,7 +536,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                         <span style={{ fontSize: '13px', fontWeight: '600', marginRight: '8px' }}>
                           {highlightText(brand, searchInput)}
                         </span>
-                        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>{path}</span>
+                        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>{trimmed}</span>
                       </div>
                       {alreadyAdded
                         ? <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>추가됨</span>
@@ -431,71 +550,80 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
           )}
 
           {/* 3단 + 선택 패널 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1.4fr', gap: '12px', flex: 1, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1.4fr', gap: '12px', flex: 1, overflow: 'hidden', opacity: !localLevel ? 0.4 : 1, pointerEvents: !localLevel ? 'none' : 'auto' }}>
 
             {/* 업종(대) */}
             <div style={colStyle}>
-              <div style={colHeaderStyle}>업종(대)</div>
+              <div style={colHeaderStyle}>
+                <span>업종(대)</span>
+                <SelectAllButton paths={filteredMajorItems.filter(({ isMatch }) => isMatch).map(({ major }) => major)} />
+              </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                 {filteredMajors.length === 0
                   ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                  : filteredMajors.map(major => renderRow(
-                    major, major, true,
+                  : filteredMajorItems.map(({ major, isMatch }) => renderRow(
+                    major, major,
+                    localLevel !== 'major',
                     activeMajor === major && !isIndustrySearchMode,
-                    () => { if (!isIndustrySearchMode) { setActiveMajor(activeMajor === major ? null : major); setActiveMid(null) } }
+                    () => { if (!isIndustrySearchMode && localLevel !== 'major') { setActiveMajor(activeMajor === major ? null : major); setActiveMid(null) } },
+                    undefined,
+                    isIndustrySearchMode && !isMatch
                   ))
                 }
               </div>
             </div>
 
             {/* 업종(중) */}
-            <div style={{ ...colStyle, opacity: !activeMajor && !isIndustrySearchMode ? 0.45 : 1 }}>
-              <div style={colHeaderStyle}>업종(중)</div>
+            <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : (!activeMajor && !isIndustrySearchMode ? 0.45 : 1) }}>
+              <div style={colHeaderStyle}>
+                <span>업종(중)</span>
+                {localLevel !== 'major' && <SelectAllButton paths={midItems.filter(({ isMatch }) => isMatch).map(({ major, mid }) => `${major} > ${mid}`)} />}
+              </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                {!activeMajor && !isIndustrySearchMode
-                  ? <div style={emptyStyle}>업종(대)의 [›]를<br />클릭하면 표시됩니다</div>
-                  : midItems.length === 0
-                    ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                    : midItems.map(({ major, mid }) => renderRow(
-                      `${major} > ${mid}`, mid, true,
-                      activeMid === mid && activeMajor === major && !isIndustrySearchMode,
-                      () => { if (!isIndustrySearchMode) { setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
-                      isIndustrySearchMode ? `${major} >` : undefined
-                    ))
+                {localLevel === 'major'
+                  ? <div style={emptyStyle}>대분류 레벨에서는<br />사용하지 않습니다</div>
+                  : !activeMajor && !isIndustrySearchMode
+                    ? <div style={emptyStyle}>업종(대)의 [›]를<br />클릭하면 표시됩니다</div>
+                    : midItems.length === 0
+                      ? <div style={emptyStyle}>검색 결과가 없습니다</div>
+                      : midItems.map(({ major, mid, isMatch }) => renderRow(
+                        `${major} > ${mid}`, mid,
+                        localLevel === 'minor',
+                        activeMid === mid && activeMajor === major && !isIndustrySearchMode,
+                        () => { if (!isIndustrySearchMode && localLevel === 'minor') { setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
+                        isIndustrySearchMode ? `${major} >` : undefined,
+                        isIndustrySearchMode && !isMatch
+                      ))
                 }
               </div>
             </div>
 
             {/* 업종(소) */}
-            <div style={{ ...colStyle, opacity: !activeMid && !isIndustrySearchMode ? 0.45 : 1 }}>
-              <div style={colHeaderStyle}>업종(소)</div>
+            <div style={{ ...colStyle, opacity: localLevel !== 'minor' ? 0.3 : (!activeMid && !isIndustrySearchMode ? 0.45 : 1) }}>
+              <div style={colHeaderStyle}>
+                <span>업종(소)</span>
+                {localLevel === 'minor' && <SelectAllButton paths={minorItems.map(({ major, mid, minor }) => `${major} > ${mid} > ${minor}`)} />}
+              </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                {!activeMid && !isIndustrySearchMode
-                  ? <div style={emptyStyle}>업종(중)의 [›]를<br />클릭하면 표시됩니다</div>
-                  : minorItems.length === 0
-                    ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                    : minorItems.map(({ major, mid, minor }) => renderRow(
-                      `${major} > ${mid} > ${minor}`, minor, false,
-                      false, undefined,
-                      isIndustrySearchMode ? `${major} > ${mid} >` : undefined
-                    ))
+                {localLevel !== 'minor'
+                  ? <div style={emptyStyle}>{localLevel === 'major' ? '대분류' : '중분류'} 레벨에서는<br />사용하지 않습니다</div>
+                  : !activeMid && !isIndustrySearchMode
+                    ? <div style={emptyStyle}>업종(중)의 [›]를<br />클릭하면 표시됩니다</div>
+                    : minorItems.length === 0
+                      ? <div style={emptyStyle}>검색 결과가 없습니다</div>
+                      : minorItems.map(({ major, mid, minor }) => renderRow(
+                        `${major} > ${mid} > ${minor}`, minor, false,
+                        false, undefined,
+                        isIndustrySearchMode ? `${major} > ${mid} >` : undefined
+                      ))
                 }
               </div>
             </div>
 
             {/* 선택된 업종 */}
             <div style={colStyle}>
-              <div style={{ ...colHeaderStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={colHeaderStyle}>
                 <span>선택된 업종</span>
-              </div>
-              <div style={{ padding: '8px', borderBottom: '1px solid hsl(var(--border))', flexShrink: 0 }}>
-                <div style={{ position: 'relative' }}>
-                  <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))' }} />
-                  <input type="text" value={selectedSearchQuery}
-                    onChange={(e) => setSelectedSearchQuery(e.target.value)}
-                    placeholder="선택된 업종 검색..."
-                    style={{ width: '100%', padding: '5px 8px 5px 26px', fontSize: '12px', border: '1px solid hsl(var(--border))', borderRadius: '4px', backgroundColor: 'hsl(var(--background))', color: 'hsl(var(--foreground))', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                 {selectedIndustries.length === 0 ? (
@@ -506,7 +634,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
                   return (
                     <div key={industry} style={{ display: 'flex', alignItems: 'flex-start', padding: '7px 10px', marginBottom: '3px', backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '6px', fontSize: '12px', gap: '6px' }}>
                       <span style={{ flex: 1, wordBreak: 'break-word', lineHeight: '1.5' }}>
-                        {selectedSearchQuery ? highlightText(industry, selectedSearchQuery) : industry}
+                        {searchQuery ? highlightText(industry, searchQuery) : industry}
                       </span>
                       <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', flexShrink: 0, alignSelf: 'center' }}>
                         ({brandCountMap[industry] || 0})
