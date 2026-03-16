@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { X, Plus, Minus, Search, Info } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { X, Plus, Minus, Search, Info, ChevronDown } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
 // 업종 경로별 브랜드 수 사전 계산
@@ -48,6 +48,8 @@ function getParentTooltip(path: string, selected: string[]): string {
 
 export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }: IndustryDialogProps) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false)
+  const typeDropdownRef = useRef<HTMLDivElement>(null)
   const [searchType, setSearchType] = useState<'industry' | 'brand'>('industry')
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('') // 실제 검색 실행된 쿼리
@@ -61,6 +63,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
   useEffect(() => {
     if (isOpen) {
       setShowTooltip(false)
+      setShowTypeDropdown(false)
       setSearchType('industry')
       setSearchInput('')
       setSearchQuery('')
@@ -71,6 +74,17 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
       setActiveMid(null)
     }
   }, [isOpen])
+
+  // 타입 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (typeDropdownRef.current && !typeDropdownRef.current.contains(e.target as Node)) {
+        setShowTypeDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const isIndustrySearchMode = !!(searchQuery && searchType === 'industry')
 
@@ -308,7 +322,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
               )}
             </div>
           </div>
-          <p className="dialog-description">업종명을 클릭하면 하위 업종을 탐색하고, [+]로 원하는 업종을 선택하세요</p>
+          <p className="dialog-description">업종명을 클릭하여 하위 업종을 탐색하세요. [+] 로 원하는 업종을 선택할 수 있습니다.</p>
           <button onClick={onClose} style={{ position: 'absolute', right: '24px', top: '24px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'hsl(var(--muted-foreground))' }}>
             <X size={20} />
           </button>
@@ -318,16 +332,29 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate }
 
           {/* 검색 영역 */}
           <div style={{ display: 'flex', gap: '8px' }}>
-            {/* 타입 셀렉트 */}
-            <select
-              value={searchType}
-              onChange={(e) => handleSearchTypeChange(e.target.value as 'industry' | 'brand')}
-              className="input"
-              style={{ width: '90px', flexShrink: 0 }}
-            >
-              <option value="industry">업종</option>
-              <option value="brand">브랜드</option>
-            </select>
+            {/* 타입 드롭다운 */}
+            <div style={{ position: 'relative', flexShrink: 0 }} ref={typeDropdownRef}>
+              <button
+                onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                className="input"
+                style={{ width: '90px', textAlign: 'left', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <span>{searchType === 'industry' ? '업종' : '브랜드'}</span>
+                <ChevronDown size={14} />
+              </button>
+              {showTypeDropdown && (
+                <div className="dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px', zIndex: 1100 }}>
+                  {(['industry', 'brand'] as const).map(type => (
+                    <button key={type}
+                      onClick={() => { handleSearchTypeChange(type); setShowTypeDropdown(false) }}
+                      className="dropdown-item"
+                      style={{ backgroundColor: searchType === type ? 'hsl(var(--muted))' : 'transparent' }}>
+                      {type === 'industry' ? '업종' : '브랜드'}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* 검색 인풋 */}
             <div style={{ flex: 1, position: 'relative' }}>
