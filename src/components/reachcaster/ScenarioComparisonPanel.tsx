@@ -501,7 +501,7 @@ export function ScenarioComparisonPanel({
               backgroundColor: hasRisk && canCompare ? 'hsl(var(--destructive))' : undefined
             }}
           >
-            {hasRisk ? '비교 강행' : '비교 결과 보기'}
+            {hasRisk ? '그래도 비교하기' : '비교 결과 보기'}
           </button>
         </div>
       </div>
