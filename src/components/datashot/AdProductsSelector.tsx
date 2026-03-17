@@ -21,9 +21,7 @@ function encodeSelections(sel: SelectionMap): string[] {
   return [JSON.stringify(sel)]
 }
 
-// 선택 수가 많을 때 "N개 선택됨" 텍스트로 표시, 적을 때(3개 이하)는 칩으로 표시
-const CHIP_THRESHOLD = 3
-
+// 선택 칩 렌더링 - 항상 전체 표시
 function renderChips(selected: string[], onRemove: (v: string) => void, placeholder: string) {
   if (selected.length === 0) {
     return (
@@ -32,25 +30,6 @@ function renderChips(selected: string[], onRemove: (v: string) => void, placehol
       </span>
     )
   }
-  // 4개 이상 선택 시 "N개 선택됨" 텍스트 표시
-  if (selected.length > CHIP_THRESHOLD) {
-    return (
-      <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: '6px',
-        fontSize: '13px', color: 'hsl(var(--foreground))'
-      }}>
-        <span style={{
-          display: 'inline-flex', alignItems: 'center',
-          padding: '2px 10px', backgroundColor: 'hsl(var(--primary) / 0.1)',
-          border: '1px solid hsl(var(--primary) / 0.3)',
-          borderRadius: '12px', fontSize: '12px', color: 'hsl(var(--primary))', whiteSpace: 'nowrap'
-        }}>
-          {selected.length}개 선택됨
-        </span>
-      </span>
-    )
-  }
-  // 3개 이하는 칩으로 표시
   return (
     <>
       {selected.map(v => (
@@ -164,31 +143,6 @@ function MultiSelect({
           backgroundColor: 'hsl(var(--card))', boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           zIndex: 100, position: 'relative'
         }}>
-          {/* 선택된 항목 요약 (4개 이상 선택 시) */}
-          {selected.length > CHIP_THRESHOLD && (
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--primary) / 0.04)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--primary))' }}>선택된 항목 ({selected.length}개)</span>
-                <button onClick={() => onChange([])} className="btn btn-ghost btn-sm" style={{ fontSize: '11px' }}>전체 해제</button>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '72px', overflowY: 'auto' }}>
-                {selected.map(v => (
-                  <span key={v} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '3px',
-                    padding: '2px 8px', backgroundColor: 'hsl(var(--primary) / 0.1)',
-                    border: '1px solid hsl(var(--primary) / 0.3)',
-                    borderRadius: '12px', fontSize: '11px', color: 'hsl(var(--primary))', whiteSpace: 'nowrap'
-                  }}>
-                    {v}
-                    <span role="button" onClick={() => toggle(v)}
-                      style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary) / 0.6)' }}>
-                      <X size={9} />
-                    </span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
           {/* 검색 */}
           <div style={{ padding: '8px', borderBottom: '1px solid hsl(var(--border))', position: 'relative' }}>
             <Search size={13} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))' }} />
