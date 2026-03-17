@@ -64,14 +64,14 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
                       key={field.key}
                       label={field.label}
                       value={values.length > 0 ? values.length + '개' : '—'}
-                      detail={values.length > 0 && values.length <= 3 ? values.join(', ') : undefined}
+                      chips={values.length > 0 ? values : undefined}
                     />
                   )
                 })}
                 <SummaryItem
                   label="타겟팅 옵션"
                   value={formData.targetingCategory ? (formData.targetingOptions.length > 0 ? formData.targetingOptions.length + '개' : '선택 안 함') : '선택 안 함'}
-                  detail={formData.targetingCategory && formData.targetingOptions.length > 0 ? formData.targetingCategory + ' › ' + formData.targetingOptions.join(', ') : undefined}
+                  chips={formData.targetingCategory && formData.targetingOptions.length > 0 ? formData.targetingOptions : undefined}
                 />
                 <MetricsItem metrics={formData.metrics} media={formData.media} />
               </div>
@@ -103,7 +103,7 @@ function StepLabel({ label, step, currentStep }: { label: string; step: number; 
   )
 }
 
-function SummaryItem({ label, value, detail }: { label: string; value: string; detail?: string }) {
+function SummaryItem({ label, value, detail, chips }: { label: string; value: string; detail?: string; chips?: string[] }) {
   const hasValue = value !== '—' && value !== '선택 안 함'
   return (
     <div>
@@ -113,7 +113,8 @@ function SummaryItem({ label, value, detail }: { label: string; value: string; d
           {value}
         </span>
       </div>
-      {detail && (
+      {chips && chips.length > 0 && <ChipList items={chips} />}
+      {!chips && detail && (
         <div style={{ marginTop: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {detail}
         </div>
@@ -122,10 +123,27 @@ function SummaryItem({ label, value, detail }: { label: string; value: string; d
   )
 }
 
+function ChipList({ items }: { items: string[] }) {
+  const MAX_VISIBLE = 5
+  const visible = items.slice(0, MAX_VISIBLE)
+  const overflow = items.length - MAX_VISIBLE
+  const chipStyle: React.CSSProperties = {
+    fontSize: '10px', padding: '3px 6px', borderRadius: '4px',
+    backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap'
+  }
+  return (
+    <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+      {visible.map((item, i) => (
+        <div key={i} style={chipStyle}>{item}</div>
+      ))}
+      {overflow > 0 && (
+        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>외 {overflow}개</span>
+      )}
+    </div>
+  )
+}
+
 function IndustryItem({ industries, industryLevel }: { industries: string[]; industryLevel: string | null }) {
-  const MAX_VISIBLE = 10
-  const visible = industries.slice(0, MAX_VISIBLE)
-  const overflow = industries.length - MAX_VISIBLE
   const levelLabel = industryLevel === 'major' ? '대분류' : industryLevel === 'mid' ? '중분류' : industryLevel === 'minor' ? '소분류' : null
 
   return (
@@ -136,20 +154,7 @@ function IndustryItem({ industries, industryLevel }: { industries: string[]; ind
           {industries.length > 0 ? industries.length + '개' + (levelLabel ? ' (' + levelLabel + ')' : '') : '—'}
         </span>
       </div>
-      {industries.length > 0 && (
-        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {visible.map((ind, i) => (
-            <div key={i} style={{ fontSize: '10px', padding: '3px 6px', borderRadius: '4px', backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap' }}>
-              {ind}
-            </div>
-          ))}
-          {overflow > 0 && (
-            <div style={{ fontSize: '10px', padding: '3px 6px', borderRadius: '4px', backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>
-              +{overflow}개
-            </div>
-          )}
-        </div>
-      )}
+      {industries.length > 0 && <ChipList items={industries} />}
     </div>
   )
 }
