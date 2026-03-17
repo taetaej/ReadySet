@@ -71,6 +71,16 @@ function renderChips(selected: string[], onRemove: (v: string) => void, placehol
   )
 }
 
+// 한글 조사 판별 (받침 유무)
+function getJosa(word: string, josa: '을/를' | '이/가' | '은/는'): string {
+  const last = word[word.length - 1]
+  const code = last.charCodeAt(0)
+  const hasBatchim = code >= 0xAC00 && code <= 0xD7A3 && (code - 0xAC00) % 28 !== 0
+  if (josa === '을/를') return hasBatchim ? '을' : '를'
+  if (josa === '이/가') return hasBatchim ? '이' : '가'
+  return hasBatchim ? '은' : '는'
+}
+
 // 옵션이 string 배열인지 AdProductOption 배열인지 판별
 function isOptionObjects(opts: string[] | AdProductOption[]): opts is AdProductOption[] {
   return opts.length > 0 && typeof opts[0] === 'object'
@@ -83,14 +93,14 @@ function MultiSelect({
   options,
   selected,
   onChange,
-  disabled,
+  prerequisiteLabel,
 }: {
   label: string
   required: boolean
   options: string[] | AdProductOption[]
   selected: string[]
   onChange: (next: string[]) => void
-  disabled?: boolean
+  prerequisiteLabel?: string // 이전 필드 미선택 시 placeholder에 표시할 필드명
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -123,25 +133,29 @@ function MultiSelect({
   }
 
   return (
-    <div ref={ref} style={{ marginBottom: '20px', opacity: disabled ? 0.4 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+    <div ref={ref} style={{ marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
         <span style={{ fontSize: '14px', fontWeight: '500' }}>{label}</span>
         {required && <span style={{ color: 'hsl(var(--destructive))' }}>*</span>}
       </div>
 
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => !prerequisiteLabel && setOpen(o => !o)}
         className="input"
         style={{
-          width: '100%', textAlign: 'left', cursor: 'pointer',
+          width: '100%', textAlign: 'left', cursor: prerequisiteLabel ? 'default' : 'pointer',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           minHeight: '36px', height: 'auto', padding: '6px 12px',
+          backgroundColor: prerequisiteLabel ? 'hsl(var(--muted) / 0.5)' : undefined,
         }}
       >
         <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '4px', minWidth: 0 }}>
-          {renderChips(selected, toggle, `${label}을(를) 선택하세요.`)}
+          {prerequisiteLabel
+            ? <span style={{ color: 'hsl(var(--muted-foreground))', fontSize: '13px', lineHeight: '22px' }}>{prerequisiteLabel}{getJosa(prerequisiteLabel, '을/를')} 먼저 선택해주세요.</span>
+            : renderChips(selected, toggle, `${label}${getJosa(label, '을/를')} 선택하세요.`)
+          }
         </div>
-        {open ? <ChevronUp size={14} style={{ flexShrink: 0, marginLeft: '4px' }} /> : <ChevronDown size={14} style={{ flexShrink: 0, marginLeft: '4px' }} />}
+        {!prerequisiteLabel && (open ? <ChevronUp size={14} style={{ flexShrink: 0, marginLeft: '4px' }} /> : <ChevronDown size={14} style={{ flexShrink: 0, marginLeft: '4px' }} />)}
       </button>
 
       {open && (
@@ -267,12 +281,12 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
 
       {validationActive && !isRequiredValid && (
         <p style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '-16px', marginBottom: '20px' }}>
-          {requiredField.label}을(를) 선택해주세요.
+          {requiredField.label}{getJosa(requiredField.label, '을/를')} 선택해주세요.
         </p>
       )}
 
       {/* 나머지 필드 (선택, 첫 번째 선택 후 활성화) */}
-      {structure.fields.slice(1).map(field => (
+      {structure.fields.slice(1).map((field) => (
         <MultiSelect
           key={field.key}
           label={field.label}
@@ -280,7 +294,7 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
           options={field.options}
           selected={selections[field.key] ?? []}
           onChange={next => updateField(field.key, next)}
-          disabled={!isRequiredValid}
+          prerequisiteLabel={!isRequiredValid ? requiredField.label : undefined}
         />
       ))}
     </div>

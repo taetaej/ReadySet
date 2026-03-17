@@ -390,9 +390,15 @@ export const googleAdProductStructure: MediaAdProductStructure = {
 export const kakaoAdProductStructure: MediaAdProductStructure = {
   fields: [
     {
-      label: '캠페인 유형',
-      key: 'campaignType',
+      label: '광고 목표',
+      key: 'campaignObjective',
       required: true,
+      options: ['전환', '방문', '도달', '조회']
+    },
+    {
+      label: '광고 유형',
+      key: 'campaignType',
+      required: false,
       options: [
         '디스플레이',
         '포커스 풀뷰',
@@ -408,25 +414,19 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '캠페인 목표',
-      key: 'campaignObjective',
-      required: false,
-      options: ['전환', '방문', '도달', '조회']
-    },
-    {
-      label: '목표 유형',
+      label: '광고 목표 설정',
       key: 'objectiveType',
       required: false,
       options: ['픽셀&SDK', '카카오톡채널', '카탈로그 광고 최적화']
     },
     {
-      label: '과금 방식',
+      label: '입찰 방식',
       key: 'pricingType',
       required: false,
       options: ['CPC', 'CPA', 'CPM', 'CPT', 'CPMS', 'CPV']
     },
     {
-      label: '광고 포맷',
+      label: '소재 유형',
       key: 'adFormat',
       required: false,
       options: [

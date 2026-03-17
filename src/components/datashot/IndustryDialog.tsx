@@ -76,6 +76,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
   const [hasSearched, setHasSearched] = useState(false)
   const [activeMajor, setActiveMajor] = useState<string | null>(null)
   const [activeMid, setActiveMid] = useState<string | null>(null)
+  const [showValidation, setShowValidation] = useState(false)
 
   // 모달 열릴 때마다 검색/탐색 상태 초기화 (선택된 업종은 유지)
   useEffect(() => {
@@ -89,7 +90,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
       setHasSearched(false)
       setActiveMajor(null)
       setActiveMid(null)
-      // 이미 레벨이 설정된 경우 유지, 없으면 선택 화면으로
+      setShowValidation(false)
       setLocalLevel(industryLevel)
     }
   }, [isOpen])
@@ -414,7 +415,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               )}
             </div>
           </div>
-          <p className="dialog-description">분류 레벨을 먼저 선택한 뒤 업종을 추가하세요. 레벨 변경 시 선택된 업종이 초기화됩니다.</p>
+          <p className="dialog-description">업종 분류 레벨을 먼저 선택해주세요. 레벨 변경 시 선택한 업종이 초기화됩니다.</p>
           <button onClick={onClose} style={{ position: 'absolute', right: '24px', top: '24px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'hsl(var(--muted-foreground))' }}>
             <X size={20} />
           </button>
@@ -449,6 +450,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                       onUpdate([], value)
                       setActiveMajor(null)
                       setActiveMid(null)
+                      setSearchInput('')
+                      setSearchQuery('')
+                      setBrandResults([])
+                      setHasSearched(false)
                     }
                   }}
                   title={example}
@@ -507,7 +512,14 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               <input
                 type="text"
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) => {
+                  setSearchInput(e.target.value)
+                  if (!e.target.value) {
+                    setSearchQuery('')
+                    setBrandResults([])
+                    setHasSearched(false)
+                  }
+                }}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
                 placeholder={searchType === 'industry' ? '업종 검색' : '브랜드명으로 업종 검색'}
                 className="input"
@@ -603,7 +615,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 {localLevel === 'major'
                   ? <div style={emptyStyle}>대분류 레벨에서는<br />사용하지 않습니다</div>
                   : !activeMajor && !isIndustrySearchMode
-                    ? <div style={emptyStyle}>업종(대)의 [›]를<br />클릭하면 표시됩니다</div>
+                    ? <div style={emptyStyle}>업종(대)를 클릭하면<br />하위 업종(중)이 표시됩니다.</div>
                     : midItems.length === 0
                       ? <div style={emptyStyle}>검색 결과가 없습니다</div>
                       : midItems.map(({ major, mid, isMatch }) => renderRow(
@@ -629,7 +641,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 {localLevel !== 'minor'
                   ? <div style={emptyStyle}>{localLevel === 'major' ? '대분류' : '중분류'} 레벨에서는<br />사용하지 않습니다</div>
                   : !activeMid && !isIndustrySearchMode
-                    ? <div style={emptyStyle}>업종(중)의 [›]를<br />클릭하면 표시됩니다</div>
+                    ? <div style={emptyStyle}>업종(중)을 클릭하면<br />하위 업종(소)가 표시됩니다.</div>
                     : minorItems.length === 0
                       ? <div style={emptyStyle}>검색 결과가 없습니다</div>
                       : minorItems.map(({ major, mid, minor }) => renderRow(
@@ -646,7 +658,16 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             {/* 선택된 업종 */}
             <div style={colStyle}>
               <div style={colHeaderStyle}>
-                <span>선택된 업종</span>
+                <span>선택한 업종</span>
+                {selectedIndustries.length > 0 && (
+                  <button
+                    onClick={() => onUpdate([], localLevel!)}
+                    className="btn btn-ghost btn-sm"
+                    style={{ fontSize: '11px' }}
+                  >
+                    전체 해제
+                  </button>
+                )}
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                 {selectedIndustries.length === 0 ? (
@@ -669,12 +690,25 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               </div>
             </div>
           </div>
+          {showValidation && selectedIndustries.length === 0 && (
+            <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
+              업종을 선택해주세요.
+            </div>
+          )}
         </div>
 
         <div className="dialog-footer">
           <button onClick={handleReset} className="btn btn-ghost btn-md" style={{ marginRight: 'auto' }}>초기화</button>
           <button onClick={onClose} className="btn btn-secondary btn-md">취소</button>
-          <button onClick={onClose} className="btn btn-primary btn-md">선택 완료 ({selectedIndustries.length}건)</button>
+          <button
+            onClick={() => {
+              if (selectedIndustries.length === 0) { setShowValidation(true); return }
+              onClose()
+            }}
+            className="btn btn-primary btn-md"
+          >
+            선택 완료 ({selectedIndustries.length}건)
+          </button>
         </div>
       </div>
     </div>
