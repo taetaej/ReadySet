@@ -79,11 +79,20 @@ export function ScenarioComparisonPanel({
 
   // 더미 시나리오 목록 (정합성 체크용 데이터 포함)
   const availableScenarios: ComparisonScenario[] = [
-    { id: 'S001', name: '2024 Q4 캠페인', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
-    { id: 'S002', name: '신제품 런칭', budget: 1200000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 25~29세', '여성 30~34세'] },
-    { id: 'S003', name: '브랜드 인지도 향상', budget: 1000000000, period: { start: '2024-11-01', end: '2025-01-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
-    { id: 'S004', name: '여름 시즌 프로모션', budget: 800000000, period: { start: '2024-06-01', end: '2024-08-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
-    { id: 'S005', name: '연말 특별 캠페인', budget: 1500000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['전체'] }
+    // 타겟만 다른 시나리오 (권장 조건 일치 = optimal)
+    { id: 'S001', name: '남성 25~34 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
+    { id: 'S002', name: '여성 25~34 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 25~29세', '여성 30~34세'] },
+    { id: 'S003', name: '남녀 20~29 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 20~24세', '남성 25~29세', '여성 20~24세', '여성 25~29세'] },
+    { id: 'S004', name: '전체 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['전체'] },
+    { id: 'S005', name: '여성 20~29 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 20~24세', '여성 25~29세'] },
+    { id: 'S006', name: '남성 35~44 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 35~39세', '남성 40~44세'] },
+    // 예산 상이 (caution)
+    { id: 'S007', name: '여성 30~39 (예산 상이)', budget: 1300000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 30~34세', '여성 35~39세'] },
+    { id: 'S008', name: '남녀 30~39 (예산 상이)', budget: 800000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 30~34세', '남성 35~39세', '여성 30~34세', '여성 35~39세'] },
+    // 기간 상이 (caution)
+    { id: 'S009', name: '남성 20~24 (기간 상이)', budget: 1000000000, period: { start: '2024-11-01', end: '2025-01-31' }, targetGrp: ['남성 20~24세'] },
+    // 예산+기간 모두 상이 (risk)
+    { id: 'S010', name: '여성 40~49 (조건 상이)', budget: 700000000, period: { start: '2024-07-01', end: '2024-09-30' }, targetGrp: ['여성 40~44세', '여성 45~49세'] }
   ]
 
   // 정합성 체크 로직
@@ -134,8 +143,8 @@ export function ScenarioComparisonPanel({
 
   const integrityConfig = {
     optimal: { color: 'hsl(var(--muted-foreground))', label: '비교 적합', desc: '권장 조건이 일치하여 신뢰도 높은 비교가 가능합니다.', icon: CheckCircle },
-    caution: { color: 'hsl(var(--muted-foreground))', label: '조건 일부 상이', desc: '일부 권장 조건이 다릅니다. 결과 해석 시 차이를 감안해 주세요.', icon: AlertTriangle },
-    risk: { color: 'hsl(var(--muted-foreground))', label: '비교 부적합', desc: '권장 조건이 대부분 상이하여 비교 결과의 신뢰도가 낮을 수 있습니다.', icon: XCircle }
+    caution: { color: 'hsl(38 92% 50%)', label: '조건 일부 상이', desc: '일부 권장 조건이 다릅니다. 결과 해석 시 차이를 감안해 주세요.', icon: AlertTriangle },
+    risk: { color: 'hsl(var(--destructive))', label: '비교 부적합', desc: '권장 조건이 대부분 상이하여 비교 결과의 신뢰도가 낮을 수 있습니다.', icon: XCircle }
   }
 
   const handleAddScenario = (scenario: ComparisonScenario) => {
@@ -172,7 +181,8 @@ export function ScenarioComparisonPanel({
         zIndex: 999,
         transition: 'bottom 0.3s ease-out',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}
     >
       {/* 헤더 */}
@@ -519,7 +529,8 @@ export function ScenarioComparisonPanel({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000
+            zIndex: 1000,
+            overflow: 'hidden'
           }}
           onClick={() => setShowScenarioSelector(false)}
         >
@@ -529,7 +540,7 @@ export function ScenarioComparisonPanel({
               borderRadius: '12px',
               padding: '24px',
               width: '500px',
-              height: '600px',
+              height: '460px',
               border: '1px solid hsl(var(--border))',
               display: 'flex',
               flexDirection: 'column'
