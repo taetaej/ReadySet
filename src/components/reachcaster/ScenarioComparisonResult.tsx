@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet } from 'lucide-react'
 import { useState } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell } from 'recharts'
 import { SpinXButton } from '../spinx/SpinXButton'
@@ -71,11 +71,29 @@ function generateDummyMetrics(_index: number, budget: number, period?: { start: 
     '여성 40~44세,여성 45~49세': { pop: 6100000, r1: 58.2, r3: 33.1, freq: 3.4, cprp: 4650000, effImp: 9800000, grps: 220.8, tvc: 50 }
   }
   const p = profiles[targetKey] || { pop: 5200000, r1: 70.0, r3: 43.0, freq: 3.6, cprp: 3800000, effImp: 13000000, grps: 260.0, tvc: 44 }
+
+  // 예산 스케일링: 기준 10억 대비 예산 비율로 지표 조정 (수확 체감 반영)
+  const baseBudgetRef = 1000000000
+  const budgetRatio = budget / baseBudgetRef
+  // 로그 스케일로 수확 체감 (예산 2배 → reach ~1.15배, 예산 0.5배 → reach ~0.85배)
+  const reachScale = Math.pow(budgetRatio, 0.22)
+  const freqScale = Math.pow(budgetRatio, 0.35)
+  const grpScale = Math.pow(budgetRatio, 0.55)
+  // CPRP는 예산 증가 시 비효율 증가 (수확 체감)
+  const cprpScale = Math.pow(budgetRatio, 0.45)
+
+  const scaledR1 = Math.min(p.r1 * reachScale, 95)
+  const scaledR3 = Math.min(p.r3 * reachScale, 85)
+  const scaledFreq = p.freq * freqScale
+  const scaledGrps = p.grps * grpScale
+  const scaledCprp = p.cprp * cprpScale
+  const scaledEffImp = Math.round(p.effImp * grpScale)
+
   return {
-    reach1: p.r1, reach2: p.r1 * 0.80, reach3: p.r3, reach4: p.r3 * 0.77, reach5: p.r3 * 0.61,
-    reachCount: Math.round(p.pop * (p.r1 / 100)), avgFrequency: p.freq,
-    effectiveImpression: p.effImp, cprp: p.cprp, grps: p.grps,
-    impression: Math.round(p.effImp * 1.45), totalBudget: budget,
+    reach1: scaledR1, reach2: scaledR1 * 0.80, reach3: scaledR3, reach4: scaledR3 * 0.77, reach5: scaledR3 * 0.61,
+    reachCount: Math.round(p.pop * (scaledR1 / 100)), avgFrequency: scaledFreq,
+    effectiveImpression: scaledEffImp, cprp: Math.round(scaledCprp), grps: scaledGrps,
+    impression: Math.round(scaledEffImp * 1.45), totalBudget: budget,
     tvcRatio: p.tvc, digitalRatio: 100 - p.tvc,
     channelBudgets: [
       { name: 'Google Ads', ratio: Math.round((100 - p.tvc) * 0.50) },
@@ -85,7 +103,7 @@ function generateDummyMetrics(_index: number, budget: number, period?: { start: 
       { name: 'CJ ENM', ratio: Math.round(p.tvc * 0.35) },
       { name: 'JTBC', ratio: Math.round(p.tvc * 0.25) }
     ],
-    targetGrp: p.grps * 0.72, periodDays: days, targetPopulation: p.pop
+    targetGrp: scaledGrps * 0.72, periodDays: days, targetPopulation: p.pop
   }
 }
 
@@ -262,7 +280,7 @@ function PerformanceComboChart({ allData, labels }: {
 }
 
 // ── 스택바 (매체별 예산 비중) ──
-function StackedBar({ channels }: { channels: { name: string; ratio: number }[] }) {
+function StackedBar({ channels, totalBudget }: { channels: { name: string; ratio: number }[]; totalBudget: number }) {
   const [hovered, setHovered] = useState<number | null>(null)
   const colors = ['hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.55)', 'hsl(var(--muted-foreground) / 0.35)', 'hsl(var(--muted-foreground) / 0.2)', 'hsl(var(--muted-foreground) / 0.12)']
 
@@ -315,9 +333,138 @@ function StackedBar({ channels }: { channels: { name: string; ratio: number }[] 
         }}>
           <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>{channels[hovered].name}</div>
           <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>{channels[hovered].ratio}%</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>₩{Math.round(totalBudget * channels[hovered].ratio / 100).toLocaleString('ko-KR')}</div>
         </div>
       )}
     </div>
+  )
+}
+
+// ── 예산 비교: Budget vs Reach 커브 (라인 차트) ──
+function BudgetReachChart({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
+  const sorted = allData.map((m, i) => ({
+    budget: m.totalBudget, reach1: m.reach1, reach3: m.reach3, label: labels[i], idx: i
+  })).sort((a, b) => a.budget - b.budget)
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
+    return (
+      <div style={{
+        background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+        borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+      }}>
+        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>{d.label}</div>
+        <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
+          <div>Budget: <span style={{ fontWeight: '600' }}>₩{d.budget.toLocaleString('ko-KR')}</span></div>
+          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach1.toFixed(1)}%</span></div>
+          <div>Reach 3+: <span style={{ fontWeight: '600' }}>{d.reach3.toFixed(1)}%</span></div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <ComposedChart data={sorted} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
+        <XAxis
+          dataKey="budget" type="number"
+          tickFormatter={v => `${(v / 100000000).toFixed(0)}억`}
+          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
+          label={{ value: 'Budget', position: 'bottom', offset: 0, style: { fill: '#71717a', fontSize: 11 } }}
+        />
+        <YAxis
+          tickFormatter={v => `${v}%`}
+          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
+          width={44}
+          label={{ value: 'Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
+        <Line
+          dataKey="reach1" type="monotone"
+          stroke="hsl(var(--foreground))" strokeWidth={2}
+          dot={(props: any) => {
+            const { cx, cy, payload } = props
+            const isBase = payload.idx === 0
+            return <circle cx={cx} cy={cy} r={isBase ? 5 : 3.5} fill={isBase ? '#00ff9d' : 'hsl(var(--foreground))'} stroke={isBase ? '#00ff9d' : 'hsl(var(--foreground))'} strokeWidth={1.5} />
+          }}
+        />
+        <Line
+          dataKey="reach3" type="monotone"
+          stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="4 3"
+          dot={(props: any) => {
+            const { cx, cy, payload } = props
+            const isBase = payload.idx === 0
+            return <circle cx={cx} cy={cy} r={isBase ? 4 : 3} fill={isBase ? '#00ff9d' : 'hsl(var(--muted-foreground))'} stroke={isBase ? '#00ff9d' : 'hsl(var(--muted-foreground))'} strokeWidth={1} opacity={0.7} />
+          }}
+        />
+      </ComposedChart>
+    </ResponsiveContainer>
+  )
+}
+
+// ── 예산 비교: CPRP 효율 바 차트 ──
+function BudgetEfficiencyChart({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
+  const sorted = allData.map((m, i) => ({
+    name: labels[i], cprp: m.cprp, grps: m.grps, budget: m.totalBudget, idx: i
+  })).sort((a, b) => a.budget - b.budget)
+
+  const opacities = [0.85, 0.5, 0.35, 0.25]
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
+    return (
+      <div style={{
+        background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+        borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+      }}>
+        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>{d.name}</div>
+        <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
+          <div>Budget: <span style={{ fontWeight: '600' }}>₩{d.budget.toLocaleString('ko-KR')}</span></div>
+          <div>CPRP: <span style={{ fontWeight: '600' }}>₩{d.cprp.toLocaleString('ko-KR')}</span></div>
+          <div>GRPs: <span style={{ fontWeight: '600' }}>{d.grps.toFixed(1)}</span></div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <ComposedChart data={sorted} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
+        <XAxis
+          dataKey="name" stroke="#e4e4e7"
+          tick={{ fill: '#71717a', fontSize: 11 }}
+        />
+        <YAxis
+          yAxisId="left"
+          tickFormatter={v => `${(v / 1000000).toFixed(1)}M`}
+          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
+          width={52}
+          label={{ value: 'CPRP (원)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
+        />
+        <YAxis
+          yAxisId="right" orientation="right"
+          tickFormatter={v => v.toFixed(0)}
+          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
+          width={44}
+          label={{ value: 'GRPs', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'end' } }}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
+        <Bar yAxisId="left" dataKey="cprp" radius={[4, 4, 0, 0]} maxBarSize={36}>
+          {sorted.map((d, i) => (
+            <Cell key={i} fill={d.idx === 0 ? '#00ff9d' : 'hsl(var(--foreground))'} opacity={d.idx === 0 ? 0.8 : (opacities[i] || 0.2)} />
+          ))}
+        </Bar>
+        <Line
+          yAxisId="right" dataKey="grps" type="monotone"
+          stroke="hsl(var(--foreground))" strokeWidth={2}
+          dot={{ r: 3.5, fill: 'hsl(var(--foreground))', stroke: 'hsl(var(--foreground))', strokeWidth: 1.5 }}
+        />
+      </ComposedChart>
+    </ResponsiveContainer>
   )
 }
 
@@ -327,6 +474,8 @@ export function ScenarioComparisonResult({
 }: ScenarioComparisonResultProps) {
   const [spinXOpen, setSpinXOpen] = useState(false)
   const [showOverview, setShowOverview] = useState(true)
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   if (!isOpen) return null
 
   const baseMetrics = generateDummyMetrics(-1, baseScenario.budget || 1000000000, baseScenario.period, baseScenario.targetGrp)
@@ -342,7 +491,21 @@ export function ScenarioComparisonResult({
     }))
   ]
 
-  const keyMetrics: { key: keyof ScenarioMetrics; label: string; unit: string; fmt: (v: number) => string; inverse?: boolean; category?: string }[] = [
+  const keyMetrics: { key: keyof ScenarioMetrics; label: string; unit: string; fmt: (v: number) => string; inverse?: boolean; category?: string }[] = comparisonType === 'budget' ? [
+    // Budget Scaling: 예산이 변수이므로 Budget을 강조
+    { key: 'targetPopulation', label: 'Target Population', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Market Scale' },
+    { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
+    { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'cprp', label: 'CPRP', unit: '원', fmt: v => `₩${v.toLocaleString('ko-KR')}`, inverse: true, category: 'Efficiency' },
+    { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(1) },
+    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '', fmt: v => v.toFixed(1) },
+    { key: 'reachCount', label: 'Reach Count', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Volume' },
+    { key: 'impression', label: 'Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
+    { key: 'effectiveImpression', label: 'Effective Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
+  ] : [
     // Reach Flow
     { key: 'targetPopulation', label: 'Target Population', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Reach Flow' },
     { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
@@ -401,8 +564,41 @@ export function ScenarioComparisonResult({
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <button onClick={onNewComparison} className="btn btn-secondary btn-md">비교 재설정</button>
-            <button onClick={onClose} className="btn btn-secondary btn-md">나가기</button>
+            <button onClick={() => setResetConfirmOpen(true)} className="btn btn-ghost btn-sm" style={{ padding: '6px' }} title="비교 재설정">
+              <RefreshCw size={16} />
+            </button>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+              >
+                <Share2 size={16} />
+              </button>
+              {exportMenuOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '200px',
+                  backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', zIndex: 1000,
+                  fontFamily: 'Paperlogy, sans-serif', overflow: 'hidden'
+                }}>
+                  <button
+                    onClick={() => { console.log('Export to Excel'); setExportMenuOpen(false) }}
+                    style={{
+                      width: '100%', padding: '12px 16px', border: 'none', backgroundColor: 'transparent',
+                      textAlign: 'left', cursor: 'pointer', fontSize: '13px',
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      transition: 'background-color 0.2s', color: 'hsl(var(--popover-foreground))'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FileSpreadsheet size={16} />
+                    <span>Export to Excel</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -459,10 +655,18 @@ export function ScenarioComparisonResult({
                   backgroundColor: s.isBase ? 'hsl(var(--muted) / 0.15)' : 'transparent'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                    <span style={{
-                      fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px', textTransform: 'uppercase',
-                      color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'
-                    }}>{s.label}</span>
+                    {s.isBase ? (
+                      <span style={{
+                        fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px', textTransform: 'uppercase',
+                        color: 'hsl(var(--primary-foreground))', backgroundColor: 'hsl(var(--primary))',
+                        padding: '2px 8px', borderRadius: '4px'
+                      }}>기준</span>
+                    ) : (
+                      <span style={{
+                        fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px', textTransform: 'uppercase',
+                        color: 'hsl(var(--muted-foreground))'
+                      }}>{s.label}</span>
+                    )}
                     <span style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>{s.name}</span>
                   </div>
                   <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>타겟 설정</div>
@@ -508,25 +712,91 @@ export function ScenarioComparisonResult({
               {/* 왼쪽: 버블 차트 */}
               <div style={{ minWidth: 0 }}>
                 <h3 style={sectionTitle}>Reach × CPRP Matrix</h3>
-                <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 16px 0' }}>
-                  버블 크기 = Target Population
-                </p>
+                <div style={{ margin: '4px 0 0 0' }}>
                 <ReachCPRPChart
                   allData={[baseMetrics, ...scenarioMetrics]}
                   labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
                   targetLabels={allScenarios.map(s => s.targetGrp)}
                 />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="currentColor" opacity="0.2" /><circle cx="6" cy="6" r="2" fill="currentColor" /></svg>
+                    Reach 1+ × CPRP
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="currentColor" opacity="0.15" stroke="currentColor" strokeWidth="0.5" /></svg>
+                    Target Population
+                  </span>
+                </div>
+                </div>
               </div>
               {/* 오른쪽: 바/라인 콤보 */}
               <div style={{ minWidth: 0 }}>
                 <h3 style={sectionTitle}>Key Metrics Comparison</h3>
-                <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 16px 0' }}>
-                  Reach 1+ (bar) · Avg. Frequency (line)
-                </p>
+                <div style={{ margin: '4px 0 0 0' }}>
                 <PerformanceComboChart
                   allData={[baseMetrics, ...scenarioMetrics]}
                   labels={allScenarios.map(s => s.isBase ? '기준' : s.name)}
                 />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="2" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.35" /></svg>
+                    Reach 1+
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="2" /><circle cx="7" cy="5" r="2.5" fill="currentColor" /></svg>
+                    Avg. Frequency
+                  </span>
+                </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── 시각화 (예산 비교) ── */}
+        {comparisonType === 'budget' && (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
+              {/* 왼쪽: Budget vs Reach 커브 */}
+              <div style={{ minWidth: 0 }}>
+                <h3 style={sectionTitle}>Budget × Reach Curve</h3>
+                <div style={{ margin: '4px 0 0 0' }}>
+                <BudgetReachChart
+                  allData={[baseMetrics, ...scenarioMetrics]}
+                  labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="2" /><circle cx="7" cy="5" r="2.5" fill="currentColor" /></svg>
+                    Reach 1+
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" /><circle cx="7" cy="5" r="2" fill="currentColor" opacity="0.6" /></svg>
+                    Reach 3+
+                  </span>
+                </div>
+                </div>
+              </div>
+              {/* 오른쪽: CPRP 효율 + GRPs */}
+              <div style={{ minWidth: 0 }}>
+                <h3 style={sectionTitle}>Cost Efficiency</h3>
+                <div style={{ margin: '4px 0 0 0' }}>
+                <BudgetEfficiencyChart
+                  allData={[baseMetrics, ...scenarioMetrics]}
+                  labels={allScenarios.map(s => s.isBase ? '기준' : s.name)}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="2" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.35" /></svg>
+                    CPRP
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="2" /><circle cx="7" cy="5" r="2.5" fill="currentColor" /></svg>
+                    GRPs
+                  </span>
+                </div>
+                </div>
               </div>
             </div>
           </>
@@ -543,7 +813,8 @@ export function ScenarioComparisonResult({
                   <th style={{ padding: '10px 24px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'hsl(var(--muted-foreground))', width: '180px' }}>지표</th>
                   {allScenarios.map((s, i) => (
                     <th key={i} style={{ padding: '10px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))', backgroundColor: s.isBase ? 'hsl(var(--muted) / 0.5)' : undefined }}>
-                      {s.label}
+                      <div>{s.isBase ? '기준' : s.label}</div>
+                      <div style={{ fontSize: '11px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>{s.name}</div>
                     </th>
                   ))}
                 </tr>
@@ -564,7 +835,7 @@ export function ScenarioComparisonResult({
                         TV {s.metrics.tvcRatio}% · Digital {s.metrics.digitalRatio}%
                       </div>
                       {/* 스택바 */}
-                      <StackedBar channels={s.metrics.channelBudgets} />
+                      <StackedBar channels={s.metrics.channelBudgets} totalBudget={s.metrics.totalBudget} />
                     </td>
                   ))}
                 </tr>
@@ -615,6 +886,36 @@ export function ScenarioComparisonResult({
           </div>
         </div>
       </div>
+
+      {/* 재설정 확인 다이얼로그 */}
+      {resetConfirmOpen && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                비교를 재설정하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                현재 비교 결과가 초기화되고 시나리오 선택 화면으로 돌아갑니다.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setResetConfirmOpen(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => { setResetConfirmOpen(false); onNewComparison() }}
+                className="btn btn-primary btn-sm"
+              >
+                재설정
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SpinX */}
       <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 998 }}>

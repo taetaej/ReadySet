@@ -86,13 +86,17 @@ export function ScenarioComparisonPanel({
     { id: 'S004', name: '전체 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['전체'] },
     { id: 'S005', name: '여성 20~29 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 20~24세', '여성 25~29세'] },
     { id: 'S006', name: '남성 35~44 타겟', budget: 1000000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 35~39세', '남성 40~44세'] },
-    // 예산 상이 (caution)
+    // 예산 상이 (caution for target, optimal for budget)
     { id: 'S007', name: '여성 30~39 (예산 상이)', budget: 1300000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['여성 30~34세', '여성 35~39세'] },
     { id: 'S008', name: '남녀 30~39 (예산 상이)', budget: 800000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 30~34세', '남성 35~39세', '여성 30~34세', '여성 35~39세'] },
     // 기간 상이 (caution)
     { id: 'S009', name: '남성 20~24 (기간 상이)', budget: 1000000000, period: { start: '2024-11-01', end: '2025-01-31' }, targetGrp: ['남성 20~24세'] },
     // 예산+기간 모두 상이 (risk)
-    { id: 'S010', name: '여성 40~49 (조건 상이)', budget: 700000000, period: { start: '2024-07-01', end: '2024-09-30' }, targetGrp: ['여성 40~44세', '여성 45~49세'] }
+    { id: 'S010', name: '여성 40~49 (조건 상이)', budget: 700000000, period: { start: '2024-07-01', end: '2024-09-30' }, targetGrp: ['여성 40~44세', '여성 45~49세'] },
+    // 예산 비교용 시나리오 (동일 타겟/기간, 다른 예산)
+    { id: 'S011', name: '예산 7억', budget: 700000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
+    { id: 'S012', name: '예산 13억', budget: 1300000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] },
+    { id: 'S013', name: '예산 15억', budget: 1500000000, period: { start: '2024-10-01', end: '2024-12-31' }, targetGrp: ['남성 25~29세', '남성 30~34세'] }
   ]
 
   // 정합성 체크 로직
