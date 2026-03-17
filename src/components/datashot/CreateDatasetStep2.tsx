@@ -4,6 +4,7 @@ import { targetingOptionsByMedia } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { MetricsDialog } from './MetricsDialog'
 import { FormData } from './createDatasetTypes'
+import { mediaIconMap } from '../common/MediaIcons'
 
 interface Props {
   formData: FormData
@@ -49,7 +50,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
                 className="btn btn-ghost"
                 style={{
                   height: '36px', padding: '0 16px', fontSize: '13px',
-                  whiteSpace: 'nowrap',
+                  whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px',
                   border: `1px solid ${
                     formData.media === media
                       ? 'hsl(var(--primary))'
@@ -63,6 +64,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
                   transition: 'all 0.15s'
                 }}
               >
+                {(() => { const Icon = mediaIconMap[media]; return Icon ? <Icon size={14} /> : null })()}
                 {media}
               </button>
             ))}
