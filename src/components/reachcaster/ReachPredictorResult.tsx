@@ -173,6 +173,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [comparisonResultOpen, setComparisonResultOpen] = useState(false)
   const [comparisonScenarios, setComparisonScenarios] = useState<any[]>([])
   const [comparisonPurpose, setComparisonPurpose] = useState<string>('')
+  const [comparisonIntegrity, setComparisonIntegrity] = useState<'optimal' | 'caution' | 'risk'>('optimal')
   const [hasComparisonResult, setHasComparisonResult] = useState(false) // 비교 결과 저장 여부
 
   const handleToggleDarkMode = () => {
@@ -184,9 +185,39 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const handleCompare = (purpose: string, scenarios: any[]) => {
     setComparisonPurpose(purpose)
     setComparisonScenarios(scenarios)
+    // 정합성 레벨 계산
+    const baseBudget = scenarioData?.totalBudget || 1000000000
+    const basePeriod = scenarioData?.period || { start: '2024-10-01', end: '2024-12-31' }
+    const baseTarget = scenarioData?.targetGrpArray || ['남성 25~29세', '남성 30~34세']
+    
+    const levels = scenarios.map((s: any) => {
+      const budgetMatch = s.budget ? Math.abs(baseBudget - s.budget) / baseBudget < 0.05 : true
+      const periodMatch = s.period ? (basePeriod.start === s.period.start && basePeriod.end === s.period.end) : true
+      const targetMatch = s.targetGrp ? JSON.stringify(baseTarget.sort()) === JSON.stringify(s.targetGrp.sort()) : true
+      
+      if (purpose === 'target') {
+        if (budgetMatch && periodMatch) return 'optimal'
+        if (budgetMatch || periodMatch) return 'caution'
+        return 'risk'
+      }
+      if (purpose === 'period') {
+        if (budgetMatch && targetMatch) return 'optimal'
+        if (budgetMatch || targetMatch) return 'caution'
+        return 'risk'
+      }
+      if (purpose === 'budget') {
+        if (periodMatch && targetMatch) return 'optimal'
+        if (periodMatch || targetMatch) return 'caution'
+        return 'risk'
+      }
+      return 'optimal'
+    })
+    
+    const overall: 'optimal' | 'caution' | 'risk' = levels.includes('risk') ? 'risk' : levels.includes('caution') ? 'caution' : 'optimal'
+    setComparisonIntegrity(overall)
     setComparisonPanelOpen(false)
     setComparisonResultOpen(true)
-    setHasComparisonResult(true) // 비교 결과 생성됨
+    setHasComparisonResult(true)
   }
 
   const handleCloseComparison = () => {
@@ -254,9 +285,14 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           onNewComparison={handleNewComparison}
           baseScenario={{
             id: scenarioData?.id || '1',
-            name: scenarioData?.name || 'Reach Predictor 시나리오'
+            name: scenarioData?.name || 'Reach Predictor 시나리오',
+            budget: scenarioData?.totalBudget || 1000000000,
+            period: scenarioData?.period || { start: '2024-10-01', end: '2024-12-31' },
+            targetGrp: scenarioData?.targetGrpArray || ['남성 25~29세', '남성 30~34세']
           }}
           comparisonScenarios={comparisonScenarios}
+          comparisonType={comparisonPurpose}
+          integrityLevel={comparisonIntegrity}
           isDarkMode={isDarkMode}
         />
       ) : (
