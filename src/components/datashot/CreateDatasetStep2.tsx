@@ -98,7 +98,6 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
 
           {/* 타겟팅 옵션 */}
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>타겟팅 옵션</label>
             <TargetingSelector
               media={formData.media}
               category={formData.targetingCategory}
@@ -263,18 +262,20 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
         }}>
           {open ? <Minus size={12} /> : <Plus size={12} />}
         </span>
-        {/* 타입 선택 드롭다운 - 헤더 안에 */}
-        <div style={{ flex: 1, position: 'relative' }} onClick={e => e.stopPropagation()}>
+        <span style={{ fontSize: '13px', fontWeight: '500' }}>타겟팅 옵션</span>
+        {/* 타입 선택 드롭다운 - 타이틀 오른쪽 */}
+        <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
           <button
             onClick={() => setDropdownOpen(o => !o)}
             className="btn btn-ghost btn-sm"
             style={{
-              fontSize: '13px', fontWeight: '500', padding: '2px 8px 2px 4px',
+              fontSize: '12px', fontWeight: '400', padding: '2px 8px 2px 6px',
               color: category ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-              display: 'flex', alignItems: 'center', gap: '4px'
+              display: 'flex', alignItems: 'center', gap: '4px',
+              border: '1px solid hsl(var(--border))', borderRadius: '4px'
             }}
           >
-            {category || '타입 선택'}
+            {category || '선택 안 함'}
             <span style={{ fontSize: '10px', opacity: 0.5 }}>▾</span>
           </button>
           {dropdownOpen && (
@@ -291,6 +292,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
             </div>
           )}
         </div>
+        <div style={{ flex: 1 }} />
         {category && (
           <button
             onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}
@@ -304,32 +306,34 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
 
       {/* 펼쳐진 옵션 리스트 */}
       {open && (
-        category ? (
-          <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
-              {opts.map(opt => {
-                const isSelected = selected.includes(opt)
-                return (
-                  <label key={opt} style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
-                    backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
-                    transition: 'background 0.1s'
-                  }} onClick={e => e.stopPropagation()}>
-                    <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
-                    <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {opt}
-                    </span>
-                  </label>
-                )
-              })}
+        <>
+          {category ? (
+            <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                {opts.map(opt => {
+                  const isSelected = selected.includes(opt)
+                  return (
+                    <label key={opt} style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                      backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                      transition: 'background 0.1s'
+                    }} onClick={e => e.stopPropagation()}>
+                      <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                      <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {opt}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div style={{ padding: '16px 14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-            타입을 선택하면 옵션이 표시됩니다.
-          </div>
-        )
+          ) : (
+            <div style={{ padding: '16px 14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              타겟팅 옵션을 적용하지 않습니다.
+            </div>
+          )}
+        </>
       )}
       {validationActive && category && selected.length === 0 && (
         <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', padding: '4px 14px 8px' }}>최소 1개 이상 선택해주세요.</div>
