@@ -354,7 +354,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontWeight: '500' }}>시뮬레이션</span>
+              <span style={{ fontWeight: '500' }}>분석 매체/상품</span>
               <span>{scenarioData?.reachPredictorMedia?.length || 0}개</span>
               <button
                 onClick={() => setMediaDialogOpen(true)}
@@ -851,7 +851,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
             className="dialog-content" 
             onClick={(e) => e.stopPropagation()}
             style={{ 
-              width: '900px', 
+              width: '1100px', 
               maxWidth: '95vw',
               maxHeight: '80vh',
               display: 'flex',
@@ -886,7 +886,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     {/* 테이블 헤더 */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: '80px 240px 140px 140px 120px',
+                      gridTemplateColumns: '80px 1fr 160px 160px 120px',
                       gap: '12px',
                       padding: '12px 16px',
                       backgroundColor: 'hsl(var(--muted) / 0.5)',
@@ -895,8 +895,8 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                       fontWeight: '600',
                       color: 'hsl(var(--muted-foreground))'
                     }}>
-                      <div>매체</div>
-                      <div>상품</div>
+                      <div></div>
+                      <div>매체 / 상품</div>
                       <div style={{ textAlign: 'right' }}>확정 예산 (원)</div>
                       <div style={{ textAlign: 'right' }}>예상 노출</div>
                       <div style={{ textAlign: 'right' }}>CPM (원)</div>
@@ -908,7 +908,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                         <div
                           style={{
                             display: 'grid',
-                            gridTemplateColumns: '80px 240px 140px 140px 120px',
+                            gridTemplateColumns: '80px 1fr 160px 160px 120px',
                             gap: '12px',
                             padding: '12px 16px',
                             alignItems: 'center',
@@ -969,30 +969,33 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                         {/* 개별 설정 정보 (있는 경우만 표시) */}
                         {(media.customPeriod || media.customTarget) && (
                           <div style={{
-                            padding: '8px 16px 12px 92px',
-                            backgroundColor: 'hsl(var(--muted) / 0.1)',
-                            borderBottom: index < scenarioData.reachPredictorMedia.length - 1 ? '1px solid hsl(var(--border))' : 'none',
+                            display: 'grid',
+                            gridTemplateColumns: '80px 1fr 160px 160px 120px',
+                            gap: '12px',
+                            padding: '0 16px 12px 16px',
                             fontSize: '11px',
                             color: 'hsl(var(--primary))',
-                            display: 'flex',
-                            gap: '16px'
+                            borderBottom: index < scenarioData.reachPredictorMedia.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                           }}>
-                            {media.customPeriod && (
-                              <div>
-                                <span style={{ fontWeight: '500' }}>개별 기간: </span>
-                                <span>{media.customPeriod.start} ~ {media.customPeriod.end}</span>
-                              </div>
-                            )}
-                            {media.customTarget && (
-                              <div>
-                                <span style={{ fontWeight: '500' }}>개별 타겟: </span>
-                                <span>
-                                  {media.customTarget.length === 24 
-                                    ? '전체' 
-                                    : `${media.customTarget.length}개 선택`}
-                                </span>
-                              </div>
-                            )}
+                            <div></div>
+                            <div style={{ display: 'flex', gap: '16px' }}>
+                              {media.customPeriod && (
+                                <div>
+                                  <span style={{ fontWeight: '500' }}>개별 기간: </span>
+                                  <span>{media.customPeriod.start} ~ {media.customPeriod.end}</span>
+                                </div>
+                              )}
+                              {media.customTarget && (
+                                <div>
+                                  <span style={{ fontWeight: '500' }}>개별 타겟: </span>
+                                  <span>
+                                    {media.customTarget.length === 24 
+                                      ? '전체' 
+                                      : `${media.customTarget.length}개 선택`}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>

@@ -134,22 +134,22 @@ export function ScenarioStep2ReachPredictor({
     )
   }
 
-  // 전역 기간 일괄 적용
+  // 전역 기간 일괄 적용 (DIGITAL만)
   const applyGlobalPeriod = () => {
     setReachPredictorMedia(
       reachPredictorMedia.map(m => ({
         ...m,
-        customPeriod: undefined
+        customPeriod: m.category === 'DIGITAL' ? { ...localPeriod } : m.customPeriod
       }))
     )
   }
 
-  // 전역 타겟 일괄 적용
+  // 전역 타겟 일괄 적용 (DIGITAL만)
   const applyGlobalTarget = () => {
     setReachPredictorMedia(
       reachPredictorMedia.map(m => ({
         ...m,
-        customTarget: undefined
+        customTarget: m.category === 'DIGITAL' ? [...localTargetGrp] : m.customTarget
       }))
     )
   }
@@ -229,7 +229,7 @@ export function ScenarioStep2ReachPredictor({
                 gap: '4px'
               }}
             >
-              캠페인 기간 · 타겟 일괄 설정
+              캠페인 기간 · 타겟 일괄 설정 (DIGITAL 전용)
               <ChevronRight 
                 size={14} 
                 style={{ 
@@ -252,7 +252,7 @@ export function ScenarioStep2ReachPredictor({
                 color: 'hsl(var(--muted-foreground))',
                 marginBottom: '12px'
               }}>
-                설정을 변경한 뒤 '일괄 적용'을 누르면 모든 매체에 반영됩니다.
+                DIGITAL 광고상품에만 적용됩니다. TVC는 스텝1의 설정값이 자동 적용됩니다.
               </div>
               <div style={{
                 display: 'flex',
@@ -505,87 +505,88 @@ export function ScenarioStep2ReachPredictor({
                   </div>
                 </div>
 
-                {/* 두 번째 줄: 캠페인 기간 & 타겟팅 */}
-                <div style={{
-                  padding: '0 16px 12px 16px'
-                }}>
-                  {/* 캠페인 기간 & 타겟팅 정보 (클릭 가능) */}
+                {/* 두 번째 줄: 캠페인 기간 & 타겟팅 (DIGITAL만) */}
+                {media.category === 'DIGITAL' && (
                   <div style={{
-                    display: 'flex',
-                    gap: '16px',
-                    fontSize: '11px',
-                    color: 'hsl(var(--muted-foreground))',
-                    marginLeft: '64px' // 40px (icon) + 24px (spacing) to align with media/product column
+                    padding: '0 16px 12px 16px'
                   }}>
-                    {/* 캠페인 기간 */}
-                    <button
-                      onClick={() => setShowPeriodDialog(media.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        background: 'none',
-                        border: 'none',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        color: media.customPeriod ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      }}
-                      title="클릭하여 기간 설정"
-                    >
-                      <Calendar size={12} />
-                      <span style={{ fontWeight: media.customPeriod ? '500' : '400' }}>
-                        {media.customPeriod ? (
-                          `${media.customPeriod.start.slice(5)} ~ ${media.customPeriod.end.slice(5)}`
-                        ) : (
-                          '전역 설정'
-                        )}
-                      </span>
-                    </button>
+                    <div style={{
+                      display: 'flex',
+                      gap: '16px',
+                      fontSize: '11px',
+                      color: 'hsl(var(--muted-foreground))',
+                      marginLeft: '88px'
+                    }}>
+                      {/* 캠페인 기간 */}
+                      <button
+                        onClick={() => setShowPeriodDialog(media.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '11px',
+                          color: media.customPeriod ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                        title="클릭하여 기간 설정"
+                      >
+                        <Calendar size={12} />
+                        <span style={{ fontWeight: media.customPeriod ? '500' : '400' }}>
+                          {media.customPeriod ? (
+                            `${media.customPeriod.start.slice(5)} ~ ${media.customPeriod.end.slice(5)}`
+                          ) : (
+                            '전역 설정'
+                          )}
+                        </span>
+                      </button>
 
-                    {/* 타겟팅 */}
-                    <button
-                      onClick={() => setShowTargetDialog(media.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        background: 'none',
-                        border: 'none',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        color: media.customTarget ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      }}
-                      title="클릭하여 타겟 설정"
-                    >
-                      <Users size={12} />
-                      <span style={{ fontWeight: media.customTarget ? '500' : '400' }}>
-                        {media.customTarget && media.customTarget.length > 0 ? (
-                          media.customTarget.length === 24 ? '전체' : `${media.customTarget.length}개 선택`
-                        ) : (
-                          '전역 설정'
-                        )}
-                      </span>
-                    </button>
+                      {/* 타겟팅 */}
+                      <button
+                        onClick={() => setShowTargetDialog(media.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '11px',
+                          color: media.customTarget ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                        title="클릭하여 타겟 설정"
+                      >
+                        <Users size={12} />
+                        <span style={{ fontWeight: media.customTarget ? '500' : '400' }}>
+                          {media.customTarget && media.customTarget.length > 0 ? (
+                            media.customTarget.length === 24 ? '전체' : `${media.customTarget.length}개 선택`
+                          ) : (
+                            '전역 설정'
+                          )}
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
