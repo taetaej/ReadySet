@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
 import { adProductStructureByMedia } from './sampleData'
 
+function getJosa(word: string): string {
+  const last = word[word.length - 1]
+  const code = last.charCodeAt(0)
+  const hasBatchim = code >= 0xAC00 && code <= 0xD7A3 && (code - 0xAC00) % 28 !== 0
+  return hasBatchim ? '을' : '를'
+}
+
 interface AdProductsDialogProps {
   isOpen: boolean
   onClose: () => void
@@ -228,7 +235,7 @@ export function AdProductsDialog({ isOpen, onClose, selectedProducts, onUpdate, 
 
                 {showError && (
                   <p style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>
-                    {field.label}을(를) 선택해주세요.
+                    {field.label}{getJosa(field.label)} 선택해주세요.
                   </p>
                 )}
               </div>
