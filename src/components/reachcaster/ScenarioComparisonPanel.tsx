@@ -1,4 +1,4 @@
-import { X, Plus, Users, Calendar, DollarSign, Search, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react'
+import { X, Plus, Users, Calendar, DollarSign, Search, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
 interface ComparisonScenario {
@@ -133,9 +133,9 @@ export function ScenarioComparisonPanel({
   }
 
   const integrityConfig = {
-    optimal: { color: 'hsl(142.1 76.2% 36.3%)', bg: 'hsl(142.1 76.2% 36.3% / 0.1)', label: '완벽한 비교입니다', icon: CheckCircle },
-    caution: { color: 'hsl(47.9 95.8% 53.1%)', bg: 'hsl(47.9 95.8% 53.1% / 0.1)', label: '조건 상이: 해석 시 주의가 필요합니다', icon: AlertTriangle },
-    risk: { color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)', label: '정합성 낮음: 데이터 왜곡 위험이 큼', icon: AlertCircle }
+    optimal: { color: 'hsl(var(--muted-foreground))', label: '비교 적합', desc: '권장 조건이 일치하여 신뢰도 높은 비교가 가능합니다.', icon: CheckCircle },
+    caution: { color: 'hsl(var(--muted-foreground))', label: '조건 일부 상이', desc: '일부 권장 조건이 다릅니다. 결과 해석 시 차이를 감안해 주세요.', icon: AlertTriangle },
+    risk: { color: 'hsl(var(--muted-foreground))', label: '비교 부적합', desc: '권장 조건이 대부분 상이하여 비교 결과의 신뢰도가 낮을 수 있습니다.', icon: XCircle }
   }
 
   const handleAddScenario = (scenario: ComparisonScenario) => {
@@ -163,13 +163,12 @@ export function ScenarioComparisonPanel({
     <div
       style={{
         position: 'fixed',
-        bottom: isOpen ? 0 : '-700px',
+        bottom: isOpen ? 0 : '-520px',
         left: 0,
         right: 0,
-        height: '700px',
+        height: '520px',
         backgroundColor: 'hsl(var(--card))',
         borderTop: '1px solid hsl(var(--border))',
-        boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.15)',
         zIndex: 999,
         transition: 'bottom 0.3s ease-out',
         display: 'flex',
@@ -209,31 +208,6 @@ export function ScenarioComparisonPanel({
           <X size={16} />
         </button>
       </div>
-
-      {/* 정합성 신호등 */}
-      {comparisonScenarios.length > 0 && (
-        <div style={{
-          padding: '10px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          backgroundColor: integrityConfig[overallIntegrity].bg,
-          borderBottom: '1px solid hsl(var(--border))',
-          flexShrink: 0
-        }}>
-          {(() => {
-            const IntegrityIcon = integrityConfig[overallIntegrity].icon
-            return <IntegrityIcon size={16} style={{ color: integrityConfig[overallIntegrity].color }} />
-          })()}
-          <span style={{
-            fontSize: '13px',
-            fontWeight: '500',
-            color: integrityConfig[overallIntegrity].color
-          }}>
-            {integrityConfig[overallIntegrity].label}
-          </span>
-        </div>
-      )}
 
       {/* 컨텐츠 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
@@ -377,9 +351,7 @@ export function ScenarioComparisonPanel({
                   style={{
                     padding: '16px',
                     borderRadius: '8px',
-                    border: scenario && integrity 
-                      ? `1px solid ${integrity === 'optimal' ? 'hsl(var(--border))' : integrityConfig[integrity].color}`
-                      : '1px solid hsl(var(--border))',
+                    border: '1px solid hsl(var(--border))',
                     backgroundColor: scenario ? 'hsl(var(--muted) / 0.3)' : 'transparent'
                   }}
                 >
@@ -396,8 +368,11 @@ export function ScenarioComparisonPanel({
                           }}>
                             비교 {index + 1}
                           </span>
-                          {integrity && integrity !== 'optimal' && (
-                            <AlertTriangle size={12} style={{ color: integrityConfig[integrity].color }} />
+                          {integrity && (
+                            (() => {
+                              const IntIcon = integrityConfig[integrity].icon
+                              return <span title={integrityConfig[integrity].label}><IntIcon size={12} style={{ color: integrityConfig[integrity].color }} /></span>
+                            })()
                           )}
                         </div>
                         <button
@@ -475,27 +450,60 @@ export function ScenarioComparisonPanel({
           padding: '16px 32px',
           borderTop: '1px solid hsl(var(--border))',
           display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '8px',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '16px',
           flexShrink: 0,
           backgroundColor: 'hsl(var(--muted) / 0.3)'
         }}
       >
-        <button onClick={onClose} className="btn btn-secondary btn-md">
-          취소
-        </button>
-        <button
-          onClick={() => onCompare(selectedPurpose, comparisonScenarios)}
-          disabled={!canCompare}
-          className="btn btn-primary btn-md"
-          style={{
-            opacity: canCompare ? 1 : 0.5,
-            cursor: canCompare ? 'pointer' : 'not-allowed',
-            backgroundColor: hasRisk && canCompare ? 'hsl(var(--destructive))' : undefined
-          }}
-        >
-          {hasRisk ? '강제 비교 실행' : '비교 결과 보기'}
-        </button>
+        {/* 좌측: 정합성 메시지 */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {comparisonScenarios.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              {(() => {
+                const Icon = integrityConfig[overallIntegrity].icon
+                return <Icon size={14} style={{ color: integrityConfig[overallIntegrity].color, flexShrink: 0, marginTop: '1px' }} />
+              })()}
+              <div>
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: 'hsl(var(--foreground))'
+                }}>
+                  {integrityConfig[overallIntegrity].label}
+                </span>
+                <p style={{
+                  fontSize: '11px',
+                  margin: '2px 0 0 0',
+                  color: 'hsl(var(--muted-foreground))',
+                  lineHeight: '1.4'
+                }}>
+                  {integrityConfig[overallIntegrity].desc}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 우측: 버튼 */}
+        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+          <button onClick={onClose} className="btn btn-secondary btn-md">
+            취소
+          </button>
+          <button
+            onClick={() => onCompare(selectedPurpose, comparisonScenarios)}
+            disabled={!canCompare}
+            className="btn btn-primary btn-md"
+            style={{
+              opacity: canCompare ? 1 : 0.5,
+              cursor: canCompare ? 'pointer' : 'not-allowed',
+              backgroundColor: hasRisk && canCompare ? 'hsl(var(--destructive))' : undefined
+            }}
+          >
+            {hasRisk ? '비교 강행' : '비교 결과 보기'}
+          </button>
+        </div>
       </div>
 
       {/* 시나리오 선택 다이얼로그 */}
@@ -522,7 +530,7 @@ export function ScenarioComparisonPanel({
               padding: '24px',
               width: '500px',
               height: '600px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              border: '1px solid hsl(var(--border))',
               display: 'flex',
               flexDirection: 'column'
             }}
@@ -580,7 +588,6 @@ export function ScenarioComparisonPanel({
                 )
                 .map((scenario) => {
                   const integrity = checkIntegrity(scenario)
-                  const IntIcon = integrityConfig[integrity].icon
                   
                   return (
                     <button
@@ -588,20 +595,20 @@ export function ScenarioComparisonPanel({
                       onClick={() => handleAddScenario(scenario)}
                       style={{
                         width: '100%',
-                        padding: '12px 16px',
-                        marginBottom: '8px',
-                        border: `1px solid ${integrity !== 'optimal' ? integrityConfig[integrity].color + '60' : 'hsl(var(--border))'}`,
-                        borderRadius: '8px',
+                        padding: '10px 16px',
+                        marginBottom: '4px',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px',
                         backgroundColor: 'transparent',
                         textAlign: 'left',
                         cursor: 'pointer',
                         fontSize: '14px',
                         fontFamily: 'Paperlogy, sans-serif',
                         color: 'hsl(var(--foreground))',
-                        transition: 'all 0.2s'
+                        transition: 'background-color 0.15s'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                        e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent'
@@ -609,21 +616,22 @@ export function ScenarioComparisonPanel({
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontWeight: '600', marginBottom: '2px' }}>
+                          <div style={{ fontWeight: '600', marginBottom: '2px', fontSize: '13px' }}>
                             {scenario.name}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                            ID: {scenario.id}
+                          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                            {scenario.id}
                           </div>
                         </div>
-                        {integrity !== 'optimal' && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <IntIcon size={14} style={{ color: integrityConfig[integrity].color }} />
-                            <span style={{ fontSize: '11px', color: integrityConfig[integrity].color }}>
-                              {integrity === 'caution' ? '조건 상이' : '위험'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                            {(() => {
+                              const IntIcon = integrityConfig[integrity].icon
+                              return <IntIcon size={12} style={{ color: integrityConfig[integrity].color }} />
+                            })()}
+                            <span style={{ fontSize: '11px', color: integrityConfig[integrity].color, fontWeight: '500' }}>
+                              {integrityConfig[integrity].label}
                             </span>
                           </div>
-                        )}
                       </div>
                     </button>
                   )

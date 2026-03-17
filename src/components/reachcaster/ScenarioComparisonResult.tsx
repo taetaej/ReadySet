@@ -1,4 +1,4 @@
-import { ArrowLeft, AlertTriangle, CheckCircle, AlertCircle, Users, Calendar, DollarSign } from 'lucide-react'
+import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
@@ -38,9 +38,9 @@ const comparisonTypeLabels: Record<string, { title: string; subtitle: string; ic
 }
 
 const integrityConfig = {
-  optimal: { color: 'hsl(142.1 76.2% 36.3%)', bg: 'hsl(142.1 76.2% 36.3% / 0.1)', label: '완벽한 비교입니다', icon: CheckCircle },
-  caution: { color: 'hsl(47.9 95.8% 53.1%)', bg: 'hsl(47.9 95.8% 53.1% / 0.1)', label: '조건 상이: 해석 시 주의가 필요합니다', icon: AlertTriangle },
-  risk: { color: 'hsl(0 84.2% 60.2%)', bg: 'hsl(0 84.2% 60.2% / 0.1)', label: '정합성 낮음: 데이터 왜곡 위험이 큼', icon: AlertCircle }
+  optimal: { color: 'hsl(var(--muted-foreground))', label: '비교 적합', desc: '권장 조건이 일치하여 신뢰도 높은 비교가 가능합니다.', icon: CheckCircle },
+  caution: { color: 'hsl(var(--muted-foreground))', label: '조건 일부 상이', desc: '일부 권장 조건이 다릅니다. 결과 해석 시 차이를 감안해 주세요.', icon: AlertTriangle },
+  risk: { color: 'hsl(var(--muted-foreground))', label: '비교 부적합', desc: '권장 조건이 대부분 상이하여 비교 결과의 신뢰도가 낮을 수 있습니다.', icon: XCircle }
 }
 
 // 조건 차이 계산
@@ -174,29 +174,31 @@ export function ScenarioComparisonResult({
         <div style={{
           padding: '10px 32px',
           display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          backgroundColor: integrityConfig[integrityLevel].bg,
+          alignItems: 'flex-start',
+          gap: '6px',
           borderBottom: '1px solid hsl(var(--border))',
           flexShrink: 0
         }}>
           {(() => {
             const IntIcon = integrityConfig[integrityLevel].icon
-            return <IntIcon size={16} style={{ color: integrityConfig[integrityLevel].color }} />
+            return <IntIcon size={14} style={{ color: integrityConfig[integrityLevel].color, flexShrink: 0, marginTop: '1px' }} />
           })()}
-          <span style={{
-            fontSize: '13px',
-            fontWeight: '500',
-            color: integrityConfig[integrityLevel].color
-          }}>
-            {integrityConfig[integrityLevel].label}
-          </span>
-          <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-            {comparisonScenarios.map(s => {
-              const diffs = getConditionDiffs(baseScenario, s)
-              return diffs.length > 0 ? `${s.name}: ${diffs.join(', ')}` : null
-            }).filter(Boolean).join(' · ')}
-          </span>
+          <div>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '600',
+              color: 'hsl(var(--foreground))'
+            }}>
+              {integrityConfig[integrityLevel].label}
+            </span>
+            <span style={{
+              fontSize: '11px',
+              color: 'hsl(var(--muted-foreground))',
+              marginLeft: '8px'
+            }}>
+              {integrityConfig[integrityLevel].desc}
+            </span>
+          </div>
         </div>
       )}
 
@@ -548,39 +550,31 @@ export function ScenarioComparisonResult({
                   style={{
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    backgroundColor: hasIssue ? 'hsl(47.9 95.8% 53.1% / 0.05)' : 'hsl(var(--muted) / 0.5)',
-                    border: `1px solid ${hasIssue ? 'hsl(47.9 95.8% 53.1% / 0.3)' : 'hsl(var(--border))'}`
+                    backgroundColor: 'hsl(var(--muted) / 0.5)',
+                    border: '1px solid hsl(var(--border))'
                   }}
                 >
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}>
-                    비교 {idx + 1}
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>
-                    {scenario.name}
-                  </div>
-                  {hasIssue ? (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '12px',
-                      color: 'hsl(47.9 95.8% 53.1%)'
-                    }}>
-                      <AlertTriangle size={12} />
-                      <span style={{ fontWeight: '500' }}>조건 상이: {diffs.join(', ')}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}>
+                        비교 {idx + 1}
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>
+                        {scenario.name}
+                      </div>
                     </div>
-                  ) : (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '12px',
-                      color: 'hsl(142.1 76.2% 36.3%)'
-                    }}>
-                      <CheckCircle size={12} />
-                      <span style={{ fontWeight: '500' }}>조건 일치</span>
-                    </div>
-                  )}
+                    {hasIssue ? (
+                      (() => {
+                        const WarnIcon = integrityConfig.caution.icon
+                        return <span title={integrityConfig.caution.label}><WarnIcon size={12} style={{ color: integrityConfig.caution.color, flexShrink: 0 }} /></span>
+                      })()
+                    ) : (
+                      (() => {
+                        const OkIcon = integrityConfig.optimal.icon
+                        return <span title={integrityConfig.optimal.label}><OkIcon size={12} style={{ color: integrityConfig.optimal.color, flexShrink: 0 }} /></span>
+                      })()
+                    )}
+                  </div>
                 </div>
               )
             })}
