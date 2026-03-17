@@ -68,7 +68,10 @@ function InlineFieldList({
         borderBottom: '1px solid hsl(var(--border))'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '13px', fontWeight: '600' }}>{label}</span>
+          <span style={{ fontSize: '13px', fontWeight: '500' }}>
+            {label.endsWith(' *') ? label.slice(0, -2) : label}
+            {label.endsWith(' *') && <span style={{ color: 'hsl(var(--destructive))', marginLeft: '2px' }}>*</span>}
+          </span>
           {selected.length > 0 && (
             <span style={{ fontSize: '11px', color: 'hsl(var(--primary))', fontWeight: '500' }}>{selected.length}개</span>
           )}
@@ -93,7 +96,7 @@ function InlineFieldList({
         </div>
       </div>
       {/* 리스트 */}
-      <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '4px' }}>
+      <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
         {filtered.length === 0 ? (
           <div style={{ padding: '12px', fontSize: '11px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>검색 결과 없음</div>
         ) : (
