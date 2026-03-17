@@ -1,32 +1,26 @@
-import { useState, useEffect } from 'react'
-import { ChevronRight, ListPlus } from 'lucide-react'
-import { targetingOptionsByMedia } from './types'
+import { useState } from 'react'
+import { ListPlus, Plus, Minus, Search } from 'lucide-react'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
-import { MetricsDialog } from './MetricsDialog'
 import { FormData } from './createDatasetTypes'
 import { mediaIconMap } from '../common/MediaIcons'
+
+const metricsByMedia: Record<string, MetricGroup[]> = {
+  'Meta': metaMetrics,
+  'Google Ads': googleMetrics,
+  'kakao모먼트': kakaoMetrics,
+  '네이버 성과형 DA': naverGfaMetrics,
+  '네이버 보장형 DA': naverNospMetrics,
+}
 
 interface Props {
   formData: FormData
   setFormData: (data: FormData) => void
   validationActive: boolean
-  metricsDialogOpen: boolean
-  setMetricsDialogOpen: (open: boolean) => void
 }
 
-export function CreateDatasetStep2({ formData, setFormData, validationActive, metricsDialogOpen, setMetricsDialogOpen }: Props) {
-  const [targetingDropdownOpen, setTargetingDropdownOpen] = useState(false)
-  const [targetingSearchQuery, setTargetingSearchQuery] = useState('')
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest('.targeting-dropdown-container')) {
-        setTargetingDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
+  const [metricsSearch, setMetricsSearch] = useState('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
@@ -43,7 +37,9 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
           {mediaList.map(media => (
             <button
               key={media}
-              onClick={() => setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })}
+              onClick={() => {
+                setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })
+              }}
               className="btn btn-ghost"
               style={{
                 height: '36px', padding: '0 16px', fontSize: '13px',
@@ -103,89 +99,14 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
           {/* 타겟팅 옵션 */}
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>타겟팅 옵션</label>
-            <div className="targeting-dropdown-container" style={{ marginBottom: formData.targetingCategory ? '12px' : '0', position: 'relative' }}>
-              <input
-                type="text"
-                value={formData.targetingCategory || targetingSearchQuery}
-                onChange={(e) => {
-                  setTargetingSearchQuery(e.target.value)
-                  setFormData({ ...formData, targetingCategory: '', targetingOptions: [] })
-                  setTargetingDropdownOpen(true)
-                }}
-                onFocus={() => setTargetingDropdownOpen(true)}
-                placeholder="선택 안 함"
-                className="input"
-                style={{ width: '100%', height: '36px', padding: '8px 12px', boxSizing: 'border-box' }}
-              />
-              {targetingDropdownOpen && (
-                <div className="dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}>
-                  <button onClick={() => { setFormData({ ...formData, targetingCategory: '', targetingOptions: [] }); setTargetingSearchQuery(''); setTargetingDropdownOpen(false) }} className="dropdown-item">선택 안 함</button>
-                  {targetingOptionsByMedia[formData.media]
-                    ?.filter(t => t.category.toLowerCase().includes(targetingSearchQuery.toLowerCase()))
-                    .map(t => (
-                      <button key={t.category} onClick={() => { setFormData({ ...formData, targetingCategory: t.category, targetingOptions: [] }); setTargetingSearchQuery(''); setTargetingDropdownOpen(false) }} className="dropdown-item">{t.category}</button>
-                    ))}
-                </div>
-              )}
-            </div>
-            {formData.targetingCategory && (() => {
-              const opts = targetingOptionsByMedia[formData.media]?.find(t => t.category === formData.targetingCategory)?.options ?? []
-              const allSelected = opts.every(o => formData.targetingOptions.includes(o))
-              const toggle = (o: string) => setFormData({
-                ...formData,
-                targetingOptions: formData.targetingOptions.includes(o)
-                  ? formData.targetingOptions.filter(v => v !== o)
-                  : [...formData.targetingOptions, o]
-              })
-              return (
-                <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
-                  <div style={{ padding: '10px 14px', backgroundColor: 'hsl(var(--muted) / 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid hsl(var(--border))' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '500' }}>{formData.targetingCategory}</span>
-                      {formData.targetingOptions.length > 0 && (
-                        <div style={{
-                          fontSize: '10px', padding: '2px 6px', borderRadius: '10px',
-                          backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))',
-                          fontWeight: '600', textAlign: 'center', minWidth: '20px'
-                        }}>
-                          {formData.targetingOptions.length}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setFormData({ ...formData, targetingOptions: allSelected ? [] : opts })}
-                      className="btn btn-ghost btn-sm"
-                      style={{ fontSize: '11px' }}
-                    >
-                      {allSelected ? '전체 해제' : '전체 선택'}
-                    </button>
-                  </div>
-                  <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                      {opts.map(opt => {
-                        const isSelected = formData.targetingOptions.includes(opt)
-                        return (
-                          <label key={opt} style={{
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
-                            backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
-                            transition: 'background 0.1s'
-                          }}>
-                            <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
-                            <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {opt}
-                            </span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )
-            })()}
-            {validationActive && formData.targetingCategory && formData.targetingOptions.length === 0 && (
-              <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>최소 1개 이상 선택해주세요.</div>
-            )}
+            <TargetingSelector
+              media={formData.media}
+              category={formData.targetingCategory}
+              selected={formData.targetingOptions}
+              onCategoryChange={cat => setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })}
+              onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
+              validationActive={validationActive}
+            />
           </div>
 
           {/* 지표 */}
@@ -193,31 +114,226 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
               지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
             </label>
-            <div style={{
-              width: '100%', height: '36px', padding: '8px 12px',
-              border: `1px solid ${validationActive && formData.metrics.length === 0 ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
-              borderRadius: '6px', backgroundColor: 'hsl(var(--background))', cursor: 'pointer',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box'
-            }} onClick={() => setMetricsDialogOpen(true)}>
-              <span style={{ fontSize: '14px', color: formData.metrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
-                {formData.metrics.length > 0 ? `${formData.metrics.length}개 지표 선택됨` : '지표를 선택하세요.'}
-              </span>
-              <ChevronRight size={16} />
+            <div style={{ position: 'relative', marginBottom: '8px' }}>
+              <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
+              <input
+                type="text"
+                value={metricsSearch}
+                onChange={e => setMetricsSearch(e.target.value)}
+                placeholder="지표 검색"
+                className="input"
+                style={{ width: '100%', height: '32px', fontSize: '12px', paddingLeft: '28px', boxSizing: 'border-box' }}
+              />
             </div>
+            <MetricGroupList
+              groups={metricsByMedia[formData.media] ?? []}
+              selected={formData.metrics}
+              onChange={metrics => setFormData({ ...formData, metrics })}
+              searchQuery={metricsSearch}
+            />
             {validationActive && formData.metrics.length === 0 && (
               <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>지표를 선택해주세요.</div>
             )}
           </div>
         </>
       )}
+    </div>
+  )
+}
 
-      <MetricsDialog
-        isOpen={metricsDialogOpen}
-        onClose={() => setMetricsDialogOpen(false)}
-        selectedMetrics={formData.metrics}
-        onUpdate={(metrics) => setFormData({ ...formData, metrics })}
-        media={formData.media}
-      />
+function MetricGroupRow({ group, selected, onChange, searchQuery }: { group: MetricGroup; selected: string[]; onChange: (next: string[]) => void; searchQuery: string }) {
+  const allIds = group.metrics.map(m => m.id)
+  const allSelected = allIds.every(id => selected.includes(id))
+  const filtered = group.metrics.filter(m => m.label.toLowerCase().includes(searchQuery.toLowerCase()))
+  const hasMatch = filtered.length > 0
+  const [manualOpen, setManualOpen] = useState(true)
+  const open = searchQuery ? hasMatch : manualOpen
+
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id])
+  }
+
+  if (searchQuery && !hasMatch) return null
+
+  return (
+    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '8px' }}>
+      <div
+        onClick={() => { if (!searchQuery) setManualOpen(o => !o) }}
+        style={{
+          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px',
+          cursor: searchQuery ? 'default' : 'pointer',
+          backgroundColor: open ? 'hsl(var(--muted) / 0.2)' : 'transparent',
+          borderBottom: open ? '1px solid hsl(var(--border))' : 'none',
+          transition: 'background 0.15s'
+        }}
+      >
+        {!searchQuery && (
+          <span style={{
+            width: '20px', height: '20px', borderRadius: '4px',
+            border: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, color: 'hsl(var(--muted-foreground))'
+          }}>
+            {open ? <Minus size={12} /> : <Plus size={12} />}
+          </span>
+        )}
+        <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>{group.group}</span>
+        <button
+          onClick={e => { e.stopPropagation(); onChange(allSelected ? selected.filter(id => !allIds.includes(id)) : [...new Set([...selected, ...allIds])]) }}
+          className="btn btn-ghost btn-sm"
+          style={{ fontSize: '11px' }}
+        >
+          {allSelected ? '전체 해제' : '전체 선택'}
+        </button>
+      </div>
+      {open && (
+        <>
+          <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              {filtered.map(m => {
+                const isSelected = selected.includes(m.id)
+                return (
+                  <label key={m.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                    backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                    transition: 'background 0.1s'
+                  }} onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={isSelected} onChange={() => toggle(m.id)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                    <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.label}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function MetricGroupList({ groups, selected, onChange, searchQuery }: { groups: MetricGroup[]; selected: string[]; onChange: (next: string[]) => void; searchQuery: string }) {
+  if (groups.length === 0) return (
+    <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontStyle: 'italic' }}>
+      해당 매체의 지표 정보가 없습니다.
+    </div>
+  )
+  return (
+    <div>
+      {groups.map((group, i) => (
+        <MetricGroupRow key={`${group.group}-${i}`} group={group} selected={selected} onChange={onChange} searchQuery={searchQuery} />
+      ))}
+    </div>
+  )
+}
+
+function TargetingSelector({ media, category, selected, onCategoryChange, onOptionsChange, validationActive }: {
+  media: string
+  category: string
+  selected: string[]
+  onCategoryChange: (cat: string) => void
+  onOptionsChange: (opts: string[]) => void
+  validationActive: boolean
+}) {
+  const [open, setOpen] = useState(true)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const categories = targetingOptionsByMedia[media] ?? []
+  const opts = categories.find(t => t.category === category)?.options ?? []
+  const allSelected = opts.length > 0 && opts.every(o => selected.includes(o))
+  const toggle = (o: string) => onOptionsChange(selected.includes(o) ? selected.filter(v => v !== o) : [...selected, o])
+
+  return (
+    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'visible' }}>
+      {/* 헤더 행 */}
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{
+          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px',
+          cursor: 'pointer', backgroundColor: open ? 'hsl(var(--muted) / 0.2)' : 'transparent',
+          borderBottom: open ? '1px solid hsl(var(--border))' : 'none',
+          borderRadius: open ? '8px 8px 0 0' : '8px',
+          transition: 'background 0.15s'
+        }}
+      >
+        <span style={{
+          width: '20px', height: '20px', borderRadius: '4px',
+          border: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, color: 'hsl(var(--muted-foreground))'
+        }}>
+          {open ? <Minus size={12} /> : <Plus size={12} />}
+        </span>
+        {/* 타입 선택 드롭다운 - 헤더 안에 */}
+        <div style={{ flex: 1, position: 'relative' }} onClick={e => e.stopPropagation()}>
+          <button
+            onClick={() => setDropdownOpen(o => !o)}
+            className="btn btn-ghost btn-sm"
+            style={{
+              fontSize: '13px', fontWeight: '500', padding: '2px 8px 2px 4px',
+              color: category ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+              display: 'flex', alignItems: 'center', gap: '4px'
+            }}
+          >
+            {category || '타입 선택'}
+            <span style={{ fontSize: '10px', opacity: 0.5 }}>▾</span>
+          </button>
+          {dropdownOpen && (
+            <div className="dropdown" style={{
+              position: 'absolute', top: '100%', left: 0, marginTop: '4px',
+              minWidth: '180px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000
+            }}>
+              <button onClick={() => { onCategoryChange(''); setDropdownOpen(false) }} className="dropdown-item">선택 안 함</button>
+              {categories.map(t => (
+                <button key={t.category} onClick={() => { onCategoryChange(t.category); setDropdownOpen(false) }} className="dropdown-item">
+                  {t.category}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {category && (
+          <button
+            onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}
+            className="btn btn-ghost btn-sm"
+            style={{ fontSize: '11px', flexShrink: 0 }}
+          >
+            {allSelected ? '전체 해제' : '전체 선택'}
+          </button>
+        )}
+      </div>
+
+      {/* 펼쳐진 옵션 리스트 */}
+      {open && (
+        category ? (
+          <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              {opts.map(opt => {
+                const isSelected = selected.includes(opt)
+                return (
+                  <label key={opt} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                    backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                    transition: 'background 0.1s'
+                  }} onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                    <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {opt}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '16px 14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+            타입을 선택하면 옵션이 표시됩니다.
+          </div>
+        )
+      )}
+      {validationActive && category && selected.length === 0 && (
+        <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', padding: '4px 14px 8px' }}>최소 1개 이상 선택해주세요.</div>
+      )}
     </div>
   )
 }
