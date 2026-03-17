@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Plus, Minus } from 'lucide-react'
 import { adProductStructureByMedia, type AdProductOption } from './sampleData'
 
 interface AdProductsSelectorProps {
@@ -73,7 +73,13 @@ function InlineFieldList({
             {label.endsWith(' *') && <span style={{ color: 'hsl(var(--destructive))', marginLeft: '2px' }}>*</span>}
           </span>
           {selected.length > 0 && (
-            <span style={{ fontSize: '11px', color: 'hsl(var(--primary))', fontWeight: '500' }}>{selected.length}개</span>
+            <div style={{
+              fontSize: '10px', padding: '2px 6px', borderRadius: '10px',
+              backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))',
+              fontWeight: '600', textAlign: 'center', minWidth: '20px'
+            }}>
+              {selected.length}
+            </div>
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -83,7 +89,8 @@ function InlineFieldList({
               const allSelected = allLabels.every(l => selected.includes(l))
               onChange(allSelected ? [] : allLabels)
             }}
-            style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}
+            className="btn btn-ghost btn-sm"
+            style={{ fontSize: '11px' }}
           >
             {options.map(o => getOptionLabel(o)).every(l => selected.includes(l)) ? '전체 해제' : '전체 선택'}
           </button>
@@ -108,12 +115,12 @@ function InlineFieldList({
                 <label key={lbl} style={{
                   display: 'flex', alignItems: 'center', gap: '8px',
                   padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
-                  backgroundColor: isSelected ? 'hsl(var(--primary) / 0.05)' : 'transparent',
+                  backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
                   transition: 'background 0.1s'
                 }}>
                   <input type="checkbox" checked={isSelected} onChange={() => toggle(lbl)} className="checkbox-custom" style={{ flexShrink: 0 }} />
                   <span style={{
-                    color: isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
+                    color: 'hsl(var(--foreground))',
                     fontWeight: isSelected ? '500' : '400',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                   }}>{lbl}</span>
@@ -123,6 +130,110 @@ function InlineFieldList({
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ── 접힌 행 (옵션2+ 용) ──
+function CollapsibleFieldRow({
+  label, options, selected, onChange, search, onSearchChange
+}: {
+  label: string
+  options: string[] | AdProductOption[]
+  selected: string[]
+  onChange: (next: string[]) => void
+  search: string
+  onSearchChange: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const hasIds = isOptionObjects(options)
+  const allLabels = options.map(o => getOptionLabel(o))
+  const allSelected = allLabels.every(l => selected.includes(l))
+
+  const filtered = hasIds
+    ? (options as AdProductOption[]).filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+    : (options as string[]).filter(o => o.toLowerCase().includes(search.toLowerCase()))
+
+  const toggle = (v: string) => onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v])
+
+  return (
+    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0' }}>
+      {/* 접힌 헤더 행 */}
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{
+          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px',
+          cursor: 'pointer', backgroundColor: open ? 'hsl(var(--muted) / 0.2)' : 'transparent',
+          borderBottom: open ? '1px solid hsl(var(--border))' : 'none',
+          transition: 'background 0.15s'
+        }}
+      >
+        <span style={{
+          width: '20px', height: '20px', borderRadius: '4px',
+          border: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, color: 'hsl(var(--muted-foreground))'
+        }}>
+          {open ? <Minus size={12} /> : <Plus size={12} />}
+        </span>
+        <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>{label}</span>
+        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+          {allLabels.length}개 항목
+        </span>
+        {selected.length > 0 && (
+          <div style={{
+            fontSize: '10px', padding: '2px 6px', borderRadius: '10px', minWidth: '20px',
+            backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))',
+            fontWeight: '600', textAlign: 'center'
+          }}>
+            {selected.length}
+          </div>
+        )}
+      </div>
+
+      {/* 펼쳐진 리스트 */}
+      {open && (
+        <>
+          <div style={{
+            padding: '8px 14px', backgroundColor: 'hsl(var(--muted) / 0.2)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderBottom: '1px solid hsl(var(--border))'
+          }}>
+            <div style={{ position: 'relative', width: '160px' }}>
+              <Search size={11} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))' }} />
+              <input type="text" value={search} onChange={e => onSearchChange(e.target.value)}
+                placeholder="검색" className="input"
+                style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px' }}
+                onClick={e => e.stopPropagation()} />
+            </div>
+            <button
+              onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px' }}
+            >
+              {allSelected ? '전체 해제' : '전체 선택'}
+            </button>
+          </div>
+          <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              {filtered.map(opt => {
+                const lbl = getOptionLabel(opt)
+                const isSelected = selected.includes(lbl)
+                return (
+                  <label key={lbl} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                    backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                    transition: 'background 0.1s'
+                  }} onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={isSelected} onChange={() => toggle(lbl)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                    <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lbl}</span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -167,10 +278,10 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
         )}
       </div>
 
-      {/* 나머지 필드: 인라인 리스트 (캠페인 목표 선택 후 활성화) */}
+      {/* 나머지 필드: 접힌 행 (캠페인 목표 선택 후 활성화) */}
       {isRequiredValid && structure.fields.slice(1).map(field => (
         <div key={field.key} style={{ marginBottom: '12px' }}>
-          <InlineFieldList
+          <CollapsibleFieldRow
             label={field.label}
             options={field.options}
             selected={selections[field.key] ?? []}

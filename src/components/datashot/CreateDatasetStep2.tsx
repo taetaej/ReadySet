@@ -103,7 +103,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
           {/* 타겟팅 옵션 */}
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>타겟팅 옵션</label>
-            <div className="targeting-dropdown-container" style={{ marginBottom: '12px', position: 'relative' }}>
+            <div className="targeting-dropdown-container" style={{ marginBottom: formData.targetingCategory ? '12px' : '0', position: 'relative' }}>
               <input
                 type="text"
                 value={formData.targetingCategory || targetingSearchQuery}
@@ -128,34 +128,63 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
                 </div>
               )}
             </div>
-            {formData.targetingCategory && (
-              <div style={{ padding: '16px', border: '1px solid hsl(var(--border))', borderRadius: '6px', backgroundColor: 'hsl(var(--muted) / 0.1)' }}>
-                <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '12px' }}>{formData.targetingCategory} 옵션 (다중 선택 가능)</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {targetingOptionsByMedia[formData.media]?.find(t => t.category === formData.targetingCategory)?.options.map(option => (
-                    <label key={option} style={{
-                      display: 'flex', alignItems: 'center', gap: '10px', padding: '10px',
-                      border: `1px solid ${formData.targetingOptions.includes(option) ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                      borderRadius: '6px', cursor: 'pointer',
-                      backgroundColor: formData.targetingOptions.includes(option) ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                      transition: 'all 0.2s'
-                    }}>
-                      <input type="checkbox" checked={formData.targetingOptions.includes(option)}
-                        onChange={() => setFormData({
-                          ...formData,
-                          targetingOptions: formData.targetingOptions.includes(option)
-                            ? formData.targetingOptions.filter(o => o !== option)
-                            : [...formData.targetingOptions, option]
-                        })}
-                        className="checkbox-custom" />
-                      <span style={{ fontSize: '13px' }}>{option}</span>
-                    </label>
-                  ))}
+            {formData.targetingCategory && (() => {
+              const opts = targetingOptionsByMedia[formData.media]?.find(t => t.category === formData.targetingCategory)?.options ?? []
+              const allSelected = opts.every(o => formData.targetingOptions.includes(o))
+              const toggle = (o: string) => setFormData({
+                ...formData,
+                targetingOptions: formData.targetingOptions.includes(o)
+                  ? formData.targetingOptions.filter(v => v !== o)
+                  : [...formData.targetingOptions, o]
+              })
+              return (
+                <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ padding: '10px 14px', backgroundColor: 'hsl(var(--muted) / 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid hsl(var(--border))' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '500' }}>{formData.targetingCategory}</span>
+                      {formData.targetingOptions.length > 0 && (
+                        <div style={{
+                          fontSize: '10px', padding: '2px 6px', borderRadius: '10px',
+                          backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))',
+                          fontWeight: '600', textAlign: 'center', minWidth: '20px'
+                        }}>
+                          {formData.targetingOptions.length}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setFormData({ ...formData, targetingOptions: allSelected ? [] : opts })}
+                      className="btn btn-ghost btn-sm"
+                      style={{ fontSize: '11px' }}
+                    >
+                      {allSelected ? '전체 해제' : '전체 선택'}
+                    </button>
+                  </div>
+                  <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                      {opts.map(opt => {
+                        const isSelected = formData.targetingOptions.includes(opt)
+                        return (
+                          <label key={opt} style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                            backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                            transition: 'background 0.1s'
+                          }}>
+                            <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                            <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {opt}
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
-                {validationActive && formData.targetingCategory && formData.targetingOptions.length === 0 && (
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>최소 1개 이상 선택해주세요.</div>
-                )}
-              </div>
+              )
+            })()}
+            {validationActive && formData.targetingCategory && formData.targetingOptions.length === 0 && (
+              <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>최소 1개 이상 선택해주세요.</div>
             )}
           </div>
 
