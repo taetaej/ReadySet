@@ -38,21 +38,35 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive, me
         <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
           매체 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-          {mediaList.map(media => (
-            <label key={media} style={{
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '12px',
-              border: '1px solid hsl(var(--border))', borderRadius: '6px', cursor: 'pointer',
-              backgroundColor: formData.media === media ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-              borderColor: formData.media === media ? 'hsl(var(--primary))' : validationActive && !formData.media ? 'hsl(var(--destructive))' : 'hsl(var(--border))',
-              transition: 'all 0.2s'
-            }}>
-              <input type="radio" name="media" checked={formData.media === media}
-                onChange={() => setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })}
-                style={{ accentColor: 'hsl(var(--primary))' }} />
-              <span style={{ fontSize: '13px' }}>{media}</span>
-            </label>
-          ))}
+        <div className="media-dropdown-container" style={{ position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+            {mediaList.map(media => (
+              <button
+                key={media}
+                onClick={() => {
+                  setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })
+                }}
+                className="btn btn-ghost"
+                style={{
+                  height: '36px', padding: '0 16px', fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  border: `1px solid ${
+                    formData.media === media
+                      ? 'hsl(var(--primary))'
+                      : validationActive && !formData.media
+                      ? 'hsl(var(--destructive))'
+                      : 'hsl(var(--border))'
+                  }`,
+                  backgroundColor: formData.media === media ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                  fontWeight: formData.media === media ? '600' : '400',
+                  color: formData.media === media ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {media}
+              </button>
+            ))}
+          </div>
         </div>
         {validationActive && !formData.media && (
           <p style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>매체를 선택해주세요.</p>
