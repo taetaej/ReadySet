@@ -38,9 +38,9 @@ function getOptionLabel(opt: string | AdProductOption): string {
 
 
 
-// ── 접힌 행 (옵션2+ 용) ──
+// ── 접힌 행 ──
 function CollapsibleFieldRow({
-  label, options, selected, onChange, search, onSearchChange, defaultOpen = true
+  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText
 }: {
   label: string
   options: string[] | AdProductOption[]
@@ -49,6 +49,7 @@ function CollapsibleFieldRow({
   search: string
   onSearchChange: (v: string) => void
   defaultOpen?: boolean
+  guideText?: string
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const hasIds = isOptionObjects(options)
@@ -93,18 +94,25 @@ function CollapsibleFieldRow({
               style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px' }} />
           </div>
         )}
-        <button
-          onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
-          className="btn btn-ghost btn-sm"
-          style={{ fontSize: '11px', flexShrink: 0 }}
-        >
-          {allSelected ? '전체 해제' : '전체 선택'}
-        </button>
+        {open && (
+          <button
+            onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
+            className="btn btn-ghost btn-sm"
+            style={{ fontSize: '11px', flexShrink: 0 }}
+          >
+            {allSelected ? '전체 해제' : '전체 선택'}
+          </button>
+        )}
       </div>
 
       {/* 펼쳐진 영역 */}
       {open && (
         <>
+          {guideText ? (
+            <div style={{ padding: '14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
+              {guideText}
+            </div>
+          ) : (
           <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               {filtered.map(opt => {
@@ -124,6 +132,7 @@ function CollapsibleFieldRow({
               })}
             </div>
           </div>
+          )}
         </>
       )}
     </div>
@@ -169,8 +178,8 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
         )}
       </div>
 
-      {/* 나머지 필드: 접힌 행 (캠페인 목표 선택 후 활성화) */}
-      {isRequiredValid && structure.fields.slice(1).map(field => (
+      {/* 나머지 필드: 항상 렌더링, 옵션1 미선택 시 가이드 문구 표시 */}
+      {structure.fields.slice(1).map(field => (
         <div key={field.key} style={{ marginBottom: '12px' }}>
           <CollapsibleFieldRow
             label={field.label}
@@ -179,6 +188,8 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
             onChange={next => updateField(field.key, next)}
             search={searchMap[field.key] || ''}
             onSearchChange={v => setSearchMap(prev => ({ ...prev, [field.key]: v }))}
+            defaultOpen={true}
+            guideText={!isRequiredValid ? `${requiredField.label}${getJosa(requiredField.label, '을/를')} 먼저 선택해주세요.` : undefined}
           />
         </div>
       ))}
