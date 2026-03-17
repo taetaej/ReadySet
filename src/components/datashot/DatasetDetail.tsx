@@ -783,7 +783,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>광고상품 72개</span>
+              <span>조회조건 72개</span>
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
@@ -1045,7 +1045,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     lineHeight: '1.5',
                     whiteSpace: 'normal'
                   }}>
-                    전체 8,000행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+                    전체 1,320행 중 1,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
                   </div>
                 )}
               </div>
