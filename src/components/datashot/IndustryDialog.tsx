@@ -76,7 +76,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
   const [hasSearched, setHasSearched] = useState(false)
   const [activeMajor, setActiveMajor] = useState<string | null>(null)
   const [activeMid, setActiveMid] = useState<string | null>(null)
-  const [showValidation, setShowValidation] = useState(false)
 
   // 모달 열릴 때마다 검색/탐색 상태 초기화 (선택된 업종은 유지)
   useEffect(() => {
@@ -90,7 +89,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
       setHasSearched(false)
       setActiveMajor(null)
       setActiveMid(null)
-      setShowValidation(false)
       setLocalLevel(industryLevel)
     }
   }, [isOpen])
@@ -690,22 +688,16 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               </div>
             </div>
           </div>
-          {showValidation && selectedIndustries.length === 0 && (
-            <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
-              업종을 선택해주세요.
-            </div>
-          )}
         </div>
 
         <div className="dialog-footer">
           <button onClick={handleReset} className="btn btn-ghost btn-md" style={{ marginRight: 'auto' }}>초기화</button>
           <button onClick={onClose} className="btn btn-secondary btn-md">취소</button>
           <button
-            onClick={() => {
-              if (selectedIndustries.length === 0) { setShowValidation(true); return }
-              onClose()
-            }}
+            onClick={onClose}
+            disabled={selectedIndustries.length === 0}
             className="btn btn-primary btn-md"
+            style={{ opacity: selectedIndustries.length === 0 ? 0.5 : 1, cursor: selectedIndustries.length === 0 ? 'not-allowed' : 'pointer' }}
           >
             선택 완료 ({selectedIndustries.length}건)
           </button>

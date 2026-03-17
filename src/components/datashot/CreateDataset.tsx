@@ -229,8 +229,9 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                 {currentStep < 3 ? (
                   <button
                     onClick={handleNext}
+                    disabled={currentStep === 1 ? !isStep1Valid() : !isStep2Valid()}
                     className="btn btn-primary btn-lg"
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 0.5 : 1, cursor: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 'not-allowed' : 'pointer' }}
                   >
                     다음
                     <ChevronRight size={20} />
