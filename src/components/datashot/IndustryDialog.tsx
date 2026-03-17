@@ -324,10 +324,18 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     // 현재 컬럼 레벨이 선택된 분류 레벨과 다르면 +/- 버튼 숨김
     const showActions = !columnLevel || columnLevel === localLevel
 
+    const handleRowClick = () => {
+      if (isParentSelected) return
+      if (showActions) {
+        isSelected ? handleRemove(path) : handleAdd(path)
+      }
+      if (hasChildren && onNavigate) onNavigate()
+    }
+
     return (
       <div key={path}
         className="industry-row"
-        onClick={hasChildren ? onNavigate : undefined}
+        onClick={handleRowClick}
         style={{
           display: 'flex', alignItems: 'center', borderRadius: '6px', marginBottom: '2px',
           backgroundColor:
@@ -339,7 +347,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           outlineOffset: '-2px',
           opacity: isParentSelected ? 0.55 : isDimmed ? 0.4 : 1,
           transition: 'background 0.12s',
-          cursor: hasChildren ? 'pointer' : 'default',
+          cursor: isParentSelected ? 'not-allowed' : 'pointer',
         }}>
 
         {/* 텍스트 영역 */}
@@ -357,20 +365,18 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
 
         {showActions && (
           isSelected ? (
-            <button onClick={(e) => { e.stopPropagation(); handleRemove(path) }} title="선택 해제"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--destructive))', flexShrink: 0 }}>
+            <span style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--destructive))', flexShrink: 0, pointerEvents: 'none' }}>
               <Minus size={14} />
-            </button>
+            </span>
           ) : isParentSelected ? (
             <span title={tooltip}
-              style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0, cursor: 'not-allowed', opacity: 0.3 }}>
+              style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', flexShrink: 0, opacity: 0.3, pointerEvents: 'none' }}>
               <Plus size={14} />
             </span>
           ) : (
-            <button onClick={(e) => { e.stopPropagation(); handleAdd(path) }} title="선택"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary))', flexShrink: 0 }}>
+            <span style={{ padding: '8px 8px 8px 4px', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary))', flexShrink: 0, pointerEvents: 'none' }}>
               <Plus size={14} />
-            </button>
+            </span>
           )
         )}
       </div>

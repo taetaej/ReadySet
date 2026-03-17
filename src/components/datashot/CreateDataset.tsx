@@ -27,8 +27,35 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [validationStep1, setValidationStep1] = useState(false)
   const [validationStep2, setValidationStep2] = useState(false)
 
+  // 스텝1: 뭐라도 입력/선택되면 유효성 활성화
+  useEffect(() => {
+    if (!validationStep1) {
+      const hasAnyInput = !!(
+        formData.datasetName ||
+        formData.description ||
+        formData.period.startYear ||
+        formData.period.startMonth ||
+        formData.industries.length > 0
+      )
+      if (hasAnyInput) setValidationStep1(true)
+    }
+  }, [formData, validationStep1])
+
+  // 스텝2: 뭐라도 입력/선택되면 유효성 활성화
+  useEffect(() => {
+    if (!validationStep2) {
+      const hasAnyInput = !!(
+        formData.media ||
+        formData.products.length > 0 ||
+        formData.metrics.length > 0 ||
+        formData.targetingCategory ||
+        formData.targetingOptions.length > 0
+      )
+      if (hasAnyInput) setValidationStep2(true)
+    }
+  }, [formData, validationStep2])
+
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
-  const [metricsDialogOpen, setMetricsDialogOpen] = useState(false)
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
@@ -195,8 +222,6 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                   formData={formData}
                   setFormData={setFormData}
                   validationActive={validationStep2}
-                  metricsDialogOpen={metricsDialogOpen}
-                  setMetricsDialogOpen={setMetricsDialogOpen}
                 />
               )}
               {currentStep === 3 && (
