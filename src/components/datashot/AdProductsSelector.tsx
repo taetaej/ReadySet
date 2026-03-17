@@ -21,7 +21,8 @@ function encodeSelections(sel: SelectionMap): string[] {
   return [JSON.stringify(sel)]
 }
 
-// 선택 칩 렌더링 - 항상 전체 표시
+const CHIP_VISIBLE = 5
+
 function renderChips(selected: string[], onRemove: (v: string) => void, placeholder: string) {
   if (selected.length === 0) {
     return (
@@ -30,15 +31,18 @@ function renderChips(selected: string[], onRemove: (v: string) => void, placehol
       </span>
     )
   }
+  const visible = selected.slice(0, CHIP_VISIBLE)
+  const overflow = selected.length - CHIP_VISIBLE
+  const chipStyle: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', gap: '3px',
+    padding: '2px 8px', backgroundColor: 'hsl(var(--primary) / 0.1)',
+    border: '1px solid hsl(var(--primary) / 0.3)',
+    borderRadius: '12px', fontSize: '12px', color: 'hsl(var(--primary))', whiteSpace: 'nowrap'
+  }
   return (
     <>
-      {selected.map(v => (
-        <span key={v} style={{
-          display: 'inline-flex', alignItems: 'center', gap: '3px',
-          padding: '2px 8px', backgroundColor: 'hsl(var(--primary) / 0.1)',
-          border: '1px solid hsl(var(--primary) / 0.3)',
-          borderRadius: '12px', fontSize: '12px', color: 'hsl(var(--primary))', whiteSpace: 'nowrap'
-        }}>
+      {visible.map(v => (
+        <span key={v} style={chipStyle}>
           {v}
           <span role="button" onClick={e => { e.stopPropagation(); onRemove(v) }}
             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'hsl(var(--primary) / 0.6)' }}>
@@ -46,6 +50,11 @@ function renderChips(selected: string[], onRemove: (v: string) => void, placehol
           </span>
         </span>
       ))}
+      {overflow > 0 && (
+        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', lineHeight: '22px' }}>
+          외 {overflow}개 선택됨
+        </span>
+      )}
     </>
   )
 }
