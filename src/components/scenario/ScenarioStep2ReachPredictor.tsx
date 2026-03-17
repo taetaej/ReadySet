@@ -215,7 +215,7 @@ export function ScenarioStep2ReachPredictor({
             borderBottom: '1px solid hsl(var(--border))'
           }}>
             <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>
-              {reachPredictorMedia.length}개 매체
+              {reachPredictorMedia.length}개 광고상품(채널)
             </span>
             <button
               onClick={() => setBatchToolOpen(!batchToolOpen)}
