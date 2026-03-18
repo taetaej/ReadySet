@@ -419,7 +419,7 @@ export function DatasetList() {
                 }}>
                   {/* 상태 필터 */}
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>상태</div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>상태</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       {['Completed', 'Processing', 'Pending', 'Error', 'Expired'].map(status => (
                         <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -443,7 +443,7 @@ export function DatasetList() {
 
                   {/* 매체 필터 */}
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>매체</div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>매체</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
                       {['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok'].map(media => (
                         <label key={media} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
