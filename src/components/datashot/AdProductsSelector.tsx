@@ -7,6 +7,8 @@ interface AdProductsSelectorProps {
   value: string[]
   onChange: (products: string[]) => void
   validationActive: boolean
+  readOnly?: boolean
+  disabledFields?: string[] // 비활성화할 fieldKey 목록
 }
 
 type SelectionMap = { [fieldKey: string]: string[] }
@@ -38,9 +40,9 @@ function getOptionLabel(opt: string | AdProductOption): string {
 
 
 
-// ── 접힌 행 (옵션2+ 용) ──
+// ── 접힌 행 ──
 function CollapsibleFieldRow({
-  label, options, selected, onChange, search, onSearchChange, defaultOpen = true
+  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText, readOnly = false, disabled = false
 }: {
   label: string
   options: string[] | AdProductOption[]
@@ -49,6 +51,9 @@ function CollapsibleFieldRow({
   search: string
   onSearchChange: (v: string) => void
   defaultOpen?: boolean
+  guideText?: string
+  readOnly?: boolean
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const hasIds = isOptionObjects(options)
@@ -59,10 +64,10 @@ function CollapsibleFieldRow({
     ? (options as AdProductOption[]).filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
     : (options as string[]).filter(o => o.toLowerCase().includes(search.toLowerCase()))
 
-  const toggle = (v: string) => onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v])
+  const toggle = (v: string) => { if (!readOnly && !disabled) onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v]) }
 
   return (
-    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0' }}>
+    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0', opacity: disabled ? 0.45 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       {/* 헤더 행 */}
       <div
         onClick={() => setOpen(o => !o)}
@@ -85,7 +90,8 @@ function CollapsibleFieldRow({
             <>{label.slice(0, -2)}<span style={{ color: 'hsl(var(--destructive))', marginLeft: '2px' }}>*</span></>
           ) : label}
         </span>
-        {open && (
+        {/* 읽기 전용이 아닐 때만 검색/전체선택 표시 */}
+        {!readOnly && open && (
           <div style={{ position: 'relative', width: '140px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
             <Search size={11} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
             <input type="text" value={search} onChange={e => onSearchChange(e.target.value)}
@@ -93,18 +99,25 @@ function CollapsibleFieldRow({
               style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px' }} />
           </div>
         )}
-        <button
-          onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
-          className="btn btn-ghost btn-sm"
-          style={{ fontSize: '11px', flexShrink: 0 }}
-        >
-          {allSelected ? '전체 해제' : '전체 선택'}
-        </button>
+        {!readOnly && open && (
+          <button
+            onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
+            className="btn btn-ghost btn-sm"
+            style={{ fontSize: '11px', flexShrink: 0 }}
+          >
+            {allSelected ? '전체 해제' : '전체 선택'}
+          </button>
+        )}
       </div>
 
       {/* 펼쳐진 영역 */}
       {open && (
         <>
+          {guideText ? (
+            <div style={{ padding: '14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
+              {guideText}
+            </div>
+          ) : (
           <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               {filtered.map(opt => {
@@ -113,23 +126,26 @@ function CollapsibleFieldRow({
                 return (
                   <label key={lbl} style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                    padding: '5px 10px', cursor: readOnly ? 'default' : 'pointer', borderRadius: '4px', fontSize: '12px',
                     backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
                     transition: 'background 0.1s'
                   }} onClick={e => e.stopPropagation()}>
-                    <input type="checkbox" checked={isSelected} onChange={() => toggle(lbl)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                    <input type="checkbox" checked={isSelected} onChange={() => toggle(lbl)}
+                      disabled={readOnly}
+                      className="checkbox-custom" style={{ flexShrink: 0 }} />
                     <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lbl}</span>
                   </label>
                 )
               })}
             </div>
           </div>
+          )}
         </>
       )}
     </div>
   )
 }
-export function AdProductsSelector({ media, value, onChange, validationActive }: AdProductsSelectorProps) {
+export function AdProductsSelector({ media, value, onChange, validationActive, readOnly = false, disabledFields = [] }: AdProductsSelectorProps) {
   const [searchMap, setSearchMap] = useState<Record<string, string>>({})
   const structure = adProductStructureByMedia[media]
   const selections: SelectionMap = parseSelections(value)
@@ -144,6 +160,7 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
   const isRequiredValid = requiredSelected.length > 0
 
   const updateField = (fieldKey: string, next: string[]) => {
+    if (readOnly) return
     const updated = { ...selections, [fieldKey]: next }
     if (next.length === 0) delete updated[fieldKey]
     onChange(encodeSelections(updated))
@@ -161,16 +178,17 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
           search={searchMap[requiredField.key] || ''}
           onSearchChange={v => setSearchMap(prev => ({ ...prev, [requiredField.key]: v }))}
           defaultOpen={true}
+          readOnly={readOnly}
         />
-        {validationActive && !isRequiredValid && (
+        {!readOnly && validationActive && !isRequiredValid && (
           <p style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>
             {requiredField.label}{getJosa(requiredField.label, '을/를')} 선택해주세요.
           </p>
         )}
       </div>
 
-      {/* 나머지 필드: 접힌 행 (캠페인 목표 선택 후 활성화) */}
-      {isRequiredValid && structure.fields.slice(1).map(field => (
+      {/* 나머지 필드 */}
+      {structure.fields.slice(1).map(field => (
         <div key={field.key} style={{ marginBottom: '12px' }}>
           <CollapsibleFieldRow
             label={field.label}
@@ -179,6 +197,10 @@ export function AdProductsSelector({ media, value, onChange, validationActive }:
             onChange={next => updateField(field.key, next)}
             search={searchMap[field.key] || ''}
             onSearchChange={v => setSearchMap(prev => ({ ...prev, [field.key]: v }))}
+            defaultOpen={true}
+            guideText={!readOnly && !isRequiredValid ? `${requiredField.label}${getJosa(requiredField.label, '을/를')} 먼저 선택해주세요.` : undefined}
+            readOnly={readOnly}
+            disabled={disabledFields.includes(field.key)}
           />
         </div>
       ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Search, X, RefreshCcw } from 'lucide-react'
+import { Link2, FileSpreadsheet, Share2, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchCheck, Search, X, RefreshCcw, AlertTriangle, Clock } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -90,8 +90,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   
   // 필터 드롭다운 내 검색어
   const [filterSearchTerms, setFilterSearchTerms] = useState<{ [key: string]: string }>({})
-
-  const [clockTooltipOpen, setClockTooltipOpen] = useState(false)
 
   // 지표 데이터 (모달에 전달할 데이터)
   const metricsData = [
@@ -500,16 +498,21 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   // 지표 필터 렌더링
   const renderMetricFilter = (metricKey: string) => {
     const filter = metricFilters[metricKey as keyof typeof metricFilters]
+    const hasValue = !!(filter.operator && filter.value)
 
     return (
-      <td 
+      <td
         key={metricKey}
-        style={{ 
-          padding: '8px', 
-          backgroundColor: 'hsl(var(--muted) / 0.3)'
-        }}
+        style={{ padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)' }}
       >
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        {/* 부등호 + 숫자 인풋을 하나의 박스로 합침 */}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          border: `1px solid ${hasValue ? 'hsl(var(--foreground) / 0.2)' : 'hsl(var(--border))'}`,
+          borderRadius: '6px', overflow: 'hidden',
+          backgroundColor: hasValue ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
+          height: '32px'
+        }}>
           <select
             value={filter.operator}
             onChange={(e) => {
@@ -519,16 +522,14 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               }))
               setCurrentPage(1)
             }}
-            className="input"
             style={{
-              width: '60px',
-              height: '32px',
-              padding: '4px',
-              fontSize: '12px',
-              backgroundColor: filter.operator && filter.value ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
-              border: filter.operator && filter.value ? '1px solid hsl(var(--foreground) / 0.2)' : '1px solid hsl(var(--border))',
-              color: filter.operator && filter.value ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-              fontWeight: filter.operator && filter.value ? '500' : '400'
+              width: '38px', height: '100%', flexShrink: 0,
+              border: 'none', borderRight: '1px solid hsl(var(--border))',
+              backgroundColor: 'transparent',
+              fontSize: '12px', fontWeight: '500',
+              padding: '0 2px 0 4px', cursor: 'pointer',
+              color: 'hsl(var(--foreground))',
+              outline: 'none', appearance: 'none', textAlign: 'center'
             }}
           >
             <option value="=">=</option>
@@ -548,17 +549,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               }))
               setCurrentPage(1)
             }}
-            className="input"
             style={{
-              flex: 1,
-              height: '32px',
-              padding: '4px 8px',
-              fontSize: '12px',
-              minWidth: '80px',
-              backgroundColor: filter.value ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
-              border: filter.value ? '1px solid hsl(var(--foreground) / 0.2)' : '1px solid hsl(var(--border))',
-              color: filter.value ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-              fontWeight: filter.value ? '500' : '400'
+              flex: 1, height: '100%', minWidth: '60px',
+              border: 'none', backgroundColor: 'transparent',
+              fontSize: '12px', padding: '0 6px',
+              color: 'hsl(var(--foreground))',
+              outline: 'none'
             }}
           />
         </div>
@@ -783,7 +779,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>광고상품 72개</span>
+              <span>조회조건 72개</span>
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
@@ -1016,49 +1012,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               }}>
                 Extracted Data
               </h3>
-              <div style={{ position: 'relative' }}>
-                <Info 
-                  size={18} 
-                  style={{ 
-                    cursor: 'pointer',
-                    color: 'hsl(var(--muted-foreground))'
-                  }}
-                  onMouseEnter={() => setClockTooltipOpen(true)}
-                  onMouseLeave={() => setClockTooltipOpen(false)}
-                />
-                {clockTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    marginTop: '8px',
-                    width: '280px',
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000,
-                    fontFamily: 'Paperlogy, sans-serif',
-                    fontSize: '12px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'normal'
-                  }}>
-                    전체 8,000행 중 5,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* 데이터 기준 일시 */}
-            <div style={{
-              fontSize: '13px',
-              color: 'hsl(var(--muted-foreground))',
-              fontFamily: 'Paperlogy, sans-serif',
-              whiteSpace: 'nowrap'
-            }}>
-              데이터 기준 일시: 2024-03-10 14:30:25
+              <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                <Clock size={12} />
+                데이터 수집 일시: 2024-03-10 14:30
+              </span>
             </div>
           </div>
 
@@ -1116,6 +1073,25 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                 <RefreshCcw size={14} />
                 필터 초기화
               </button>
+            </div>
+          )}
+
+          {/* 1000행 초과 경고 배너 */}
+          {true && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '10px 16px',
+              marginBottom: '10px',
+              backgroundColor: 'hsl(38 92% 50% / 0.1)',
+              border: '1px solid hsl(38 92% 50% / 0.4)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              color: 'hsl(32 95% 35%)',
+            }}>
+              <AlertTriangle size={15} style={{ flexShrink: 0, color: 'hsl(38 92% 40%)' }} />
+              <span>
+                전체 <strong>1,320행</strong> 중 <strong>1,000행</strong>만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
+              </span>
             </div>
           )}
 

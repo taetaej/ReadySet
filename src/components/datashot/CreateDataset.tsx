@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, AlertCircle, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, X, CheckCircle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -113,7 +113,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       console.log('데이터셋 생성:', formData)
-      setShowToast({ type: 'success', message: '데이터셋 생성 요청이 완료되었습니다. 데이터셋 목록에서 확인해주세요.' })
+      setShowToast({ type: 'success', message: 'Dataset이 성공적으로 생성되었습니다.' })
       setTimeout(() => navigate('/datashot'), 2000)
     } catch {
       setShowToast({ type: 'error', message: '데이터셋 생성 요청에 실패했습니다. 다시 시도해주세요.' })
@@ -295,17 +295,18 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
 
       {/* 토스트 */}
       {showToast && (
-        <div style={{
-          position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
-          display: 'flex', alignItems: 'center', gap: '12px',
-          padding: '16px 20px', borderRadius: '8px', maxWidth: '400px',
-          backgroundColor: showToast.type === 'success' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))',
-          color: 'hsl(var(--primary-foreground))',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-        }}>
-          {showToast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-          <span style={{ fontSize: '14px', flex: 1 }}>{showToast.message}</span>
-          <button onClick={() => setShowToast(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0 }}>
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success'
+              ? <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+              : <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            }
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">{showToast.type === 'success' ? '성공' : '오류'}</p>
+            <p className="toast__description">{showToast.message}</p>
+          </div>
+          <button onClick={() => setShowToast(null)} className="toast__close">
             <X size={16} />
           </button>
         </div>

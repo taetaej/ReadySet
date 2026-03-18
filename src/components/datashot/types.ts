@@ -6,7 +6,9 @@ export interface Dataset {
   id: number
   name: string
   media: string
-  industry: string
+  industry: string // 표시용 (하위 호환)
+  industryLevel?: 'major' | 'mid' | 'minor' | null // 분류 레벨
+  industryCount?: number // 선택된 업종 수 (전체면 null)
   startDate: string
   endDate: string
   periodType: 'month' | 'quarter' // 월별/분기별 구분
@@ -18,201 +20,21 @@ export interface Dataset {
 
 // 샘플 데이터
 export const sampleDatasets: Dataset[] = [
-  {
-    id: 1,
-    name: '2024년 1월 Google Ads 캠페인 데이터',
-    media: 'Google Ads',
-    industry: '전체',
-    startDate: '2024-01',
-    endDate: '2024-01',
-    periodType: 'month',
-    status: 'Completed',
-    created: '2024-02-01 14:30',
-    creator: '김철수',
-    creatorId: 'kimcheolsu@gmail.com'
-  },
-  {
-    id: 2,
-    name: 'Meta 광고 성과 분석 데이터',
-    media: 'Meta',
-    industry: '3개 업종',
-    startDate: '2024-01',
-    endDate: '2024-02',
-    periodType: 'month',
-    status: 'Processing',
-    created: '2024-02-10 09:15',
-    creator: '이영희',
-    creatorId: 'leeyounghee@naver.com'
-  },
-  {
-    id: 3,
-    name: '카카오 모먼트 캠페인 추출',
-    media: 'kakao모먼트',
-    industry: '식품',
-    startDate: '2024-02',
-    endDate: '2024-02',
-    periodType: 'month',
-    status: 'Pending',
-    created: '2024-02-20 11:20',
-    creator: '박민수',
-    creatorId: 'parkminsu@kakao.com'
-  },
-  {
-    id: 4,
-    name: '네이버 성과형 DA 광고 데이터',
-    media: '네이버 성과형 DA',
-    industry: '5개 업종',
-    startDate: '2024-1',
-    endDate: '2024-1',
-    periodType: 'quarter',
-    status: 'Error',
-    created: '2024-02-15 15:40',
-    creator: '최지은',
-    creatorId: 'choijieun@naver.com'
-  },
-  {
-    id: 5,
-    name: 'TikTok 광고 성과 데이터',
-    media: 'TikTok',
-    industry: '패션',
-    startDate: '2024-01',
-    endDate: '2024-02',
-    periodType: 'month',
-    status: 'Completed',
-    created: '2024-03-01 10:00',
-    creator: '정현우',
-    creatorId: 'junghyunwoo@gmail.com'
-  },
-  {
-    id: 6,
-    name: '네이버 보장형 DA 캠페인 분석',
-    media: '네이버 보장형 DA',
-    industry: '전체',
-    startDate: '2024-02',
-    endDate: '2024-03',
-    periodType: 'month',
-    status: 'Processing',
-    created: '2024-02-05 13:25',
-    creator: '강민지',
-    creatorId: 'kangminji@naver.com'
-  },
-  {
-    id: 7,
-    name: 'Google Ads 디스플레이 캠페인',
-    media: 'Google Ads',
-    industry: '2개 업종',
-    startDate: '2024-1',
-    endDate: '2024-2',
-    periodType: 'quarter',
-    status: 'Expired',
-    created: '2024-01-22 16:10',
-    creator: '윤서준',
-    creatorId: 'yoonseojun@gmail.com'
-  },
-  {
-    id: 8,
-    name: 'Meta 신제품 런칭 캠페인',
-    media: 'Meta',
-    industry: '전자제품',
-    startDate: '2024-03',
-    endDate: '2024-03',
-    periodType: 'month',
-    status: 'Pending',
-    created: '2024-02-20 10:45',
-    creator: '조은비',
-    creatorId: 'joeunbi@naver.com'
-  },
-  {
-    id: 9,
-    name: 'kakao모먼트 여름 프로모션',
-    media: 'kakao모먼트',
-    industry: '7개 업종',
-    startDate: '2024-2',
-    endDate: '2024-3',
-    periodType: 'quarter',
-    status: 'Processing',
-    created: '2024-04-25 14:00',
-    creator: '한지우',
-    creatorId: 'hanjiwoo@kakao.com'
-  },
-  {
-    id: 10,
-    name: 'TikTok 건강식품 타겟 마케팅',
-    media: 'TikTok',
-    industry: '건강식품',
-    startDate: '2024-02',
-    endDate: '2024-04',
-    periodType: 'month',
-    status: 'Completed',
-    created: '2024-02-10 09:30',
-    creator: '송하늘',
-    creatorId: 'songhaneul@gmail.com'
-  },
-  {
-    id: 11,
-    name: '네이버 성과형 DA 봄 시즌 캠페인',
-    media: '네이버 성과형 DA',
-    industry: '2개 업종',
-    startDate: '2024-03',
-    endDate: '2024-05',
-    periodType: 'month',
-    status: 'Processing',
-    created: '2024-03-05 11:15',
-    creator: '김민준',
-    creatorId: 'kimminjun@naver.com'
-  },
-  {
-    id: 12,
-    name: 'Google Ads 검색 광고 최적화',
-    media: 'Google Ads',
-    industry: '전체',
-    startDate: '2024-1',
-    endDate: '2024-2',
-    periodType: 'quarter',
-    status: 'Completed',
-    created: '2024-01-18 14:20',
-    creator: '이서연',
-    creatorId: 'leeseoyeon@gmail.com'
-  },
-  {
-    id: 13,
-    name: 'Meta 리타겟팅 캠페인',
-    media: 'Meta',
-    industry: '5개 업종',
-    startDate: '2024-04',
-    endDate: '2024-06',
-    periodType: 'month',
-    status: 'Pending',
-    created: '2024-04-01 09:00',
-    creator: '박지훈',
-    creatorId: 'parkjihun@naver.com'
-  },
-  {
-    id: 14,
-    name: 'kakao모먼트 브랜드 인지도 캠페인',
-    media: 'kakao모먼트',
-    industry: '전자제품',
-    startDate: '2024-2',
-    endDate: '2024-2',
-    periodType: 'quarter',
-    status: 'Error',
-    created: '2024-04-10 16:30',
-    creator: '최수진',
-    creatorId: 'choisujin@kakao.com'
-  },
-  {
-    id: 15,
-    name: 'TikTok 신규 고객 유치 캠페인',
-    media: 'TikTok',
-    industry: '3개 업종',
-    startDate: '2024-05',
-    endDate: '2024-07',
-    periodType: 'month',
-    status: 'Processing',
-    created: '2024-05-01 10:45',
-    creator: '정예린',
-    creatorId: 'jungyerin@gmail.com'
-  }
+  { id: 1,  name: '2024년 1월 Google Ads 캠페인 데이터', media: 'Google Ads',       industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-01', endDate: '2024-01', periodType: 'month',   status: 'Completed',  created: '2024-02-01 14:30', creator: '김철수', creatorId: 'kimcheolsu@gmail.com' },
+  { id: 2,  name: 'Meta 광고 성과 분석 데이터',          media: 'Meta',              industry: '3개 업종', industryLevel: 'major', industryCount: 3,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Processing', created: '2024-02-10 09:15', creator: '이영희', creatorId: 'leeyounghee@naver.com' },
+  { id: 3,  name: '카카오 모먼트 캠페인 추출',            media: 'kakao모먼트',       industry: '식품',    industryLevel: 'mid',   industryCount: 1,         startDate: '2024-02', endDate: '2024-02', periodType: 'month',   status: 'Pending',    created: '2024-02-20 11:20', creator: '박민수', creatorId: 'parkminsu@kakao.com' },
+  { id: 4,  name: '네이버 성과형 DA 광고 데이터',         media: '네이버 성과형 DA',  industry: '5개 업종', industryLevel: 'mid',   industryCount: 5,         startDate: '2024-1',  endDate: '2024-1',  periodType: 'quarter', status: 'Error',      created: '2024-02-15 15:40', creator: '최지은', creatorId: 'choijieun@naver.com' },
+  { id: 5,  name: 'TikTok 광고 성과 데이터',             media: 'TikTok',            industry: '패션',    industryLevel: 'minor', industryCount: 2,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Completed',  created: '2024-03-01 10:00', creator: '정현우', creatorId: 'junghyunwoo@gmail.com' },
+  { id: 6,  name: '네이버 보장형 DA 캠페인 분석',         media: '네이버 보장형 DA',  industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-02', endDate: '2024-03', periodType: 'month',   status: 'Processing', created: '2024-02-05 13:25', creator: '강민지', creatorId: 'kangminji@naver.com' },
+  { id: 7,  name: 'Google Ads 디스플레이 캠페인',        media: 'Google Ads',       industry: '2개 업종', industryLevel: 'major', industryCount: 2,         startDate: '2024-1',  endDate: '2024-2',  periodType: 'quarter', status: 'Expired',    created: '2024-01-22 16:10', creator: '윤서준', creatorId: 'yoonseojun@gmail.com' },
+  { id: 8,  name: 'Meta 신제품 런칭 캠페인',              media: 'Meta',              industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-03', endDate: '2024-03', periodType: 'month',   status: 'Pending',    created: '2024-02-20 10:45', creator: '조은비', creatorId: 'joeunbi@naver.com' },
+  { id: 9,  name: 'kakao모먼트 여름 프로모션',            media: 'kakao모먼트',       industry: '7개 업종', industryLevel: 'minor', industryCount: 7,         startDate: '2024-2',  endDate: '2024-3',  periodType: 'quarter', status: 'Processing', created: '2024-04-25 14:00', creator: '한지우', creatorId: 'hanjiwoo@kakao.com' },
+  { id: 10, name: 'TikTok 건강식품 타겟 마케팅',          media: 'TikTok',            industry: '건강식품', industryLevel: 'minor', industryCount: 3,         startDate: '2024-02', endDate: '2024-04', periodType: 'month',   status: 'Completed',  created: '2024-02-10 09:30', creator: '송하늘', creatorId: 'songhaneul@gmail.com' },
+  { id: 11, name: '네이버 성과형 DA 봄 시즌 캠페인',      media: '네이버 성과형 DA',  industry: '2개 업종', industryLevel: 'mid',   industryCount: 2,         startDate: '2024-03', endDate: '2024-05', periodType: 'month',   status: 'Processing', created: '2024-03-05 11:15', creator: '김민준', creatorId: 'kimminjun@naver.com' },
+  { id: 12, name: 'Google Ads 검색 광고 최적화',         media: 'Google Ads',       industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-1',  endDate: '2024-2',  periodType: 'quarter', status: 'Completed',  created: '2024-01-18 14:20', creator: '이서연', creatorId: 'leeseoyeon@gmail.com' },
+  { id: 13, name: 'Meta 리타겟팅 캠페인',                 media: 'Meta',              industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-04', endDate: '2024-06', periodType: 'month',   status: 'Pending',    created: '2024-04-01 09:00', creator: '박지훈', creatorId: 'parkjihun@naver.com' },
+  { id: 14, name: 'kakao모먼트 브랜드 인지도 캠페인',     media: 'kakao모먼트',       industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-2',  endDate: '2024-2',  periodType: 'quarter', status: 'Error',      created: '2024-04-10 16:30', creator: '최수진', creatorId: 'choisujin@kakao.com' },
+  { id: 15, name: 'TikTok 신규 고객 유치 캠페인',         media: 'TikTok',            industry: '3개 업종', industryLevel: 'major', industryCount: 3,         startDate: '2024-05', endDate: '2024-07', periodType: 'month',   status: 'Processing', created: '2024-05-01 10:45', creator: '정예린', creatorId: 'jungyerin@gmail.com' },
 ]
 
 // 업종 분류 데이터

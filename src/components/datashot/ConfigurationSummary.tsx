@@ -1,6 +1,14 @@
-import { metaMetrics } from './types'
+import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { adProductStructureByMedia } from './sampleData'
 import { FormData } from './createDatasetTypes'
+
+const metricsByMedia: Record<string, MetricGroup[]> = {
+  'Meta': metaMetrics,
+  'Google Ads': googleMetrics,
+  'kakao모먼트': kakaoMetrics,
+  '네이버 성과형 DA': naverGfaMetrics,
+  '네이버 보장형 DA': naverNospMetrics,
+}
 
 interface ConfigurationSummaryProps {
   formData: FormData
@@ -68,10 +76,9 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
                     />
                   )
                 })}
-                <SummaryItem
-                  label="타겟팅 옵션"
-                  value={formData.targetingCategory ? (formData.targetingOptions.length > 0 ? formData.targetingOptions.length + '개' : '선택 안 함') : '선택 안 함'}
-                  chips={formData.targetingCategory && formData.targetingOptions.length > 0 ? formData.targetingOptions : undefined}
+                <TargetingSummaryItem
+                  category={formData.targetingCategory}
+                  options={formData.targetingOptions}
                 />
                 <MetricsItem metrics={formData.metrics} media={formData.media} />
               </div>
@@ -83,7 +90,7 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>검토</span>
               <span style={{ fontSize: '13px', fontWeight: '500', color: currentStep >= 3 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
-                {currentStep >= 3 ? '확인 중' : '—'}
+                {currentStep >= 3 ? '확인 완료' : '—'}
               </span>
             </div>
           </div>
@@ -124,7 +131,7 @@ function SummaryItem({ label, value, detail, chips }: { label: string; value: st
 }
 
 function ChipList({ items }: { items: string[] }) {
-  const MAX_VISIBLE = 5
+  const MAX_VISIBLE = 10
   const visible = items.slice(0, MAX_VISIBLE)
   const overflow = items.length - MAX_VISIBLE
   const chipStyle: React.CSSProperties = {
@@ -159,7 +166,60 @@ function IndustryItem({ industries, industryLevel }: { industries: string[]; ind
   )
 }
 
+function TargetingSummaryItem({ category, options }: { category: string; options: string[] }) {
+  const MAX_VISIBLE = 10
+  const visible = options.slice(0, MAX_VISIBLE)
+  const overflow = options.length - MAX_VISIBLE
+  const chipStyle: React.CSSProperties = {
+    fontSize: '10px', padding: '3px 6px', borderRadius: '4px',
+    backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap'
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>타겟팅 옵션</span>
+        <span style={{ fontSize: '13px', fontWeight: '500', color: options.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+          {!category ? '선택 안 함' : options.length > 0 ? options.length + '개' : '—'}
+        </span>
+      </div>
+      {category && (
+        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
+          <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>{category}</span>
+          <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginRight: '2px' }}>›</span>
+          {visible.map((chip, i) => <div key={i} style={chipStyle}>{chip}</div>)}
+          {overflow > 0 && <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>외 {overflow}개</span>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function GroupChipRow({ label, chips }: { label: string; chips: string[] }) {
+  const MAX_VISIBLE = 10
+  const visible = chips.slice(0, MAX_VISIBLE)
+  const overflow = chips.length - MAX_VISIBLE
+  const chipStyle: React.CSSProperties = {
+    fontSize: '10px', padding: '3px 6px', borderRadius: '4px',
+    backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap'
+  }
+  return (
+    <div style={{ fontSize: '11px', lineHeight: '1.6', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
+      <span style={{ color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>{label}</span>
+      <span style={{ color: 'hsl(var(--muted-foreground))', marginRight: '2px' }}>›</span>
+      {visible.map((chip, i) => <div key={i} style={chipStyle}>{chip}</div>)}
+      {overflow > 0 && <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>외 {overflow}개</span>}
+    </div>
+  )
+}
+
 function MetricsItem({ metrics, media }: { metrics: string[]; media: string }) {
+  const groups = metricsByMedia[media] ?? []
+  const matchedGroups = groups.map(g => ({
+    group: g.group,
+    matched: g.metrics.filter(m => metrics.includes(m.id)).map(m => m.label)
+  })).filter(g => g.matched.length > 0)
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -168,19 +228,11 @@ function MetricsItem({ metrics, media }: { metrics: string[]; media: string }) {
           {metrics.length > 0 ? metrics.length + '개' : '—'}
         </span>
       </div>
-      {metrics.length > 0 && media === 'Meta' && (
-        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', maxHeight: '200px', overflowY: 'auto' }}>
-          {metaMetrics.map(group => {
-            const matched = group.metrics.filter(m => metrics.includes(m.id))
-            if (!matched.length) return null
-            return (
-              <div key={group.group} style={{ fontSize: '11px', lineHeight: '1.6' }}>
-                <span style={{ color: 'hsl(var(--muted-foreground))' }}>{group.group}</span>
-                <span style={{ margin: '0 4px', color: 'hsl(var(--muted-foreground))' }}>›</span>
-                <span>{matched.map(m => m.label).join(', ')}</span>
-              </div>
-            )
-          })}
+      {matchedGroups.length > 0 && (
+        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {matchedGroups.map(g => (
+            <GroupChipRow key={g.group} label={g.group} chips={g.matched} />
+          ))}
         </div>
       )}
     </div>
