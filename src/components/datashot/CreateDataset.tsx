@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, AlertCircle, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, X, CheckCircle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -113,7 +113,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       console.log('데이터셋 생성:', formData)
-      setShowToast({ type: 'success', message: '데이터셋 생성 요청이 완료되었습니다. 데이터셋 목록에서 확인해주세요.' })
+      setShowToast({ type: 'success', message: 'Dataset이 성공적으로 생성되었습니다.' })
       setTimeout(() => navigate('/datashot'), 2000)
     } catch {
       setShowToast({ type: 'error', message: '데이터셋 생성 요청에 실패했습니다. 다시 시도해주세요.' })
@@ -297,15 +297,32 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       {showToast && (
         <div style={{
           position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
-          display: 'flex', alignItems: 'center', gap: '12px',
-          padding: '16px 20px', borderRadius: '8px', maxWidth: '400px',
-          backgroundColor: showToast.type === 'success' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))',
-          color: 'hsl(var(--primary-foreground))',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          display: 'flex', alignItems: 'flex-start', gap: '12px',
+          padding: '16px 20px', borderRadius: '12px', width: '360px',
+          backgroundColor: 'hsl(var(--card))',
+          border: `1px solid ${showToast.type === 'success' ? 'hsl(142 71% 45% / 0.5)' : 'hsl(var(--destructive) / 0.5)'}`,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.12)'
         }}>
-          {showToast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-          <span style={{ fontSize: '14px', flex: 1 }}>{showToast.message}</span>
-          <button onClick={() => setShowToast(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0 }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: showToast.type === 'success' ? 'hsl(142 71% 45% / 0.12)' : 'hsl(var(--destructive) / 0.12)',
+            color: showToast.type === 'success' ? 'hsl(142 71% 40%)' : 'hsl(var(--destructive))',
+          }}>
+            {showToast.type === 'success'
+              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            }
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', color: 'hsl(var(--foreground))', marginBottom: '4px' }}>
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </div>
+            <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.5' }}>
+              {showToast.message}
+            </div>
+          </div>
+          <button onClick={() => setShowToast(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', padding: 0, flexShrink: 0 }}>
             <X size={16} />
           </button>
         </div>
