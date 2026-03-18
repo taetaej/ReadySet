@@ -523,13 +523,17 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
               setCurrentPage(1)
             }}
             style={{
-              width: '38px', height: '100%', flexShrink: 0,
+              width: '46px', height: '100%', flexShrink: 0,
               border: 'none', borderRight: '1px solid hsl(var(--border))',
               backgroundColor: 'transparent',
               fontSize: '12px', fontWeight: '500',
               padding: '0 2px 0 4px', cursor: 'pointer',
               color: 'hsl(var(--foreground))',
-              outline: 'none', appearance: 'none', textAlign: 'center'
+              outline: 'none', appearance: 'none', textAlign: 'center',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 3px center',
+              paddingRight: '14px'
             }}
           >
             <option value="=">=</option>
@@ -992,31 +996,20 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         <div style={{ marginBottom: '32px' }}>
           <div style={{ 
             display: 'flex', 
-            alignItems: 'flex-start', 
+            alignItems: 'center', 
             justifyContent: 'space-between',
             marginBottom: '12px',
             gap: '16px'
           }}>
-            <div style={{ 
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '500',
+              fontFamily: 'Paperlogy, sans-serif',
+              margin: 0,
+              color: 'hsl(var(--foreground))'
             }}>
-              <h3 style={{
-                fontSize: '20px',
-                fontWeight: '500',
-                fontFamily: 'Paperlogy, sans-serif',
-                margin: 0,
-                color: 'hsl(var(--foreground))'
-              }}>
-                Extracted Data
-              </h3>
-              <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
-                <Clock size={12} />
-                데이터 수집 일시: 2024-03-10 14:30
-              </span>
-            </div>
+              Extracted Data
+            </h3>
           </div>
 
           {/* 결과 개수는 제거 */}
@@ -1078,29 +1071,52 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
 
           {/* 1000행 초과 경고 배너 */}
           {true && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              padding: '10px 16px',
-              marginBottom: '10px',
-              backgroundColor: 'hsl(38 92% 50% / 0.1)',
-              border: '1px solid hsl(38 92% 50% / 0.4)',
-              borderRadius: '8px',
-              fontSize: '13px',
-              color: 'hsl(32 95% 35%)',
-            }}>
-              <AlertTriangle size={15} style={{ flexShrink: 0, color: 'hsl(38 92% 40%)' }} />
-              <span>
-                전체 <strong>1,320행</strong> 중 <strong>1,000행</strong>만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+              <AlertTriangle size={13} style={{ flexShrink: 0, color: 'hsl(38 92% 50%)' }} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(38 92% 50%)' }}>Data Limit Warning</span>
+              <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginLeft: '4px' }}>전체 1,320행 중 1,000행만 표시됩니다. 전체 데이터는 CSV 다운로드를 통해 확인하세요.</span>
             </div>
           )}
+
+          {/* 최근 데이터 업데이트 - 테이블 바로 위 우측 정렬 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '6px', paddingRight: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                최근 데이터 업데이트: 2026-02-05
+              </span>
+              <div
+                style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+                onMouseEnter={() => setInfoTooltipOpen(true)}
+                onMouseLeave={() => setInfoTooltipOpen(false)}
+              >
+                <Info size={12} style={{ color: 'hsl(var(--muted-foreground))', cursor: 'default' }} />
+                {infoTooltipOpen && (
+                  <div style={{
+                    position: 'absolute', top: '100%', right: 0,
+                    marginTop: '6px', zIndex: 1100,
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px', padding: '12px 14px',
+                    width: '320px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                    pointerEvents: 'none'
+                  }}>
+                    <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.7' }}>
+                      DataShot은 매월 5일경 전월 데이터를 정기 업데이트하며, 데이터 품질 향상을 위해 과거 데이터(최근 2년)의 보정 작업이 비정기적으로 진행될 수 있습니다.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div style={{
             backgroundColor: 'hsl(var(--card))',
             border: '1px solid hsl(var(--border))',
             borderRadius: '12px',
             overflow: 'hidden',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            position: 'relative'
           }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
