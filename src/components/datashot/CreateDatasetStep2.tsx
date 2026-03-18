@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown, Info, AlertTriangle } from 'lucide-react'
+import { useState } from 'react'
+import { ListPlus, Plus, Minus, Search, ChevronDown, Info } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
@@ -21,20 +21,53 @@ interface Props {
 
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
-  const [showAdFormatToast, setShowAdFormatToast] = useState(false)
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const triggerAdFormatToast = () => {
-    setShowAdFormatToast(true)
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-    toastTimerRef.current = setTimeout(() => setShowAdFormatToast(false), 5000)
-  }
-
-  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current) }, [])
+  const [showAdFormatAlert, setShowAdFormatAlert] = useState(false)
+  const [pendingCat, setPendingCat] = useState<string>('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
   return (
+    <>
+    {/* 소재유형 비활성화 얼럿 */}
+    {showAdFormatAlert && (
+      <div className="dialog-overlay">
+        <div className="dialog-content">
+          <div className="dialog-header">
+            <h3 className="dialog-title">소재 유형 사용 불가</h3>
+            <p className="dialog-description">
+              선택한 타겟팅 옵션에서는 소재 유형 설정이 불가합니다.<br />
+              소재 유형 기존 선택 값은 초기화됩니다.<br />
+              계속 진행하시겠습니까?
+            </p>
+          </div>
+          <div className="dialog-footer">
+            <button
+              onClick={() => { setShowAdFormatAlert(false); setPendingCat('') }}
+              className="btn btn-secondary btn-sm"
+            >
+              취소
+            </button>
+            <button
+              onClick={() => {
+                try {
+                  const sel = JSON.parse(formData.products[0] || '{}')
+                  delete sel['adFormat']
+                  const products = Object.keys(sel).length > 0 ? [JSON.stringify(sel)] : []
+                  setFormData({ ...formData, targetingCategory: pendingCat, targetingOptions: [], products })
+                } catch {
+                  setFormData({ ...formData, targetingCategory: pendingCat, targetingOptions: [] })
+                }
+                setShowAdFormatAlert(false)
+                setPendingCat('')
+              }}
+              className="btn btn-primary btn-sm"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div style={{ width: '800px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>상세 설정</h2>
 
@@ -121,17 +154,18 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
-                // kakao모먼트에서 기기유형 외 선택 시 adFormat 초기화 + 토스트
                 if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '기기유형') {
-                  triggerAdFormatToast()
+                  // 소재 유형 선택값이 있을 때만 얼럿 표시 후 대기
                   try {
                     const sel = JSON.parse(formData.products[0] || '{}')
-                    delete sel['adFormat']
-                    const products = Object.keys(sel).length > 0 ? [JSON.stringify(sel)] : []
-                    setFormData({ ...formData, targetingCategory: cat, targetingOptions: [], products })
-                  } catch {
-                    setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
-                  }
+                    if (sel['adFormat']) {
+                      setPendingCat(cat)
+                      setShowAdFormatAlert(true)
+                      return
+                    }
+                  } catch { /* noop */ }
+                  // 소재 유형 없으면 바로 적용
+                  setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
                 } else {
                   setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
                 }
@@ -140,21 +174,6 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               validationActive={validationActive}
             />
           </div>
-
-          {/* 소재유형 비활성화 토스트 */}
-          {showAdFormatToast && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 14px', marginBottom: '16px',
-              backgroundColor: 'hsl(38 92% 50% / 0.1)',
-              border: '1px solid hsl(38 92% 50% / 0.4)',
-              borderRadius: '8px', fontSize: '12px',
-              color: 'hsl(32 95% 35%)',
-            }}>
-              <AlertTriangle size={13} style={{ flexShrink: 0, color: 'hsl(38 92% 40%)' }} />
-              <span>선택한 타겟팅 옵션에서는 <strong>소재 유형</strong> 설정이 불가합니다. 소재 유형 기존 선택 값은 초기화됩니다.</span>
-            </div>
-          )}
 
           {/* 지표 */}
           <div>
@@ -186,6 +205,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         </>
       )}
     </div>
+    </>
   )
 }
 
