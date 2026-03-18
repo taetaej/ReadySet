@@ -1,6 +1,6 @@
 import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet } from 'lucide-react'
 import { useState } from 'react'
-import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell } from 'recharts'
+import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell, Area, CartesianGrid } from 'recharts'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 
@@ -340,11 +340,54 @@ function StackedBar({ channels, totalBudget }: { channels: { name: string; ratio
   )
 }
 
-// ── 예산 비교: Budget vs Reach 커브 (라인 차트) ──
-function BudgetReachChart({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
-  const sorted = allData.map((m, i) => ({
-    budget: m.totalBudget, reach1: m.reach1, reach3: m.reach3, label: labels[i], idx: i
-  })).sort((a, b) => a.budget - b.budget)
+// ── 예산 비교: 통합 리치커브 (시나리오별 S-curve) ──
+function UnifiedReachCurve({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
+  // 각 시나리오의 예산을 기준으로 리치커브 데이터 생성
+  // X축: 예산 (3억~18억), Y축: 예측 Reach 1+
+  const minBudget = 300000000
+  const maxBudget = 1800000000
+  const interval = 150000000
+
+  const budgetPoints: number[] = []
+  for (let b = minBudget; b <= maxBudget; b += interval) budgetPoints.push(b)
+
+  // 각 시나리오별 커브 데이터 생성 (S-curve, 시나리오 예산 근처에서 실제 reach 값과 일치하도록)
+  const curveData = budgetPoints.map(budget => {
+    const point: any = { budget, budgetLabel: `${(budget / 100000000).toFixed(1)}억` }
+    allData.forEach((m, i) => {
+      const normalized = (budget - minBudget) / (maxBudget - minBudget)
+      // 시나리오의 실제 reach를 기준으로 S-curve 생성
+      const baseReach = m.reach1 * 0.75 // 최소 예산에서의 reach
+      const maxReach = Math.min(95, m.reach1 * 1.15) // 최대 예산에서의 reach
+      const reach = baseReach + ((maxReach - baseReach) / (1 + Math.exp(-8 * (normalized - 0.45))))
+      point[`reach_${i}`] = Math.round(reach * 10) / 10
+    })
+    return point
+  })
+
+  // 기준 시나리오의 예측 범위 (신뢰 구간)
+  const baseData = curveData.map(d => {
+    const reach = d.reach_0
+    const normalized = (d.budget - minBudget) / (maxBudget - minBudget)
+    const uncertainty = 3 + (normalized * 2)
+    return {
+      ...d,
+      upperBound: Math.min(95, reach + uncertainty),
+      lowerBound: Math.max(40, reach - uncertainty)
+    }
+  })
+
+  const lineColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
+  const lineOpacities = [1, 0.7, 0.5, 0.35]
+
+  // 각 시나리오의 실제 예산 위치에 마커 표시
+  const scenarioMarkers = allData.map((m, i) => ({
+    budget: m.totalBudget,
+    reach: curveData.reduce((closest, d) =>
+      Math.abs(d.budget - m.totalBudget) < Math.abs(closest.budget - m.totalBudget) ? d : closest
+    , curveData[0])[`reach_${i}`] as number,
+    label: labels[i], idx: i
+  }))
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null
@@ -355,48 +398,68 @@ function BudgetReachChart({ allData, labels }: { allData: ScenarioMetrics[]; lab
         borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif',
         boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
       }}>
-        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>{d.label}</div>
+        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+          예산: ₩{d.budget.toLocaleString('ko-KR')}
+        </div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-          <div>Budget: <span style={{ fontWeight: '600' }}>₩{d.budget.toLocaleString('ko-KR')}</span></div>
-          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach1.toFixed(1)}%</span></div>
-          <div>Reach 3+: <span style={{ fontWeight: '600' }}>{d.reach3.toFixed(1)}%</span></div>
+          {allData.map((_, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: lineColors[i], flexShrink: 0 }} />
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>{labels[i]}:</span>
+              <span style={{ fontWeight: '600', marginLeft: 'auto' }}>{d[`reach_${i}`]}%</span>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <ComposedChart data={sorted} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
+    <ResponsiveContainer width="100%" height={360}>
+      <ComposedChart data={baseData} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} horizontal={false} />
         <XAxis
           dataKey="budget" type="number"
-          tickFormatter={v => `${(v / 100000000).toFixed(0)}억`}
-          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
-          label={{ value: 'Budget', position: 'bottom', offset: 0, style: { fill: '#71717a', fontSize: 11 } }}
+          domain={[minBudget, maxBudget]}
+          tickFormatter={v => `${(v / 100000000).toFixed(1)}억`}
+          stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }}
         />
         <YAxis
           tickFormatter={v => `${v}%`}
-          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
-          width={44}
-          label={{ value: 'Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
+          stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }}
+          width={50}
+          label={{ value: '예측 Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
-        <Line
-          dataKey="reach1" type="monotone"
-          stroke="hsl(var(--foreground))" strokeWidth={2}
-          dot={(props: any) => {
+
+        {/* 기준 시나리오 신뢰 구간 */}
+        <Area type="monotone" dataKey="upperBound" stroke="none" fill="hsl(var(--muted) / 0.3)" fillOpacity={1} />
+        <Area type="monotone" dataKey="lowerBound" stroke="none" fill="hsl(var(--background))" fillOpacity={1} />
+
+        {/* 각 시나리오 라인 (역순으로 그려서 기준이 맨 위) */}
+        {[...allData].map((_, i) => allData.length - 1 - i).map(i => (
+          <Line
+            key={i}
+            type="monotone"
+            dataKey={`reach_${i}`}
+            stroke={lineColors[i]}
+            strokeWidth={i === 0 ? 3 : 2}
+            opacity={lineOpacities[i]}
+            dot={false}
+            activeDot={{ r: 4, fill: lineColors[i], stroke: lineColors[i], strokeWidth: 2 }}
+          />
+        ))}
+
+        {/* 각 시나리오의 실제 예산 위치 마커 */}
+        <Scatter
+          data={scenarioMarkers.map(m => ({ ...m, [`reach_${m.idx}`]: m.reach }))}
+          shape={(props: any) => {
             const { cx, cy, payload } = props
+            if (!cx || !cy) return null
             const isBase = payload.idx === 0
-            return <circle cx={cx} cy={cy} r={isBase ? 5 : 3.5} fill={isBase ? '#00ff9d' : 'hsl(var(--foreground))'} stroke={isBase ? '#00ff9d' : 'hsl(var(--foreground))'} strokeWidth={1.5} />
-          }}
-        />
-        <Line
-          dataKey="reach3" type="monotone"
-          stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="4 3"
-          dot={(props: any) => {
-            const { cx, cy, payload } = props
-            const isBase = payload.idx === 0
-            return <circle cx={cx} cy={cy} r={isBase ? 4 : 3} fill={isBase ? '#00ff9d' : 'hsl(var(--muted-foreground))'} stroke={isBase ? '#00ff9d' : 'hsl(var(--muted-foreground))'} strokeWidth={1} opacity={0.7} />
+            return (
+              <circle cx={cx} cy={cy} r={isBase ? 6 : 4} fill={lineColors[payload.idx]} stroke="hsl(var(--background))" strokeWidth={2} />
+            )
           }}
         />
       </ComposedChart>
@@ -532,10 +595,15 @@ export function ScenarioComparisonResult({
 
   return (
     <div style={{
-      width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-      marginRight: spinXOpen ? '400px' : '0',
-      transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      width: '100%', height: '100%', display: 'flex', flexDirection: 'row',
+      position: 'relative', overflow: 'hidden'
     }}>
+      {/* 메인 콘텐츠 */}
+      <div style={{
+        flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column',
+        marginRight: spinXOpen ? '400px' : '0',
+        transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      }}>
 
       {/* ── 헤더 (결과 페이지 스타일) ── */}
       <div className="slot-detail-header" style={{ flexShrink: 0 }}>
@@ -558,10 +626,6 @@ export function ScenarioComparisonResult({
                 )
               })()}
             </div>
-            <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>•</span>
-            <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-              {allScenarios.length}개 시나리오
-            </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             <button onClick={() => setResetConfirmOpen(true)} className="btn btn-ghost btn-sm" style={{ padding: '6px' }} title="비교 재설정">
@@ -669,32 +733,69 @@ export function ScenarioComparisonResult({
                     )}
                     <span style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>{s.name}</span>
                   </div>
-                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>타겟 설정</div>
-                  <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))', lineHeight: '1.5', marginBottom: '2px' }}>
-                    {s.targetGrp.join(', ') || '—'}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '10px' }}>
-                    Target Population {s.metrics.targetPopulation.toLocaleString('ko-KR')}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    {[
-                      { label: '광고비', value: `₩${s.metrics.totalBudget.toLocaleString('ko-KR')}`, match: budgetMatch },
-                      { label: '기간', value: `${fmtDate(period.start)} → ${fmtDate(period.end)} (${s.metrics.periodDays}일)`, match: periodMatch },
-                      { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
-                    ].map((row, ri) => (
-                      <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
-                        <span style={{ color: 'hsl(var(--muted-foreground))' }}>{row.label}</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                          <span style={{ color: 'hsl(var(--foreground))' }}>{row.value}</span>
-                          {!s.isBase && (
-                            row.match
-                              ? <CheckCircle size={10} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                              : <AlertTriangle size={10} style={{ color: 'hsl(38 92% 50%)' }} />
-                          )}
-                        </div>
+                  {comparisonType === 'budget' ? (
+                    <>
+                      {/* 예산 비교: 예산을 중점 표시 */}
+                      <div style={{ fontSize: '22px', fontWeight: '700', color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))', marginBottom: '4px', fontFamily: 'Paperlogy, sans-serif' }}>
+                        ₩{s.metrics.totalBudget.toLocaleString('ko-KR')}
                       </div>
-                    ))}
-                  </div>
+                      {!s.isBase && (
+                        <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>
+                          기준 대비 {s.metrics.totalBudget > baseBudget ? '+' : ''}{((s.metrics.totalBudget - baseBudget) / baseBudget * 100).toFixed(0)}%
+                        </div>
+                      )}
+                      {s.isBase && <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>기준 예산</div>}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {[
+                          { label: '기간', value: `${fmtDate(period.start)} → ${fmtDate(period.end)}`, match: periodMatch },
+                          { label: '타겟', value: s.targetGrp.join(', ') || '—', match: true },
+                          { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
+                        ].map((row, ri) => (
+                          <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>{row.label}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ color: 'hsl(var(--foreground))' }}>{row.value}</span>
+                              {!s.isBase && (
+                                row.match
+                                  ? <CheckCircle size={10} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                                  : <AlertTriangle size={10} style={{ color: 'hsl(38 92% 50%)' }} />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* 타겟/기간 비교: 기존 타겟 중점 표시 */}
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>타겟 설정</div>
+                      <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))', lineHeight: '1.5', marginBottom: '2px' }}>
+                        {s.targetGrp.join(', ') || '—'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '10px' }}>
+                        Target Population {s.metrics.targetPopulation.toLocaleString('ko-KR')}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {[
+                          { label: '광고비', value: `₩${s.metrics.totalBudget.toLocaleString('ko-KR')}`, match: budgetMatch },
+                          { label: '기간', value: `${fmtDate(period.start)} → ${fmtDate(period.end)} (${s.metrics.periodDays}일)`, match: periodMatch },
+                          { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
+                        ].map((row, ri) => (
+                          <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>{row.label}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ color: 'hsl(var(--foreground))' }}>{row.value}</span>
+                              {!s.isBase && (
+                                row.match
+                                  ? <CheckCircle size={10} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                                  : <AlertTriangle size={10} style={{ color: 'hsl(38 92% 50%)' }} />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )
             })}
@@ -758,23 +859,24 @@ export function ScenarioComparisonResult({
         {comparisonType === 'budget' && (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
-              {/* 왼쪽: Budget vs Reach 커브 */}
+              {/* 왼쪽: 통합 리치커브 */}
               <div style={{ minWidth: 0 }}>
-                <h3 style={sectionTitle}>Budget × Reach Curve</h3>
+                <h3 style={sectionTitle}>Unified Reach Curve</h3>
                 <div style={{ margin: '4px 0 0 0' }}>
-                <BudgetReachChart
+                <UnifiedReachCurve
                   allData={[baseMetrics, ...scenarioMetrics]}
                   labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
                 />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="2" /><circle cx="7" cy="5" r="2.5" fill="currentColor" /></svg>
-                    Reach 1+
-                  </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" /><circle cx="7" cy="5" r="2" fill="currentColor" opacity="0.6" /></svg>
-                    Reach 3+
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
+                  {allScenarios.map((s, i) => {
+                    const colors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
+                    return (
+                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                        <span style={{ width: '8px', height: '3px', borderRadius: '1px', backgroundColor: colors[i], opacity: i === 0 ? 1 : [0.7, 0.5, 0.35][i - 1] }} />
+                        {s.isBase ? '기준' : s.name}
+                      </span>
+                    )
+                  })}
                 </div>
                 </div>
               </div>
@@ -917,11 +1019,14 @@ export function ScenarioComparisonResult({
         </div>
       )}
 
-      {/* SpinX */}
-      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 998 }}>
+      {/* SpinX 버튼 */}
+      <div style={{ position: 'fixed', bottom: '24px', right: spinXOpen ? '424px' : '24px', zIndex: 998, transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
         <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} style={{ position: 'relative', bottom: 'auto', right: 'auto' }} />
       </div>
-      <SpinXPanel isOpen={spinXOpen} onClose={() => setSpinXOpen(false)} isDarkMode={isDarkMode} scenarioName="시나리오 비교 분석" analysisType="reachPredictor" />
+      </div>
+
+      {/* SpinX 패널 — fixed로 뷰포트 기준 배치 */}
+      <SpinXPanel isOpen={spinXOpen} onClose={() => setSpinXOpen(false)} isDarkMode={isDarkMode} scenarioName="시나리오 비교 분석" analysisType="reachPredictor" positioning="fixed" />
     </div>
   )
 }

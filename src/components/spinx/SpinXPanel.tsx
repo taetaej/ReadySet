@@ -7,6 +7,7 @@ interface SpinXPanelProps {
   isDarkMode?: boolean
   scenarioName?: string
   analysisType?: 'ratioFinder' | 'reachPredictor'
+  positioning?: 'fixed' | 'absolute'
 }
 
 // LLM 모델 타입 정의
@@ -14,16 +15,17 @@ type LLMModel = {
   provider: string
   name: string
   displayName: string
+  description: string
 }
 
 const availableModels: LLMModel[] = [
-  { provider: 'Anthropic', name: 'claude-sonnet-4.5', displayName: 'Claude Sonnet 4.5' },
-  { provider: 'Anthropic', name: 'claude-haiku-4.5', displayName: 'Claude Haiku 4.5' },
-  { provider: 'OpenAI', name: 'gpt-4o', displayName: 'Chat GPT 4o' },
-  { provider: 'Google', name: 'gemini-3pro', displayName: 'Gemini 3pro' }
+  { provider: 'Anthropic', name: 'claude-sonnet-4.5', displayName: 'Claude Sonnet 4.5', description: '데이터 해석 · 전략 수립' },
+  { provider: 'Anthropic', name: 'claude-haiku-4.5', displayName: 'Claude Haiku 4.5', description: '빠르고 명확한 답변' },
+  { provider: 'OpenAI', name: 'gpt-4o', displayName: 'Chat GPT 4o', description: '창의적 기획 · 아이디어' },
+  { provider: 'Google', name: 'gemini-3pro', displayName: 'Gemini 3pro', description: '대량 컨텍스트 · 시장 탐색' }
 ]
 
-export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName = '25-34세 여성 타겟 집중 공략', analysisType = 'ratioFinder' }: SpinXPanelProps) {
+export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName = '25-34세 여성 타겟 집중 공략', analysisType = 'ratioFinder', positioning = 'fixed' }: SpinXPanelProps) {
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState(false)
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null)
@@ -388,11 +390,11 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   return (
     <div
       style={{
-        position: 'fixed',
+        position: positioning,
         top: 0,
         right: isOpen ? 0 : '-400px',
         width: '400px',
-        height: '100vh',
+        height: positioning === 'fixed' ? '100vh' : '100%',
         backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
         borderLeft: '1px solid hsl(var(--border))',
         boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.15)',
@@ -401,7 +403,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         flexDirection: 'column',
         transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
         overflow: 'hidden',
-        maxHeight: '100vh'
+        maxHeight: positioning === 'fixed' ? '100vh' : '100%'
       }}
     >
       {/* 헤더 */}
@@ -1172,7 +1174,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                     }}
                   >
                     <span style={{ fontWeight: '500' }}>{model.displayName}</span>
-                    <span style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>{model.provider}</span>
+                    <span style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>{model.description}</span>
                   </button>
                 ))}
               </div>
