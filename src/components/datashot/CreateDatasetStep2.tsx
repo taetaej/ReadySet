@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown, Info } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ListPlus, Plus, Minus, Search, ChevronDown, Info, AlertTriangle } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
@@ -21,6 +21,16 @@ interface Props {
 
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
+  const [showAdFormatToast, setShowAdFormatToast] = useState(false)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const triggerAdFormatToast = () => {
+    setShowAdFormatToast(true)
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setShowAdFormatToast(false), 5000)
+  }
+
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current) }, [])
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
@@ -111,8 +121,9 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
-                // kakao모먼트에서 기기유형 외 선택 시 adFormat 초기화
+                // kakao모먼트에서 기기유형 외 선택 시 adFormat 초기화 + 토스트
                 if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '기기유형') {
+                  triggerAdFormatToast()
                   try {
                     const sel = JSON.parse(formData.products[0] || '{}')
                     delete sel['adFormat']
@@ -129,6 +140,21 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               validationActive={validationActive}
             />
           </div>
+
+          {/* 소재유형 비활성화 토스트 */}
+          {showAdFormatToast && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 14px', marginBottom: '16px',
+              backgroundColor: 'hsl(38 92% 50% / 0.1)',
+              border: '1px solid hsl(38 92% 50% / 0.4)',
+              borderRadius: '8px', fontSize: '12px',
+              color: 'hsl(32 95% 35%)',
+            }}>
+              <AlertTriangle size={13} style={{ flexShrink: 0, color: 'hsl(38 92% 40%)' }} />
+              <span>선택한 타겟팅 옵션에서는 <strong>소재 유형</strong> 설정이 불가합니다. 소재 유형 기존 선택 값은 초기화됩니다.</span>
+            </div>
+          )}
 
           {/* 지표 */}
           <div>

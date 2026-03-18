@@ -50,7 +50,12 @@ export const generateMetaSampleData = () => {
     '분류되지 않음'     // unknown
   ]
   
+  const seed = (n: number, offset: number) => Math.abs(Math.sin(n * 9301 + offset * 49297) * 233280) % 1
+
   for (let i = 0; i < 100; i++) {
+    const impressions = Math.round(50000 + seed(i, 1) * 5000000)
+    const clicks = Math.round(impressions * (0.005 + seed(i, 2) * 0.08))
+    const cost = Math.round(500000 + seed(i, 3) * 50000000)
     data.push({
       period: '2024-01',
       media: 'Meta',
@@ -62,12 +67,12 @@ export const generateMetaSampleData = () => {
       platform: platforms[i % platforms.length],
       performanceGoal: performanceGoals[i % performanceGoals.length],
       targetingOption: targetingOptions[i % targetingOptions.length],
-      impressions: 1234567 + i * 1000,
-      clicks: 28901 + i * 100,
-      cost: 12345678 + i * 10000,
-      ctr: 2.34 + (i * 0.01),
-      cpc: 427 + i,
-      cpm: 9987 + i * 10
+      impressions,
+      clicks,
+      cost,
+      ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
+      cpc: Math.round(cost / (clicks || 1)),
+      cpm: parseFloat((cost / impressions * 1000).toFixed(1))
     })
   }
   return data
@@ -110,7 +115,12 @@ export const generateKakaoSampleData = () => {
     '와이드 이미지'
   ]
   
+  const seed = (n: number, offset: number) => Math.abs(Math.sin(n * 9301 + offset * 49297) * 233280) % 1
+
   for (let i = 0; i < 100; i++) {
+    const impressions = Math.round(30000 + seed(i, 4) * 3000000)
+    const clicks = Math.round(impressions * (0.003 + seed(i, 5) * 0.07))
+    const cost = Math.round(300000 + seed(i, 6) * 30000000)
     data.push({
       period: '2024-01',
       media: 'kakao모먼트',
@@ -122,12 +132,12 @@ export const generateKakaoSampleData = () => {
       objectiveType: objectiveTypes[i % objectiveTypes.length],
       pricingType: pricingTypes[i % pricingTypes.length],
       adFormat: adFormats[i % adFormats.length],
-      impressions: 1234567 + i * 1000,
-      clicks: 28901 + i * 100,
-      cost: 12345678 + i * 10000,
-      ctr: 2.34 + (i * 0.01),
-      cpc: 427 + i,
-      cpm: 9987 + i * 10
+      impressions,
+      clicks,
+      cost,
+      ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
+      cpc: Math.round(cost / (clicks || 1)),
+      cpm: parseFloat((cost / impressions * 1000).toFixed(1))
     })
   }
   return data
@@ -163,7 +173,12 @@ export const generateNaverGfaSampleData = () => {
     '네이버 퍼포먼스 네트워크 > 배너 영역'
   ]
   
+  const seed = (n: number, offset: number) => Math.abs(Math.sin(n * 9301 + offset * 49297) * 233280) % 1
+
   for (let i = 0; i < 100; i++) {
+    const impressions = Math.round(20000 + seed(i, 7) * 2000000)
+    const clicks = Math.round(impressions * (0.004 + seed(i, 8) * 0.06))
+    const cost = Math.round(200000 + seed(i, 9) * 20000000)
     data.push({
       period: '2024-01',
       media: '네이버 성과형 DA',
@@ -173,12 +188,12 @@ export const generateNaverGfaSampleData = () => {
       objective: objectives[i % objectives.length],
       pricingType: pricingTypes[i % pricingTypes.length],
       placement: placements[i % placements.length],
-      impressions: 1234567 + i * 1000,
-      clicks: 28901 + i * 100,
-      cost: 12345678 + i * 10000,
-      ctr: 2.34 + (i * 0.01),
-      cpc: 427 + i,
-      cpm: 9987 + i * 10
+      impressions,
+      clicks,
+      cost,
+      ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
+      cpc: Math.round(cost / (clicks || 1)),
+      cpm: parseFloat((cost / impressions * 1000).toFixed(1))
     })
   }
   return data
