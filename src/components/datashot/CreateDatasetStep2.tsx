@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown } from 'lucide-react'
+import { ListPlus, Plus, Minus, Search, ChevronDown, Info } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
@@ -88,12 +88,20 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         <>
           {/* 광고 분류 조건 */}
           <div style={{ marginBottom: '24px' }}>
-            <AdProductsSelector
-              media={formData.media}
-              value={formData.products}
-              onChange={(products) => setFormData({ ...formData, products })}
-              validationActive={validationActive}
-            />
+            {(() => {
+              // kakao모먼트에서 기기유형 외 타겟팅 선택 시 소재 유형 비활성화
+              const isKakao = formData.media === 'kakao모먼트'
+              const kakaoTargetingDisablesAdFormat = isKakao && !!formData.targetingCategory && formData.targetingCategory !== '기기유형'
+              return (
+                <AdProductsSelector
+                  media={formData.media}
+                  value={formData.products}
+                  onChange={(products) => setFormData({ ...formData, products })}
+                  validationActive={validationActive}
+                  disabledFields={kakaoTargetingDisablesAdFormat ? ['adFormat'] : []}
+                />
+              )
+            })()}
           </div>
 
           {/* 타겟팅 옵션 */}
@@ -102,7 +110,21 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               media={formData.media}
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
-              onCategoryChange={cat => setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })}
+              onCategoryChange={cat => {
+                // kakao모먼트에서 기기유형 외 선택 시 adFormat 초기화
+                if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '기기유형') {
+                  try {
+                    const sel = JSON.parse(formData.products[0] || '{}')
+                    delete sel['adFormat']
+                    const products = Object.keys(sel).length > 0 ? [JSON.stringify(sel)] : []
+                    setFormData({ ...formData, targetingCategory: cat, targetingOptions: [], products })
+                  } catch {
+                    setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
+                  }
+                } else {
+                  setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
+                }
+              }}
               onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
               validationActive={validationActive}
             />
@@ -241,6 +263,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   const [open, setOpen] = useState(true)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false)
   const categories = targetingOptionsByMedia[media] ?? []
   const opts = categories.find(t => t.category === category)?.options ?? []
   const filtered = opts.filter(o => o.toLowerCase().includes(search.toLowerCase()))
@@ -268,7 +291,37 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
         }}>
           {open ? <Minus size={12} /> : <Plus size={12} />}
         </span>
-        <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>타겟팅 옵션</span>
+        <span style={{ fontSize: '13px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+          타겟팅 옵션
+          {media === 'kakao모먼트' && (
+            <div
+              style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+              onClick={e => e.stopPropagation()}
+              onMouseEnter={() => setShowInfoTooltip(true)}
+              onMouseLeave={() => setShowInfoTooltip(false)}
+            >
+              <Info size={13} style={{ color: 'hsl(var(--muted-foreground))', cursor: 'default' }} />
+              {showInfoTooltip && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: '0',
+                  marginTop: '6px', zIndex: 1100,
+                  backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px', padding: '10px 14px',
+                  width: '300px', boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                  pointerEvents: 'none'
+                }}>
+                  <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>
+                    소재유형 조회 제한 안내
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.7' }}>
+                    타겟팅 옵션 '선택 안함' 또는 '기기유형' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.<br />
+                    그 외 타겟팅 옵션 선택 시 기존에 선택한 소재 유형 선택 값이 초기화됩니다.
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </span>
         {open && category && (
           <>
             <div style={{ position: 'relative', width: '140px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>

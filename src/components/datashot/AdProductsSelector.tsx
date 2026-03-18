@@ -8,6 +8,7 @@ interface AdProductsSelectorProps {
   onChange: (products: string[]) => void
   validationActive: boolean
   readOnly?: boolean
+  disabledFields?: string[] // 비활성화할 fieldKey 목록
 }
 
 type SelectionMap = { [fieldKey: string]: string[] }
@@ -41,7 +42,7 @@ function getOptionLabel(opt: string | AdProductOption): string {
 
 // ── 접힌 행 ──
 function CollapsibleFieldRow({
-  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText, readOnly = false
+  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText, readOnly = false, disabled = false
 }: {
   label: string
   options: string[] | AdProductOption[]
@@ -52,6 +53,7 @@ function CollapsibleFieldRow({
   defaultOpen?: boolean
   guideText?: string
   readOnly?: boolean
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const hasIds = isOptionObjects(options)
@@ -62,10 +64,10 @@ function CollapsibleFieldRow({
     ? (options as AdProductOption[]).filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
     : (options as string[]).filter(o => o.toLowerCase().includes(search.toLowerCase()))
 
-  const toggle = (v: string) => { if (!readOnly) onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v]) }
+  const toggle = (v: string) => { if (!readOnly && !disabled) onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v]) }
 
   return (
-    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0' }}>
+    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0', opacity: disabled ? 0.45 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       {/* 헤더 행 */}
       <div
         onClick={() => setOpen(o => !o)}
@@ -143,7 +145,7 @@ function CollapsibleFieldRow({
     </div>
   )
 }
-export function AdProductsSelector({ media, value, onChange, validationActive, readOnly = false }: AdProductsSelectorProps) {
+export function AdProductsSelector({ media, value, onChange, validationActive, readOnly = false, disabledFields = [] }: AdProductsSelectorProps) {
   const [searchMap, setSearchMap] = useState<Record<string, string>>({})
   const structure = adProductStructureByMedia[media]
   const selections: SelectionMap = parseSelections(value)
@@ -198,6 +200,7 @@ export function AdProductsSelector({ media, value, onChange, validationActive, r
             defaultOpen={true}
             guideText={!readOnly && !isRequiredValid ? `${requiredField.label}${getJosa(requiredField.label, '을/를')} 먼저 선택해주세요.` : undefined}
             readOnly={readOnly}
+            disabled={disabledFields.includes(field.key)}
           />
         </div>
       ))}
