@@ -32,6 +32,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
+  const [updateTooltipOpen, setUpdateTooltipOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
@@ -76,13 +77,15 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     ctr: MetricFilter
     cpc: MetricFilter
     cpm: MetricFilter
+    vtr: MetricFilter
   }>({
     impressions: { operator: '=', value: '' },
     clicks: { operator: '=', value: '' },
     cost: { operator: '=', value: '' },
     ctr: { operator: '=', value: '' },
     cpc: { operator: '=', value: '' },
-    cpm: { operator: '=', value: '' }
+    cpm: { operator: '=', value: '' },
+    vtr: { operator: '=', value: '' }
   })
 
   // 필터 드롭다운 열림 상태
@@ -95,7 +98,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const metricsData = [
     {
       group: '성과',
-      metrics: ['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']
+      metrics: ['광고비', '노출수', '클릭수', 'CPC', 'CPM', 'CTR', 'VTR']
     },
     {
       group: '참여',
@@ -154,7 +157,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const configData = datasetData?.config || {
     media: 'Meta',
     targetingCategory: '기기유형',
-    metrics: ['노출수', '클릭수', '광고비', 'CTR', 'CPC', 'CPM']
+    metrics: ['광고비', '노출수', '클릭수', 'CPC', 'CPM', 'CTR', 'VTR']
   }
 
   // 광고상품 컬럼 구조 동적 생성
@@ -182,7 +185,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     '광고비': 'cost',
     'CTR': 'ctr',
     'CPC': 'cpc',
-    'CPM': 'cpm'
+    'CPM': 'cpm',
+  'VTR': 'vtr'
   }
 
   const getSortedData = () => {
@@ -503,7 +507,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     return (
       <td
         key={metricKey}
-        style={{ padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)' }}
+        style={{ padding: '8px', width: '43px', backgroundColor: 'hsl(var(--muted) / 0.3)', ...(metricKey === 'cost' ? { borderLeft: '1px solid hsl(var(--border))' } : {}) }}
       >
         {/* 부등호 + 숫자 인풋을 하나의 박스로 합침 */}
         <div style={{
@@ -511,7 +515,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           border: `1px solid ${hasValue ? 'hsl(var(--foreground) / 0.2)' : 'hsl(var(--border))'}`,
           borderRadius: '6px', overflow: 'hidden',
           backgroundColor: hasValue ? 'hsl(var(--muted) / 0.5)' : 'hsl(var(--card))',
-          height: '32px'
+          height: '32px', width: '100%'
         }}>
           <select
             value={filter.operator}
@@ -543,22 +547,24 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             <option value="≤">≤</option>
           </select>
           <input
-            type="number"
+            type="text"
             placeholder="값"
-            value={filter.value}
+            value={filter.value ? Number(filter.value.replace(/,/g, '')).toLocaleString('ko-KR') : ''}
             onChange={(e) => {
+              const raw = e.target.value.replace(/,/g, '').replace(/[^0-9.]/g, '')
               setMetricFilters(prev => ({
                 ...prev,
-                [metricKey]: { ...prev[metricKey as keyof typeof prev], value: e.target.value }
+                [metricKey]: { ...prev[metricKey as keyof typeof prev], value: raw }
               }))
               setCurrentPage(1)
             }}
             style={{
-              flex: 1, height: '100%', minWidth: '60px',
+              flex: 1, height: '100%',
               border: 'none', backgroundColor: 'transparent',
               fontSize: '12px', padding: '0 6px',
               color: 'hsl(var(--foreground))',
-              outline: 'none'
+              outline: 'none',
+              textAlign: 'right'
             }}
           />
         </div>
@@ -1001,73 +1007,20 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             marginBottom: '12px',
             gap: '16px'
           }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '500',
-              fontFamily: 'Paperlogy, sans-serif',
-              margin: 0,
-              color: 'hsl(var(--foreground))'
-            }}>
-              Extracted Data
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: '500',
+                fontFamily: 'Paperlogy, sans-serif',
+                margin: 0,
+                color: 'hsl(var(--foreground))'
+              }}>
+                Extracted Data
+              </h3>
+            </div>
           </div>
 
           {/* 결과 개수는 제거 */}
-
-          {/* 필터 초기화 버튼 */}
-          {(Object.values(listFilters).some(arr => arr.length > 0) || 
-            Object.values(metricFilters).some(filter => filter.value !== '')) && (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-start', 
-              marginBottom: '12px' 
-            }}>
-              <button
-                onClick={() => {
-                  setListFilters({
-                    period: [],
-                    media: [],
-                    industryLarge: [],
-                    industryMedium: [],
-                    industrySmall: [],
-                    objective: [],
-                    buyingType: [],
-                    platform: [],
-                    performanceGoal: [],
-                    targetingOption: []
-                  })
-                  setMetricFilters({
-                    impressions: { operator: '=', value: '' },
-                    clicks: { operator: '=', value: '' },
-                    cost: { operator: '=', value: '' },
-                    ctr: { operator: '=', value: '' },
-                    cpc: { operator: '=', value: '' },
-                    cpm: { operator: '=', value: '' }
-                  })
-                  setCurrentPage(1)
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: 'hsl(var(--foreground))',
-                  color: 'hsl(var(--background))',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-              >
-                <RefreshCcw size={14} />
-                필터 초기화
-              </button>
-            </div>
-          )}
 
           {/* 1000행 초과 경고 배너 */}
           {true && (
@@ -1078,19 +1031,70 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
           )}
 
-          {/* 최근 데이터 업데이트 - 테이블 바로 위 우측 정렬 */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '6px', paddingRight: '4px' }}>
+          {/* 최근 데이터 업데이트 - 테이블 바로 위 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', paddingRight: '4px' }}>
+            {/* 필터 초기화 버튼 */}
+            <div>
+              {(Object.values(listFilters).some(arr => arr.length > 0) || 
+                Object.values(metricFilters).some(filter => filter.value !== '')) && (
+                <button
+                  onClick={() => {
+                    setListFilters({
+                      period: [],
+                      media: [],
+                      industryLarge: [],
+                      industryMedium: [],
+                      industrySmall: [],
+                      objective: [],
+                      buyingType: [],
+                      platform: [],
+                      performanceGoal: [],
+                      targetingOption: []
+                    })
+                    setMetricFilters({
+                      impressions: { operator: '=', value: '' },
+                      clicks: { operator: '=', value: '' },
+                      cost: { operator: '=', value: '' },
+                      ctr: { operator: '=', value: '' },
+                      cpc: { operator: '=', value: '' },
+                      cpm: { operator: '=', value: '' },
+                      vtr: { operator: '=', value: '' }
+                    })
+                    setCurrentPage(1)
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    backgroundColor: 'hsl(var(--foreground))',
+                    color: 'hsl(var(--background))',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  <RefreshCcw size={14} />
+                  필터 초기화
+                </button>
+              )}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
                 최근 데이터 업데이트: 2026-02-05
               </span>
               <div
                 style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
-                onMouseEnter={() => setInfoTooltipOpen(true)}
-                onMouseLeave={() => setInfoTooltipOpen(false)}
+                onMouseEnter={() => setUpdateTooltipOpen(true)}
+                onMouseLeave={() => setUpdateTooltipOpen(false)}
               >
                 <Info size={12} style={{ color: 'hsl(var(--muted-foreground))', cursor: 'default' }} />
-                {infoTooltipOpen && (
+                {updateTooltipOpen && (
                   <div style={{
                     position: 'absolute', top: '100%', right: 0,
                     marginTop: '6px', zIndex: 1100,
@@ -1267,7 +1271,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         </div>
                       </th>
                     )}
-                    {configData.metrics.map((metric: string) => (
+                    {configData.metrics.map((metric: string, idx: number) => (
                       <th 
                         key={metric}
                         onClick={() => handleSort(metric)}
@@ -1278,7 +1282,9 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           whiteSpace: 'nowrap',
                           fontSize: '12px',
                           cursor: 'pointer',
-                          userSelect: 'none'
+                          userSelect: 'none',
+                          width: '43px',
+                          ...(idx === 0 ? { borderLeft: '1px solid hsl(var(--border))' } : {})
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
@@ -1300,12 +1306,13 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     {renderListFilter('industrySmall')}
                     {adProductColumns.map((col) => renderListFilter(col.key))}
                     {configData.targetingCategory && renderListFilter('targetingOption')}
+                    {renderMetricFilter('cost')}
                     {renderMetricFilter('impressions')}
                     {renderMetricFilter('clicks')}
-                    {renderMetricFilter('cost')}
-                    {renderMetricFilter('ctr')}
                     {renderMetricFilter('cpc')}
                     {renderMetricFilter('cpm')}
+                    {renderMetricFilter('ctr')}
+                    {renderMetricFilter('vtr')}
                   </tr>
                 </thead>
                 <tbody>
@@ -1334,6 +1341,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           {row.targetingOption || '—'}
                         </td>
                       )}
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', borderLeft: '1px solid hsl(var(--border))' }} className="text-muted-foreground">
+                        {row.cost.toLocaleString()}
+                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                      </td>
                       <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
                         {row.impressions.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
@@ -1343,11 +1354,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
                       </td>
                       <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
-                        {row.cost.toLocaleString()}
-                        <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{row.ctr.toFixed(2)}%</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">
                         {row.cpc.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
@@ -1355,6 +1361,8 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         {row.cpm.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{row.ctr.toFixed(2)}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px' }} className="text-muted-foreground">{(row as any).vtr?.toFixed(1) ?? '—'}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
                     </tr>
                   ))}
                 </tbody>

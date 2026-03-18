@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, CheckCircle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, X, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Database } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -233,44 +233,52 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
             </div>
 
             {/* 네비게이션 버튼 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
-              <button
-                onClick={() => navigate('/datashot')}
-                className="btn btn-ghost btn-lg"
-              >
-                취소
-              </button>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                {currentStep > 1 && (
-                  <button
-                    onClick={handlePrev}
-                    className="btn btn-secondary btn-lg"
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                  >
-                    <ChevronLeft size={20} />
-                    이전
-                  </button>
-                )}
-                {currentStep < 3 ? (
-                  <button
-                    onClick={handleNext}
-                    disabled={currentStep === 1 ? !isStep1Valid() : !isStep2Valid()}
-                    className="btn btn-primary btn-lg"
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 0.5 : 1, cursor: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 'not-allowed' : 'pointer' }}
-                  >
-                    다음
-                    <ChevronRight size={20} />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="btn btn-primary btn-lg"
-                    style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
-                  >
-                    {isSubmitting ? '생성 중...' : '데이터셋 생성 요청'}
-                  </button>
-                )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '24px' }}>
+              {currentStep === 3 && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                  <Database size={13} />
+                  예상 데이터 규모 : 1,234 행
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <button
+                  onClick={() => navigate('/datashot')}
+                  className="btn btn-ghost btn-lg"
+                >
+                  취소
+                </button>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {currentStep > 1 && (
+                    <button
+                      onClick={handlePrev}
+                      className="btn btn-secondary btn-lg"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ChevronLeft size={20} />
+                      이전
+                    </button>
+                  )}
+                  {currentStep < 3 ? (
+                    <button
+                      onClick={handleNext}
+                      disabled={currentStep === 1 ? !isStep1Valid() : !isStep2Valid()}
+                      className="btn btn-primary btn-lg"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 0.5 : 1, cursor: (currentStep === 1 ? !isStep1Valid() : !isStep2Valid()) ? 'not-allowed' : 'pointer' }}
+                    >
+                      다음
+                      <ChevronRight size={20} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="btn btn-primary btn-lg"
+                      style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+                    >
+                      {isSubmitting ? '생성 중...' : '데이터셋 생성 요청'}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

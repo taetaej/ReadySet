@@ -131,10 +131,6 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Database size={14} />
-            추출할 전체 데이터 : {totalRows.toLocaleString()} 행
-          </div>
           <button onClick={onShowSampleData} className="btn btn-sm"
             style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'hsl(var(--foreground))', color: 'hsl(var(--background))', border: 'none' }}>
             <Maximize2 size={14} />

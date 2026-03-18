@@ -65,6 +65,8 @@ function getParentTooltip(path: string, selected: string[]): string {
 }
 
 export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, industryLevel }: IndustryDialogProps) {
+  const [showLevelChangeAlert, setShowLevelChangeAlert] = useState(false)
+  const [pendingLevel, setPendingLevel] = useState<IndustryLevel | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const typeDropdownRef = useRef<HTMLDivElement>(null)
@@ -385,6 +387,47 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
+      {/* 분류 레벨 변경 확인 얼럿 */}
+      {showLevelChangeAlert && (
+        <div className="dialog-overlay" onClick={e => e.stopPropagation()} style={{ zIndex: 1200 }}>
+          <div className="dialog-content" onClick={e => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 업종 초기화</h3>
+              <p className="dialog-description">
+                분류 레벨을 변경하면 선택한 업종이 초기화됩니다.<br />
+                계속 진행하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => { setShowLevelChangeAlert(false); setPendingLevel(null) }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  if (pendingLevel) {
+                    setLocalLevel(pendingLevel)
+                    onUpdate([], pendingLevel)
+                    setActiveMajor(null)
+                    setActiveMid(null)
+                    setSearchInput('')
+                    setSearchQuery('')
+                    setBrandResults([])
+                    setHasSearched(false)
+                  }
+                  setShowLevelChangeAlert(false)
+                  setPendingLevel(null)
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="dialog-content" onClick={(e) => e.stopPropagation()}
         style={{ width: '1300px', height: '900px', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
 
@@ -450,14 +493,19 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 <button key={value}
                   onClick={() => {
                     if (localLevel !== value) {
-                      setLocalLevel(value)
-                      onUpdate([], value)
-                      setActiveMajor(null)
-                      setActiveMid(null)
-                      setSearchInput('')
-                      setSearchQuery('')
-                      setBrandResults([])
-                      setHasSearched(false)
+                      if (selectedIndustries.length > 0) {
+                        setPendingLevel(value)
+                        setShowLevelChangeAlert(true)
+                      } else {
+                        setLocalLevel(value)
+                        onUpdate([], value)
+                        setActiveMajor(null)
+                        setActiveMid(null)
+                        setSearchInput('')
+                        setSearchQuery('')
+                        setBrandResults([])
+                        setHasSearched(false)
+                      }
                     }
                   }}
                   title={example}

@@ -147,7 +147,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
             </h3>
             <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
               <Database size={14} />
-              추출할 전체 데이터 : 1,234 행
+              예상 데이터 규모 : 1,234 행
             </span>
           </div>
 
