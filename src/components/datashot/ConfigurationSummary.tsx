@@ -90,7 +90,7 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>검토</span>
               <span style={{ fontSize: '13px', fontWeight: '500', color: currentStep >= 3 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
-                {currentStep >= 3 ? '확인 중' : '—'}
+                {currentStep >= 3 ? '확인 완료' : '—'}
               </span>
             </div>
           </div>

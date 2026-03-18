@@ -131,7 +131,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
       <div
         className="dialog-content"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '95vw', width: 'fit-content', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+        style={{ width: '860px', maxWidth: '95vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">샘플 데이터 미리보기</h3>

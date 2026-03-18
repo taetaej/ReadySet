@@ -148,22 +148,15 @@ export function DatasetList() {
   }
 
   // 업종 표시 함수
-  const getIndustryDisplay = (industry: string) => {
-    if (industry === '전체') {
-      return {
-        icon: <Building2 size={14} />,
-        text: '전체'
-      }
-    } else {
-      // "IT/가전 외 2개" 형식에서 숫자 추출
-      const match = industry.match(/외\s*(\d+)개/)
-      const additionalCount = match ? parseInt(match[1]) : 0
-      const totalCount = additionalCount + 1 // "외 n개"이므로 +1
-      
-      return {
-        icon: <Building2 size={14} />,
-        text: `${totalCount}개 업종`
-      }
+  const getIndustryDisplay = (dataset: { industry: string; industryLevel?: 'major' | 'mid' | 'minor' | null; industryCount?: number }) => {
+    if (!dataset.industryLevel || dataset.industry === '전체') {
+      return { icon: <Building2 size={14} />, text: '전체' }
+    }
+    const levelLabel = { major: '대분류', mid: '중분류', minor: '소분류' }[dataset.industryLevel]
+    const count = dataset.industryCount ?? 1
+    return {
+      icon: <Building2 size={14} />,
+      text: `${levelLabel} ${count}개`
     }
   }
 
@@ -603,8 +596,8 @@ export function DatasetList() {
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
-                        {getIndustryDisplay(dataset.industry).icon}
-                        <span>{getIndustryDisplay(dataset.industry).text}</span>
+                        {getIndustryDisplay(dataset).icon}
+                        <span>{getIndustryDisplay(dataset).text}</span>
                       </div>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
