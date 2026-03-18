@@ -295,34 +295,18 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
 
       {/* 토스트 */}
       {showToast && (
-        <div style={{
-          position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
-          display: 'flex', alignItems: 'flex-start', gap: '12px',
-          padding: '16px 20px', borderRadius: '12px', width: '360px',
-          backgroundColor: 'hsl(var(--card))',
-          border: `1px solid ${showToast.type === 'success' ? 'hsl(142 71% 45% / 0.5)' : 'hsl(var(--destructive) / 0.5)'}`,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.12)'
-        }}>
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: showToast.type === 'success' ? 'hsl(142 71% 45% / 0.12)' : 'hsl(var(--destructive) / 0.12)',
-            color: showToast.type === 'success' ? 'hsl(142 71% 40%)' : 'hsl(var(--destructive))',
-          }}>
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
             {showToast.type === 'success'
-              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              ? <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+              : <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
             }
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '14px', fontWeight: '700', color: 'hsl(var(--foreground))', marginBottom: '4px' }}>
-              {showToast.type === 'success' ? '성공' : '오류'}
-            </div>
-            <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.5' }}>
-              {showToast.message}
-            </div>
+          <div className="toast__content">
+            <p className="toast__title">{showToast.type === 'success' ? '성공' : '오류'}</p>
+            <p className="toast__description">{showToast.message}</p>
           </div>
-          <button onClick={() => setShowToast(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', padding: 0, flexShrink: 0 }}>
+          <button onClick={() => setShowToast(null)} className="toast__close">
             <X size={16} />
           </button>
         </div>
