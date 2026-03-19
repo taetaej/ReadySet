@@ -29,15 +29,9 @@ export function IndustryModal({ isOpen, onClose, industries }: IndustryModalProp
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div 
-        className="dialog-content" 
+        className="dialog-content dialog-lg" 
         onClick={(e) => e.stopPropagation()}
-        style={{ 
-          width: '900px', 
-          maxWidth: '95vw',
-          maxHeight: '80vh',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
+        style={{ maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">선택한 업종</h3>
@@ -157,15 +151,9 @@ export function AdProductsModal({ isOpen, onClose, media, products }: AdProducts
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div
-        className="dialog-content"
+        className="dialog-content dialog-lg"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '900px',
-          maxWidth: '95vw',
-          maxHeight: '85vh',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">선택한 조회조건</h3>
@@ -259,15 +247,9 @@ export function MetricsModal({ isOpen, onClose, metricGroups }: MetricsModalProp
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div
-        className="dialog-content"
+        className="dialog-content dialog-lg"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '900px',
-          maxWidth: '95vw',
-          maxHeight: '85vh',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">선택한 지표</h3>

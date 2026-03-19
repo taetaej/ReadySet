@@ -65,6 +65,8 @@ function getParentTooltip(path: string, selected: string[]): string {
 }
 
 export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, industryLevel }: IndustryDialogProps) {
+  const [showLevelChangeAlert, setShowLevelChangeAlert] = useState(false)
+  const [pendingLevel, setPendingLevel] = useState<IndustryLevel | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const typeDropdownRef = useRef<HTMLDivElement>(null)
@@ -385,8 +387,49 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
-      <div className="dialog-content" onClick={(e) => e.stopPropagation()}
-        style={{ width: '1300px', height: '900px', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      {/* 분류 레벨 변경 확인 얼럿 */}
+      {showLevelChangeAlert && (
+        <div className="dialog-overlay" onClick={e => e.stopPropagation()} style={{ zIndex: 1200 }}>
+          <div className="dialog-content" onClick={e => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 업종 초기화</h3>
+              <p className="dialog-description">
+                분류 레벨을 변경하면 선택한 업종이 초기화됩니다.<br />
+                계속 진행하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => { setShowLevelChangeAlert(false); setPendingLevel(null) }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  if (pendingLevel) {
+                    setLocalLevel(pendingLevel)
+                    onUpdate([], pendingLevel)
+                    setActiveMajor(null)
+                    setActiveMid(null)
+                    setSearchInput('')
+                    setSearchQuery('')
+                    setBrandResults([])
+                    setHasSearched(false)
+                  }
+                  setShowLevelChangeAlert(false)
+                  setPendingLevel(null)
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="dialog-content dialog-xl" onClick={(e) => e.stopPropagation()}
+        style={{ height: '90vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
 
         <div className="dialog-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -441,26 +484,30 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             overflow: 'hidden',
           }}>
             {([
-              { value: 'major' as IndustryLevel, label: '대분류', example: '가정용전기전자, 식품, 패션' },
-              { value: 'mid'   as IndustryLevel, label: '중분류', example: '가사용전기전자, 식품기타, 패션기타' },
-              { value: 'minor' as IndustryLevel, label: '소분류', example: '청소기, 세탁기, 가습기' },
-            ]).map(({ value, label, example }, i, arr) => {
+              { value: 'major' as IndustryLevel, label: '대분류' },
+              { value: 'mid'   as IndustryLevel, label: '중분류' },
+              { value: 'minor' as IndustryLevel, label: '소분류' },
+            ]).map(({ value, label }, i, arr) => {
               const isActive = localLevel === value
               return (
                 <button key={value}
                   onClick={() => {
                     if (localLevel !== value) {
-                      setLocalLevel(value)
-                      onUpdate([], value)
-                      setActiveMajor(null)
-                      setActiveMid(null)
-                      setSearchInput('')
-                      setSearchQuery('')
-                      setBrandResults([])
-                      setHasSearched(false)
+                      if (selectedIndustries.length > 0) {
+                        setPendingLevel(value)
+                        setShowLevelChangeAlert(true)
+                      } else {
+                        setLocalLevel(value)
+                        onUpdate([], value)
+                        setActiveMajor(null)
+                        setActiveMid(null)
+                        setSearchInput('')
+                        setSearchQuery('')
+                        setBrandResults([])
+                        setHasSearched(false)
+                      }
                     }
                   }}
-                  title={example}
                   className="btn btn-ghost btn-sm"
                   style={{
                     borderRadius: 0,
