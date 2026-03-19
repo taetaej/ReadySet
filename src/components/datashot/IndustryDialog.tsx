@@ -428,8 +428,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           </div>
         </div>
       )}
-      <div className="dialog-content" onClick={(e) => e.stopPropagation()}
-        style={{ width: '1300px', height: '900px', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="dialog-content dialog-xl" onClick={(e) => e.stopPropagation()}
+        style={{ height: '90vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
 
         <div className="dialog-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

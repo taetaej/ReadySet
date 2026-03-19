@@ -761,6 +761,13 @@
     }
   }
 
+  /* Dialog size tokens */
+  .dialog-sm   { max-width: 500px; }
+  .dialog-md   { max-width: 640px; }
+  .dialog-lg   { width: 900px; max-width: 95vw; }
+  .dialog-xl   { width: 1200px; max-width: 95vw; }
+  .dialog-full { width: 95vw; max-width: 95vw; }
+
   @keyframes dialog-overlay-show {
     from {
       opacity: 0;

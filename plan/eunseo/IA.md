@@ -1,36 +1,193 @@
-
-# IA
-
 # DataShot (Phase 1) IA
+
+## 업데이트 이력
+
+| 버전 | 날짜 | 작성자 | 변경 내용 |
+|---|---|---|---|
+| v1.0 | 2025-01 | 최은서 | 최초 작성 |
+| v1.1 | 2026-03-19 | 최은서 | 현재 구현 화면 기준으로 전면 업데이트. 데이터셋 생성 3단계 플로우, 데이터셋 상세 구조, 모달/다이얼로그 목록, 컴포넌트 상세 반영 |
+
+---
+
+## 개요
 
 본 IA는 ReadySet 내 DataShot 솔루션의 구조를 정의하며, 데이터셋 목록, 생성, 상세에 이르는 화면 구성과 권한 기준을 명확히 하기 위한 가이드라인입니다.
 
-## IA 테이블 (원본 구조 유지)
+라우팅 구조:
+- `/datashot` → 데이터셋 목록
+- `/datashot/new` → 데이터셋 생성
+- `/datashot/:id` → 데이터셋 상세
 
-### Dataset list
+---
 
-| 1depth Menu | 1depth format | 2depth Menu | 2depth format | 3depth Menu | 3depth format | 4depth Menu | 4depth format | 5depth Menu | 5depth format | Component/Features | Description | User Role | Data Isolation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| DataShot | page | 데이터셋 목록 | page |  |  |  |  |  |  | (card) 데이터셋<br>(toggle) 뷰 모드 변환 | 해당 Slot 내 존재하는 시나리오 목록 | All |  |
-|  |  |  |  | 데이터셋 | card |  |  |  |  | (checkbox) 데이터셋 선택 체크박스 | 데이터셋 컨텍스트 표시 카드 | All |  |
-|  |  |  |  |  |  | 데이터 상세 | page |  |  |  |  | All |  |
-|  |  |  |  |  |  |  |  | 데이터셋 헤더 | section | (card) 데이터셋 컨텍스트 (설정 정보) + 조회조건 | 데이터셋 컨텍스트 (설정 정보) + 조회조건 | All |  |
-|  |  |  |  |  |  |  |  | 데이터셋 콘텐츠 | section | (chart) 추이/비중 차트<br>(chart) 통계 요약<br>(chart) 산점도<br>(table) | 조회 데이터 기반 시각화<br>조회 Raw 데이터 | All |  |
-|  |  |  |  |  |  |  |  | 내보내기 | btn | csv 파일 내보내기 요청 |  | All |  |
+## 1. 데이터셋 목록 (DatasetList)
 
-### 데이터셋 목록 전역 기능
+### 화면 구조
 
-| 기능 | format | Component/Features | User Role |
+| Depth | 항목 | 형식 | Component / Features | 설명 | User Role |
+|---|---|---|---|---|---|
+| 1 | DataShot | page | AppLayout (브레드크럼: SlotBoard > Slot명 > DataShot) | DataShot 메인 페이지 | All |
+| 2 | SlotHeader | section | 슬롯 타이틀, 광고주, 가시성, 결과 수, 수정일, 설명 | 현재 슬롯 컨텍스트 표시 | All |
+| 2 | 타이틀 영역 | section | `DataShot` 타이틀 + `New Dataset` 버튼 | 페이지 헤더 | All |
+| 2 | 툴바 | section | 데이터셋 개수 표시 / 검색 / 필터 / 선택 시 일괄 작업 버튼 | 목록 조작 도구 | All |
+| 2 | 데이터셋 테이블 | table | 체크박스, ID, 데이터셋명, 매체, 업종, 조회기간, 상태, 생성자, 생성일시, 컨텍스트 메뉴 | 데이터셋 목록 | All |
+| 3 | 데이터셋 행 | row | 클릭 시 상세 페이지 이동 (Completed 상태만 클릭 가능) | 개별 데이터셋 | All |
+| 2 | 페이지네이션 | section | 페이지당 표시 수 선택 (10/20/50/100), 페이지 번호 네비게이션 | 목록 페이지 이동 | All |
+
+### 테이블 컬럼
+
+| 컬럼 | 설명 | 정렬 가능 |
+|---|---|---|
+| (체크박스) | 다중 선택 | - |
+| ID | 데이터셋 고유 번호 | ✓ |
+| 데이터셋명 | 데이터셋 이름 | ✓ |
+| 매체 | 광고 매체 | ✓ |
+| 업종 | 분류 레벨 + 개수 (예: 대분류 3개) | ✓ |
+| 조회기간 | 시작 → 종료 (월별/분기별) | ✓ |
+| 상태 | Completed / Processing / Pending / Error / Expired | ✓ |
+| 생성자 | 이름 + 마스킹된 이메일 | ✓ |
+| 생성일시 | 생성 날짜 | ✓ |
+| (컨텍스트 메뉴) | 복제 / 이동 / 삭제 | - |
+
+### 전역 기능
+
+| 기능 | 형식 | 설명 |
+|---|---|---|
+| 검색 | 토글 인풋 | 데이터셋명, 생성자 검색 |
+| 필터 | 드롭다운 | 상태 (5종), 매체 (6종) 복수 선택 |
+| 일괄 이동 | 버튼 (선택 시 노출) | 선택된 데이터셋 이동 |
+| 일괄 삭제 | 버튼 (선택 시 노출) | 선택된 데이터셋 삭제 |
+| 페이지네이션 | 드롭다운 + 네비게이션 | 페이지당 표시 수 / 페이지 이동 |
+
+### 상태 정의
+
+| 상태 | 스타일 | 설명 |
+|---|---|---|
+| Completed | 검정 배경 | 추출 완료, 상세 페이지 진입 가능 |
+| Processing | 회색 배경 | 처리 중 |
+| Pending | 테두리만 | 대기 중 |
+| Error | 빨간 배경 | 오류 |
+| Expired | 빨간 배경 | 만료 |
+
+---
+
+## 2. 데이터셋 생성 (CreateDataset)
+
+### 화면 구조
+
+| Depth | 항목 | 형식 | Component / Features | 설명 | User Role |
+|---|---|---|---|---|---|
+| 1 | 데이터셋 생성 | page | AppLayout (브레드크럼: SlotBoard > Slot명 > DataShot > 새 데이터셋 생성) | 3단계 스텝 폼 | Admin, Marketer |
+| 2 | 스테퍼 | section | 1단계 기본 정보 / 2단계 상세 설정 / 3단계 검토 및 추출 | 진행 단계 표시 | Admin, Marketer |
+| 2 | 폼 영역 | section | 단계별 폼 컴포넌트 (좌측 800px) | 조회 조건 입력 | Admin, Marketer |
+| 2 | Configuration Summary | section | 우측 사이드바 (420px), 현재까지 입력된 설정 요약 | 실시간 설정 확인 | Admin, Marketer |
+| 2 | 하단 버튼 | section | 취소 / 이전 / 다음 or 데이터셋 생성 요청 | 단계 이동 및 제출 | Admin, Marketer |
+
+### Step 1: 기본 정보
+
+| 항목 | 형식 | 필수 | 설명 |
 |---|---|---|---|
-| 검색 | form | (inputfield) 데이터셋 검색 | All |
-| 정렬 | layer | (btn_icon) 정렬<br>(dropdown) 데이터셋 정렬 항목 선택 | All |
-| 페이지네이션 | action | (dropdown) 페이지 수 옵션<br>(navigation) 페이지 번호 | All |
-| export | btn | (btn) CSV 파일 내보내기 | All |
+| 데이터셋명 | 텍스트 인풋 | ✓ | 최대 30자, 글자 수 카운터 표시 |
+| 설명 | 텍스트에어리어 | - | 최대 200자 |
+| 조회기간 | MonthRangePicker | ✓ | 월별/분기별 라디오 선택 후 시작~종료 선택, 최근 2년 제한 |
+| 업종 | 버튼 (IndustryDialog 오픈) | ✓ | 대/중/소 분류 레벨 선택 후 업종 다중 선택 |
 
-### Dataset Create
+### Step 2: 상세 설정
 
-| 1depth Menu | format | 2depth Menu | format | 3depth Menu | format | Component/Features | Description | User Role |
-|---|---|---|---|---|---|---|---|---|
-| DataShot | page | 데이터셋 생성 | page |  |  |  | 조회 조건 입력 후 데이터셋을 생성하는 화면 | Admin, Marketer |
-|  |  |  |  | 기본 정보 | form | (inputfield) 데이터셋명<br>(textarea) 설명 | 데이터셋 식별 정보 입력 | Admin, Marketer |
-|  |  |  |  | 조회 조건 선택 | form | ⚠ 매체별로 상이 | 조회 조건 설정 | Admin, Marketer |
+| 항목 | 형식 | 필수 | 설명 |
+|---|---|---|---|
+| 매체 | 버튼 그룹 (6종) | ✓ | Google Ads / Meta / kakao모먼트 / 네이버 성과형 DA / 네이버 보장형 DA / TikTok |
+| 광고 분류 조건 | AdProductsSelector | ✓ | 매체별 상이한 광고상품 선택 (캠페인 목표, 구매 유형, 플랫폼, 성과 목표 등) |
+| 타겟팅 옵션 | TargetingSelector | 조건부 | 카테고리 드롭다운 + 옵션 체크박스, 카테고리 선택 시 옵션 필수 |
+| 지표 | MetricGroupList | ✓ | 매체별 지표 그룹 체크박스, 검색 가능 |
+
+> kakao모먼트 특이사항: 타겟팅 옵션 '선택 안함' 또는 '기기유형' 외 선택 시 소재 유형 비활성화. 기존 소재 유형 선택값 있을 경우 확인 얼럿 표시 후 초기화.
+
+### Step 3: 검토 및 추출
+
+| 항목 | 형식 | 설명 |
+|---|---|---|
+| 안내 문구 | 배너 | Configuration Summary 확인 안내 |
+| 데이터 미리보기 | 테이블 | 샘플 5행, 고정 컬럼 (광고비/노출수/클릭수/CTR/CPC), 숫자 서식 + 단위 표시 |
+| 전체 컬럼 보기 버튼 | 버튼 | SampleDataModal 오픈 |
+| 예상 데이터 크기 | 텍스트 | 하단 버튼 영역 우측 상단에 표시 (예: 1,234 행) |
+
+### 다이얼로그 / 모달
+
+| 이름 | 트리거 | 설명 |
+|---|---|---|
+| IndustryDialog | 업종 선택 버튼 | 대/중/소 분류 레벨 탭 + 업종 트리 선택. 레벨 변경 시 선택 업종 있으면 초기화 확인 얼럿 표시 |
+| AdProductsDialog | AdProductsSelector 내부 | 매체별 광고상품 상세 선택 |
+| SampleDataModal | 전체 컬럼 보기 버튼 | 전체 컬럼 샘플 데이터 미리보기 (스크롤 가능), 예상 데이터 크기 표시 |
+| 소재유형 비활성화 얼럿 | kakao모먼트 타겟팅 변경 시 | 소재 유형 초기화 확인 다이얼로그 |
+| 업종 초기화 얼럿 | IndustryDialog 레벨 변경 시 | 선택 업종 초기화 확인 다이얼로그 |
+
+---
+
+## 3. 데이터셋 상세 (DatasetDetail)
+
+### 화면 구조
+
+| Depth | 항목 | 형식 | Component / Features | 설명 | User Role |
+|---|---|---|---|---|---|
+| 1 | 데이터셋 상세 | page | AppLayout (브레드크럼: SlotBoard > Slot명 > DataShot > 데이터셋명) | 추출 데이터 조회 페이지 | All |
+| 2 | 헤더 | section | 데이터셋명, 매체/조회기간/업종/조회조건/지표 요약, 공유·정보·더보기 버튼 | 데이터셋 컨텍스트 | All |
+| 2 | Extracted Data | section | 데이터 테이블 + 필터 행 + 페이지네이션 | 추출된 Raw 데이터 조회 | All |
+
+### 헤더 기능
+
+| 기능 | 형식 | 설명 |
+|---|---|---|
+| 매체 | 텍스트 | 선택된 매체 표시 |
+| 조회기간 | 텍스트 | 시작 → 종료 |
+| 업종 N개 | 텍스트 + SearchCheck 아이콘 | 클릭 시 IndustryModal 오픈 |
+| 조회조건 N개 | 텍스트 + SearchCheck 아이콘 | 클릭 시 AdProductsModal 오픈 |
+| 지표 N개 | 텍스트 + SearchCheck 아이콘 | 클릭 시 MetricsModal 오픈 |
+| 공유 (Share2) | 버튼 | Copy Link / Export to CSV 드롭다운 |
+| 정보 (Info) | 버튼 | 설명, Dataset ID, 생성일시/생성자 툴팁 |
+| 더보기 (MoreVertical) | 버튼 | 복제 / 이동 / 삭제 드롭다운 |
+
+### 데이터 테이블
+
+| 항목 | 설명 |
+|---|---|
+| 조회조건 컬럼 | 기간, 매체, 업종(대/중/소), 광고상품 컬럼(매체별 상이), 타겟팅 옵션 |
+| 지표 컬럼 | 광고비/노출수/클릭수/CPC/CPM/CTR/VTR (7개 고정), 우측 정렬, 숫자 서식 + 단위(원/회/%) |
+| 조회조건-지표 구분선 | 첫 번째 지표 컬럼 좌측에 세로 구분선 |
+| 정렬 | 모든 컬럼 클릭 시 오름/내림차순 정렬 |
+| 필터 행 | 조회조건: 드롭다운 다중 선택 필터 / 지표: 부등호 + 숫자 인풋 필터 (너비 43px 고정) |
+| 필터 초기화 버튼 | 필터 적용 시 노출, 최근 데이터 업데이트 라인 왼쪽 |
+| 최근 데이터 업데이트 | 테이블 우측 상단, Info 아이콘 호버 시 업데이트 정책 툴팁 |
+| 1000행 초과 경고 | 테이블 상단 경고 배너 (Data Limit Warning) |
+| 페이지네이션 | 페이지당 표시 수 (10/20/50/100), 페이지 번호 네비게이션 |
+
+### 모달
+
+| 이름 | 트리거 | 설명 |
+|---|---|---|
+| IndustryModal | 업종 N개 SearchCheck 클릭 | 선택된 업종 목록 조회 |
+| AdProductsModal | 조회조건 N개 SearchCheck 클릭 | 선택된 광고상품 조건 조회 |
+| MetricsModal | 지표 N개 SearchCheck 클릭 | 선택된 지표 그룹별 목록 조회 |
+
+---
+
+## 4. 공통 레이아웃 (AppLayout)
+
+| 항목 | 설명 |
+|---|---|
+| 사이드바 | 접힘/펼침 토글, 폴더 트리 (슬롯 목록), 워크스페이스 이동 |
+| 브레드크럼 | 현재 위치 경로 표시, 클릭 시 해당 페이지 이동 |
+| 다크모드 토글 | 헤더 우측 |
+
+---
+
+## 5. 지원 매체
+
+| 매체 | 광고상품 구조 | 타겟팅 옵션 |
+|---|---|---|
+| Meta | 캠페인 목표 / 구매 유형 / 플랫폼 / 성과 목표 | 기기유형, 게재위치 등 |
+| Google Ads | 캠페인 유형 | 기기유형 등 |
+| kakao모먼트 | 캠페인 유형 / 광고 유형 / 소재 유형 (타겟팅 조건부 비활성) | 기기유형, 성별, 연령대 등 |
+| 네이버 성과형 DA | 캠페인 유형 | 기기유형 등 |
+| 네이버 보장형 DA | 캠페인 유형 | 기기유형 등 |
+| TikTok | 캠페인 유형 | - |

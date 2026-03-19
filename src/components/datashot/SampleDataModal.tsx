@@ -137,9 +137,9 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div
-        className="dialog-content"
+        className="dialog-content dialog-full"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: '860px', maxWidth: '95vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">샘플 데이터 미리보기</h3>
@@ -166,7 +166,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
             overflow: 'auto',
             backgroundColor: 'hsl(var(--card))'
           }}>
-            <table style={{ borderCollapse: 'collapse', fontSize: '12px', width: 'max-content' }}>
+            <table style={{ borderCollapse: 'collapse', fontSize: '12px', width: '100%', minWidth: 'max-content' }}>
               <thead>
                 <tr>
                   <th style={th()}>기간</th>
