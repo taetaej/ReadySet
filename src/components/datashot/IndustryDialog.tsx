@@ -484,10 +484,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             overflow: 'hidden',
           }}>
             {([
-              { value: 'major' as IndustryLevel, label: '대분류', example: '가정용전기전자, 식품, 패션' },
-              { value: 'mid'   as IndustryLevel, label: '중분류', example: '가사용전기전자, 식품기타, 패션기타' },
-              { value: 'minor' as IndustryLevel, label: '소분류', example: '청소기, 세탁기, 가습기' },
-            ]).map(({ value, label, example }, i, arr) => {
+              { value: 'major' as IndustryLevel, label: '대분류' },
+              { value: 'mid'   as IndustryLevel, label: '중분류' },
+              { value: 'minor' as IndustryLevel, label: '소분류' },
+            ]).map(({ value, label }, i, arr) => {
               const isActive = localLevel === value
               return (
                 <button key={value}
@@ -508,7 +508,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                       }
                     }
                   }}
-                  title={example}
                   className="btn btn-ghost btn-sm"
                   style={{
                     borderRadius: 0,

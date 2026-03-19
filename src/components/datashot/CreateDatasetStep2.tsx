@@ -357,11 +357,10 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
                   pointerEvents: 'none'
                 }}>
                   <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>
-                    소재유형 조회 제한 안내
+                    소재 유형 조회 제한 안내
                   </div>
                   <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.7' }}>
-                    타겟팅 옵션 '선택 안함' 또는 '기기유형' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.<br />
-                    그 외 타겟팅 옵션 선택 시 기존에 선택한 소재 유형 선택 값이 초기화됩니다.
+                    타겟팅 옵션 '선택 안 함' 또는 '기기유형' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.
                   </div>
                 </div>
               )}
