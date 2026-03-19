@@ -83,7 +83,7 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
             </label>
           ))}
         </div>
-        <MonthRangePicker type={formData.periodType} value={formData.period} onChange={(period) => setFormData({ ...formData, period })} />
+        <MonthRangePicker type={formData.periodType} value={formData.period} onChange={(period) => setFormData({ ...formData, period })} hasError={validationActive && !dateValidation.valid} />
         {validationActive && !dateValidation.valid && (
           <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>{dateValidation.message}</div>
         )}
