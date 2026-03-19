@@ -164,12 +164,10 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
   return (
     <div className="dialog-overlay" onClick={handleCancel}>
       <div 
-        className="dialog-content" 
+        className="dialog-content dialog-xl" 
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: '1200px', 
           height: '80vh',
-          maxWidth: '95vw', 
           maxHeight: '90vh', 
           display: 'flex', 
           flexDirection: 'column' 

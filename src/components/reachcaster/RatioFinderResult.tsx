@@ -1011,9 +1011,9 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       {targetGrpTooltipOpen && (
         <div className="dialog-overlay" onClick={() => setTargetGrpTooltipOpen(false)}>
           <div 
-            className="dialog-content" 
+            className="dialog-content dialog-md" 
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
+            style={{ maxHeight: '80vh', overflowY: 'auto' }}
           >
             <div className="dialog-header">
               <h3 className="dialog-title">선택한 타겟 GRP</h3>

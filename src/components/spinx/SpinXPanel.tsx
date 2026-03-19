@@ -31,7 +31,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null)
   const [showResetDialog, setShowResetDialog] = useState(false)
   const [sessionTooltipOpen, setSessionTooltipOpen] = useState(false)
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string | { type: 'chart', data: any } | { type: 'error', message: string }, timestamp: string, originalQuestion?: string }>>([])
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string | { type: 'chart', data: any } | { type: 'error', message: string }, timestamp: string, originalQuestion?: string, webSources?: Array<{ title: string, url: string }>, ragSources?: Array<{ title: string, summary: string, type: 'pdf' | 'docx' | 'url', url?: string }> }>>([])
   const [attachMenuOpen, setAttachMenuOpen] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [attachedUrl, setAttachedUrl] = useState<string>('')
@@ -48,12 +48,19 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [pendingModel, setPendingModel] = useState<LLMModel | null>(null)
   const [isRegeneratingAnalysis, setIsRegeneratingAnalysis] = useState(false)
   const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
+  const [expandedRagSources, setExpandedRagSources] = useState<Set<number>>(new Set())
+  const [activeFootnote, setActiveFootnote] = useState<{ msgIndex: number, footnoteNum: number } | null>(null)
   const [loadingMessage, setLoadingMessage] = useState('질문을 분석하고 있어요...')
   const loadingMessageIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [retryCount, setRetryCount] = useState<Map<string, number>>(new Map())
 
-  // 패널이 열릴 때 body 스크롤 막기 제거 (결과화면 스크롤 가능하도록)
-  // useEffect는 제거
+  // 각주 팝오버 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!activeFootnote) return
+    const handleClickOutside = () => setActiveFootnote(null)
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [activeFootnote])
 
   // 대화 시작 날짜 (실제로는 localStorage 등에서 관리)
   const conversationStartDate = new Date()
@@ -81,7 +88,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   // 질문별 답변 예시
   const answerExamples: Record<string, string | { type: 'chart', data: any } | { type: 'error', message: string }> = {
     '이 예측 결과를 어떻게 해석해야 하나요?': '현재 분석 결과는 TVC 50%, Digital 50% 비율이 최적임을 보여줍니다.\n\n주요 해석 포인트:\n\n1. 예상 Reach 1+가 73.2%로, 타겟 오디언스의 약 73%에게 최소 1회 이상 광고가 노출됩니다.\n\n2. 이 비율은 비용 대비 효율성이 가장 높은 지점으로, 예산을 더 투입해도 도달률 증가폭이 감소하는 체감 수익 구간에 진입합니다.\n\n3. 25-34세 여성 타겟의 미디어 소비 패턴이 TV와 디지털을 균형있게 사용하기 때문에 이러한 결과가 도출되었습니다.',
-    'Effective Impression이 무엇인가요?': 'Effective Impression은 광고가 실제로 효과적으로 전달된 노출 수를 의미합니다.\n\n일반 Impression과의 차이:\n\n• 일반 Impression: 광고가 화면에 표시된 모든 횟수\n• Effective Impression: 사용자가 실제로 볼 수 있는 위치에서 충분한 시간 동안 노출된 횟수\n\n측정 기준:\n- 디지털: 광고의 50% 이상이 1초 이상 화면에 노출 (동영상은 2초)\n- TVC: 프로그램 시청 중 광고 시간대 실제 시청 추정치\n\nEffective Impression이 높을수록 광고 효율이 좋다고 판단할 수 있습니다.',
+    'Effective Impression이 무엇인가요?': 'Effective Impression(유효 노출)은 광고가 실제로 효과적으로 전달된 노출 수를 의미합니다. [1]\n\n일반 Impression과의 차이:\n\n• 일반 Impression: 광고가 화면에 표시된 모든 횟수\n• Effective Impression: 사용자가 실제로 인지할 수 있는 조건에서 노출된 횟수\n\nReadySet 플랫폼 내 측정 기준:\n- Digital: 광고 면적의 50% 이상이 1초 이상 뷰포트에 노출 (동영상은 2초 이상 + 음성 재생) [2]\n- TVC: Nielsen 패널 기반 프로그램 시청률 × 광고 시간대 잔존율로 추정 [3]\n\nRatio Finder에서의 활용:\n- Effective Impression은 매체별 예산 배분 최적화의 핵심 지표로, 단순 노출 수가 아닌 실질적 광고 효과를 기준으로 최적 비중을 산출합니다.\n- 시뮬레이션 시 각 매체의 Effective CPM(eCPM)을 기반으로 비용 효율성을 비교합니다. [4]',
     '이 데이터를 차트로 시각화해주세요': {
       type: 'chart',
       data: {
@@ -113,6 +120,58 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         ]
       }
     }
+  }
+
+  // 각주 [1], [2] 등을 인라인 뱃지로 변환 — 클릭 시 아코디언 열고 해당 문서 하이라이트
+  const renderWithFootnotes = (text: string, msgIndex: number, _ragSources?: Array<{ title: string, summary: string, type: 'pdf' | 'docx' | 'url', url?: string }>) => {
+    const parts = text.split(/(\[\d+\])/)
+    return parts.map((part, i) => {
+      const match = part.match(/^\[(\d+)\]$/)
+      if (match) {
+        const footnoteNum = parseInt(match[1])
+        const isActive = activeFootnote?.msgIndex === msgIndex && activeFootnote?.footnoteNum === footnoteNum
+        return (
+          <span
+            key={i}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (isActive) {
+                setActiveFootnote(null)
+              } else {
+                setActiveFootnote({ msgIndex, footnoteNum })
+                // 아코디언 자동 열기
+                setExpandedRagSources(prev => {
+                  const newSet = new Set(prev)
+                  newSet.add(msgIndex)
+                  return newSet
+                })
+              }
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '16px',
+              height: '16px',
+              borderRadius: '4px',
+              backgroundColor: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground) / 0.2)',
+              color: isActive ? 'hsl(var(--background))' : 'hsl(var(--foreground))',
+              fontSize: '9px',
+              fontWeight: '700',
+              marginLeft: '2px',
+              marginRight: '1px',
+              verticalAlign: 'super',
+              lineHeight: 1,
+              cursor: 'pointer',
+              transition: 'all 0.15s'
+            }}
+          >
+            {match[1]}
+          </span>
+        )
+      }
+      return part
+    })
   }
 
   const handleSend = (questionText?: string) => {
@@ -164,12 +223,21 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           { title: '2026 아시아 뷰티 트렌드 리포트', url: 'https://www.beautytrends.asia/2026' }
         ] : undefined
         
+        // RAG 검색 질문인 경우 내부 문서 소스 추가
+        const ragSources = textToSend === 'Effective Impression이 무엇인가요?' ? [
+          { title: 'ReadySet_지표_정의서_v2.1.pdf', type: 'pdf' as const, summary: 'Effective Impression의 정의와 일반 Impression과의 차이를 설명. 유효 노출은 사용자가 실제 인지 가능한 조건에서 발생한 노출만을 집계한다.' },
+          { title: 'Digital_광고_측정_가이드라인.pdf', type: 'pdf' as const, summary: 'Digital 채널의 Viewability 기준을 정의. 광고 면적 50% 이상이 1초 이상 뷰포트에 노출되어야 유효 노출로 인정한다.' },
+          { title: 'TVC_효과_측정_방법론.docx', type: 'docx' as const, summary: 'Nielsen 패널 데이터 기반 TVC 광고 노출 추정 방법. 프로그램 시청률과 광고 시간대 잔존율을 곱하여 유효 노출을 산출한다.' },
+          { title: 'IAB Viewability 측정 표준 가이드', type: 'url' as const, url: 'https://www.iab.com/guidelines/viewability', summary: 'IAB에서 정의한 글로벌 Viewability 측정 표준. Effective Impression 산출의 국제 기준을 제시한다.' }
+        ] : undefined
+        
         const aiResponse = {
           role: 'assistant' as const,
           content: answer || '죄송합니다. 해당 질문에 대한 답변을 준비 중입니다. 다른 질문을 선택해주세요.',
           timestamp: '방금 전',
           originalQuestion: textToSend,
-          webSources
+          webSources,
+          ragSources
         }
         
         setMessages(prev => [...prev, aiResponse])
@@ -794,6 +862,151 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                     </div>
                   )}
                   
+                  {/* RAG 내부 문서 참조 표시 (있는 경우) */}
+                  {msg.ragSources && msg.ragSources.length > 0 && (
+                    <div style={{
+                      marginBottom: '12px',
+                      fontFamily: 'Paperlogy, sans-serif'
+                    }}>
+                      <button
+                        onClick={() => {
+                          setExpandedRagSources(prev => {
+                            const newSet = new Set(prev)
+                            if (newSet.has(index)) {
+                              newSet.delete(index)
+                            } else {
+                              newSet.add(index)
+                            }
+                            return newSet
+                          })
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '8px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: 'hsl(var(--muted-foreground))',
+                          transition: 'color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--muted-foreground))'}
+                      >
+                        <FileText size={14} style={{ flexShrink: 0 }} />
+                        <span style={{ flex: 1, textAlign: 'left' }}>
+                          내부 문서 참조 {msg.ragSources.length}건
+                        </span>
+                        <ChevronRight 
+                          size={14} 
+                          style={{ 
+                            flexShrink: 0,
+                            transform: expandedRagSources.has(index) ? 'rotate(90deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s'
+                          }} 
+                        />
+                      </button>
+                      
+                      {expandedRagSources.has(index) && (
+                        <div style={{
+                          paddingLeft: '4px',
+                          marginTop: '4px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '2px'
+                        }}>
+                          {msg.ragSources.map((source, sourceIdx) => {
+                            const isHighlighted = activeFootnote?.msgIndex === index && activeFootnote?.footnoteNum === sourceIdx + 1
+                            return (
+                              <div key={sourceIdx}>
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setActiveFootnote(isHighlighted ? null : { msgIndex: index, footnoteNum: sourceIdx + 1 })
+                                  }}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '5px 8px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    backgroundColor: isHighlighted ? 'hsl(var(--muted))' : 'transparent',
+                                    transition: 'background-color 0.15s'
+                                  }}
+                                >
+                                  <span style={{
+                                    fontSize: '9px',
+                                    fontWeight: '600',
+                                    width: '16px',
+                                    height: '16px',
+                                    borderRadius: '4px',
+                                    backgroundColor: 'hsl(var(--foreground))',
+                                    color: 'hsl(var(--background))',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                  }}>
+                                    {sourceIdx + 1}
+                                  </span>
+                                  {source.type === 'url' ? (
+                                    <Globe size={12} style={{ flexShrink: 0, opacity: 0.5 }} />
+                                  ) : (
+                                    <FileText size={12} style={{ flexShrink: 0, opacity: 0.5 }} />
+                                  )}
+                                  <span style={{
+                                    fontSize: '11px',
+                                    fontWeight: isHighlighted ? '500' : '400',
+                                    color: isHighlighted ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    {source.title}
+                                  </span>
+                                </div>
+                                {isHighlighted && (
+                                  <div style={{
+                                    padding: '4px 8px 8px 44px'
+                                  }}>
+                                    <div style={{
+                                      fontSize: '11px',
+                                      lineHeight: '1.5',
+                                      color: 'hsl(var(--muted-foreground))',
+                                      marginBottom: source.type === 'url' && source.url ? '4px' : '0'
+                                    }}>
+                                      {source.summary}
+                                    </div>
+                                    {source.type === 'url' && source.url && (
+                                      <a
+                                        href={source.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          fontSize: '10px',
+                                          color: 'hsl(var(--muted-foreground))',
+                                          textDecoration: 'underline',
+                                          opacity: 0.7
+                                        }}
+                                      >
+                                        {source.url}
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {typeof msg.content === 'string' ? (
                     <div
                       style={{
@@ -822,7 +1035,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                         {copiedMessageIndex === index ? <Check size={14} /> : <Copy size={14} />}
                       </button>
                       <div style={{ paddingRight: '32px' }}>
-                        {msg.content}
+                        {renderWithFootnotes(msg.content as string, index, msg.ragSources)}
                       </div>
                     </div>
                   ) : msg.content.type === 'error' ? (

@@ -851,11 +851,9 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       {mediaDialogOpen && (
         <div className="dialog-overlay" onClick={() => setMediaDialogOpen(false)}>
           <div 
-            className="dialog-content" 
+            className="dialog-content dialog-xl" 
             onClick={(e) => e.stopPropagation()}
             style={{ 
-              width: '1100px', 
-              maxWidth: '95vw',
               maxHeight: '80vh',
               display: 'flex',
               flexDirection: 'column'
@@ -1033,9 +1031,9 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       {targetGrpTooltipOpen && (
         <div className="dialog-overlay" onClick={() => setTargetGrpTooltipOpen(false)}>
           <div 
-            className="dialog-content" 
+            className="dialog-content dialog-md" 
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
+            style={{ maxHeight: '80vh', overflowY: 'auto' }}
           >
             <div className="dialog-header">
               <h3 className="dialog-title">선택한 타겟 GRP</h3>
@@ -1162,9 +1160,8 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       {curveSettingsDialogOpen && (
         <div className="dialog-overlay" onClick={() => setCurveSettingsDialogOpen(false)}>
           <div 
-            className="dialog-content" 
+            className="dialog-content dialog-md" 
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '600px' }}
           >
             <div className="dialog-header">
               <h3 className="dialog-title">리치커브 설정</h3>

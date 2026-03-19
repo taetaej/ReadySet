@@ -52,6 +52,14 @@ export function ScenarioComparisonPanel({
   // 비교 유형 3가지
   const comparisonPurposes: ComparisonPurpose[] = [
     {
+      id: 'budget',
+      title: '예산 비교',
+      subtitle: 'Budget Scaling',
+      description: '광고비를 증액했을 때, 도달 효율의 한계점은 어디인가?',
+      conditions: '권장: 기간/타겟 동일',
+      icon: DollarSign
+    },
+    {
       id: 'target',
       title: '타겟 비교',
       subtitle: 'Target Analysis',
@@ -66,14 +74,6 @@ export function ScenarioComparisonPanel({
       description: '캠페인의 집행 기간과 노출 강도, 어떤 운영 전략이 더 유리한가?',
       conditions: '권장: 예산/타겟 동일',
       icon: Calendar
-    },
-    {
-      id: 'budget',
-      title: '예산 비교',
-      subtitle: 'Budget Scaling',
-      description: '광고비를 증액했을 때, 도달 효율의 한계점은 어디인가?',
-      conditions: '권장: 기간/타겟 동일',
-      icon: DollarSign
     }
   ]
 

@@ -218,7 +218,7 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                   type="text"
                   value={formData.folderName}
                   onChange={(e) => handleInputChange('folderName', e.target.value)}
-                  placeholder="Slot명을 입력하세요 (최대 30자)"
+                  placeholder="Slot명을 입력하세요"
                   className="input"
                   style={{
                     borderColor: errors.folderName ? 'hsl(var(--destructive))' : undefined,
@@ -227,13 +227,9 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                 />
                 {errors.folderName && (
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
                     marginTop: '4px',
                     fontSize: '12px'
                   }} className="text-destructive">
-                    <AlertCircle size={12} />
                     {errors.folderName}
                   </div>
                 )}
@@ -259,7 +255,7 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                 <textarea
                   value={formData.folderDescription}
                   onChange={(e) => handleInputChange('folderDescription', e.target.value)}
-                  placeholder="Slot에 대한 설명을 입력하세요 (최대 200자)"
+                  placeholder="Slot에 대한 설명을 입력하세요"
                   rows={4}
                   className="textarea"
                   style={{
@@ -369,13 +365,9 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                 </div>
                 {errors.advertiserId && (
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
                     marginTop: '4px',
                     fontSize: '12px'
                   }} className="text-destructive">
-                    <AlertCircle size={12} />
                     {errors.advertiserId}
                   </div>
                 )}
@@ -401,49 +393,37 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                 </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {(['Private', 'Internal', 'Shared'] as const).map(visibility => (
-                    <label key={visibility} style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      padding: '12px',
-                      border: `1px solid ${formData.visibility === visibility ? 'hsl(var(--primary))' : errors.visibility ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
-                      borderRadius: '6px',
-                      backgroundColor: formData.visibility === visibility ? 'hsl(var(--primary) / 0.1)' : 'transparent'
-                    }}>
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value={visibility}
-                        checked={formData.visibility === visibility}
-                        onChange={(e) => handleInputChange('visibility', e.target.value)}
-                        className="radio-custom"
-                        style={{ marginTop: '2px' }}
-                      />
-                      <div>
-                        <div style={{ fontWeight: '500', marginBottom: '4px' }}>
-                          {visibility === 'Private' && 'Private (비공개)'}
-                          {visibility === 'Internal' && 'Internal (내부 공유)'}
-                          {visibility === 'Shared' && 'Shared (전체 공유)'}
-                        </div>
-                        <div style={{ fontSize: '12px' }} className="text-muted-foreground">
-                          {visibility === 'Private' && '생성자 본인만 접근 및 편집이 가능합니다.'}
-                          {visibility === 'Internal' && '해당 광고주 권한이 있는 사용자(내부)에게만 공개됩니다.'}
-                          {visibility === 'Shared' && '외부 파트너를 포함하여 권한이 있는 모든 사용자에게 공개됩니다.'}
-                        </div>
+                    <button
+                      key={visibility}
+                      type="button"
+                      onClick={() => handleInputChange('visibility', visibility)}
+                      style={{
+                        cursor: 'pointer',
+                        padding: '12px',
+                        border: `1px solid ${formData.visibility === visibility ? 'hsl(var(--primary))' : errors.visibility ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
+                        borderRadius: '6px',
+                        backgroundColor: formData.visibility === visibility ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{ fontWeight: '500', marginBottom: '4px' }}>
+                        {visibility === 'Private' && 'Private (비공개)'}
+                        {visibility === 'Internal' && 'Internal (내부 공유)'}
+                        {visibility === 'Shared' && 'Shared (전체 공유)'}
                       </div>
-                    </label>
+                      <div style={{ fontSize: '12px' }} className="text-muted-foreground">
+                        {visibility === 'Private' && '생성자 본인만 접근 및 편집이 가능합니다.'}
+                        {visibility === 'Internal' && '해당 광고주 권한이 있는 사용자(내부)에게만 공개됩니다.'}
+                        {visibility === 'Shared' && '외부 파트너를 포함하여 권한이 있는 모든 사용자에게 공개됩니다.'}
+                      </div>
+                    </button>
                   ))}
                 </div>
                 {errors.visibility && (
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
                     marginTop: '8px',
                     fontSize: '12px'
                   }} className="text-destructive">
-                    <AlertCircle size={12} />
                     {errors.visibility}
                   </div>
                 )}
@@ -501,13 +481,9 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                     </div>
                     {errors.sharedWith && (
                       <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
                         marginTop: '8px',
                         fontSize: '12px'
                       }} className="text-destructive">
-                        <AlertCircle size={12} />
                         {errors.sharedWith}
                       </div>
                     )}

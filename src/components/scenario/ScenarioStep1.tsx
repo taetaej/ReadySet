@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Scale, Target } from 'lucide-react'
+import { ChevronRight, ChevronDown, Scale, Target, Search } from 'lucide-react'
 import { ScenarioFormData } from './types'
 import { sampleBrands, targetGrpOptions } from './constants'
 import { CustomDateRangePicker } from '../reachcaster/CustomDateRangePicker'
@@ -252,22 +252,22 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
           position: 'relative'
         }}>
           <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              value={formData.brand || brandSearchQuery}
-              onChange={(e) => {
-                setBrandSearchQuery(e.target.value)
-                setFormData({ ...formData, brand: '', industry: '' })
-                setBrandDropdownOpen(true)
-              }}
-              onFocus={() => setBrandDropdownOpen(true)}
-              placeholder="브랜드를 선택하세요."
+            <button
+              onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
               className="input"
-              style={{ 
+              style={{
                 width: '100%',
-                borderColor: validationActive && !formData.brand ? 'hsl(var(--destructive))' : undefined
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderColor: validationActive && !formData.brand ? 'hsl(var(--destructive))' : undefined,
+                color: formData.brand ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
               }}
-            />
+            >
+              <span>{formData.brand || '브랜드를 선택하세요'}</span>
+              <ChevronDown size={16} />
+            </button>
             {brandDropdownOpen && (
               <div className="dropdown" style={{
                 position: 'absolute',
@@ -275,35 +275,59 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
                 left: 0,
                 right: 0,
                 marginTop: '4px',
-                maxHeight: '200px',
-                overflowY: 'auto',
+                maxHeight: '240px',
                 zIndex: 1000
               }}>
-                {filteredBrands.length > 0 ? (
-                  filteredBrands.map((brand, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleBrandSelect(brand)}
-                      className="dropdown-item"
-                      style={{ justifyContent: 'space-between' }}
-                    >
-                      <span>{brand.name}</span>
-                      <span style={{ 
-                        fontSize: '11px', 
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: 'hsl(var(--muted))',
-                        color: 'hsl(var(--muted-foreground))'
-                      }}>
-                        {brand.industry}
-                      </span>
-                    </button>
-                  ))
-                ) : (
-                  <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                    검색 결과가 없습니다
+                <div style={{ padding: '8px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <Search size={16} style={{
+                      position: 'absolute',
+                      left: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'hsl(var(--muted-foreground))'
+                    }} />
+                    <input
+                      type="text"
+                      value={brandSearchQuery}
+                      onChange={(e) => setBrandSearchQuery(e.target.value)}
+                      placeholder="브랜드 검색..."
+                      className="input"
+                      style={{
+                        paddingLeft: '32px',
+                        fontSize: '14px'
+                      }}
+                      autoFocus
+                    />
                   </div>
-                )}
+                </div>
+                <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
+                  {filteredBrands.length > 0 ? (
+                    filteredBrands.map((brand, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleBrandSelect(brand)}
+                        className="dropdown-item"
+                        style={{ justifyContent: 'space-between' }}
+                      >
+                        <span>{brand.name}</span>
+                        <span style={{ 
+                          fontSize: '11px', 
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          backgroundColor: 'hsl(var(--muted))',
+                          color: 'hsl(var(--muted-foreground))'
+                        }}>
+                          {brand.industry}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                      검색 결과가 없습니다
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -436,9 +460,9 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
       {targetGrpDialogOpen && (
         <div className="dialog-overlay" onClick={() => setTargetGrpDialogOpen(false)}>
           <div 
-            className="dialog-content" 
+            className="dialog-content dialog-md" 
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
+            style={{ maxHeight: '80vh', overflowY: 'auto' }}
           >
             <div className="dialog-header">
               <h3 className="dialog-title">타겟 GRP 선택</h3>

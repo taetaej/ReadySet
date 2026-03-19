@@ -1034,7 +1034,7 @@ export function ScenarioStep2ReachPredictor({
           setShowPeriodDialog(null)
           setTempPeriod(null)
         }}>
-          <div className="dialog-content" onClick={(e) => e.stopPropagation()} style={{ width: '500px' }}>
+          <div className="dialog-content dialog-sm" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <h3 className="dialog-title">캠페인 기간 설정</h3>
               <p className="dialog-description">
@@ -1080,7 +1080,7 @@ export function ScenarioStep2ReachPredictor({
       {/* 전역 타겟 설정 다이얼로그 */}
       {showGlobalTargetDialog && (
         <div className="dialog-overlay" onClick={() => setShowGlobalTargetDialog(false)}>
-          <div className="dialog-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
+          <div className="dialog-content dialog-md" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             <div className="dialog-header">
               <h3 className="dialog-title">타겟 GRP 선택</h3>
               <p className="dialog-description">
@@ -1241,7 +1241,7 @@ export function ScenarioStep2ReachPredictor({
       {/* 타겟팅 설정 다이얼로그 */}
       {showTargetDialog && (
         <div className="dialog-overlay" onClick={() => setShowTargetDialog(null)}>
-          <div className="dialog-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
+          <div className="dialog-content dialog-md" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             <div className="dialog-header">
               <h3 className="dialog-title">타겟팅 설정</h3>
               <p className="dialog-description">

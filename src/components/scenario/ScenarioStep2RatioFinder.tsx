@@ -690,9 +690,9 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
             setProductSearchQuery('')
           }}>
             <div 
-              className="dialog-content" 
+              className="dialog-content dialog-md" 
               onClick={(e) => e.stopPropagation()}
-              style={{ width: '600px', height: '600px', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+              style={{ height: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
             >
               <div className="dialog-header">
                 <h3 className="dialog-title">
