@@ -13,29 +13,37 @@ const adProductMockByMedia: Record<string, string[][]> = {
 }
 const defaultAdMock = ['디맨드젠 캠페인', '앱', '디스플레이', '동영상', '실적 최대화']
 
-const metricMockValues: Record<string, () => string> = {
-  impressions: () => (Math.floor(Math.random() * 900000) + 100000).toLocaleString(),
-  clicks: () => (Math.floor(Math.random() * 9000) + 1000).toLocaleString(),
-  cost: () => (Math.floor(Math.random() * 9000000) + 1000000).toLocaleString(),
-  ctr: () => (Math.random() * 4 + 0.5).toFixed(2) + '%',
-  cpc: () => (Math.floor(Math.random() * 800) + 200).toLocaleString(),
-  cpm: () => (Math.floor(Math.random() * 15000) + 3000).toLocaleString(),
-  cpv: () => (Math.floor(Math.random() * 300) + 50).toLocaleString(),
-  vtr: () => (Math.random() * 30 + 5).toFixed(1) + '%',
-  reach: () => (Math.floor(Math.random() * 500000) + 50000).toLocaleString(),
-  frequency: () => (Math.random() * 3 + 1).toFixed(1),
-  link_click: () => (Math.floor(Math.random() * 5000) + 500).toLocaleString(),
-  video_views_3s: () => (Math.floor(Math.random() * 80000) + 10000).toLocaleString(),
-  purchase: () => (Math.floor(Math.random() * 500) + 50).toLocaleString(),
-  install: () => (Math.floor(Math.random() * 300) + 30).toLocaleString(),
-  conversions: () => (Math.floor(Math.random() * 400) + 40).toLocaleString(),
-  all_conversions: () => (Math.floor(Math.random() * 400) + 40).toLocaleString(),
-  video_views: () => (Math.floor(Math.random() * 60000) + 5000).toLocaleString(),
+// 지표별 숫자 값만 반환 (단위는 별도 렌더링)
+const metricMockNumbers: Record<string, () => number> = {
+  impressions: () => Math.floor(Math.random() * 900000) + 100000,
+  clicks: () => Math.floor(Math.random() * 9000) + 1000,
+  cost: () => Math.floor(Math.random() * 9000000) + 1000000,
+  ctr: () => parseFloat((Math.random() * 4 + 0.5).toFixed(2)),
+  cpc: () => Math.floor(Math.random() * 800) + 200,
+  cpm: () => Math.floor(Math.random() * 15000) + 3000,
+  cpv: () => Math.floor(Math.random() * 300) + 50,
+  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(1)),
+  reach: () => Math.floor(Math.random() * 500000) + 50000,
+  frequency: () => parseFloat((Math.random() * 3 + 1).toFixed(1)),
+  link_click: () => Math.floor(Math.random() * 5000) + 500,
+  video_views_3s: () => Math.floor(Math.random() * 80000) + 10000,
+  purchase: () => Math.floor(Math.random() * 500) + 50,
+  install: () => Math.floor(Math.random() * 300) + 30,
+  conversions: () => Math.floor(Math.random() * 400) + 40,
+  all_conversions: () => Math.floor(Math.random() * 400) + 40,
+  video_views: () => Math.floor(Math.random() * 60000) + 5000,
 }
 
-function getMockMetricValue(id: string): string {
-  const fn = metricMockValues[id]
-  return fn ? fn() : (Math.floor(Math.random() * 90000) + 10000).toLocaleString()
+const metricUnits: Record<string, string> = {
+  impressions: '회', clicks: '회', cost: '원', cpc: '원', cpm: '원', cpv: '원',
+  reach: '회', link_click: '회', video_views_3s: '회', purchase: '회',
+  install: '회', conversions: '회', all_conversions: '회', video_views: '회',
+  ctr: '%', vtr: '%',
+}
+
+function getMockMetricNumber(id: string): number {
+  const fn = metricMockNumbers[id]
+  return fn ? fn() : Math.floor(Math.random() * 90000) + 10000
 }
 
 const industryPool = [
@@ -98,15 +106,15 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
     const targeting = formData.targetingCategory
       ? (formData.targetingOptions[i % Math.max(formData.targetingOptions.length, 1)] ?? targetPool[i % targetPool.length])
       : null
-    const metrics = formData.metrics.map(m => getMockMetricValue(m))
+    const metrics = formData.metrics.map(m => getMockMetricNumber(m))
     return { ind, adCols, targeting, metrics }
   })
 
-  // 지표는 항상 고정 5개로 표시
+  // 지표는 광고비 → 노출수 → 클릭수 → CTR → CPC 고정 순서
   const fixedMetrics = [
+    { id: 'cost', label: '광고비' },
     { id: 'impressions', label: '노출수' },
     { id: 'clicks', label: '클릭수' },
-    { id: 'cost', label: '광고비' },
     { id: 'ctr', label: 'CTR' },
     { id: 'cpc', label: 'CPC' },
   ]
@@ -147,7 +155,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
             </h3>
             <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
               <Database size={14} />
-              예상 데이터 규모 : 1,234 행
+              예상 데이터 크기 : 1,234 행
             </span>
           </div>
 
@@ -181,7 +189,20 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
                     <td style={td(false, true)}>{row.ind[2]}</td>
                     {row.adCols.map((v, j) => <td key={j} style={td(false, true)}>{v}</td>)}
                     {formData.targetingCategory && <td style={td(false, true)}>{row.targeting}</td>}
-                    {fixedMetrics.map(m => <td key={m.id} style={td(true)}>{getMockMetricValue(m.id)}</td>)}
+                    {fixedMetrics.map(m => {
+                      const val = getMockMetricNumber(m.id)
+                      const unit = metricUnits[m.id] || ''
+                      const isPercent = unit === '%'
+                      const formatted = isPercent
+                        ? val.toFixed(m.id === 'vtr' ? 1 : 2)
+                        : val.toLocaleString()
+                      return (
+                        <td key={m.id} style={td(true)}>
+                          {formatted}
+                          {unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: isPercent ? '2px' : '4px', fontWeight: '400' }}>{unit}</span>}
+                        </td>
+                      )
+                    })}
                   </tr>
                 ))}
               </tbody>

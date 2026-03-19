@@ -31,30 +31,37 @@ const adProductMockByMedia: Record<string, string[][]> = {
 }
 const defaultAdMock = ['디맨드젠 캠페인', '앱', '디스플레이', '동영상', '실적 최대화']
 
-// 지표 목 값 생성
-const metricMockValues: Record<string, () => string> = {
-  impressions: () => (Math.floor(Math.random() * 900000) + 100000).toLocaleString(),
-  clicks: () => (Math.floor(Math.random() * 9000) + 1000).toLocaleString(),
-  cost: () => (Math.floor(Math.random() * 9000000) + 1000000).toLocaleString(),
-  ctr: () => (Math.random() * 4 + 0.5).toFixed(2) + '%',
-  cpc: () => (Math.floor(Math.random() * 800) + 200).toLocaleString(),
-  cpm: () => (Math.floor(Math.random() * 15000) + 3000).toLocaleString(),
-  cpv: () => (Math.floor(Math.random() * 300) + 50).toLocaleString(),
-  vtr: () => (Math.random() * 30 + 5).toFixed(1) + '%',
-  reach: () => (Math.floor(Math.random() * 500000) + 50000).toLocaleString(),
-  frequency: () => (Math.random() * 3 + 1).toFixed(1),
-  link_click: () => (Math.floor(Math.random() * 5000) + 500).toLocaleString(),
-  video_views_3s: () => (Math.floor(Math.random() * 80000) + 10000).toLocaleString(),
-  purchase: () => (Math.floor(Math.random() * 500) + 50).toLocaleString(),
-  install: () => (Math.floor(Math.random() * 300) + 30).toLocaleString(),
-  conversions: () => (Math.floor(Math.random() * 400) + 40).toLocaleString(),
-  all_conversions: () => (Math.floor(Math.random() * 400) + 40).toLocaleString(),
-  video_views: () => (Math.floor(Math.random() * 60000) + 5000).toLocaleString(),
+// 지표별 숫자 값만 반환
+const metricMockNumbers: Record<string, () => number> = {
+  impressions: () => Math.floor(Math.random() * 900000) + 100000,
+  clicks: () => Math.floor(Math.random() * 9000) + 1000,
+  cost: () => Math.floor(Math.random() * 9000000) + 1000000,
+  ctr: () => parseFloat((Math.random() * 4 + 0.5).toFixed(2)),
+  cpc: () => Math.floor(Math.random() * 800) + 200,
+  cpm: () => Math.floor(Math.random() * 15000) + 3000,
+  cpv: () => Math.floor(Math.random() * 300) + 50,
+  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(1)),
+  reach: () => Math.floor(Math.random() * 500000) + 50000,
+  frequency: () => parseFloat((Math.random() * 3 + 1).toFixed(1)),
+  link_click: () => Math.floor(Math.random() * 5000) + 500,
+  video_views_3s: () => Math.floor(Math.random() * 80000) + 10000,
+  purchase: () => Math.floor(Math.random() * 500) + 50,
+  install: () => Math.floor(Math.random() * 300) + 30,
+  conversions: () => Math.floor(Math.random() * 400) + 40,
+  all_conversions: () => Math.floor(Math.random() * 400) + 40,
+  video_views: () => Math.floor(Math.random() * 60000) + 5000,
 }
 
-function getMockMetricValue(id: string): string {
-  const fn = metricMockValues[id]
-  return fn ? fn() : (Math.floor(Math.random() * 90000) + 10000).toLocaleString()
+const metricUnits: Record<string, string> = {
+  impressions: '회', clicks: '회', cost: '원', cpc: '원', cpm: '원', cpv: '원',
+  reach: '회', link_click: '회', video_views_3s: '회', purchase: '회',
+  install: '회', conversions: '회', all_conversions: '회', video_views: '회',
+  ctr: '%', vtr: '%',
+}
+
+function getMockMetricNumber(id: string): number {
+  const fn = metricMockNumbers[id]
+  return fn ? fn() : Math.floor(Math.random() * 90000) + 10000
 }
 
 // 5행 목 데이터 생성
@@ -86,8 +93,8 @@ function generateMockRows(formData: FormData) {
     const targeting = formData.targetingCategory
       ? (formData.targetingOptions[i % Math.max(formData.targetingOptions.length, 1)] ?? targetPool[i % targetPool.length])
       : null
-    const metrics = formData.metrics.map(m => getMockMetricValue(m))
-    return { period: periodStart, media: formData.media || 'Meta', ind, adCols, targeting, metrics }
+    const fixedMetrics = (['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const).map(m => getMockMetricNumber(m))
+    return { period: periodStart, media: formData.media || 'Meta', ind, adCols, targeting, metrics: fixedMetrics }
   })
 }
 
@@ -152,7 +159,7 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
                   : <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '110px' }}>캠페인 유형</th>
                 }
                 {formData.targetingCategory && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>{formData.targetingCategory}</th>}
-                {formData.metrics.slice(0, 5).map(m => <th key={m} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{getMetricLabel(formData.media, m)}</th>)}
+                {(['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const).map(m => <th key={m} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{getMetricLabel(formData.media, m)}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -165,7 +172,20 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[2] || '—'}</td>
                   {row.adCols.map((v, j) => <td key={j} style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</td>)}
                   {formData.targetingCategory && <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>{row.targeting}</td>}
-                  {row.metrics.map((v, j) => <td key={j} style={{ padding: '10px 12px', fontSize: '12px', textAlign: 'right', whiteSpace: 'nowrap' }}>{v}</td>)}
+                  {row.metrics.map((v, j) => {
+                    const metricId = (['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const)[j]
+                    const unit = metricUnits[metricId] || ''
+                    const isPercent = unit === '%'
+                    const formatted = isPercent
+                      ? v.toFixed(2)
+                      : v.toLocaleString()
+                    return (
+                      <td key={j} style={{ padding: '10px 12px', fontSize: '12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {formatted}
+                        {unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: isPercent ? '2px' : '4px', fontWeight: '400' }}>{unit}</span>}
+                      </td>
+                    )
+                  })}
                 </tr>
               ))}
             </tbody>

@@ -237,7 +237,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
               {currentStep === 3 && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
                   <Database size={13} />
-                  예상 데이터 규모 : 1,234 행
+                  예상 데이터 크기 : 1,234 행
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
