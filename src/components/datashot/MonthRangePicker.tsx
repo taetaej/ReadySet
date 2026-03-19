@@ -15,6 +15,7 @@ interface MonthRangePickerProps {
     endYear: string
     endMonth: string
   }) => void
+  hasError?: boolean
 }
 
 const AVAILABLE_YEARS = [2024, 2025, 2026]
@@ -66,7 +67,7 @@ function YearSelectionView({ onYearClick }: { onYearClick: (year: number) => voi
   )
 }
 
-export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProps) {
+export function MonthRangePicker({ type, value, onChange, hasError }: MonthRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'months' | 'years'>('months')
   const [leftYear, setLeftYear] = useState(2025)
@@ -248,7 +249,7 @@ export function MonthRangePicker({ type, value, onChange }: MonthRangePickerProp
         style={{
           width: '100%', height: '36px', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '8px 12px', cursor: 'pointer',
-          backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '6px'
+          backgroundColor: 'hsl(var(--background))', border: `1px solid ${hasError ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`, borderRadius: '6px'
         }}
       >
         <div style={{ fontSize: '14px', color: value.startYear ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center' }}>
