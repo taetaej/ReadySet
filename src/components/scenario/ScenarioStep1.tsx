@@ -366,6 +366,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
         <CustomDateRangePicker
           value={formData.period}
           onChange={(range) => setFormData({ ...formData, period: range })}
+          hasError={validationActive && (!formData.period.start || !formData.period.end)}
         />
         {validationActive && (!formData.period.start || !formData.period.end) && (
           <div style={{

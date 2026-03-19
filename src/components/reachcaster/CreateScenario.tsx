@@ -193,6 +193,18 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     })
     if (!allMediaHaveProducts) return false
     
+    // 매체 비중이 0%이거나 미입력인 항목이 있는지 확인
+    const hasZeroMediaRatio = selectedMedia.some(mediaKey => !mediaRatios[mediaKey] || mediaRatios[mediaKey] === 0)
+    if (hasZeroMediaRatio) return false
+    
+    // 상품/채널 비중이 0%이거나 미입력인 항목이 있는지 확인
+    const hasZeroProductRatio = selectedMedia.some(mediaKey => {
+      const products = productRatios[mediaKey]
+      if (!products) return false
+      return Object.values(products).some(val => !val || val === 0)
+    })
+    if (hasZeroProductRatio) return false
+    
     // 각 매체의 상품 비중 합계가 100%인지 확인
     const allProductRatiosValid = selectedMedia.every(mediaKey => {
       const validation = getProductRatioValidation(mediaKey)

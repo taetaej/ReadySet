@@ -115,7 +115,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
           customPeriod: mediaIdx === 0 && idx === 0 ? { start: '2024-01-20', end: '2024-02-10' } : undefined,
           customTarget: mediaIdx === 0 && idx === 0 ? ['M2024', 'M2529', 'M3034', 'F2024', 'F2529'] : undefined
         }
-      })
+      }).sort((a: any, b: any) => b.budget - a.budget)
     })
 
     // TVC 데이터
@@ -142,7 +142,7 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode }: ReachPre
           customPeriod: undefined,
           customTarget: undefined
         }
-      })
+      }).sort((a: any, b: any) => b.budget - a.budget)
     })
 
     return data

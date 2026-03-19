@@ -178,6 +178,22 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
           maxWidth: '600px',
           margin: '0 auto'
         }}>
+          <div style={{ marginBottom: '32px' }}>
+            <h1 style={{
+              fontSize: '28px',
+              fontWeight: '700',
+              marginBottom: '8px'
+            }}>
+              새 Slot 생성
+            </h1>
+            <p style={{
+              fontSize: '14px',
+              color: 'hsl(var(--muted-foreground))'
+            }}>
+              새로운 Slot을 생성합니다.
+            </p>
+          </div>
+
             {/* 기본 정보 */}
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{
@@ -391,7 +407,7 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                       gap: '8px',
                       cursor: 'pointer',
                       padding: '12px',
-                      border: `1px solid ${formData.visibility === visibility ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                      border: `1px solid ${formData.visibility === visibility ? 'hsl(var(--primary))' : errors.visibility ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
                       borderRadius: '6px',
                       backgroundColor: formData.visibility === visibility ? 'hsl(var(--primary) / 0.1)' : 'transparent'
                     }}>

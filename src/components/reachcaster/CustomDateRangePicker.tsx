@@ -6,9 +6,10 @@ import { Calendar } from '../common/Calendar'
 interface CustomDateRangePickerProps {
   value: { start: string; end: string }
   onChange: (range: { start: string; end: string }) => void
+  hasError?: boolean
 }
 
-export function CustomDateRangePicker({ value, onChange }: CustomDateRangePickerProps) {
+export function CustomDateRangePicker({ value, onChange, hasError = false }: CustomDateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   
@@ -66,14 +67,14 @@ export function CustomDateRangePicker({ value, onChange }: CustomDateRangePicker
           gap: '12px', 
           padding: '10px 14px', 
           backgroundColor: 'hsl(var(--background))', 
-          border: '1px solid hsl(var(--border))', 
+          border: `1px solid ${hasError ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`, 
           transition: 'all 0.2s' 
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'hsl(var(--ring))'
+          if (!hasError) e.currentTarget.style.borderColor = 'hsl(var(--ring))'
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'hsl(var(--border))'
+          e.currentTarget.style.borderColor = hasError ? 'hsl(var(--destructive))' : 'hsl(var(--border))'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>

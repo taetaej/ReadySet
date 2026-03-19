@@ -77,7 +77,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
           reach4: (Math.random() * 2 + 3).toFixed(2),
           reach5: (Math.random() * 1 + 2).toFixed(2)
         }
-      })
+      }).sort((a: any, b: any) => b.budget - a.budget)
     })
 
     // TVC 데이터
@@ -102,7 +102,7 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
           reach4: '-',
           reach5: '-'
         }
-      })
+      }).sort((a: any, b: any) => b.budget - a.budget)
     })
 
     return data

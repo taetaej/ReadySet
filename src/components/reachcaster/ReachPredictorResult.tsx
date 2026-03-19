@@ -297,7 +297,10 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         />
       ) : (
         // 기본 결과 화면
-        <>
+        <div style={{
+          transition: 'margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          marginRight: spinXOpen ? '400px' : '0px'
+        }}>
       {/* Scenario Header - Single Line */}
       <div className="slot-detail-header">
         <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
@@ -1450,7 +1453,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         onCompare={handleCompare}
         isDarkMode={isDarkMode}
       />
-      </>
+      </div>
       )}
     </AppLayout>
   )

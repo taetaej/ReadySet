@@ -355,7 +355,6 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                         <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>%</span>
                       </div>
                     )}
-                    
                     {/* 상품/채널 추가 버튼 */}
                     {isSelected && (
                       <button
@@ -397,6 +396,17 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       </button>
                     )}
                   </div>
+                  
+                  {/* 매체 비중 0% 경고 — grid 밖 */}
+                  {isSelected && (!mediaRatios[mediaKey] || mediaRatios[mediaKey] === 0) && (
+                    <div style={{
+                      fontSize: '11px',
+                      color: 'hsl(var(--destructive))',
+                      padding: '4px 0 0 40px'
+                    }}>
+                      비중이 0%입니다. 값을 입력하거나 매체를 선택 해제해주세요.
+                    </div>
+                  )}
                   
                   {/* 선택된 상품 목록 */}
                   {isSelected && selectedProducts.length > 0 && (
@@ -487,6 +497,17 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                           >
                             <X size={14} />
                           </button>
+                          {/* 상품/채널 비중 0% 경고 */}
+                          {(!productRatios[mediaKey]?.[product] || productRatios[mediaKey]?.[product] === 0) && (
+                            <div style={{
+                              gridColumn: '1 / -1',
+                              fontSize: '11px',
+                              color: 'hsl(var(--destructive))',
+                              padding: '2px 0 0 0'
+                            }}>
+                              비중이 0%입니다. 값을 입력하거나 삭제해주세요.
+                            </div>
+                          )}
                         </div>
                       ))}
                       {/* 상품 합계 및 검증 메시지 */}
@@ -513,7 +534,6 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                             fontSize: '11px',
                             color: 'hsl(var(--destructive))',
                             padding: '6px 8px',
-                            backgroundColor: 'hsl(var(--destructive) / 0.1)',
                             borderRadius: '4px'
                           }}>
                             {productValidation?.message}
@@ -602,7 +622,6 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       fontSize: '11px',
                       color: 'hsl(var(--destructive))',
                       padding: '8px',
-                      backgroundColor: 'hsl(var(--destructive) / 0.1)',
                       borderRadius: '4px'
                     }}>
                       {mediaWithoutProducts.map(mediaKey => {

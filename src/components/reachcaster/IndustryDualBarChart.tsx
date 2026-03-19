@@ -47,19 +47,19 @@ const beautyData: AdProduct[] = [
   { name: 'TikTok > In-Feed 광고', spendShare: 8.5, ctr: 2.6, impression: 580000 },
   { name: 'Google Ads > 동영상 광고 (YouTube)', spendShare: 7.9, ctr: 1.9, impression: 920000 },
   { name: 'Meta > OUTCOME_TRAFFIC > AUCTION > LINK_CLICKS > facebook&instagram', spendShare: 7.2, ctr: 2.4, impression: 480000 },
-  { name: 'kakao모먼트 > 카카오톡 비즈보드', spendShare: 6.8, ctr: 2.1, impression: 780000 },
+  { name: 'kakao 모먼트 > 카카오톡 비즈보드', spendShare: 6.8, ctr: 2.1, impression: 780000 },
   { name: 'Google Ads > 검색 광고', spendShare: 6.5, ctr: 1.8, impression: 690000 },
   { name: 'Meta > CONVERSIONS > AUCTION > LINK_CLICKS > facebook', spendShare: 6.1, ctr: 2.2, impression: 540000 },
   { name: 'TikTok > Spark Ads', spendShare: 5.8, ctr: 2.7, impression: 420000 },
   { name: '네이버 성과형 DA > 파워링크', spendShare: 5.4, ctr: 2.5, impression: 380000 },
   { name: 'Meta > LEAD_GENERATION > AUCTION > LEAD_GENERATION > instagram', spendShare: 5.1, ctr: 1.7, impression: 610000 },
   { name: 'Google Ads > Performance Max', spendShare: 4.8, ctr: 2.0, impression: 520000 },
-  { name: 'kakao모먼트 > 카카오톡 채널 광고', spendShare: 4.5, ctr: 2.3, impression: 460000 },
+  { name: 'kakao 모먼트 > 카카오톡 채널 광고', spendShare: 4.5, ctr: 2.3, impression: 460000 },
   { name: 'TikTok > TopView 광고', spendShare: 4.2, ctr: 1.9, impression: 550000 },
   { name: 'Meta > VIDEO_VIEWS > AUCTION > VIDEO_VIEWS > instagram', spendShare: 3.9, ctr: 2.8, impression: 390000 },
   { name: '네이버 성과형 DA > 쇼핑검색', spendShare: 3.6, ctr: 2.1, impression: 340000 },
   { name: 'Google Ads > 디스커버리 광고', spendShare: 3.3, ctr: 1.6, impression: 280000 },
-  { name: 'kakao모먼트 > Daum 디스플레이', spendShare: 3.0, ctr: 2.4, impression: 410000 },
+  { name: 'kakao 모먼트 > Daum 디스플레이', spendShare: 3.0, ctr: 2.4, impression: 410000 },
   { name: '네이버 성과형 DA > GFA (보장형 배너)', spendShare: 2.7, ctr: 2.2, impression: 320000 }
 ]
 
