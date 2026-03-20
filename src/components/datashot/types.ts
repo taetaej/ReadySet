@@ -694,7 +694,7 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
     },
     {
       category: '키워드',
-      options: ['브랜드', '제품', '카테고리']
+      options: []
     },
     {
       category: '소재요소',
@@ -748,4 +748,23 @@ export const metaAdProductCombinations: MetaAdProductCombination[] = [
   { campaignObjective: 'VIDEO_VIEWS', buyingType: 'AUCTION', performanceGoal: 'THRUPLAY', platform: 'facebook' },
   { campaignObjective: 'VIDEO_VIEWS', buyingType: 'AUCTION', performanceGoal: 'VIDEO_VIEWS', platform: 'instagram' },
   { campaignObjective: 'VIDEO_VIEWS', buyingType: 'RESERVED', performanceGoal: 'THRUPLAY', platform: 'facebook&instagram' }
+]
+
+// 네이버 보장형 DA 키워드 목 데이터 (실제로는 API에서 24,666개 로드)
+export const naverNospKeywords: string[] = [
+  '삼성 갤럭시 S24', '삼성 갤럭시 Z플립6', '삼성 갤럭시 Z폴드6', '삼성전자', '삼성 비스포크',
+  '아이폰16', '아이폰16 프로', '아이폰15', '애플 맥북', '애플 아이패드',
+  'LG 그램', 'LG 스탠바이미', 'LG 올레드 TV', 'LG 퓨리케어', 'LG 디오스',
+  '현대자동차', '현대 아이오닉', '현대 캐스퍼', '기아 EV6', '기아 EV9',
+  '나이키 에어맥스', '나이키 덩크', '아디다스 삼바', '뉴발란스 530', '아식스 젤',
+  '올리브영', '다이소', '쿠팡', '무신사', '마켓컬리',
+  '스타벅스', '투썸플레이스', '이디야커피', '메가커피', '컴포즈커피',
+  '신한카드', '삼성카드', '현대카드', '국민카드', '롯데카드',
+  '토스', '카카오뱅크', '케이뱅크', '네이버페이', '카카오페이',
+  '배달의민족', '요기요', '쿠팡이츠', '당근마켓', '번개장터',
+  '넷플릭스', '디즈니플러스', '웨이브', '티빙', '왓챠',
+  '하이트진로', '참이슬', '카스', '테라', '클라우드',
+  '설화수', '라네즈', '이니스프리', '에뛰드', '미샤',
+  'SK텔레콤', 'KT', 'LG유플러스', 'SKT 5G', 'KT 인터넷',
+  '대한항공', '아시아나항공', '제주항공', '진에어', '티웨이항공',
 ]

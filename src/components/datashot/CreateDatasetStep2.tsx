@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ListPlus, Plus, Minus, Search, ChevronDown, Info, X } from 'lucide-react'
-import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, type MetricGroup } from './types'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
 import { mediaIconMap } from '../common/MediaIcons'
@@ -317,11 +317,23 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [showInfoTooltip, setShowInfoTooltip] = useState(false)
+  const [keywordSearch, setKeywordSearch] = useState('')
+  const [keywordResults, setKeywordResults] = useState<string[]>([])
+  const [hasSearchedKeyword, setHasSearchedKeyword] = useState(false)
   const categories = targetingOptionsByMedia[media] ?? []
+  const isKeywordMode = category === '키워드' && media === '네이버 보장형 DA'
   const opts = categories.find(t => t.category === category)?.options ?? []
   const filtered = opts.filter(o => o.toLowerCase().includes(search.toLowerCase()))
   const allSelected = opts.length > 0 && opts.every(o => selected.includes(o))
   const toggle = (o: string) => onOptionsChange(selected.includes(o) ? selected.filter(v => v !== o) : [...selected, o])
+
+  const handleKeywordSearch = () => {
+    if (!keywordSearch.trim()) { setKeywordResults([]); setHasSearchedKeyword(false); return }
+    setHasSearchedKeyword(true)
+    const q = keywordSearch.toLowerCase()
+    const results = naverNospKeywords.filter(k => k.toLowerCase().includes(q)).slice(0, 50)
+    setKeywordResults(results)
+  }
 
   return (
     <>
@@ -376,25 +388,64 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
         </span>
         {open && category && (
           <>
-            <div style={{ position: 'relative', width: '140px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+            <div style={{ position: 'relative', width: isKeywordMode ? '180px' : '140px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
               <Search size={11} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="검색" className="input"
-                style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px', paddingRight: search ? '24px' : '8px' }} />
-              {search && (
-                <button onClick={() => setSearch('')}
+              <input type="text"
+                value={isKeywordMode ? keywordSearch : search}
+                onChange={e => {
+                  if (isKeywordMode) {
+                    setKeywordSearch(e.target.value)
+                    if (!e.target.value) { setKeywordResults([]); setHasSearchedKeyword(false) }
+                  } else {
+                    setSearch(e.target.value)
+                  }
+                }}
+                onKeyDown={e => { if (isKeywordMode && e.key === 'Enter') handleKeywordSearch() }}
+                placeholder={isKeywordMode ? '키워드 검색 (Enter)' : '검색'}
+                className="input"
+                style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px', paddingRight: (isKeywordMode ? keywordSearch : search) ? '24px' : '8px' }} />
+              {(isKeywordMode ? keywordSearch : search) && (
+                <button onClick={() => { if (isKeywordMode) { setKeywordSearch(''); setKeywordResults([]); setHasSearchedKeyword(false) } else { setSearch('') } }}
                   style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', padding: '2px', display: 'flex', alignItems: 'center' }}>
                   <X size={11} />
                 </button>
               )}
             </div>
-            <button
-              onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', flexShrink: 0 }}
-            >
-              {allSelected ? '전체 해제' : '전체 선택'}
-            </button>
+            {!isKeywordMode && (
+              <button
+                onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}
+                className="btn btn-ghost btn-sm"
+                style={{ fontSize: '11px', flexShrink: 0 }}
+              >
+                {allSelected ? '전체 해제' : '전체 선택'}
+              </button>
+            )}
+            {isKeywordMode && (
+              <>
+                {selected.length > 0 && (
+                  <span onClick={e => e.stopPropagation()} style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                    {selected.length}개 선택
+                  </span>
+                )}
+                {hasSearchedKeyword && keywordResults.length > 0 && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      const allResultsSelected = keywordResults.every(k => selected.includes(k))
+                      if (allResultsSelected) {
+                        onOptionsChange(selected.filter(s => !keywordResults.includes(s)))
+                      } else {
+                        onOptionsChange([...new Set([...selected, ...keywordResults])])
+                      }
+                    }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ fontSize: '11px', flexShrink: 0 }}
+                  >
+                    {keywordResults.every(k => selected.includes(k)) ? '전체 해제' : '전체 선택'}
+                  </button>
+                )}
+              </>
+            )}
           </>
         )}
       </div>
@@ -402,7 +453,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
       {/* 펼쳐진 옵션 리스트 */}
       {open && (
         <>
-          {/* 타입 선택 - Media Select 공통 스타일 */}
+          {/* 타입 선택 드롭다운 */}
           <div style={{ padding: '8px 10px', borderBottom: '1px solid hsl(var(--border) / 0.5)', position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setDropdownOpen(o => !o)}
@@ -423,12 +474,12 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
                 position: 'absolute', top: '100%', left: '10px', right: '10px', marginTop: '2px',
                 maxHeight: '200px', overflowY: 'auto', zIndex: 1000
               }}>
-                <button onClick={() => { onCategoryChange(''); setDropdownOpen(false) }} className="dropdown-item"
+                <button onClick={() => { onCategoryChange(''); setDropdownOpen(false); setKeywordSearch(''); setKeywordResults([]); setHasSearchedKeyword(false) }} className="dropdown-item"
                   style={{ backgroundColor: !category ? 'hsl(var(--muted))' : 'transparent' }}>
                   선택 안 함
                 </button>
                 {categories.map(t => (
-                  <button key={t.category} onClick={() => { onCategoryChange(t.category); setDropdownOpen(false); setSearch('') }} className="dropdown-item"
+                  <button key={t.category} onClick={() => { onCategoryChange(t.category); setDropdownOpen(false); setSearch(''); setKeywordSearch(''); setKeywordResults([]); setHasSearchedKeyword(false) }} className="dropdown-item"
                     style={{ backgroundColor: category === t.category ? 'hsl(var(--muted))' : 'transparent' }}>
                     {t.category}
                   </button>
@@ -436,7 +487,44 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
               </div>
             )}
           </div>
-          {category && (
+
+          {/* 키워드 검색 모드 */}
+          {isKeywordMode && (
+            <div onClick={e => e.stopPropagation()}>
+              {/* 검색 결과 or 안내 */}
+              {!hasSearchedKeyword ? (
+                <div style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                  키워드를 검색해주세요
+                </div>
+              ) : keywordResults.length === 0 ? (
+                <div style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                  검색 결과가 없습니다
+                </div>
+              ) : (
+                <div style={{ maxHeight: '160px', overflowY: 'auto', padding: '4px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                    {keywordResults.map(kw => {
+                      const isSelected = selected.includes(kw)
+                      return (
+                        <label key={kw} style={{
+                          display: 'flex', alignItems: 'center', gap: '8px',
+                          padding: '5px 10px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px',
+                          backgroundColor: isSelected ? 'hsl(var(--muted) / 0.5)' : 'transparent',
+                          transition: 'background 0.1s'
+                        }}>
+                          <input type="checkbox" checked={isSelected} onChange={() => toggle(kw)} className="checkbox-custom" style={{ flexShrink: 0 }} />
+                          <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400' }}>{kw}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 일반 체크박스 모드 */}
+          {category && !isKeywordMode && (
             <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                   {filtered.map(opt => {
