@@ -120,7 +120,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
   ]
 
   const th = (right = false): React.CSSProperties => ({
-    padding: '8px 12px', textAlign: right ? 'right' : 'left', fontSize: '12px', fontWeight: '600',
+    padding: '8px 12px', textAlign: right ? 'right' : 'left', fontSize: '12px', fontWeight: '500',
     whiteSpace: 'nowrap', backgroundColor: 'hsl(var(--muted))',
     borderBottom: '1px solid hsl(var(--border))',
     borderRight: '1px solid hsl(var(--border) / 0.5)',

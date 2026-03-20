@@ -556,13 +556,44 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
   ]
 }
 
+// TikTok 광고상품 구조
+export const tiktokAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '목표',
+      key: 'objective',
+      required: true,
+      options: ['커뮤니티 상호작용', '리드 생성', '도달', '동영상 조회', '트래픽', '브랜드 고려 단계', '앱 프로모션', '웹사이트 전환', '판매']
+    },
+    {
+      label: '최적화 목표',
+      key: 'optimizationGoal',
+      required: false,
+      options: ['클릭', '전환', '설치', '인앱 이벤트', '가치', '도달', '팔로워', '양식 제출', '랜딩 페이지 조회', 'TikTok 페이지 방문', '6초 조회수', '15초 조회수', '참여 세션', '고려 단계 시청자 확보']
+    },
+    {
+      label: '게재 위치',
+      key: 'placement',
+      required: false,
+      options: ['TikTok', 'Pangle', '글로벌 앱 번들']
+    },
+    {
+      label: '광고 형식',
+      key: 'adFormat',
+      required: false,
+      options: ['동영상', '캐러셀 애즈', '카탈로그 애즈', '이미지']
+    }
+  ]
+}
+
 // 매체별 광고상품 구조 매핑
 export const adProductStructureByMedia: { [media: string]: MediaAdProductStructure } = {
   'Meta': metaAdProductStructure,
   'Google Ads': googleAdProductStructure,
   'kakao모먼트': kakaoAdProductStructure,
   '네이버 성과형 DA': naverGfaAdProductStructure,
-  '네이버 보장형 DA': naverNospAdProductStructure
+  '네이버 보장형 DA': naverNospAdProductStructure,
+  'TikTok': tiktokAdProductStructure
 }
 
 // 하위 호환성을 위한 기존 데이터 유지

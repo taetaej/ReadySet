@@ -113,6 +113,9 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   // 전체 지표 개수 계산
   const totalMetricsCount = metricsData.reduce((sum, group) => sum + group.metrics.length, 0)
 
+  // 조회조건 선택 항목 수 (광고상품 필드 선택값 + 타겟팅 옵션)
+  const queryConditionCount = 4 + 2 + 5 + 5 + 3 // 캠페인목표4 + 구매유형2 + 플랫폼5 + 성과목표5 + 타겟팅3
+
   const handleToggleDarkMode = () => {
     const newMode = !isDarkMode
     setIsDarkMode(newMode)
@@ -789,7 +792,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             </div>
             <span>•</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>조회조건 72개</span>
+              <span>조회조건 {queryConditionCount}개</span>
               <SearchCheck 
                 size={14} 
                 style={{ cursor: 'pointer' }}
@@ -1411,14 +1414,14 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         isOpen={adProductsModalOpen}
         onClose={() => setAdProductsModalOpen(false)}
         media="Meta"
-        products={[
-          {
-            campaignObjective: '게시물 참여',
-            buyingType: ['경매', '예약'],
-            platform: ['facebook', 'instagram', 'facebook&instagram', 'audience_network', 'facebook&instagram&messenger'],
-            performanceGoal: ['앱 이벤트 수 극대화', '링크 클릭수 극대화', '노출', '잠재 고객 수 극대화', '일일 고유 도달 극대화']
-          }
-        ]}
+        products={[JSON.stringify({
+          campaignObjective: ['게시물 참여', '전환', '트래픽', '동영상 조회'],
+          buyingType: ['경매', '예약'],
+          platform: ['facebook', 'instagram', 'facebook&instagram', 'audience_network', 'facebook&instagram&messenger'],
+          performanceGoal: ['앱 이벤트 수 극대화', '링크 클릭수 극대화', '노출', '잠재 고객 수 극대화', '일일 고유 도달 극대화']
+        })]}
+        targetingCategory={configData.targetingCategory || '기기유형'}
+        targetingOptions={['데스크톱', '모바일 웹', '앱 내']}
       />
 
       <MetricsModal

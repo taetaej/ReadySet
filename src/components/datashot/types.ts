@@ -588,6 +588,32 @@ export const naverNospMetrics: MetricGroup[] = [
     ]
   },
 ]
+// TikTok 지표
+export const tiktokMetrics: MetricGroup[] = [
+  {
+    group: '주요',
+    metrics: [
+      { id: 'spend', label: '광고 소진금액', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'cpc', label: 'CPC', selected: false },
+      { id: 'cpm', label: 'CPM', selected: false },
+      { id: 'ctr', label: 'CTR', selected: false },
+    ]
+  },
+  {
+    group: '상호작용',
+    metrics: [
+      { id: 'video_views_2s', label: '2초 이상 동영상 시청', selected: false },
+      { id: 'video_views_6s', label: '6초 이상 동영상 시청', selected: false },
+      { id: 'video_view_25', label: '동영상 25% 재생', selected: false },
+      { id: 'video_view_50', label: '동영상 50% 재생', selected: false },
+      { id: 'video_view_75', label: '동영상 75% 재생', selected: false },
+      { id: 'video_view_100', label: '동영상 100% 재생', selected: false },
+    ]
+  }
+]
+
 export const yearOptions = ['2023', '2024', '2025', '2026']
 export const monthOptions = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 export const quarterOptions = ['1분기', '2분기', '3분기', '4분기']
@@ -678,11 +704,11 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
   'TikTok': [
     {
       category: '플랫폼',
-      options: ['TikTok', 'Pangle', 'Global App Bundle']
+      options: ['TikTok', 'Pangle', '글로벌 앱 번들']
     },
     {
-      category: '게재위치',
-      options: ['For You 피드', 'Following 피드', 'TikTok 검색']
+      category: '성별x연령',
+      options: ['남성 13-17', '남성 18-24', '남성 25-34', '남성 35-44', '남성 45-54', '남성 55+', '여성 13-17', '여성 18-24', '여성 25-34', '여성 35-44', '여성 45-54', '여성 55+']
     },
     {
       category: '성별',
@@ -693,8 +719,8 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
       options: ['13-17', '18-24', '25-34', '35-44', '45-54', '55+']
     },
     {
-      category: '지역',
-      options: ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주']
+      category: '국가',
+      options: ['대한민국', '미국', '일본', '영국', '독일', '프랑스', '캐나다', '호주', '브라질', '인도', '인도네시아', '태국', '베트남', '말레이시아', '필리핀']
     }
   ]
 }

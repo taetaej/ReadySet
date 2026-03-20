@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown, Info } from 'lucide-react'
-import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
+import { ListPlus, Plus, Minus, Search, ChevronDown, Info, X } from 'lucide-react'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
 import { mediaIconMap } from '../common/MediaIcons'
@@ -11,6 +11,7 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'kakao모먼트': kakaoMetrics,
   '네이버 성과형 DA': naverGfaMetrics,
   '네이버 보장형 DA': naverNospMetrics,
+  'TikTok': tiktokMetrics,
 }
 
 interface Props {
@@ -189,8 +190,14 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
                 onChange={e => setMetricsSearch(e.target.value)}
                 placeholder="지표 검색"
                 className="input"
-                style={{ width: '100%', height: '32px', fontSize: '12px', paddingLeft: '28px', boxSizing: 'border-box' }}
+                style={{ width: '100%', height: '32px', fontSize: '12px', paddingLeft: '28px', paddingRight: metricsSearch ? '28px' : '8px', boxSizing: 'border-box' }}
               />
+              {metricsSearch && (
+                <button onClick={() => setMetricsSearch('')}
+                  style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                  <X size={12} />
+                </button>
+              )}
             </div>
             <MetricGroupList
               groups={metricsByMedia[formData.media] ?? []}
@@ -373,7 +380,13 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
               <Search size={11} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="검색" className="input"
-                style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px' }} />
+                style={{ width: '100%', height: '26px', fontSize: '11px', paddingLeft: '24px', paddingRight: search ? '24px' : '8px' }} />
+              {search && (
+                <button onClick={() => setSearch('')}
+                  style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                  <X size={11} />
+                </button>
+              )}
             </div>
             <button
               onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}

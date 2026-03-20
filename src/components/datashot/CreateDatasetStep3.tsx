@@ -1,6 +1,6 @@
-import { Check, Database, Maximize2 } from 'lucide-react'
+import { Check, Maximize2, SearchX } from 'lucide-react'
 import { FormData } from './createDatasetTypes'
-import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
+import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, type MetricGroup } from './types'
 
 const metricsByMedia: Record<string, MetricGroup[]> = {
   'Meta': metaMetrics,
@@ -8,6 +8,7 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'kakao모먼트': kakaoMetrics,
   '네이버 성과형 DA': naverGfaMetrics,
   '네이버 보장형 DA': naverNospMetrics,
+  'TikTok': tiktokMetrics,
 }
 
 function getMetricLabel(media: string, id: string): string {
@@ -137,6 +138,30 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
           샘플 데이터 5행을 통해 데이터 구조를 확인하세요.
         </p>
 
+        {totalRows === 0 ? (
+          <div style={{
+            padding: '48px 40px',
+            textAlign: 'center',
+            border: '1px dashed hsl(var(--border))',
+            borderRadius: '8px',
+            color: 'hsl(var(--muted-foreground))',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <SearchX size={32} style={{ opacity: 0.5 }} />
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>
+                설정한 조회조건에 맞는 데이터가 없습니다.
+              </div>
+              <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                이전 단계로 돌아가서 조회조건을 다시 설정해주세요.
+              </div>
+            </div>
+          </div>
+        ) : (
+        <>
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
           <button onClick={onShowSampleData} className="btn btn-sm"
             style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'hsl(var(--foreground))', color: 'hsl(var(--background))', border: 'none' }}>
@@ -149,17 +174,17 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
             <thead>
               <tr style={{ backgroundColor: 'hsl(var(--muted))', borderBottom: '1px solid hsl(var(--border))' }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>기간</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>매체</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(대)</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(중)</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(소)</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>기간</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>매체</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(대)</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(중)</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(소)</th>
                 {formData.media === 'Meta'
-                  ? ['캠페인 목표', '구매 유형', '플랫폼', '성과 목표'].map(l => <th key={l} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{l}</th>)
-                  : <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '110px' }}>캠페인 유형</th>
+                  ? ['캠페인 목표', '구매 유형', '플랫폼', '성과 목표'].map(l => <th key={l} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{l}</th>)
+                  : <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '110px' }}>캠페인 유형</th>
                 }
-                {formData.targetingCategory && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>{formData.targetingCategory}</th>}
-                {(['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const).map(m => <th key={m} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{getMetricLabel(formData.media, m)}</th>)}
+                {formData.targetingCategory && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>{formData.targetingCategory}</th>}
+                {(['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const).map(m => <th key={m} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{getMetricLabel(formData.media, m)}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -191,6 +216,8 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
             </tbody>
           </table>
         </div>
+        </>
+        )}
       </div>
     </div>
   )
