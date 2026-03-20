@@ -24,7 +24,7 @@ export function AppLayout({
   sidebarProps
 }: AppLayoutProps) {
   return (
-    <div className={`workspace ${currentView === 'workspace' ? 'workspace--slotboard' : ''}`}>
+    <div className={`workspace ${(currentView === 'workspace' || currentView === 'slotHome') ? 'workspace--slotboard' : ''}`}>
       {/* Global Navigation Bar */}
       <GlobalNavBar 
         isDarkMode={isDarkMode}

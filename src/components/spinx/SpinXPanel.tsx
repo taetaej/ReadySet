@@ -31,7 +31,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null)
   const [showResetDialog, setShowResetDialog] = useState(false)
   const [sessionTooltipOpen, setSessionTooltipOpen] = useState(false)
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string | { type: 'chart', data: any } | { type: 'error', message: string }, timestamp: string, originalQuestion?: string, webSources?: Array<{ title: string, url: string }>, ragSources?: Array<{ title: string, summary: string, type: 'pdf' | 'docx' | 'url', url?: string }> }>>([])
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string | { type: 'chart', data: any } | { type: 'error', message: string }, timestamp: string, originalQuestion?: string, webSources?: Array<{ title: string, url: string }>, ragSources?: Array<{ title: string, summary: string, type: 'pdf' | 'docx' | 'url', url?: string }>, isModelChange?: boolean }>>([])
   const [attachMenuOpen, setAttachMenuOpen] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [attachedUrl, setAttachedUrl] = useState<string>('')
@@ -44,9 +44,6 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[3]) // Gemini 3pro
   const [modelMenuOpen, setModelMenuOpen] = useState(false)
-  const [showModelChangeDialog, setShowModelChangeDialog] = useState(false)
-  const [pendingModel, setPendingModel] = useState<LLMModel | null>(null)
-  const [isRegeneratingAnalysis, setIsRegeneratingAnalysis] = useState(false)
   const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
   const [expandedRagSources, setExpandedRagSources] = useState<Set<number>>(new Set())
   const [activeFootnote, setActiveFootnote] = useState<{ msgIndex: number, footnoteNum: number } | null>(null)
@@ -102,24 +99,7 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         ]
       }
     },
-    '2026년 5월 주요 뷰티 행사가 있나요?': '웹 검색 결과, 2026년 5월 주요 뷰티 행사 정보입니다:\n\n📍 코스모프로프 아시아 (Cosmoprof Asia)\n• 일정: 2026년 5월 12-14일\n• 장소: 홍콩 컨벤션센터\n• 규모: 아시아 최대 뷰티 전시회\n\n📍 뷰티월드 재팬 (Beauty World Japan)\n• 일정: 2026년 5월 18-20일\n• 장소: 도쿄 빅사이트\n• 특징: 화장품, 네일, 에스테틱 종합 전시\n\n💡 캠페인 시사점:\n이 시기에 뷰티 업계 관심도가 높아지므로, 5월 중순 전후로 광고 집행을 강화하면 효과적일 수 있습니다.\n\n출처: 웹 검색 결과 종합',
-    '답변 실패 예시': {
-      type: 'error',
-      message: '죄송합니다. 일시적인 오류로 답변을 생성하지 못했습니다.'
-    },
-    '시각화 예시': {
-      type: 'chart',
-      data: {
-        title: '매체별 예산 배분 및 도달률 비교',
-        description: '다양한 예산 배분 시나리오에 따른 TVC/Digital 예산과 예상 도달률을 비교한 차트입니다. 현재 최적 비율(TVC 50%, Digital 50%)이 가장 높은 도달률(73.2%)을 보이며, 예산을 20% 증액할 경우 78.5%까지 도달률이 증가합니다.',
-        categories: ['현재 최적', '예산 +20%', 'TVC 중심', 'Digital 중심'],
-        series: [
-          { name: 'TVC 예산', data: [500, 600, 700, 300], color: '#1a1a1a' },
-          { name: 'Digital 예산', data: [500, 600, 300, 700], color: '#00FF9D' },
-          { name: 'Reach 1+', data: [73.2, 78.5, 68.5, 70.8], color: '#B794F6', yAxis: 1 }
-        ]
-      }
-    }
+    '2026년 5월 주요 뷰티 행사가 있나요?': '웹 검색 결과, 2026년 5월 주요 뷰티 행사 정보입니다:\n\n📍 코스모프로프 아시아 (Cosmoprof Asia)\n• 일정: 2026년 5월 12-14일\n• 장소: 홍콩 컨벤션센터\n• 규모: 아시아 최대 뷰티 전시회\n\n📍 뷰티월드 재팬 (Beauty World Japan)\n• 일정: 2026년 5월 18-20일\n• 장소: 도쿄 빅사이트\n• 특징: 화장품, 네일, 에스테틱 종합 전시\n\n💡 캠페인 시사점:\n이 시기에 뷰티 업계 관심도가 높아지므로, 5월 중순 전후로 광고 집행을 강화하면 효과적일 수 있습니다.\n\n출처: 웹 검색 결과 종합'
   }
 
   // 각주 [1], [2] 등을 인라인 뱃지로 변환 — 클릭 시 아코디언 열고 해당 문서 하이라이트
@@ -383,45 +363,16 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       return
     }
     
-    // 대화가 있으면 경고 다이얼로그 표시
-    if (messages.length > 0) {
-      setPendingModel(model)
-      setShowModelChangeDialog(true)
-      setModelMenuOpen(false)
-    } else {
-      // 대화가 없어도 분석 재생성
-      setSelectedModel(model)
-      setModelMenuOpen(false)
-      
-      // 새 모델로 초기 분석 재생성
-      setIsRegeneratingAnalysis(true)
-      setTimeout(() => {
-        setIsRegeneratingAnalysis(false)
-      }, 1500)
-    }
-  }
-
-  const confirmModelChange = () => {
-    if (pendingModel) {
-      setSelectedModel(pendingModel)
-      setMessages([])
-      setMessage('')
-      setAttachedFile(null)
-      setAttachedUrl('')
-      setPendingModel(null)
-      
-      // 새 모델로 초기 분석 재생성
-      setIsRegeneratingAnalysis(true)
-      setTimeout(() => {
-        setIsRegeneratingAnalysis(false)
-      }, 1500) // 1.5초 로딩 후 완료
-    }
-    setShowModelChangeDialog(false)
-  }
-
-  const cancelModelChange = () => {
-    setPendingModel(null)
-    setShowModelChangeDialog(false)
+    setSelectedModel(model)
+    setModelMenuOpen(false)
+    
+    // 대화 스레드에 모델 변경 알림 삽입
+    setMessages(prev => [...prev, {
+      role: 'assistant' as const,
+      content: `${model.displayName}(으)로 변경`,
+      timestamp: '방금 전',
+      isModelChange: true
+    }])
   }
 
   const handleCopy = () => {
@@ -509,8 +460,16 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           </p>
         </div>
 
-        {/* 우측: 닫기 버튼 */}
+        {/* 우측: 초기화 + 닫기 버튼 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <button
+            onClick={handleReset}
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '6px' }}
+            title="대화 초기화"
+          >
+            <RotateCcw size={16} />
+          </button>
           <button
             onClick={onClose}
             className="btn btn-ghost btn-sm"
@@ -533,37 +492,6 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
         }}
       >
         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-        {/* 모델 변경 중 로딩 */}
-        {isRegeneratingAnalysis ? (
-          <div style={{ marginTop: '24px' }}>
-            <div
-              style={{
-                backgroundColor: isDarkMode ? 'hsl(var(--muted))' : 'hsl(var(--muted))',
-                padding: '20px',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <div
-                style={{
-                  animation: 'rotate3d 2s linear infinite',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#00ff9d'
-                }}
-              >
-                <Rotate3d size={24} />
-              </div>
-              <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
-                {selectedModel.displayName}로 분석을 재생성하고 있습니다...
-              </div>
-            </div>
-          </div>
-        ) : (
-          <>
         {/* NotebookLM 스타일 초기 분석 - 최신 메시지 (입력창 바로 위) */}
         <div style={{ marginTop: '24px' }}>
           {/* 분석 모듈 칩 + 시나리오명 */}
@@ -721,7 +649,23 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           {/* 추가 대화 메시지들 */}
           {messages.map((msg, index) => (
             <div key={index} style={{ marginTop: '24px' }}>
-              {msg.role === 'user' ? (
+              {msg.isModelChange ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '8px 0',
+                  fontFamily: 'Paperlogy, sans-serif'
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    color: 'hsl(var(--muted-foreground))',
+                    backgroundColor: 'hsl(var(--muted) / 0.5)',
+                    padding: '4px 12px',
+                    borderRadius: '12px'
+                  }}>
+                    {typeof msg.content === 'string' ? msg.content : ''}
+                  </span>
+                </div>
+              ) : msg.role === 'user' ? (
                 <div style={{ textAlign: 'right', marginBottom: '8px' }}>
                   <div
                     style={{
@@ -1285,8 +1229,6 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           {/* 스크롤 타겟 */}
           <div ref={messagesEndRef} />
         </div>
-        </>
-        )}
         </div>
       </div>
 
@@ -1427,14 +1369,6 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 </div>
               )}
             </div>
-            <button
-              onClick={handleReset}
-              className="btn btn-ghost btn-sm"
-              style={{ padding: '4px', minHeight: 'auto', height: 'auto' }}
-              title="대화 초기화"
-            >
-              <RotateCcw size={12} />
-            </button>
           </div>
         </div>
 
@@ -1759,76 +1693,6 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                 style={{ padding: '8px 16px' }}
               >
                 초기화
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 모델 변경 확인 다이얼로그 */}
-      {showModelChangeDialog && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1001
-          }}
-          onClick={cancelModelChange}
-        >
-          <div
-            style={{
-              backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
-              borderRadius: '12px',
-              padding: '24px',
-              width: '320px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3
-              style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                margin: '0 0 12px 0',
-                color: 'hsl(var(--foreground))',
-                fontFamily: 'Paperlogy, sans-serif'
-              }}
-            >
-              모델 변경
-            </h3>
-            <p
-              style={{
-                fontSize: '13px',
-                margin: '0 0 24px 0',
-                color: 'hsl(var(--muted-foreground))',
-                lineHeight: '1.6'
-              }}
-            >
-              모델을 변경하면 현재 대화가 초기화되고<br />
-              새로운 모델로 분석이 재생성됩니다.<br />
-              계속하시겠습니까?
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={cancelModelChange}
-                className="btn btn-ghost"
-                style={{ padding: '8px 16px' }}
-              >
-                취소
-              </button>
-              <button
-                onClick={confirmModelChange}
-                className="btn btn-primary"
-                style={{ padding: '8px 16px' }}
-              >
-                변경
               </button>
             </div>
           </div>
