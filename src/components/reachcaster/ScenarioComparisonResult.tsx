@@ -1,5 +1,5 @@
-import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet, Sparkles } from 'lucide-react'
+import { useState, useRef } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell, Area, CartesianGrid } from 'recharts'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
@@ -340,179 +340,292 @@ function StackedBar({ channels, totalBudget }: { channels: { name: string; ratio
   )
 }
 
-// ── 예산 비교: 통합 리치커브 (단일 S-curve + 시나리오 마커) ──
-function UnifiedReachCurve({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
+// ── 예산 비교: 통합 리치커브 (기존 ReachCurveChart 방식 — 깔끔하게 재작성) ──
+function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: ScenarioMetrics[]; labels: string[]; conditionDiffs: string[][] }) {
+  const chartRef = useRef<HTMLDivElement>(null)
+
   const minBudget = 300000000
   const maxBudget = 1800000000
   const interval = 150000000
+  const hasMultipleCurves = conditionDiffs.some(d => d.length > 0)
 
+  const calcReach = (metrics: ScenarioMetrics, budget: number) => {
+    const n = (budget - minBudget) / (maxBudget - minBudget)
+    const base = metrics.reach1 * 0.75
+    const max = Math.min(95, metrics.reach1 * 1.15)
+    return Math.round((base + ((max - base) / (1 + Math.exp(-8 * (n - 0.45))))) * 10) / 10
+  }
+
+  const peakBudget = minBudget + (maxBudget - minBudget) * 0.75
+
+  // 기본 budgetPoints (1.5억 간격 + 피크 포인트 포함)
   const budgetPoints: number[] = []
   for (let b = minBudget; b <= maxBudget; b += interval) budgetPoints.push(b)
+  if (!budgetPoints.includes(peakBudget)) { budgetPoints.push(peakBudget); budgetPoints.sort((a, b) => a - b) }
 
-  // 단일 S-curve 생성 (기준 시나리오 기반)
-  const baseMetrics = allData[0]
-  const curveData = budgetPoints.map(budget => {
-    const normalized = (budget - minBudget) / (maxBudget - minBudget)
-    const baseReach = baseMetrics.reach1 * 0.75
-    const maxReach = Math.min(95, baseMetrics.reach1 * 1.15)
-    const reach = baseReach + ((maxReach - baseReach) / (1 + Math.exp(-8 * (normalized - 0.45))))
-    const uncertainty = 3 + (normalized * 2)
+  // 시나리오별 예산 → 라벨 매핑 (툴팁용)
+  const scenarioBudgetMap = new Map<number, string[]>()
+  allData.forEach((m, i) => {
+    const b = m.totalBudget
+    if (!scenarioBudgetMap.has(b)) scenarioBudgetMap.set(b, [])
+    scenarioBudgetMap.get(b)!.push(labels[i])
+  })
+
+  // 기준 커브 데이터
+  const baseCurveData = budgetPoints.map(budget => {
+    const reach = calcReach(allData[0], budget)
+    const n = (budget - minBudget) / (maxBudget - minBudget)
+    const unc = 3 + (n * 2)
     return {
-      budget,
-      reach: Math.round(reach * 10) / 10,
-      upperBound: Math.min(95, Math.round((reach + uncertainty) * 10) / 10),
-      lowerBound: Math.max(40, Math.round((reach - uncertainty) * 10) / 10)
+      budget, reach,
+      upperBound: Math.min(95, Math.round((reach + unc) * 10) / 10),
+      lowerBound: Math.max(40, Math.round((reach - unc) * 10) / 10),
+      scenarioNames: scenarioBudgetMap.get(budget) || null
     }
   })
 
-  // 각 시나리오의 예산 위치에서 커브 위의 reach 값 계산
-  const getReachAtBudget = (budget: number) => {
-    const normalized = (budget - minBudget) / (maxBudget - minBudget)
-    const baseReach = baseMetrics.reach1 * 0.75
-    const maxReach = Math.min(95, baseMetrics.reach1 * 1.15)
-    return Math.round((baseReach + ((maxReach - baseReach) / (1 + Math.exp(-8 * (normalized - 0.45))))) * 10) / 10
-  }
+  // 멀티 커브 데이터: 기준 커브 + 조건 상이 시나리오만 별도 라인
+  // 조건 동일 시나리오는 기준 커브와 겹치므로 별도 라인 불필요
+  const diffCurves = hasMultipleCurves
+    ? allData
+        .map((m, i) => ({ idx: i, label: labels[i], hasDiffs: conditionDiffs[i].length > 0, metrics: m }))
+        .filter(c => c.hasDiffs)
+        .map(c => ({
+          ...c,
+          data: budgetPoints.map(budget => ({
+            budget, reach: calcReach(c.metrics, budget),
+            scenarioName: c.label
+          }))
+        }))
+    : []
 
-  const scenarioMarkers = allData.map((m, i) => ({
-    budget: m.totalBudget,
-    reach: getReachAtBudget(m.totalBudget),
-    label: labels[i], idx: i
-  }))
+  // 기준 커브는 항상 그림 (조건 동일 시나리오 포함)
+  // diffCurves에 기준 커브 추가 (멀티 모드에서 기준 라인도 그려야 하므로)
+  const multiCurves = hasMultipleCurves
+    ? [
+        {
+          idx: 0, label: labels[0], hasDiffs: false,
+          data: budgetPoints.map(budget => ({
+            budget, reach: calcReach(allData[0], budget),
+            scenarioName: labels[0]
+          }))
+        },
+        ...diffCurves
+      ]
+    : []
 
-  const markerColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
+  // 멀티 커브 색상: 기준=초록, 이후 조건 상이 시나리오 순서대로
+  const multiLineColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
 
+  // 툴팁 — 싱글: 시나리오명 매칭, 멀티: 모든 라인 값 표시
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null
     const d = payload[0].payload
-    return (
-      <div style={{
-        background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-        borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif',
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-      }}>
-        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
-          예산: ₩{d.budget.toLocaleString('ko-KR')}
+    const budget = d.budget
+
+    if (hasMultipleCurves && payload.length > 1) {
+      return (
+        <div style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', minWidth: '180px' }}>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>예산: ₩{budget.toLocaleString('ko-KR')}</div>
+          {payload.map((entry: any, idx: number) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', lineHeight: '2' }}>
+              <span style={{ width: '8px', height: '3px', borderRadius: '1px', backgroundColor: entry.stroke || multiLineColors[idx], flexShrink: 0 }} />
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>{entry.payload?.scenarioName || multiCurves[idx]?.label || ''}</span>
+              <span style={{ fontWeight: '600', marginLeft: 'auto' }}>{entry.value?.toFixed?.(1) ?? entry.value}%</span>
+            </div>
+          ))}
         </div>
+      )
+    }
+
+    const names: string[] | null = d.scenarioNames || (d.scenarioName ? [d.scenarioName] : null)
+    return (
+      <div style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+        {names && names.length > 0 && (
+          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+            {names.join(', ')}
+          </div>
+        )}
+        <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>예산: ₩{budget.toLocaleString('ko-KR')}</div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
           <div>예측 Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach}%</span></div>
-          <div style={{ color: 'hsl(var(--muted-foreground))' }}>예측 범위: {d.lowerBound}% ~ {d.upperBound}%</div>
+          {d.upperBound && <div style={{ color: 'hsl(var(--muted-foreground))' }}>예측 범위: {d.lowerBound}% ~ {d.upperBound}%</div>}
         </div>
       </div>
     )
   }
 
-  return (
-    <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart data={curveData} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} horizontal={false} />
-        <XAxis
-          dataKey="budget" type="number"
-          domain={[minBudget, maxBudget]}
-          tickFormatter={v => `${(v / 100000000).toFixed(1)}억`}
-          stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }}
-        />
-        <YAxis
-          tickFormatter={v => `${v}%`}
-          stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }}
-          width={50}
-          label={{ value: '예측 Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
-        />
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
-
-        {/* 신뢰 구간 */}
-        <Area type="monotone" dataKey="upperBound" stroke="none" fill="hsl(var(--muted) / 0.3)" fillOpacity={1} />
-        <Area type="monotone" dataKey="lowerBound" stroke="none" fill="hsl(var(--background))" fillOpacity={1} />
-
-        {/* 단일 리치커브 라인 */}
-        <Line
-          type="monotone" dataKey="reach" stroke="#00ff9d" strokeWidth={3}
-          dot={false}
-          activeDot={{ r: 4, fill: '#00ff9d', stroke: '#00ff9d', strokeWidth: 2 }}
-        />
-
-        {/* 각 시나리오 예산 위치 마커 */}
-        <Scatter
-          data={scenarioMarkers}
-          shape={(props: any) => {
-            const { cx, cy, payload } = props
-            if (!cx || !cy) return null
-            const isBase = payload.idx === 0
-            return (
-              <g>
-                {/* 수직 점선 */}
-                <line x1={cx} y1={cy} x2={cx} y2={cy + 40} stroke={markerColors[payload.idx]} strokeWidth={1} strokeDasharray="3 3" opacity={0.4} />
-                <circle cx={cx} cy={cy} r={isBase ? 6 : 5} fill={markerColors[payload.idx]} stroke="hsl(var(--background))" strokeWidth={2} />
-              </g>
-            )
-          }}
-        />
-      </ComposedChart>
-    </ResponsiveContainer>
-  )
-}
-
-// ── 예산 비교: Reach × CPRP 바/라인 콤보 ──
-function BudgetComparisonCombo({ allData, labels }: { allData: ScenarioMetrics[]; labels: string[] }) {
-  const comboData = allData.map((m, i) => ({
-    name: labels[i], reach1: m.reach1, cprp: m.cprp, budget: m.totalBudget, idx: i
-  })).sort((a, b) => a.budget - b.budget)
-
-  const opacities = [0.85, 0.5, 0.35, 0.25, 0.2]
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.length) return null
-    const d = payload[0].payload
+  // 싱글 커브 dot — 피크는 foreground r=5, 시나리오 예산 위치는 강조, 나머지 작은 dot
+  const scenarioBudgets = new Set(allData.map(m => m.totalBudget))
+  const baseDot = (props: any) => {
+    const { cx, cy, payload } = props
+    const isPeak = Math.abs(payload.budget - peakBudget) < 1000
+    const isScenarioBudget = scenarioBudgets.has(payload.budget)
     return (
-      <div style={{
-        background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-        borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif',
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-      }}>
-        <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>{d.name}</div>
-        <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-          <div>예산: <span style={{ fontWeight: '600' }}>₩{d.budget.toLocaleString('ko-KR')}</span></div>
-          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach1.toFixed(1)}%</span></div>
-          <div>CPRP: <span style={{ fontWeight: '600' }}>₩{d.cprp.toLocaleString('ko-KR')}</span></div>
-        </div>
-      </div>
+      <circle cx={cx} cy={cy}
+        r={isPeak ? 5 : isScenarioBudget ? 3.5 : 2.5}
+        fill={isPeak ? 'hsl(var(--foreground))' : '#00ff9d'}
+        stroke={isPeak ? 'hsl(var(--foreground))' : '#00ff9d'}
+        strokeWidth={isPeak ? 2 : isScenarioBudget ? 2 : 1.5}
+      />
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart data={comboData} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
-        <XAxis
-          dataKey="name" stroke="#e4e4e7"
-          tick={{ fill: '#71717a', fontSize: 11 }}
-        />
-        <YAxis
-          yAxisId="left" tickFormatter={v => `${v}%`}
-          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
-          width={44}
-          label={{ value: 'Reach 1+', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
-        />
-        <YAxis
-          yAxisId="right" orientation="right"
-          tickFormatter={v => `${(v / 1000000).toFixed(1)}M`}
-          stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
-          width={52}
-          label={{ value: 'CPRP (원)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'end' } }}
-        />
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
-        <Bar yAxisId="left" dataKey="reach1" radius={[4, 4, 0, 0]} maxBarSize={36}>
-          {comboData.map((d, i) => (
-            <Cell key={i} fill={d.idx === 0 ? '#00ff9d' : 'hsl(var(--foreground))'} opacity={d.idx === 0 ? 0.8 : (opacities[i] || 0.1)} />
+    <div style={{ position: 'relative' }} ref={chartRef}>
+      <ResponsiveContainer width="100%" height={360}>
+        <ComposedChart data={baseCurveData} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} horizontal={false} />
+          <XAxis dataKey="budget" type="number" domain={[minBudget, maxBudget]}
+            tickFormatter={v => `${(v / 100000000).toFixed(1)}억`}
+            stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }} />
+          <YAxis tickFormatter={v => `${v}%`} stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }} width={50}
+            label={{ value: '예측 Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '3 3' }} wrapperStyle={{ outline: 'none' }} />
+
+          {!hasMultipleCurves && (
+            <>
+              <Area type="monotone" dataKey="upperBound" stroke="none" fill="hsl(var(--muted) / 0.3)" fillOpacity={1} />
+              <Area type="monotone" dataKey="lowerBound" stroke="none" fill="hsl(var(--background))" fillOpacity={1} />
+              <Line type="monotone" dataKey="reach" stroke="#00ff9d" strokeWidth={3}
+                dot={baseDot} activeDot={{ r: 5, fill: '#00ff9d', stroke: '#00ff9d', strokeWidth: 2 }} />
+            </>
+          )}
+
+          {hasMultipleCurves && multiCurves.map((curve, ci) => (
+            <Line key={ci} data={curve.data} type="monotone" dataKey="reach"
+              stroke={multiLineColors[ci] || multiLineColors[multiLineColors.length - 1]}
+              strokeWidth={ci === 0 ? 3 : 2}
+              strokeDasharray={ci === 0 ? undefined : '6 3'}
+              dot={(props: any) => {
+                const isPeak = Math.abs(props.payload.budget - peakBudget) < 1000
+                const color = multiLineColors[ci] || 'hsl(var(--foreground))'
+                if (!isPeak) return <g />
+                return <circle cx={props.cx} cy={props.cy} r={5} fill={color} stroke="hsl(var(--background))" strokeWidth={2} />
+              }}
+              activeDot={{ r: 4, fill: multiLineColors[ci], stroke: multiLineColors[ci], strokeWidth: 2 }} />
           ))}
-        </Bar>
-        <Line
-          yAxisId="right" dataKey="cprp" type="monotone"
-          stroke="hsl(var(--foreground))" strokeWidth={2}
-          dot={{ r: 3.5, fill: 'hsl(var(--foreground))', stroke: 'hsl(var(--foreground))', strokeWidth: 1.5 }}
-        />
-      </ComposedChart>
-    </ResponsiveContainer>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
+
+// ── 예산 비교 요약 표 ──
+function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: ScenarioMetrics[]; labels: string[]; conditionDiffs: string[][] }) {
+  const minBudget = 300000000
+  const maxBudget = 1800000000
+
+  const calcReach = (metrics: ScenarioMetrics, budget: number) => {
+    const n = (budget - minBudget) / (maxBudget - minBudget)
+    const base = metrics.reach1 * 0.75
+    const max = Math.min(95, metrics.reach1 * 1.15)
+    return Math.round((base + ((max - base) / (1 + Math.exp(-8 * (n - 0.45))))) * 10) / 10
+  }
+
+  // 시나리오별 피크 예산 계산: S-curve의 효율 피크(한계수익 체감 시작점)를 찾음
+  // 조건 동일 → 기준 커브의 피크, 조건 상이 → 자체 커브의 피크
+  const basePeakN = 0.75
+  const findPeakBudget = (metrics: ScenarioMetrics) => {
+    // reach1이 높을수록 피크가 일찍 옴 (효율 포화가 빠름)
+    // reach1이 낮을수록 피크가 늦게 옴 (더 많은 예산이 필요)
+    const baseR1 = allData[0].reach1
+    const ratio = metrics.reach1 / baseR1
+    // 높은 reach1 → 피크 앞당김, 낮은 reach1 → 피크 뒤로
+    const peakN = Math.min(0.9, Math.max(0.5, basePeakN / ratio))
+    return Math.round(minBudget + (maxBudget - minBudget) * peakN)
+  }
+
+  const lineColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
+
+  const rows = allData.map((m, i) => {
+    const hasDiffs = conditionDiffs[i].length > 0
+    const curveMetrics = hasDiffs ? m : allData[0]
+    const scenarioPeakBudget = hasDiffs ? findPeakBudget(m) : findPeakBudget(allData[0])
+    const reachAtBudget = calcReach(curveMetrics, m.totalBudget)
+    const peakReach = calcReach(curveMetrics, scenarioPeakBudget)
+    const headroom = scenarioPeakBudget - m.totalBudget
+    return { label: labels[i], budget: m.totalBudget, reachAtBudget, peakReach, peakBudget: scenarioPeakBudget, headroom, idx: i, isBase: i === 0, diffs: conditionDiffs[i] }
+  })
+
+  const cellStyle: React.CSSProperties = { padding: '14px 16px' }
+  const thStyle: React.CSSProperties = { padding: '10px 16px', fontSize: '12px', fontWeight: '600', color: 'hsl(var(--muted-foreground))' }
+
+  return (
+    <div style={{ borderRadius: '10px', border: '1px solid hsl(var(--border))', overflow: 'hidden' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Paperlogy, sans-serif' }}>
+        <thead>
+          <tr style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
+            <th style={{ ...thStyle, textAlign: 'left' }}>시나리오</th>
+            <th style={{ ...thStyle, textAlign: 'right' }}>Planned Budget</th>
+            <th style={{ ...thStyle, textAlign: 'right' }}>Efficiency Peak</th>
+            <th style={{ ...thStyle, textAlign: 'right' }}>Budget Room</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => {
+            const tolerance = r.peakBudget * 0.05
+            const isOptimal = Math.abs(r.headroom) <= tolerance
+            const isUnder = !isOptimal && r.headroom > 0
+            const isOver = !isOptimal && r.headroom < 0
+
+            return (
+            <tr key={i} style={{ borderTop: '1px solid hsl(var(--border))', backgroundColor: r.isBase ? 'hsl(var(--muted) / 0.15)' : 'transparent' }}>
+              <td style={{ ...cellStyle }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: lineColors[r.idx], flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>{r.label}</div>
+                    {r.diffs.length > 0 && <div style={{ fontSize: '10px', color: 'hsl(38 92% 50%)', marginTop: '2px' }}>{r.diffs.join(', ')} 상이</div>}
+                  </div>
+                </div>
+              </td>
+              <td style={{ ...cellStyle, textAlign: 'right', verticalAlign: 'middle' }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: r.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))' }}>
+                  ₩{r.budget.toLocaleString('ko-KR')}
+                </div>
+                <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
+                  Reach 1+ {r.reachAtBudget}%
+                </div>
+              </td>
+              <td style={{ ...cellStyle, textAlign: 'right', verticalAlign: 'middle' }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>
+                  ₩{r.peakBudget.toLocaleString('ko-KR')}
+                </div>
+                <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
+                  Reach 1+ {r.peakReach}%
+                </div>
+              </td>
+              <td style={{ ...cellStyle, textAlign: 'right', verticalAlign: 'middle' }}>
+                {isUnder ? (
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(142.1 76.2% 36.3%)' }}>
+                      +{(r.headroom / 100000000).toFixed(1)}억
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'hsl(142.1 76.2% 36.3%)', marginTop: '2px' }}>증액 추천</div>
+                  </div>
+                ) : isOver ? (
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--destructive))' }}>
+                      −{(Math.abs(r.headroom) / 100000000).toFixed(1)}억
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'hsl(var(--destructive))', marginTop: '2px' }}>효율 저하</div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>최적</div>
+                  </div>
+                )}
+              </td>
+            </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 
 export function ScenarioComparisonResult({
   isOpen, onClose, onNewComparison, baseScenario, comparisonScenarios,
@@ -570,7 +683,7 @@ export function ScenarioComparisonResult({
   ]
 
   const sectionTitle: React.CSSProperties = {
-    fontSize: '20px', fontWeight: '500', margin: 0,
+    fontSize: '20px', fontWeight: '500', margin: '0 0 16px 0',
     fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))'
   }
 
@@ -751,9 +864,38 @@ export function ScenarioComparisonResult({
                         ))}
                       </div>
                     </>
+                  ) : comparisonType === 'period' ? (
+                    <>
+                      {/* 기간 비교: 기간을 중점 표시 */}
+                      <div style={{ fontSize: '22px', fontWeight: '700', color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))', marginBottom: '4px', fontFamily: 'Paperlogy, sans-serif' }}>
+                        {fmtDate(period.start)} → {fmtDate(period.end)}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>
+                        {s.metrics.periodDays}일{s.isBase ? ' · 기준 기간' : ''}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {[
+                          { label: '광고비', value: `₩${s.metrics.totalBudget.toLocaleString('ko-KR')}`, match: budgetMatch },
+                          { label: '타겟', value: s.targetGrp.join(', ') || '—', match: targetMatch },
+                          { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
+                        ].map((row, ri) => (
+                          <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+                            <span style={{ color: 'hsl(var(--muted-foreground))' }}>{row.label}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ color: 'hsl(var(--foreground))' }}>{row.value}</span>
+                              {!s.isBase && (
+                                row.match
+                                  ? <CheckCircle size={10} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                                  : <AlertTriangle size={10} style={{ color: 'hsl(38 92% 50%)' }} />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   ) : (
                     <>
-                      {/* 타겟/기간 비교: 기존 타겟 중점 표시 */}
+                      {/* 타겟 비교: 타겟 중점 표시 */}
                       <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>타겟 설정</div>
                       <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))', lineHeight: '1.5', marginBottom: '2px' }}>
                         {s.targetGrp.join(', ') || '—'}
@@ -843,55 +985,36 @@ export function ScenarioComparisonResult({
 
         {/* ── 시각화 (예산 비교) ── */}
         {comparisonType === 'budget' && (
-          <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
-              {/* 왼쪽: 통합 리치커브 (단일 라인) */}
+          <div style={{ marginBottom: '48px' }}>
+            {/* 타이틀 행 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+              <h3 style={sectionTitle}>Unified Reach Curve</h3>
+              <div />
+            </div>
+            {/* 콘텐츠 행 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
+              {/* 왼쪽: 통합 리치커브 */}
               <div style={{ minWidth: 0 }}>
-                <h3 style={sectionTitle}>Unified Reach Curve</h3>
-                <div style={{ margin: '4px 0 0 0' }}>
                 <UnifiedReachCurve
                   allData={[baseMetrics, ...scenarioMetrics]}
                   labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                  conditionDiffs={allScenarios.map(s => s.diffs)}
                 />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                    <span style={{ width: '12px', height: '3px', borderRadius: '1px', backgroundColor: '#00ff9d' }} />
-                    Reach Curve
-                  </span>
-                  {allScenarios.map((s, i) => {
-                    const colors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
-                    return (
-                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: colors[i] }} />
-                        {s.isBase ? '기준' : s.name}
-                      </span>
-                    )
-                  })}
-                </div>
-                </div>
               </div>
-              {/* 오른쪽: 한계효율 분석 */}
+              {/* 오른쪽: 버짓 효율 요약 */}
               <div style={{ minWidth: 0 }}>
-                <h3 style={sectionTitle}>Budget × Performance</h3>
-                <div style={{ margin: '4px 0 0 0' }}>
-                <BudgetComparisonCombo
+                <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', margin: '0 0 12px 0', lineHeight: '1.5', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={14} style={{ flexShrink: 0 }} />
+                  시나리오별 Efficiency Peak를 확인하고, 추가 증액 가능한 Budget Room에 맞춰 예산 최적화 전략을 수립해 보세요.
+                </p>
+                <BudgetSummaryTable
                   allData={[baseMetrics, ...scenarioMetrics]}
-                  labels={allScenarios.map(s => s.isBase ? '기준' : s.name)}
+                  labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                  conditionDiffs={allScenarios.map(s => s.diffs)}
                 />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                    <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="2" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.35" /></svg>
-                    Reach 1+
-                  </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                    <svg width="14" height="10" viewBox="0 0 14 10"><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="2" /><circle cx="7" cy="5" r="2.5" fill="currentColor" /></svg>
-                    CPRP
-                  </span>
-                </div>
-                </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* ── 통합 성과 비교 테이블 ── */}
