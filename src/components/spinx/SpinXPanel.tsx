@@ -51,6 +51,12 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const loadingMessageIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [retryCount, setRetryCount] = useState<Map<string, number>>(new Map())
 
+  // 스트리밍 (타이핑) 효과 상태
+  const [streamingIndex, setStreamingIndex] = useState<number | null>(null) // 현재 스트리밍 중인 메시지 인덱스
+  const [streamingDisplayText, setStreamingDisplayText] = useState('') // 현재까지 표시된 텍스트
+  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const streamingFullTextRef = useRef<string>('') // 전체 텍스트 (ref로 관리)
+
   // 각주 팝오버 외부 클릭 시 닫기
   useEffect(() => {
     if (!activeFootnote) return
@@ -68,6 +74,79 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const daysRemaining = Math.floor(timeRemaining / (1000 * 60 * 60 * 24))
   const hoursRemaining = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutesRemaining = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60))
+
+  // 스트리밍 효과: 줄 단위로 텍스트를 점진적으로 표시
+  const startStreaming = (fullText: string, msgIndex: number) => {
+    // 이전 스트리밍 정리
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current)
+      streamingIntervalRef.current = null
+    }
+
+    streamingFullTextRef.current = fullText
+    setStreamingIndex(msgIndex)
+    setStreamingDisplayText('')
+
+    // ref 기반 커서 추적 (클로저 문제 방지)
+    const cursor = { lineIdx: 0, charIdx: 0 }
+    const lines = fullText.split('\n')
+    const CHAR_INTERVAL = 12
+
+    streamingIntervalRef.current = setInterval(() => {
+      if (cursor.lineIdx >= lines.length) {
+        // 스트리밍 완료
+        if (streamingIntervalRef.current) {
+          clearInterval(streamingIntervalRef.current)
+          streamingIntervalRef.current = null
+        }
+        setStreamingIndex(null)
+        setStreamingDisplayText('')
+        return
+      }
+
+      const currentLine = lines[cursor.lineIdx]
+
+      if (cursor.charIdx <= currentLine.length) {
+        const linesSoFar = lines.slice(0, cursor.lineIdx).join('\n')
+        const partial = currentLine.slice(0, cursor.charIdx)
+        const displayed = linesSoFar + (cursor.lineIdx > 0 ? '\n' : '') + partial
+        setStreamingDisplayText(displayed)
+        cursor.charIdx++
+      } else {
+        cursor.lineIdx++
+        cursor.charIdx = 0
+      }
+    }, CHAR_INTERVAL)
+  }
+
+  // 새 assistant 텍스트 메시지가 추가되면 스트리밍 시작
+  const prevMessagesLenRef = useRef(0)
+  useEffect(() => {
+    const len = messages.length
+    if (len > prevMessagesLenRef.current && len > 0) {
+      const lastMsg = messages[len - 1]
+      if (lastMsg.role === 'assistant' && typeof lastMsg.content === 'string' && !lastMsg.isModelChange) {
+        startStreaming(lastMsg.content, len - 1)
+      }
+    }
+    prevMessagesLenRef.current = len
+  }, [messages.length])
+
+  // 스트리밍 중 스크롤 추적
+  useEffect(() => {
+    if (streamingIndex !== null) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [streamingDisplayText])
+
+  // 컴포넌트 언마운트 시 스트리밍 정리
+  useEffect(() => {
+    return () => {
+      if (streamingIntervalRef.current) {
+        clearInterval(streamingIntervalRef.current)
+      }
+    }
+  }, [])
 
   // 메시지가 추가될 때마다 스크롤을 최신 메시지로 이동
   useEffect(() => {
@@ -260,6 +339,14 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
       clearInterval(loadingMessageIntervalRef.current)
       loadingMessageIntervalRef.current = null
     }
+
+    // 스트리밍 정리
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current)
+      streamingIntervalRef.current = null
+    }
+    setStreamingIndex(null)
+    setStreamingDisplayText('')
     
     setIsLoading(false)
     
@@ -354,6 +441,13 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     setAttachedFile(null)
     setAttachedUrl('')
     setShowResetDialog(false)
+    // 스트리밍 정리
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current)
+      streamingIntervalRef.current = null
+    }
+    setStreamingIndex(null)
+    setStreamingDisplayText('')
   }
 
   const handleModelSelect = (model: LLMModel) => {
@@ -964,22 +1058,27 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
                         position: 'relative'
                       }}
                     >
-                      {/* 복사 버튼 */}
-                      <button
-                        onClick={() => handleCopyMessage(msg.content, index)}
-                        className="btn btn-ghost btn-sm"
-                        style={{
-                          position: 'absolute',
-                          top: '12px',
-                          right: '12px',
-                          padding: '6px'
-                        }}
-                        title="복사"
-                      >
-                        {copiedMessageIndex === index ? <Check size={14} /> : <Copy size={14} />}
-                      </button>
+                      {/* 복사 버튼 — 스트리밍 완료 후에만 표시 */}
+                      {streamingIndex !== index && (
+                        <button
+                          onClick={() => handleCopyMessage(msg.content, index)}
+                          className="btn btn-ghost btn-sm"
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            padding: '6px'
+                          }}
+                          title="복사"
+                        >
+                          {copiedMessageIndex === index ? <Check size={14} /> : <Copy size={14} />}
+                        </button>
+                      )}
                       <div style={{ paddingRight: '32px' }}>
-                        {renderWithFootnotes(msg.content as string, index, msg.ragSources)}
+                        {streamingIndex === index
+                          ? <>{renderWithFootnotes(streamingDisplayText, index, msg.ragSources)}<span style={{ display: 'inline-block', width: '2px', height: '14px', backgroundColor: 'hsl(var(--foreground))', marginLeft: '2px', verticalAlign: 'text-bottom', animation: 'spinx-cursor-blink 0.8s step-end infinite' }} /></>
+                          : renderWithFootnotes(msg.content as string, index, msg.ragSources)
+                        }
                       </div>
                     </div>
                   ) : msg.content.type === 'error' ? (

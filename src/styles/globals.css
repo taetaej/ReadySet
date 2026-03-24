@@ -897,6 +897,12 @@
     animation: pulse 2s ease-in-out infinite;
   }
 
+  /* SpinX 스트리밍 커서 깜빡임 */
+  @keyframes spinx-cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
   /* Full-Slot Completed 뱃지 샤이닝 효과 */
   @keyframes full-slot-shine {
     0%, 100% { 
