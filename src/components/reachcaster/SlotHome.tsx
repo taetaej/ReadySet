@@ -5,7 +5,6 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { SlotSolutions } from './SlotSolutions'
-import { ScrollVelocityCards } from './ScrollVelocityCards'
 
 interface SlotHomeProps {
   slotData?: any
@@ -88,30 +87,6 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
             </div>
           </div>
 
-        </div>
-
-        {/* 3D Scroll Velocity Cards */}
-        <div style={{ marginBottom: '60px' }}>
-          <h2 style={{
-            fontSize: '36px',
-            fontWeight: '700',
-            fontFamily: 'Paperlogy, sans-serif',
-            margin: '0 0 8px 0',
-            color: 'hsl(var(--foreground))',
-            letterSpacing: '-0.02em',
-            lineHeight: '1.2'
-          }}>
-            Final Set
-          </h2>
-          <p style={{
-            fontSize: '13px',
-            color: 'hsl(var(--muted-foreground))',
-            fontFamily: 'Paperlogy, sans-serif',
-            margin: '0 0 32px 0'
-          }}>
-            솔루션별 최종 산출물을 확인하세요
-          </p>
-          <ScrollVelocityCards />
         </div>
 
         {/* Final Selection — 3-Column Grid */}
