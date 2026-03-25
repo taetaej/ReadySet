@@ -677,12 +677,7 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
       options: ['이미지', '동영상', '캐러셀']
     }
   ],
-  '네이버 성과형 DA': [
-    {
-      category: '기기유형',
-      options: ['PC', '모바일']
-    }
-  ],
+  '네이버 성과형 DA': [],
   '네이버 보장형 DA': [
     {
       category: '게재위치',
@@ -691,14 +686,6 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
     {
       category: '시간',
       options: ['오전', '오후', '저녁', '심야']
-    },
-    {
-      category: '키워드',
-      options: []
-    },
-    {
-      category: '소재요소',
-      options: ['이미지', '동영상', '텍스트']
     }
   ],
   'TikTok': [

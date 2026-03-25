@@ -149,6 +149,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
           </div>
 
           {/* 타겟팅 옵션 */}
+          {(targetingOptionsByMedia[formData.media] ?? []).length > 0 && (
           <div style={{ marginBottom: '24px' }}>
             <TargetingSelector
               media={formData.media}
@@ -175,6 +176,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               validationActive={validationActive}
             />
           </div>
+          )}
 
           {/* 지표 */}
           <div>
