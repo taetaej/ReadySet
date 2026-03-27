@@ -166,7 +166,7 @@ function ReachCPRPChart({ allData, labels, targetLabels }: {
         <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', lineHeight: '1.4' }}>{d.target}</div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
           <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.x.toFixed(1)}%</span></div>
-          <div>CPRP: <span style={{ fontWeight: '600' }}>₩{d.y.toLocaleString('ko-KR')}</span></div>
+          <div>CPRP: <span style={{ fontWeight: '600' }}>{d.y.toLocaleString('ko-KR')}원</span></div>
         </div>
         <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.8', marginTop: '4px' }}>
           <div>Target Population: {d.z.toLocaleString('ko-KR')}</div>
@@ -333,7 +333,7 @@ function StackedBar({ channels, totalBudget }: { channels: { name: string; ratio
         }}>
           <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>{channels[hovered].name}</div>
           <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>{channels[hovered].ratio}%</div>
-          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>₩{Math.round(totalBudget * channels[hovered].ratio / 100).toLocaleString('ko-KR')}</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>{Math.round(totalBudget * channels[hovered].ratio / 100).toLocaleString('ko-KR')}원</div>
         </div>
       )}
     </div>
@@ -426,7 +426,7 @@ function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: Scena
     if (hasMultipleCurves && payload.length > 1) {
       return (
         <div style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px', fontFamily: 'Paperlogy, sans-serif', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', minWidth: '180px' }}>
-          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>예산: ₩{budget.toLocaleString('ko-KR')}</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>예산: {budget.toLocaleString('ko-KR')}원</div>
           {payload.map((entry: any, idx: number) => (
             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', lineHeight: '2' }}>
               <span style={{ width: '8px', height: '3px', borderRadius: '1px', backgroundColor: entry.stroke || multiLineColors[idx], flexShrink: 0 }} />
@@ -446,7 +446,7 @@ function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: Scena
             {names.join(', ')}
           </div>
         )}
-        <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>예산: ₩{budget.toLocaleString('ko-KR')}</div>
+        <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '6px' }}>예산: {budget.toLocaleString('ko-KR')}원</div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
           <div>예측 Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach}%</span></div>
           {d.upperBound && <div style={{ color: 'hsl(var(--muted-foreground))' }}>예측 범위: {d.lowerBound}% ~ {d.upperBound}%</div>}
@@ -582,7 +582,7 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
               </td>
               <td style={{ ...cellStyle, textAlign: 'right', verticalAlign: 'middle' }}>
                 <div style={{ fontSize: '13px', fontWeight: '600', color: r.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))' }}>
-                  ₩{r.budget.toLocaleString('ko-KR')}
+                  {r.budget.toLocaleString('ko-KR')}원
                 </div>
                 <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
                   Reach 1+ {r.reachAtBudget}%
@@ -590,7 +590,7 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
               </td>
               <td style={{ ...cellStyle, textAlign: 'right', verticalAlign: 'middle' }}>
                 <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>
-                  ₩{r.peakBudget.toLocaleString('ko-KR')}
+                  {r.peakBudget.toLocaleString('ko-KR')}원
                 </div>
                 <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
                   Reach 1+ {r.peakReach}%
@@ -650,36 +650,36 @@ export function ScenarioComparisonResult({
     }))
   ]
 
-  const keyMetrics: { key: keyof ScenarioMetrics; label: string; unit: string; fmt: (v: number) => string; inverse?: boolean; category?: string }[] = comparisonType === 'budget' ? [
+  const keyMetrics: { key: keyof ScenarioMetrics; label: string; unit: string; unitLabel?: string; fmt: (v: number) => string; fmtValue?: (v: number) => string; inverse?: boolean; category?: string }[] = comparisonType === 'budget' ? [
     // Budget Scaling: 예산이 변수이므로 Budget을 강조
-    { key: 'targetPopulation', label: 'Target Population', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Market Scale' },
+    { key: 'targetPopulation', label: 'Target Population', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Market Scale' },
     { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
     { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'cprp', label: 'CPRP', unit: '원', fmt: v => `₩${v.toLocaleString('ko-KR')}`, inverse: true, category: 'Efficiency' },
+    { key: 'cprp', label: 'CPRP', unit: '원', unitLabel: '원', fmt: v => `${v.toLocaleString('ko-KR')}원`, fmtValue: v => v.toLocaleString('ko-KR'), inverse: true, category: 'Efficiency' },
     { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(1) },
-    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '', fmt: v => v.toFixed(1) },
-    { key: 'reachCount', label: 'Reach Count', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Volume' },
-    { key: 'impression', label: 'Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
-    { key: 'effectiveImpression', label: 'Effective Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
+    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(1)}회`, fmtValue: v => v.toFixed(1) },
+    { key: 'reachCount', label: 'Reach Count', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Volume' },
+    { key: 'impression', label: 'Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
+    { key: 'effectiveImpression', label: 'Effective Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
   ] : [
     // Reach Flow
-    { key: 'targetPopulation', label: 'Target Population', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Reach Flow' },
+    { key: 'targetPopulation', label: 'Target Population', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Reach Flow' },
     { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
     { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
     // Efficiency
-    { key: 'cprp', label: 'CPRP', unit: '원', fmt: v => `₩${v.toLocaleString('ko-KR')}`, inverse: true, category: 'Efficiency' },
+    { key: 'cprp', label: 'CPRP', unit: '원', unitLabel: '원', fmt: v => `${v.toLocaleString('ko-KR')}원`, fmtValue: v => v.toLocaleString('ko-KR'), inverse: true, category: 'Efficiency' },
     { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(1) },
-    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '', fmt: v => v.toFixed(1) },
+    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(1)}회`, fmtValue: v => v.toFixed(1) },
     // Volume
-    { key: 'reachCount', label: 'Reach Count', unit: '', fmt: v => v.toLocaleString('ko-KR'), category: 'Volume' },
-    { key: 'impression', label: 'Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
-    { key: 'effectiveImpression', label: 'Effective Impression', unit: '', fmt: v => v.toLocaleString('ko-KR') },
+    { key: 'reachCount', label: 'Reach Count', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Volume' },
+    { key: 'impression', label: 'Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
+    { key: 'effectiveImpression', label: 'Effective Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
   ]
 
   const sectionTitle: React.CSSProperties = {
@@ -836,7 +836,7 @@ export function ScenarioComparisonResult({
                     <>
                       {/* 예산 비교: 예산을 중점 표시 */}
                       <div style={{ fontSize: '22px', fontWeight: '700', color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))', marginBottom: '4px', fontFamily: 'Paperlogy, sans-serif' }}>
-                        ₩{s.metrics.totalBudget.toLocaleString('ko-KR')}
+                        {s.metrics.totalBudget.toLocaleString('ko-KR')}원
                       </div>
                       {!s.isBase && (
                         <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px' }}>
@@ -875,7 +875,7 @@ export function ScenarioComparisonResult({
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         {[
-                          { label: '광고비', value: `₩${s.metrics.totalBudget.toLocaleString('ko-KR')}`, match: budgetMatch },
+                          { label: '광고비', value: `${s.metrics.totalBudget.toLocaleString('ko-KR')}원`, match: budgetMatch },
                           { label: '타겟', value: s.targetGrp.join(', ') || '—', match: targetMatch },
                           { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
                         ].map((row, ri) => (
@@ -905,7 +905,7 @@ export function ScenarioComparisonResult({
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         {[
-                          { label: '광고비', value: `₩${s.metrics.totalBudget.toLocaleString('ko-KR')}`, match: budgetMatch },
+                          { label: '광고비', value: `${s.metrics.totalBudget.toLocaleString('ko-KR')}원`, match: budgetMatch },
                           { label: '기간', value: `${fmtDate(period.start)} → ${fmtDate(period.end)} (${s.metrics.periodDays}일)`, match: periodMatch },
                           { label: '매체', value: `${s.metrics.channelBudgets.length}개 광고상품`, match: mediaMatch }
                         ].map((row, ri) => (
@@ -1044,7 +1044,7 @@ export function ScenarioComparisonResult({
                   {allScenarios.map((s, i) => (
                     <td key={i} style={{ padding: '12px 16px', textAlign: 'center', backgroundColor: s.isBase ? 'hsl(var(--muted) / 0.3)' : 'transparent', verticalAlign: 'top' }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))' }}>
-                        ₩{s.metrics.totalBudget.toLocaleString('ko-KR')}
+                        {s.metrics.totalBudget.toLocaleString('ko-KR')}원
                       </div>
                       <div style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
                         TV {s.metrics.tvcRatio}% · Digital {s.metrics.digitalRatio}%
@@ -1079,13 +1079,20 @@ export function ScenarioComparisonResult({
                               fontWeight: isFirst ? '700' : '500',
                               color: s.isBase ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'
                             }}>
-                              {m.fmt(val)}
+                              {m.fmtValue ? m.fmtValue(val) : m.fmt(val)}
+                              {m.unitLabel && (
+                                <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>
+                                  {m.unitLabel}
+                                </span>
+                              )}
                             </span>
                             {!s.isBase && (
                               <span style={{ marginLeft: '6px' }}>
                                 <DiffIndicator value={diff} inverse={m.inverse} format={v => {
                                   if (m.unit === '%') return `${v > 0 ? '+' : ''}${v.toFixed(1)}%p`
-                                  if (m.key === 'cprp') return `${v > 0 ? '+' : ''}₩${Math.abs(v).toLocaleString('ko-KR')}`
+                                  if (m.key === 'cprp') return `${v > 0 ? '+' : ''}${Math.abs(v).toLocaleString('ko-KR')}원`
+                                  if (m.unitLabel === '명') return `${v > 0 ? '+' : ''}${v.toLocaleString('ko-KR')}명`
+                                  if (m.unitLabel === '회') return `${v > 0 ? '+' : ''}${v.toLocaleString('ko-KR')}회`
                                   return `${v > 0 ? '+' : ''}${v.toLocaleString('ko-KR')}`
                                 }} />
                               </span>
