@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 // import { IndustryBubbleChart } from './IndustryBubbleChart'
 import { IndustryDualBarChart } from './IndustryDualBarChart'
 import { DataInsightCard } from './DataInsightCard'
+import { SolutionOutputCard } from './SolutionOutputCard'
 
 // SplitText 컴포넌트를 직접 정의
 interface SplitTextProps {
@@ -94,29 +95,7 @@ export function WelcomeSectionFixed({ userName = 'Jia Shin' }: WelcomeSectionPro
         <IndustryDualBarChart industry="뷰티" />
 
         {/* Bento Box 3 */}
-        <div className="card" style={{
-          padding: '24px',
-          minHeight: '180px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          boxShadow: 'none'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '8px'
-          }} className="text-muted-foreground">
-            Content 3
-          </div>
-          <div style={{
-            fontSize: '24px',
-            fontWeight: '600'
-          }} className="text-foreground">
-            Coming Soon
-          </div>
-        </div>
+        <SolutionOutputCard />
       </div>
     </section>
   )

@@ -1,451 +1,582 @@
-import { TrendingUp, Zap, ChevronDown } from 'lucide-react'
+import { ChevronDown, ArrowLeft } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-
-interface AdProduct {
-  name: string
-  spendShare: number
-  ctr: number
-  impression: number
-}
+import { ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
 
 interface IndustryDualBarChartProps {
-  industry?: string
   onIndustryChange?: (industry: string) => void
 }
 
-// 22개 업종 리스트
-const industries = [
-  '뷰티',
-  '식품',
-  '패션',
-  '전자제품',
-  '자동차',
-  '게임',
-  '이커머스',
-  '여행',
-  '건강식품',
-  '금융',
-  '교육',
-  '부동산',
-  '의료',
-  '스포츠',
-  '엔터테인먼트',
-  '가구/인테리어',
-  '반려동물',
-  '육아',
-  '서비스',
-  '통신',
-  '유통',
-  '기타'
+const INDUSTRY_LIST = [
+  '뷰티', '식품', '패션', '전자제품', '자동차', '게임', '이커머스', '여행',
+  '건강식품', '금융', '교육', '부동산', '의료', '스포츠', '엔터테인먼트',
+  '가구/인테리어', '반려동물', '육아', '서비스', '통신', '유통', '기타'
 ]
 
-// 뷰티 업종 샘플 데이터
-const beautyData: AdProduct[] = [
-  { name: 'Meta > instagram', spendShare: 12.5, ctr: 3.1, impression: 850000 },
-  { name: 'Google Ads > 디스플레이 광고', spendShare: 10.2, ctr: 2.3, impression: 720000 },
-  { name: 'Meta > facebook', spendShare: 9.8, ctr: 2.9, impression: 650000 },
-  { name: 'TikTok > In-Feed 광고', spendShare: 8.5, ctr: 2.6, impression: 580000 },
-  { name: 'Google Ads > 동영상 광고 (YouTube)', spendShare: 7.9, ctr: 1.9, impression: 920000 },
-  { name: 'Meta > OUTCOME_TRAFFIC > AUCTION > LINK_CLICKS > facebook&instagram', spendShare: 7.2, ctr: 2.4, impression: 480000 },
-  { name: 'kakao 모먼트 > 카카오톡 비즈보드', spendShare: 6.8, ctr: 2.1, impression: 780000 },
-  { name: 'Google Ads > 검색 광고', spendShare: 6.5, ctr: 1.8, impression: 690000 },
-  { name: 'Meta > CONVERSIONS > AUCTION > LINK_CLICKS > facebook', spendShare: 6.1, ctr: 2.2, impression: 540000 },
-  { name: 'TikTok > Spark Ads', spendShare: 5.8, ctr: 2.7, impression: 420000 },
-  { name: '네이버 성과형 DA > 파워링크', spendShare: 5.4, ctr: 2.5, impression: 380000 },
-  { name: 'Meta > LEAD_GENERATION > AUCTION > LEAD_GENERATION > instagram', spendShare: 5.1, ctr: 1.7, impression: 610000 },
-  { name: 'Google Ads > Performance Max', spendShare: 4.8, ctr: 2.0, impression: 520000 },
-  { name: 'kakao 모먼트 > 카카오톡 채널 광고', spendShare: 4.5, ctr: 2.3, impression: 460000 },
-  { name: 'TikTok > TopView 광고', spendShare: 4.2, ctr: 1.9, impression: 550000 },
-  { name: 'Meta > VIDEO_VIEWS > AUCTION > VIDEO_VIEWS > instagram', spendShare: 3.9, ctr: 2.8, impression: 390000 },
-  { name: '네이버 성과형 DA > 쇼핑검색', spendShare: 3.6, ctr: 2.1, impression: 340000 },
-  { name: 'Google Ads > 디스커버리 광고', spendShare: 3.3, ctr: 1.6, impression: 280000 },
-  { name: 'kakao 모먼트 > Daum 디스플레이', spendShare: 3.0, ctr: 2.4, impression: 410000 },
-  { name: '네이버 성과형 DA > GFA (보장형 배너)', spendShare: 2.7, ctr: 2.2, impression: 320000 }
-]
+// 매체 레벨 데이터 — 업종별 매체 CTR + 광고비 비중
+const MEDIA_LEVEL: Record<string, { media: string; ctr: number; share: number }[]> = {
+  '전체': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.9, share: 28 },
+    { media: 'Google', ctr: 2.0, share: 22 },
+    { media: 'TikTok', ctr: 3.2, share: 14 },
+    { media: 'kakao', ctr: 2.1, share: 16 },
+    { media: 'NAVER 성과형', ctr: 2.4, share: 12 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 8 },
+  ],
+  '뷰티': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.4, share: 35 },
+    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'TikTok', ctr: 3.8, share: 20 },
+    { media: 'kakao', ctr: 2.3, share: 14 },
+    { media: 'NAVER 성과형', ctr: 2.6, share: 9 },
+    { media: 'NAVER 보장형', ctr: 1.9, share: 4 },
+  ],
+  '식품': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.5, share: 22 },
+    { media: 'Google', ctr: 1.9, share: 20 },
+    { media: 'TikTok', ctr: 2.8, share: 10 },
+    { media: 'kakao', ctr: 2.4, share: 25 },
+    { media: 'NAVER 성과형', ctr: 2.2, share: 15 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+  '패션': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.6, share: 38 },
+    { media: 'Google', ctr: 2.0, share: 15 },
+    { media: 'TikTok', ctr: 4.1, share: 22 },
+    { media: 'kakao', ctr: 2.2, share: 12 },
+    { media: 'NAVER 성과형', ctr: 2.3, share: 8 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 5 },
+  ],
+  '전자제품': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.4, share: 20 },
+    { media: 'Google', ctr: 2.2, share: 30 },
+    { media: 'TikTok', ctr: 2.6, share: 8 },
+    { media: 'kakao', ctr: 2.0, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.5, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.9, share: 10 },
+  ],
+  '자동차': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.0, share: 18 },
+    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'TikTok', ctr: 2.2, share: 5 },
+    { media: 'kakao', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형', ctr: 2.1, share: 16 },
+    { media: 'NAVER 보장형', ctr: 1.6, share: 13 },
+  ],
+  '게임': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.2, share: 25 },
+    { media: 'Google', ctr: 2.4, share: 20 },
+    { media: 'TikTok', ctr: 4.5, share: 30 },
+    { media: 'kakao', ctr: 2.6, share: 10 },
+    { media: 'NAVER 성과형', ctr: 2.8, share: 10 },
+    { media: 'NAVER 보장형', ctr: 2.0, share: 5 },
+  ],
+  '이커머스': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.8, share: 26 },
+    { media: 'Google', ctr: 2.3, share: 24 },
+    { media: 'TikTok', ctr: 3.0, share: 12 },
+    { media: 'kakao', ctr: 2.2, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.6, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+  ],
+  '여행': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.7, share: 30 },
+    { media: 'Google', ctr: 2.1, share: 25 },
+    { media: 'TikTok', ctr: 2.9, share: 10 },
+    { media: 'kakao', ctr: 2.0, share: 15 },
+    { media: 'NAVER 성과형', ctr: 2.3, share: 12 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+  '건강식품': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.1, share: 32 },
+    { media: 'Google', ctr: 2.0, share: 18 },
+    { media: 'TikTok', ctr: 3.3, share: 15 },
+    { media: 'kakao', ctr: 2.4, share: 20 },
+    { media: 'NAVER 성과형', ctr: 2.5, share: 10 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 5 },
+  ],
+  '금융': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 1.8, share: 15 },
+    { media: 'Google', ctr: 1.6, share: 32 },
+    { media: 'TikTok', ctr: 1.9, share: 5 },
+    { media: 'kakao', ctr: 1.7, share: 22 },
+    { media: 'NAVER 성과형', ctr: 1.9, share: 18 },
+    { media: 'NAVER 보장형', ctr: 1.4, share: 8 },
+  ],
+  '교육': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.2, share: 28 },
+    { media: 'Google', ctr: 1.9, share: 26 },
+    { media: 'TikTok', ctr: 2.4, share: 8 },
+    { media: 'kakao', ctr: 2.0, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.1, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.6, share: 6 },
+  ],
+  '부동산': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 1.9, share: 20 },
+    { media: 'Google', ctr: 1.7, share: 30 },
+    { media: 'TikTok', ctr: 2.0, share: 4 },
+    { media: 'kakao', ctr: 1.8, share: 22 },
+    { media: 'NAVER 성과형', ctr: 2.0, share: 16 },
+    { media: 'NAVER 보장형', ctr: 1.5, share: 8 },
+  ],
+  '의료': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.1, share: 22 },
+    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'TikTok', ctr: 2.2, share: 6 },
+    { media: 'kakao', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형', ctr: 2.1, share: 16 },
+    { media: 'NAVER 보장형', ctr: 1.6, share: 8 },
+  ],
+  '스포츠': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.0, share: 30 },
+    { media: 'Google', ctr: 2.2, share: 20 },
+    { media: 'TikTok', ctr: 3.5, share: 18 },
+    { media: 'kakao', ctr: 2.3, share: 14 },
+    { media: 'NAVER 성과형', ctr: 2.4, share: 12 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+  ],
+  '엔터테인먼트': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.3, share: 32 },
+    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'TikTok', ctr: 4.2, share: 25 },
+    { media: 'kakao', ctr: 2.4, share: 12 },
+    { media: 'NAVER 성과형', ctr: 2.5, share: 8 },
+    { media: 'NAVER 보장형', ctr: 1.9, share: 5 },
+  ],
+  '가구/인테리어': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.3, share: 24 },
+    { media: 'Google', ctr: 2.0, share: 26 },
+    { media: 'TikTok', ctr: 2.5, share: 10 },
+    { media: 'kakao', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.2, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+  '반려동물': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 3.2, share: 34 },
+    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'TikTok', ctr: 3.6, share: 16 },
+    { media: 'kakao', ctr: 2.3, share: 16 },
+    { media: 'NAVER 성과형', ctr: 2.4, share: 10 },
+    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+  ],
+  '육아': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.6, share: 28 },
+    { media: 'Google', ctr: 1.9, share: 20 },
+    { media: 'TikTok', ctr: 2.8, share: 12 },
+    { media: 'kakao', ctr: 2.3, share: 22 },
+    { media: 'NAVER 성과형', ctr: 2.2, share: 12 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 6 },
+  ],
+  '서비스': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.5, share: 26 },
+    { media: 'Google', ctr: 2.0, share: 24 },
+    { media: 'TikTok', ctr: 2.7, share: 10 },
+    { media: 'kakao', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.3, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+  '통신': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.0, share: 18 },
+    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'TikTok', ctr: 2.2, share: 8 },
+    { media: 'kakao', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형', ctr: 2.0, share: 16 },
+    { media: 'NAVER 보장형', ctr: 1.6, share: 10 },
+  ],
+  '유통': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.6, share: 24 },
+    { media: 'Google', ctr: 2.1, share: 22 },
+    { media: 'TikTok', ctr: 2.8, share: 12 },
+    { media: 'kakao', ctr: 2.2, share: 20 },
+    { media: 'NAVER 성과형', ctr: 2.3, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+  '기타': [
+    { media: '전체', ctr: 2.3, share: 100 },
+    { media: 'Meta', ctr: 2.5, share: 26 },
+    { media: 'Google', ctr: 2.0, share: 22 },
+    { media: 'TikTok', ctr: 2.7, share: 12 },
+    { media: 'kakao', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형', ctr: 2.2, share: 14 },
+    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+  ],
+}
 
-export function IndustryDualBarChart({ industry = '뷰티', onIndustryChange }: IndustryDualBarChartProps) {
-  const [selectedIndustry, setSelectedIndustry] = useState(industry)
+// 광고상품 레벨 데이터 — 매체별 상위 5개 상품 CTR + 광고비 비중
+const PRODUCT_LEVEL: Record<string, Record<string, { product: string; ctr: number; share: number }[]>> = {
+  '뷰티': {
+    'Meta': [
+      { product: 'CONVERSIONS > instagram', ctr: 3.8, share: 18 },
+      { product: 'VIDEO_VIEWS > instagram', ctr: 3.5, share: 11 },
+      { product: 'OUTCOME_TRAFFIC > instagram', ctr: 3.2, share: 8 },
+      { product: 'CONVERSIONS > facebook', ctr: 2.9, share: 6 },
+      { product: 'LEAD_GENERATION > instagram', ctr: 2.6, share: 5 },
+    ],
+    'Google': [
+      { product: '디스플레이 광고', ctr: 2.4, share: 9 },
+      { product: '동영상 광고 (YouTube)', ctr: 2.1, share: 7 },
+      { product: 'Performance Max', ctr: 2.3, share: 5 },
+      { product: '검색 광고', ctr: 1.9, share: 4 },
+      { product: '디스커버리 광고', ctr: 1.7, share: 3 },
+    ],
+    'TikTok': [
+      { product: 'In-Feed 광고', ctr: 4.2, share: 14 },
+      { product: 'Spark Ads', ctr: 3.9, share: 8 },
+      { product: 'TopView 광고', ctr: 3.5, share: 5 },
+      { product: '브랜드 인수 광고', ctr: 3.1, share: 3 },
+      { product: '해시태그 챌린지', ctr: 2.8, share: 2 },
+    ],
+    'kakao': [
+      { product: '카카오톡 비즈보드', ctr: 2.6, share: 8 },
+      { product: '카카오톡 채널 광고', ctr: 2.4, share: 5 },
+      { product: 'Daum 디스플레이', ctr: 2.1, share: 3 },
+      { product: '카카오 모먼트 동영상', ctr: 2.3, share: 2 },
+      { product: '카카오 스토리', ctr: 1.9, share: 1 },
+    ],
+    'NAVER 성과형': [
+      { product: '파워링크', ctr: 2.9, share: 5 },
+      { product: '쇼핑검색', ctr: 2.7, share: 3 },
+      { product: 'GFA 배너', ctr: 2.4, share: 2 },
+      { product: '브랜드검색', ctr: 2.2, share: 1 },
+      { product: '동영상 광고', ctr: 2.0, share: 1 },
+    ],
+    'NAVER 보장형': [
+      { product: '타임보드', ctr: 2.1, share: 2 },
+      { product: '롤링보드', ctr: 1.9, share: 1 },
+      { product: '브랜딩DA', ctr: 1.7, share: 1 },
+      { product: '스마트채널', ctr: 1.6, share: 1 },
+      { product: '메인 배너', ctr: 1.5, share: 1 },
+    ],
+  },
+  '패션': {
+    'Meta': [
+      { product: 'CONVERSIONS > instagram', ctr: 4.1, share: 20 },
+      { product: 'VIDEO_VIEWS > instagram', ctr: 3.8, share: 12 },
+      { product: 'OUTCOME_TRAFFIC > instagram', ctr: 3.5, share: 10 },
+      { product: 'CONVERSIONS > facebook', ctr: 3.1, share: 7 },
+      { product: 'LEAD_GENERATION > instagram', ctr: 2.8, share: 5 },
+    ],
+    'TikTok': [
+      { product: 'In-Feed 광고', ctr: 4.5, share: 16 },
+      { product: 'Spark Ads', ctr: 4.2, share: 9 },
+      { product: 'TopView 광고', ctr: 3.8, share: 6 },
+      { product: '브랜드 인수 광고', ctr: 3.4, share: 4 },
+      { product: '해시태그 챌린지', ctr: 3.1, share: 3 },
+    ],
+    'Google': [
+      { product: '디스플레이 광고', ctr: 2.3, share: 8 },
+      { product: 'Performance Max', ctr: 2.5, share: 6 },
+      { product: '동영상 광고 (YouTube)', ctr: 2.0, share: 5 },
+      { product: '검색 광고', ctr: 1.8, share: 3 },
+      { product: '디스커버리 광고', ctr: 1.6, share: 2 },
+    ],
+    'kakao': [
+      { product: '카카오톡 비즈보드', ctr: 2.5, share: 7 },
+      { product: '카카오톡 채널 광고', ctr: 2.3, share: 4 },
+      { product: 'Daum 디스플레이', ctr: 2.0, share: 2 },
+      { product: '카카오 모먼트 동영상', ctr: 2.2, share: 2 },
+      { product: '카카오 스토리', ctr: 1.8, share: 1 },
+    ],
+    'NAVER 성과형': [
+      { product: '파워링크', ctr: 2.6, share: 4 },
+      { product: '쇼핑검색', ctr: 2.8, share: 3 },
+      { product: 'GFA 배너', ctr: 2.2, share: 2 },
+      { product: '브랜드검색', ctr: 2.0, share: 1 },
+      { product: '동영상 광고', ctr: 1.9, share: 1 },
+    ],
+    'NAVER 보장형': [
+      { product: '타임보드', ctr: 2.0, share: 2 },
+      { product: '롤링보드', ctr: 1.8, share: 1 },
+      { product: '브랜딩DA', ctr: 1.6, share: 1 },
+      { product: '스마트채널', ctr: 1.5, share: 1 },
+      { product: '메인 배너', ctr: 1.4, share: 1 },
+    ],
+  },
+}
+
+// 나머지 업종은 뷰티 데이터를 기본값으로 사용 (실제 구현 시 각 업종별 데이터 추가)
+function getProductData(industry: string, media: string) {
+  const industryData = PRODUCT_LEVEL[industry] || PRODUCT_LEVEL['뷰티']
+  return industryData[media] || PRODUCT_LEVEL['뷰티'][media] || []
+}
+
+type MetricMode = 'ctr' | 'share'
+
+function CustomTooltip({ active, payload, label, mode, drillMedia }: any) {
+  if (!active || !payload?.length) return null
+  const barEntry = payload.find((p: any) => p.dataKey === 'value')
+  const lineEntry = payload.find((p: any) => p.dataKey === 'avg')
+  const isShare = mode === 'share'
+  return (
+    <div style={{
+      backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+      borderRadius: '8px', padding: '10px 14px', fontFamily: 'Paperlogy, sans-serif',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)', minWidth: '160px'
+    }}>
+      <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>
+        {drillMedia ? `${drillMedia} > ${label}` : label}
+      </div>
+      {barEntry && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', lineHeight: '1.8' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: 'hsl(var(--foreground))', opacity: 0.7, display: 'inline-block' }} />
+          <span style={{ color: 'hsl(var(--muted-foreground))' }}>{isShare ? '광고비 비중' : '평균 CTR'}</span>
+          <span style={{ fontWeight: '600', color: 'hsl(var(--foreground))' }}>
+            {isShare ? `${barEntry.value}%` : `${barEntry.value}%`}
+          </span>
+        </div>
+      )}
+      {lineEntry && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', lineHeight: '1.8' }}>
+          <span style={{ width: '14px', height: '2px', backgroundColor: '#B794F6', display: 'inline-block', borderRadius: '1px' }} />
+          <span style={{ color: 'hsl(var(--muted-foreground))' }}>{isShare ? '전체 평균 비중' : '전체 평균 CTR'}</span>
+          <span style={{ fontWeight: '600', color: '#B794F6' }}>{lineEntry.value}%</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartProps) {
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('뷰티')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [mode, setMode] = useState<MetricMode>('ctr')
+  const [drillMedia, setDrillMedia] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 드롭다운 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false)
       }
     }
-
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    if (dropdownOpen) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [dropdownOpen])
 
   const handleIndustrySelect = (ind: string) => {
     setSelectedIndustry(ind)
     setDropdownOpen(false)
+    setDrillMedia(null)
     onIndustryChange?.(ind)
   }
-  
-  // 광고비 TOP 5
-  const topSpend = [...beautyData]
-    .sort((a, b) => b.spendShare - a.spendShare)
-    .slice(0, 5)
-  
-  // CTR TOP 5
-  const topCtr = [...beautyData]
-    .sort((a, b) => b.ctr - a.ctr)
-    .slice(0, 5)
-  
-  const maxSpend = Math.max(...topSpend.map(p => p.spendShare))
-  const maxCtr = Math.max(...topCtr.map(p => p.ctr))
-  
-  // 양쪽 리스트에 모두 포함된 상품 찾기 (중복 상품)
-  const topSpendNames = new Set(topSpend.map(p => p.name))
-  const topCtrNames = new Set(topCtr.map(p => p.name))
-  const duplicateProducts = new Set(
-    [...topSpendNames].filter(name => topCtrNames.has(name))
-  )
-  
-  // 디버깅용 로그
-  console.log('Top Spend:', topSpend.map(p => p.name))
-  console.log('Top CTR:', topCtr.map(p => p.name))
-  console.log('Duplicates:', Array.from(duplicateProducts))
-  
-  // 중복 상품인지 확인하는 함수
-  const isDuplicate = (productName: string) => duplicateProducts.has(productName)
-  
-  // 상품명 축약
-  const shortenName = (name: string) => {
-    const parts = name.split(' > ')
-    if (parts.length > 2) {
-      return `${parts[0]} > ${parts[parts.length - 1]}`
-    }
-    return name
-  }
-  
+
+  // 레벨 1 차트 데이터
+  const mediaData = MEDIA_LEVEL[selectedIndustry] || MEDIA_LEVEL['뷰티']
+  const overallAvg = mode === 'ctr' ? 2.3 : (100 / 6)
+
+  const level1Data = mediaData.map(d => ({
+    name: d.media,
+    value: mode === 'ctr' ? d.ctr : d.share,
+    avg: overallAvg,
+    _media: d.media,
+  }))
+
+  // 레벨 2 차트 데이터
+  const productData = drillMedia ? getProductData(selectedIndustry, drillMedia) : []
+  const mediaAvg = drillMedia
+    ? (mode === 'ctr'
+      ? (mediaData.find(d => d.media === drillMedia)?.ctr ?? 2.3)
+      : (mediaData.find(d => d.media === drillMedia)?.share ?? 16))
+    : 0
+
+  const level2Data = productData.map(d => ({
+    name: d.product.length > 18 ? d.product.slice(0, 18) + '…' : d.product,
+    fullName: d.product,
+    value: mode === 'ctr' ? d.ctr : d.share,
+    avg: mediaAvg,
+  }))
+
+  const chartData = drillMedia ? level2Data : level1Data
+  const yLabel = mode === 'ctr' ? 'CTR (%)' : '광고비 비중 (%)'
+  const avgLabel = drillMedia
+    ? (mode === 'ctr' ? `${drillMedia} 평균 CTR` : `${drillMedia} 평균 비중`)
+    : (mode === 'ctr' ? '전체 평균 CTR' : '전체 평균 비중')
+
   return (
     <div className="card" style={{
-      padding: '24px',
-      minHeight: '180px',
-      display: 'flex',
-      flexDirection: 'column',
-      boxShadow: 'none'
+      padding: '20px 24px', minHeight: '180px', display: 'flex',
+      flexDirection: 'column', gap: '12px', boxShadow: 'none', overflow: 'hidden'
     }}>
-      {/* 헤더 */}
-      <div style={{ 
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: '16px'
-      }}>
-        <div style={{ flex: 1 }}>
+      {/* 상단 */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* 드릴다운 뒤로가기 */}
+          {drillMedia ? (
+            <button
+              onClick={() => setDrillMedia(null)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontSize: '12px', color: 'hsl(var(--muted-foreground))',
+                fontFamily: 'Paperlogy, sans-serif', marginBottom: '4px',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--muted-foreground))'}
+            >
+              <ArrowLeft size={12} />
+              매체 전체 보기
+            </button>
+          ) : (
+            <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', margin: '0 0 2px 0', fontFamily: 'Paperlogy, sans-serif' }}>
+              업종 벤치마크 · 막대 클릭 시 광고상품 상세
+            </p>
+          )}
           <h3 style={{
-            fontSize: '16px',
-            fontWeight: '500',
-            margin: '0 0 4px 0',
-            color: 'hsl(var(--foreground))'
+            fontSize: '15px', fontWeight: '700', margin: 0,
+            color: 'hsl(var(--foreground))', fontFamily: 'Paperlogy, sans-serif', lineHeight: '1.3'
           }}>
-            {selectedIndustry} 업종의 광고 상품 트렌드와 효율
+            {drillMedia
+              ? `${drillMedia}의 광고상품별 ${mode === 'ctr' ? 'CTR' : '광고비 비중'}`
+              : `우리 업종, 어떤 매체가 ${mode === 'ctr' ? '더 효율적일까?' : '더 많이 쓰일까?'}`
+            }
           </h3>
-          <p style={{
-            fontSize: '12px',
-            fontWeight: '400',
-            margin: '0',
-            color: 'hsl(var(--muted-foreground))'
-          }}>
-            최근 6개월 광고비 비중 상위 30개 광고 상품 기준
-          </p>
+          {!drillMedia && (
+            <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', lineHeight: '1.5' }}>
+              전체 · {selectedIndustry} · 매체 6개 (Meta, Google, TikTok, kakao, NAVER 성과형, NAVER 보장형) · 기타
+              <br />최근 6개월 광고비 기준 · 막대 클릭 시 광고상품 상세
+            </p>
+          )}
         </div>
 
-        {/* 업종 선택 드롭다운 */}
-        <div style={{ position: 'relative' }} ref={dropdownRef}>
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 12px',
-              fontSize: '13px',
-              fontWeight: '500',
-              color: 'hsl(var(--foreground))',
-              backgroundColor: 'hsl(var(--muted))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
-            }}
-          >
-            {selectedIndustry}
-            <ChevronDown 
-              size={14} 
-              style={{ 
-                transition: 'transform 0.2s ease',
-                transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-              }} 
-            />
-          </button>
+        {/* 우측 컨트롤 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {/* CTR / 광고비 비중 토글 */}
+          <div style={{
+            display: 'flex', borderRadius: '6px', overflow: 'hidden',
+            border: '1px solid hsl(var(--border))'
+          }}>
+            {(['ctr', 'share'] as MetricMode[]).map((m) => (
+              <button key={m} onClick={() => setMode(m)} style={{
+                padding: '4px 10px', fontSize: '11px', fontWeight: mode === m ? '600' : '400',
+                backgroundColor: mode === m ? 'hsl(var(--foreground))' : 'transparent',
+                color: mode === m ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
+                border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                fontFamily: 'Paperlogy, sans-serif'
+              }}>
+                {m === 'ctr' ? 'CTR' : '광고비'}
+              </button>
+            ))}
+          </div>
 
-          {/* 드롭다운 메뉴 */}
-          {dropdownOpen && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 4px)',
-              right: 0,
-              width: '160px',
-              maxHeight: '300px',
-              overflowY: 'auto',
-              backgroundColor: 'hsl(var(--popover))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-              zIndex: 50,
-              padding: '4px'
-            }}>
-              {industries.map((ind) => (
-                <button
-                  key={ind}
-                  onClick={() => handleIndustrySelect(ind)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    fontSize: '13px',
+          {/* 업종 드롭다운 */}
+          <div style={{ position: 'relative' }} ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                padding: '4px 10px', fontSize: '11px', fontWeight: '500',
+                color: 'hsl(var(--foreground))', backgroundColor: 'hsl(var(--muted))',
+                border: '1px solid hsl(var(--border))', borderRadius: '6px',
+                cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap',
+                fontFamily: 'Paperlogy, sans-serif'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--accent))'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+            >
+              {selectedIndustry}
+              <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+            </button>
+            {dropdownOpen && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 4px)', right: 0,
+                width: '140px', maxHeight: '240px', overflowY: 'auto',
+                backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))',
+                borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 50, padding: '4px'
+              }}>
+                {INDUSTRY_LIST.map((ind) => (
+                  <button key={ind} onClick={() => handleIndustrySelect(ind)} style={{
+                    width: '100%', padding: '6px 10px', fontSize: '12px',
                     fontWeight: selectedIndustry === ind ? '600' : '400',
-                    color: selectedIndustry === ind 
-                      ? 'hsl(var(--primary))' 
-                      : 'hsl(var(--foreground))',
-                    backgroundColor: selectedIndustry === ind 
-                      ? 'hsl(var(--accent))' 
-                      : 'transparent',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.15s ease'
+                    color: selectedIndustry === ind ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
+                    backgroundColor: selectedIndustry === ind ? 'hsl(var(--accent))' : 'transparent',
+                    border: 'none', borderRadius: '4px', cursor: 'pointer', textAlign: 'left',
+                    transition: 'all 0.15s', fontFamily: 'Paperlogy, sans-serif'
                   }}
-                  onMouseEnter={(e) => {
-                    if (selectedIndustry !== ind) {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedIndustry !== ind) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }
-                  }}
-                >
-                  {ind}
-                </button>
-              ))}
-            </div>
-          )}
+                    onMouseEnter={(e) => { if (selectedIndustry !== ind) e.currentTarget.style.backgroundColor = 'hsl(var(--muted))' }}
+                    onMouseLeave={(e) => { if (selectedIndustry !== ind) e.currentTarget.style.backgroundColor = 'transparent' }}
+                  >
+                    {selectedIndustry === ind ? '✓ ' : ''}{ind}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 듀얼 차트 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '24px'
-      }}>
-        {/* 왼쪽: 광고비 TOP 5 */}
-        <div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '16px'
-          }}>
-            <TrendingUp size={16} style={{ color: 'hsl(var(--foreground))' }} />
-            <h4 style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              margin: 0,
-              color: 'hsl(var(--foreground))'
-            }}>
-              Highest Spend
-            </h4>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {topSpend.map((product, index) => {
-              const isHighlighted = isDuplicate(product.name)
-              
-              return (
-                <div key={index}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '6px'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      flex: 1,
-                      minWidth: 0
-                    }}>
-                      {/* 중복 인디케이터 */}
-                      {isHighlighted && (
-                        <div style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          backgroundColor: '#00ff9d',
-                          flexShrink: 0
-                        }} />
-                      )}
-                      <div style={{
-                        fontSize: '11px',
-                        color: 'hsl(var(--foreground))',
-                        fontWeight: isHighlighted ? '600' : '500',
-                        flex: 1,
-                        minWidth: 0,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
-                        {shortenName(product.name)}
-                      </div>
-                    </div>
-                    <span style={{
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: 'hsl(var(--foreground))',
-                      marginLeft: '8px',
-                      flexShrink: 0
-                    }}>
-                      {product.spendShare}%
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: '8px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${(product.spendShare / maxSpend) * 100}%`,
-                      height: '100%',
-                      backgroundColor: 'hsl(var(--foreground))',
-                      opacity: 0.3,
-                      borderRadius: '4px',
-                      transition: 'width 0.3s ease, background-color 0.3s ease'
-                    }} />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+      {/* 차트 */}
+      <div style={{ flex: 1, minHeight: '120px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: 'hsl(var(--foreground))', opacity: 0.6, display: 'inline-block' }} />
+            {yLabel}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>
+            <span style={{ width: '14px', height: '2px', backgroundColor: '#B794F6', display: 'inline-block', borderRadius: '1px' }} />
+            {avgLabel}
+          </span>
         </div>
-
-        {/* 오른쪽: CTR TOP 5 */}
-        <div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '16px'
-          }}>
-            <Zap size={16} style={{ color: 'hsl(var(--foreground))' }} />
-            <h4 style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              margin: 0,
-              color: 'hsl(var(--foreground))'
-            }}>
-              Best CTR
-            </h4>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {topCtr.map((product, index) => {
-              const isHighlighted = isDuplicate(product.name)
-              
-              return (
-                <div key={index}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '6px'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      flex: 1,
-                      minWidth: 0
-                    }}>
-                      {/* 중복 인디케이터 */}
-                      {isHighlighted && (
-                        <div style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          backgroundColor: '#00ff9d',
-                          flexShrink: 0
-                        }} />
-                      )}
-                      <div style={{
-                        fontSize: '11px',
-                        color: 'hsl(var(--foreground))',
-                        fontWeight: isHighlighted ? '600' : '500',
-                        flex: 1,
-                        minWidth: 0,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
-                        {shortenName(product.name)}
-                      </div>
-                    </div>
-                    <span style={{
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: 'hsl(var(--foreground))',
-                      marginLeft: '8px',
-                      flexShrink: 0
-                    }}>
-                      {product.ctr}%
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: '8px',
-                    backgroundColor: 'hsl(var(--muted))',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${(product.ctr / maxCtr) * 100}%`,
-                      height: '100%',
-                      backgroundColor: 'hsl(var(--foreground))',
-                      opacity: 0.3,
-                      borderRadius: '4px',
-                      transition: 'width 0.3s ease, background-color 0.3s ease'
-                    }} />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+        <ResponsiveContainer width="100%" height={130}>
+          <ComposedChart
+            data={chartData}
+            margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+          >
+            <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.4} />
+            <XAxis
+              dataKey="name"
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10, fontFamily: 'Paperlogy, sans-serif' }}
+              axisLine={false} tickLine={false}
+            />
+            <YAxis
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              axisLine={false} tickLine={false}
+              tickFormatter={(v) => `${v}%`}
+            />
+            <Tooltip content={<CustomTooltip mode={mode} drillMedia={drillMedia} />} cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} />
+            <ReferenceLine y={drillMedia ? mediaAvg : overallAvg} yAxisId={0} stroke="#B794F6" strokeWidth={1.5} strokeDasharray="4 3" />
+            <Bar
+              dataKey="value"
+              fill="hsl(var(--foreground))"
+              fillOpacity={0.65}
+              radius={[3, 3, 0, 0]}
+              maxBarSize={32}
+              cursor={!drillMedia ? 'pointer' : 'default'}
+              onClick={(data: any) => {
+                if (!drillMedia && data?._media && data._media !== '전체') {
+                  setDrillMedia(data._media)
+                }
+              }}
+            />
+            <Line dataKey="avg" stroke="transparent" dot={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+        {!drillMedia && (
+          <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', opacity: 0.7 }}>
+            매체 막대 클릭 시 광고상품 상세 보기
+          </p>
+        )}
       </div>
     </div>
   )

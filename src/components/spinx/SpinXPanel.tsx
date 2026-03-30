@@ -51,6 +51,16 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
   const loadingMessageIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [retryCount, setRetryCount] = useState<Map<string, number>>(new Map())
 
+  // 역질문 (Clarifying Question) 상태
+  const [clarifyingQuestion, setClarifyingQuestion] = useState<{
+    question: string
+    options: string[]
+    allowCustom?: boolean // "기타" 직접 입력 허용
+  } | null>(null)
+  const [clarifyingSelected, setClarifyingSelected] = useState<number | null>(null)
+  const [clarifyingCustom, setClarifyingCustom] = useState('')
+  const [clarifyingCustomMode, setClarifyingCustomMode] = useState(false)
+
   // 스트리밍 (타이핑) 효과 상태
   const [streamingIndex, setStreamingIndex] = useState<number | null>(null) // 현재 스트리밍 중인 메시지 인덱스
   const [streamingDisplayText, setStreamingDisplayText] = useState('') // 현재까지 표시된 텍스트
@@ -181,6 +191,23 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     '2026년 5월 주요 뷰티 행사가 있나요?': '웹 검색 결과, 2026년 5월 주요 뷰티 행사 정보입니다:\n\n📍 코스모프로프 아시아 (Cosmoprof Asia)\n• 일정: 2026년 5월 12-14일\n• 장소: 홍콩 컨벤션센터\n• 규모: 아시아 최대 뷰티 전시회\n\n📍 뷰티월드 재팬 (Beauty World Japan)\n• 일정: 2026년 5월 18-20일\n• 장소: 도쿄 빅사이트\n• 특징: 화장품, 네일, 에스테틱 종합 전시\n\n💡 캠페인 시사점:\n이 시기에 뷰티 업계 관심도가 높아지므로, 5월 중순 전후로 광고 집행을 강화하면 효과적일 수 있습니다.\n\n출처: 웹 검색 결과 종합'
   }
 
+  // 역질문 트리거 매핑 — 특정 질문에 대해 역질문으로 응답
+  const clarifyingQuestions: Record<string, { question: string; options: string[]; allowCustom?: boolean }> = {
+    '이 예측 결과를 어떻게 해석해야 하나요?': {
+      question: '어떤 관점에서 분석해드릴까요?',
+      options: ['매체별 효율 비교', '타겟 도달률 중심', '예산 최적화 방향', '경쟁사 벤치마크 대비'],
+      allowCustom: true
+    }
+  }
+
+  // 역질문 선택 후 최종 답변 매핑
+  const clarifyingAnswers: Record<string, string> = {
+    '매체별 효율 비교': '매체별 효율 관점에서 분석한 결과입니다.\n\n현재 TVC 50% : Digital 50% 비율에서:\n\n• TVC의 CPM은 ₩12,500으로, Digital 대비 약 1.8배 높지만 도달 범위가 넓어 브랜드 인지도 확보에 유리합니다.\n• Digital은 CPM ₩6,900으로 비용 효율이 높고, 특히 25-34세 타겟에서 TVC 대비 1.4배 높은 도달률을 보입니다.\n\n결론적으로 현재 50:50 비율이 두 매체의 장점을 균형있게 활용하는 최적 지점입니다.',
+    '타겟 도달률 중심': '타겟 도달률 관점에서 분석한 결과입니다.\n\n25-34세 여성 타겟 기준:\n\n• 예상 Reach 1+: 73.2% (약 340만 명 도달)\n• Reach 3+: 45.8% (3회 이상 반복 노출)\n• Effective Frequency 도달률: 52.1%\n\n이 타겟은 TV와 디지털을 균형있게 소비하는 특성이 있어, 현재 매체 비중이 도달률 극대화에 적합합니다.',
+    '예산 최적화 방향': '예산 최적화 관점에서 분석한 결과입니다.\n\n현재 10억 예산 기준:\n\n• Efficiency Peak: 약 8.5억 (이 지점까지 도달률 증가폭이 가장 큼)\n• 현재 예산(10억)은 Peak 대비 +1.5억 초과 상태\n• 추가 1.5억의 한계 도달률 기여: +2.1%p\n\n💡 추천: 1.5억을 Digital 리타겟팅에 재배분하면 Reach 3+ 기준 약 +4.2%p 개선이 가능합니다.',
+    '경쟁사 벤치마크 대비': '경쟁사 벤치마크 대비 분석 결과입니다.\n\n동일 업종(뷰티) 평균 대비:\n\n• 도달률: 73.2% vs 업종 평균 65.4% (+7.8%p 우위)\n• CPM: ₩9,700 vs 업종 평균 ₩11,200 (13.4% 효율적)\n• 매체 비중: TVC 50% vs 업종 평균 TVC 62% (Digital 비중 높음)\n\n현재 시나리오는 업종 평균 대비 효율적인 매체 배분을 보이고 있습니다.'
+  }
+
   // 각주 [1], [2] 등을 인라인 뱃지로 변환 — 클릭 시 아코디언 열고 해당 문서 하이라이트
   const renderWithFootnotes = (text: string, msgIndex: number, _ragSources?: Array<{ title: string, summary: string, type: 'pdf' | 'docx' | 'url', url?: string }>) => {
     const parts = text.split(/(\[\d+\])/)
@@ -272,7 +299,32 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           loadingMessageIntervalRef.current = null
         }
         
-        const answer = answerExamples[textToSend]
+        // 역질문 트리거 체크
+        const clarifying = clarifyingQuestions[textToSend]
+        if (clarifying) {
+          // 역질문 메시지를 AI 응답으로 추가
+          const aiResponse = {
+            role: 'assistant' as const,
+            content: clarifying.question,
+            timestamp: '방금 전',
+            originalQuestion: textToSend
+          }
+          setMessages(prev => [...prev, aiResponse])
+          setIsLoading(false)
+          setCurrentQuestion('')
+          timeoutRef.current = null
+          // 역질문 UI 활성화
+          setClarifyingQuestion(clarifying)
+          setClarifyingSelected(null)
+          setClarifyingCustom('')
+          setClarifyingCustomMode(false)
+          return
+        }
+
+        // 역질문 선택에 대한 최종 답변 체크
+        const clarifyingAnswer = clarifyingAnswers[textToSend]
+        
+        const answer = clarifyingAnswer || answerExamples[textToSend]
         
         // 웹 검색 질문인 경우 소스 추가
         const webSources = textToSend === '2026년 5월 주요 뷰티 행사가 있나요?' ? [
@@ -448,6 +500,36 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
     }
     setStreamingIndex(null)
     setStreamingDisplayText('')
+    setClarifyingQuestion(null)
+    setClarifyingSelected(null)
+    setClarifyingCustom('')
+    setClarifyingCustomMode(false)
+  }
+
+  // 역질문 선택 전송
+  const handleClarifyingSubmit = () => {
+    if (clarifyingCustomMode && clarifyingCustom.trim()) {
+      handleSend(clarifyingCustom.trim())
+      setClarifyingQuestion(null)
+      setClarifyingSelected(null)
+      setClarifyingCustom('')
+      setClarifyingCustomMode(false)
+    } else if (clarifyingSelected !== null && clarifyingQuestion) {
+      const selectedOption = clarifyingQuestion.options[clarifyingSelected]
+      handleSend(selectedOption)
+      setClarifyingQuestion(null)
+      setClarifyingSelected(null)
+      setClarifyingCustom('')
+      setClarifyingCustomMode(false)
+    }
+  }
+
+  // 역질문 건너뛰기
+  const handleClarifyingSkip = () => {
+    setClarifyingQuestion(null)
+    setClarifyingSelected(null)
+    setClarifyingCustom('')
+    setClarifyingCustomMode(false)
   }
 
   const handleModelSelect = (model: LLMModel) => {
@@ -1471,6 +1553,133 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
           </div>
         </div>
 
+        {/* 역질문 선택 UI 또는 일반 입력 */}
+        {clarifyingQuestion ? (
+          <div style={{ width: '100%' }}>
+            {/* 역질문 헤더 */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              marginBottom: '10px'
+            }}>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))', fontFamily: 'Paperlogy, sans-serif' }}>
+                {clarifyingQuestion.question}
+              </span>
+              <button
+                onClick={handleClarifyingSkip}
+                style={{
+                  fontSize: '11px', color: 'hsl(var(--muted-foreground))',
+                  background: 'none', border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px', padding: '4px 10px', cursor: 'pointer',
+                  fontFamily: 'Paperlogy, sans-serif', transition: 'all 0.2s', flexShrink: 0
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'hsl(var(--foreground))'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'hsl(var(--border))'}
+              >
+                건너뛰기
+              </button>
+            </div>
+            {/* 옵션 리스트 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+              {clarifyingQuestion.options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setClarifyingSelected(idx)
+                    setClarifyingCustomMode(false)
+                  }}
+                  onDoubleClick={() => {
+                    setClarifyingSelected(idx)
+                    setClarifyingCustomMode(false)
+                    setTimeout(() => handleClarifyingSubmit(), 50)
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '10px 12px', borderRadius: '8px',
+                    border: clarifyingSelected === idx ? '1px solid hsl(var(--foreground))' : '1px solid hsl(var(--border))',
+                    backgroundColor: clarifyingSelected === idx ? 'hsl(var(--muted))' : 'transparent',
+                    cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+                    fontFamily: 'Paperlogy, sans-serif', width: '100%'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (clarifyingSelected !== idx) e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (clarifyingSelected !== idx) e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <span style={{
+                    width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '11px', fontWeight: '700',
+                    backgroundColor: clarifyingSelected === idx ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
+                    color: clarifyingSelected === idx ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))'
+                  }}>
+                    {idx + 1}
+                  </span>
+                  <span style={{ fontSize: '13px', color: 'hsl(var(--foreground))' }}>{option}</span>
+                  {clarifyingSelected === idx && (
+                    <ArrowUp size={14} style={{ marginLeft: 'auto', color: 'hsl(var(--foreground))', flexShrink: 0 }} />
+                  )}
+                </button>
+              ))}
+              {/* 기타 직접 입력 */}
+              {clarifyingQuestion.allowCustom && (
+                <div
+                  onClick={() => { setClarifyingCustomMode(true); setClarifyingSelected(null) }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '10px 12px', borderRadius: '8px',
+                    border: clarifyingCustomMode ? '1px solid hsl(var(--foreground))' : '1px solid hsl(var(--border))',
+                    backgroundColor: clarifyingCustomMode ? 'hsl(var(--muted))' : 'transparent',
+                    cursor: 'pointer', transition: 'all 0.15s', width: '100%'
+                  }}
+                >
+                  <span style={{
+                    width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '12px',
+                    backgroundColor: clarifyingCustomMode ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
+                    color: clarifyingCustomMode ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))'
+                  }}>
+                    ✎
+                  </span>
+                  {clarifyingCustomMode ? (
+                    <input
+                      autoFocus
+                      value={clarifyingCustom}
+                      onChange={(e) => setClarifyingCustom(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && clarifyingCustom.trim()) handleClarifyingSubmit() }}
+                      placeholder="직접 입력..."
+                      style={{
+                        flex: 1, border: 'none', background: 'none', outline: 'none',
+                        fontSize: '13px', color: 'hsl(var(--foreground))',
+                        fontFamily: 'Paperlogy, sans-serif'
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>기타</span>
+                  )}
+                </div>
+              )}
+            </div>
+            {/* 전송 버튼 */}
+            {(clarifyingSelected !== null || (clarifyingCustomMode && clarifyingCustom.trim())) && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                <button
+                  onClick={handleClarifyingSubmit}
+                  style={{
+                    padding: '6px 16px', borderRadius: '6px', border: 'none',
+                    backgroundColor: 'hsl(var(--foreground))', color: 'hsl(var(--background))',
+                    fontSize: '12px', fontWeight: '500', cursor: 'pointer',
+                    fontFamily: 'Paperlogy, sans-serif', transition: 'opacity 0.2s'
+                  }}
+                >
+                  선택 전송
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
         <div
           style={{
             display: 'flex',
@@ -1726,6 +1935,20 @@ export function SpinXPanel({ isOpen, onClose, isDarkMode = false, scenarioName =
               )}
             </div>
           </div>
+        </div>
+        )}
+
+        {/* AI 면책 문구 */}
+        <div style={{
+          textAlign: 'center',
+          fontSize: '11px',
+          color: 'hsl(var(--muted-foreground))',
+          opacity: 0.6,
+          marginTop: '8px',
+          fontFamily: 'Paperlogy, sans-serif',
+          lineHeight: '1.4'
+        }}>
+          AI의 답변은 부정확할 수 있습니다. 중요한 정보는 반드시 확인하세요.
         </div>
       </div>
 
