@@ -621,7 +621,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             }}
             onClick={(e) => e.stopPropagation()}
             >
-              {/* ① 등급 + Set Power */}
+              {/* ① 등급 + Next + Set Power */}
               <div style={{ padding: '20px 20px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                   <currentGrade.icon size={16} style={{ color: 'hsl(var(--foreground))' }} />
@@ -630,25 +630,35 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                 <div style={{ fontSize: '11px', lineHeight: '1.4', marginTop: '4px' }} className="text-muted-foreground">
                   {currentGrade.description}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px' }}>
-                  <div>
-                    <span style={{ fontSize: '11px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>Set-Power</span>
-                    <div style={{ fontSize: '8px', marginTop: '1px' }} className="text-muted-foreground">누적 결과물</div>
+
+                {/* Next 등급 */}
+                {nextGrade && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '10px' }} className="text-muted-foreground">
+                    <span>Next</span>
+                    <ChevronRight size={10} />
+                    <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
+                    <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '-0.5px' }} className="text-foreground">48 <span style={{ fontWeight: '400', color: 'hsl(var(--muted-foreground))' }}>/ 81</span></span>
-                </div>
-                {(() => {
-                  const currentStart = 31; const nextStart = 81; const current = 48
-                  const progress = Math.round(((current - currentStart) / (nextStart - currentStart)) * 100)
-                  return (
-                    <div style={{ height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden', marginTop: '8px' }}>
-                      <div style={{ width: `${progress}%`, height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.5s ease' }} />
+                )}
+
+                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <div>
+                      <span style={{ fontSize: '11px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>Set-Power</span>
+                      <div style={{ fontSize: '8px', marginTop: '1px' }} className="text-muted-foreground">누적 결과물</div>
                     </div>
-                  )
-                })()}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '800', flexShrink: 0 }} className="text-foreground">48</span>
+                    <div style={{ flex: 1, height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden' }}>
+                      <div style={{ width: '59%', height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.5s ease' }} />
+                    </div>
+                    <span style={{ fontSize: '11px', flexShrink: 0 }} className="text-muted-foreground">/ 81</span>
+                  </div>
+                </div>
               </div>
 
-              {/* ② 솔루션 커버리지 */}
+              {/* ② 솔루션 사용현황 */}
               <div style={{
                 padding: '12px 20px',
                 borderTop: '1px solid hsl(var(--border) / 0.4)'
@@ -678,24 +688,6 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                 </div>
               </div>
 
-              {/* ③ Next 등급 */}
-              {nextGrade && (() => {
-                const currentStart = 31
-                const nextStart = 81
-                const current = 48
-                const progress = Math.round(((current - currentStart) / (nextStart - currentStart)) * 100)
-                const remaining = nextStart - current
-                return (
-                  <div style={{ padding: '12px 20px 16px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }} className="text-muted-foreground">
-                      <span>Next</span>
-                      <ChevronRight size={10} />
-                      <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
-                      <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
-                    </div>
-                  </div>
-                )
-              })()}
             </div>
           )}
         </div>
