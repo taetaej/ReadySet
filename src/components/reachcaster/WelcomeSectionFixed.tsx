@@ -84,7 +84,7 @@ export function WelcomeSectionFixed({ userName = 'Jia Shin' }: WelcomeSectionPro
       {/* Bento Boxes Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '2fr 6fr 2fr',
+        gridTemplateColumns: '2fr 5fr 3fr',
         gap: '16px',
         marginBottom: '32px'
       }}>

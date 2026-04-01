@@ -342,15 +342,15 @@ function CustomTooltip({ active, payload, label, mode, drillMedia }: any) {
           <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: 'hsl(var(--foreground))', opacity: 0.7, display: 'inline-block' }} />
           <span style={{ color: 'hsl(var(--muted-foreground))' }}>{isShare ? '광고비 비중' : '평균 CTR'}</span>
           <span style={{ fontWeight: '600', color: 'hsl(var(--foreground))' }}>
-            {isShare ? `${barEntry.value}%` : `${barEntry.value}%`}
+            {isShare ? `${Number(barEntry.value).toFixed(2)}%` : `${Number(barEntry.value).toFixed(2)}%`}
           </span>
         </div>
       )}
       {lineEntry && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', lineHeight: '1.8' }}>
-          <span style={{ width: '14px', height: '2px', backgroundColor: '#B794F6', display: 'inline-block', borderRadius: '1px' }} />
+          <span style={{ width: '14px', height: '2px', backgroundColor: 'hsl(var(--muted-foreground))', display: 'inline-block', borderRadius: '1px' }} />
           <span style={{ color: 'hsl(var(--muted-foreground))' }}>{isShare ? '전체 평균 비중' : '전체 평균 CTR'}</span>
-          <span style={{ fontWeight: '600', color: '#B794F6' }}>{lineEntry.value}%</span>
+          <span style={{ fontWeight: '600', color: 'hsl(var(--muted-foreground))' }}>{Number(lineEntry.value).toFixed(2)}%</span>
         </div>
       )}
     </div>
@@ -415,7 +415,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
 
   return (
     <div className="card" style={{
-      padding: '20px 24px', minHeight: '180px', display: 'flex',
+      padding: '20px 24px', height: '280px', display: 'flex',
       flexDirection: 'column', gap: '12px', boxShadow: 'none', overflow: 'hidden'
     }}>
       {/* 상단 */}
@@ -440,7 +440,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
             </button>
           ) : (
             <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', margin: '0 0 2px 0', fontFamily: 'Paperlogy, sans-serif' }}>
-              업종 벤치마크 · 막대 클릭 시 광고상품 상세
+              Industry Trend
             </p>
           )}
           <h3 style={{
@@ -454,8 +454,12 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
           </h3>
           {!drillMedia && (
             <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', lineHeight: '1.5' }}>
-              전체 · {selectedIndustry} · 매체 6개 (Meta, Google, TikTok, kakao, NAVER 성과형, NAVER 보장형) · 기타
-              <br />최근 6개월 광고비 기준 · 막대 클릭 시 광고상품 상세
+              최근 6개월 집행 캠페인 데이터 기준
+            </p>
+          )}
+          {drillMedia && (
+            <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', lineHeight: '1.5' }}>
+              {mode === 'ctr' ? 'CTR' : '광고비 비중'} 기준 상위 5개 광고상품
             </p>
           )}
         </div>
@@ -527,17 +531,19 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
       </div>
 
       {/* 차트 */}
-      <div style={{ flex: 1, minHeight: '120px' }}>
+      <div style={{ minHeight: '120px', marginTop: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: 'hsl(var(--foreground))', opacity: 0.6, display: 'inline-block' }} />
             {yLabel}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>
-            <span style={{ width: '14px', height: '2px', backgroundColor: '#B794F6', display: 'inline-block', borderRadius: '1px' }} />
+            <span style={{ width: '14px', height: '2px', backgroundColor: 'hsl(var(--muted-foreground))', display: 'inline-block', borderRadius: '1px' }} />
             {avgLabel}
           </span>
         </div>
+        <div style={{ userSelect: 'none' }}>
+        <style>{`.recharts-surface:focus, .recharts-surface *:focus { outline: none !important; }`}</style>
         <ResponsiveContainer width="100%" height={130}>
           <ComposedChart
             data={chartData}
@@ -555,7 +561,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
               tickFormatter={(v) => `${v}%`}
             />
             <Tooltip content={<CustomTooltip mode={mode} drillMedia={drillMedia} />} cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} />
-            <ReferenceLine y={drillMedia ? mediaAvg : overallAvg} yAxisId={0} stroke="#B794F6" strokeWidth={1.5} strokeDasharray="4 3" />
+            <ReferenceLine y={drillMedia ? mediaAvg : overallAvg} yAxisId={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} />
             <Bar
               dataKey="value"
               fill="hsl(var(--foreground))"
@@ -572,9 +578,10 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
             <Line dataKey="avg" stroke="transparent" dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
+        </div>
         {!drillMedia && (
           <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', opacity: 0.7 }}>
-            매체 막대 클릭 시 광고상품 상세 보기
+            막대 클릭 시 광고상품 상세
           </p>
         )}
       </div>
