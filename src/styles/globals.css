@@ -1090,3 +1090,13 @@
 .industry-row:hover .row-action-btn {
   opacity: 1 !important;
 }
+
+@keyframes gradeQuestionPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.grade-chip-done:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px currentColor !important;
+}

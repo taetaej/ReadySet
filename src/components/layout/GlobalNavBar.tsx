@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut, Info, TrendingUp, Database, DollarSign } from 'lucide-react'
+import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut, Info, TrendingUp, Database, DollarSign, Lock, Flame } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
@@ -610,8 +610,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               top: '100%',
               right: 0,
               marginTop: '8px',
-              backgroundColor: 'hsl(var(--card) / 0.85)',
-              backdropFilter: 'blur(16px)',
+              backgroundColor: 'hsl(var(--card))',
               border: '1px solid hsl(var(--border) / 0.6)',
               borderRadius: '16px',
               padding: '0',
@@ -622,109 +621,81 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             }}
             onClick={(e) => e.stopPropagation()}
             >
-              {/* ① 등급 아이덴티티 + 원형 프로그레스 */}
-              {(() => {
+              {/* ① 등급 + Set Power */}
+              <div style={{ padding: '20px 20px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                  <currentGrade.icon size={16} style={{ color: 'hsl(var(--foreground))' }} />
+                  <span style={{ fontSize: '15px', fontWeight: '700' }} className="text-foreground">{currentGrade.name}</span>
+                </div>
+                <div style={{ fontSize: '11px', lineHeight: '1.4', marginTop: '4px' }} className="text-muted-foreground">
+                  {currentGrade.description}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px' }}>
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>Set-Power</span>
+                    <div style={{ fontSize: '8px', marginTop: '1px' }} className="text-muted-foreground">누적 결과물</div>
+                  </div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '-0.5px' }} className="text-foreground">48 <span style={{ fontWeight: '400', color: 'hsl(var(--muted-foreground))' }}>/ 81</span></span>
+                </div>
+                {(() => {
+                  const currentStart = 31; const nextStart = 81; const current = 48
+                  const progress = Math.round(((current - currentStart) / (nextStart - currentStart)) * 100)
+                  return (
+                    <div style={{ height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden', marginTop: '8px' }}>
+                      <div style={{ width: `${progress}%`, height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.5s ease' }} />
+                    </div>
+                  )
+                })()}
+              </div>
+
+              {/* ② 솔루션 커버리지 */}
+              <div style={{
+                padding: '12px 20px',
+                borderTop: '1px solid hsl(var(--border) / 0.4)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '11px', color: 'hsl(var(--foreground))' }}>솔루션 커버리지</span>
+                  <span style={{ fontSize: '11px', fontWeight: '700' }} className="text-foreground">2/2</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {[
+                    { name: 'DataShot', color: '#7B61FF', done: true },
+                    { name: 'Reach Caster', color: '#00C8FF', done: true },
+                    { name: 'Ad Curator', color: '#00E676', done: false },
+                    { name: 'Budget Optimizer', color: '#FF3B7A', done: false },
+                  ].map((s, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      opacity: s.done ? 1 : 0.4
+                    }}>
+                      {s.done
+                        ? <Flame size={12} fill={s.color} style={{ color: s.color, flexShrink: 0 }} />
+                        : <Lock size={12} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />
+                      }
+                      <span style={{ fontSize: '10px', color: s.done ? '#737373' : 'hsl(var(--muted-foreground))' }}>{s.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ③ Next 등급 */}
+              {nextGrade && (() => {
                 const currentStart = 31
                 const nextStart = 81
                 const current = 48
                 const progress = Math.round(((current - currentStart) / (nextStart - currentStart)) * 100)
                 const remaining = nextStart - current
-                const radius = 22
-                const circumference = 2 * Math.PI * radius
-                const strokeDashoffset = circumference - (progress / 100) * circumference
-
                 return (
-                  <div style={{ padding: '20px 20px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      {/* 원형 프로그레스 안에 아이콘 */}
-                      <div style={{ position: 'relative', width: '52px', height: '52px', flexShrink: 0 }}>
-                        <svg width="52" height="52" style={{ transform: 'rotate(-90deg)' }}>
-                          <circle cx="26" cy="26" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-                          <circle cx="26" cy="26" r={radius} fill="none" stroke="hsl(var(--primary))" strokeWidth="3"
-                            strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
-                            style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-                        </svg>
-                        <div style={{
-                          position: 'absolute', inset: 0,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                          <span style={{ fontSize: '12px', fontWeight: '700', color: 'hsl(var(--primary))' }}>{progress}%</span>
-                        </div>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '15px', fontWeight: '700', lineHeight: '1.2' }} className="text-foreground">
-                          {currentGrade.name}
-                        </div>
-                        <div style={{ fontSize: '11px', lineHeight: '1.4', marginTop: '3px' }} className="text-muted-foreground">
-                          {currentGrade.description}
-                        </div>
-                      </div>
+                  <div style={{ padding: '12px 20px 16px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }} className="text-muted-foreground">
+                      <span>Next</span>
+                      <ChevronRight size={10} />
+                      <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
+                      <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
                     </div>
-
-                    {/* ② Next 등급 프로그레스 */}
-                    {nextGrade && (
-                      <div style={{
-                        marginTop: '14px', padding: '10px 12px',
-                        borderRadius: '10px', backgroundColor: 'hsl(var(--muted) / 0.35)'
-                      }}>
-                        <div style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          marginBottom: '8px'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px' }} className="text-muted-foreground">
-                            <span>Next</span>
-                            <ChevronRight size={10} />
-                            <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
-                            <span style={{ fontWeight: '600', fontSize: '12px' }} className="text-foreground">{nextGrade.name}</span>
-                          </div>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--primary))' }}>{remaining}개 남음</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ flex: 1, height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden' }}>
-                            <div style={{ width: `${progress}%`, height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.5s ease' }} />
-                          </div>
-                          <span style={{ fontSize: '10px', fontWeight: '700', flexShrink: 0 }} className="text-muted-foreground">{progress}%</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )
               })()}
-
-              {/* ③ 하단: 결과물 수 + 도장깨기 (인라인) */}
-              <div style={{
-                padding: '12px 20px 16px',
-                borderTop: '1px solid hsl(var(--border) / 0.4)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '11px' }} className="text-muted-foreground">누적 결과물</span>
-                  <span style={{ fontSize: '13px', fontWeight: '700' }} className="text-foreground">48개</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '11px' }} className="text-muted-foreground">솔루션 커버리지</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {[
-                      { Icon: Database, done: true },
-                      { Icon: TrendingUp, done: true },
-                      { Icon: Target, done: false },
-                      { Icon: DollarSign, done: false },
-                    ].map((s, i) => (
-                      <div key={i} style={{
-                        width: '24px', height: '24px', borderRadius: '50%',
-                        border: s.done ? '1.5px solid hsl(var(--primary))' : '1.5px dashed hsl(var(--border))',
-                        backgroundColor: s.done ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        <s.Icon size={11} style={{
-                          color: s.done ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                          opacity: s.done ? 1 : 0.2
-                        }} />
-                      </div>
-                    ))}
-                    <span style={{ fontSize: '11px', fontWeight: '700', marginLeft: '2px' }} className="text-foreground">2/4</span>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>
