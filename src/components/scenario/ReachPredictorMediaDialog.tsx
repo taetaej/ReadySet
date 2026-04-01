@@ -247,9 +247,9 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                   <div key={mediaName} style={{ borderBottom: '1px solid hsl(var(--border))' }}>
                     {/* 매체 행 */}
                     <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '40px 1fr 100px 40px',
+                      display: 'flex',
                       alignItems: 'center',
+                      gap: '8px',
                       padding: '10px 12px',
                       backgroundColor: 'hsl(var(--muted) / 0.2)',
                       cursor: 'pointer',
@@ -279,7 +279,8 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                           border: '1px solid hsl(var(--border))',
                           borderRadius: '4px',
                           backgroundColor: 'hsl(var(--background))',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          flexShrink: 0
                         }}
                         onClick={(e) => {
                           e.stopPropagation()
@@ -295,8 +296,8 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                       <div style={{ fontSize: '13px', fontWeight: '500' }}>
                         {mediaName}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
-                        {(products as string[]).length}개 상품
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
+                        {(products as string[]).length}개 채널
                       </div>
                       {selectedCount > 0 && (
                         <div style={{
@@ -306,14 +307,33 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                           backgroundColor: 'hsl(var(--primary))',
                           color: 'hsl(var(--primary-foreground))',
                           fontWeight: '600',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          flexShrink: 0
                         }}>
                           {selectedCount}
                         </div>
                       )}
+                      <div style={{ flex: 1 }} />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const allSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts[key]?.includes(p))
+                          if (allSelected) {
+                            const newProducts = { ...selectedProducts }
+                            delete newProducts[key]
+                            setSelectedProducts(newProducts)
+                          } else {
+                            setSelectedProducts({ ...selectedProducts, [key]: [...filteredProducts] })
+                          }
+                        }}
+                        className="btn btn-ghost btn-sm"
+                        style={{ fontSize: '11px', flexShrink: 0, padding: '4px 8px' }}
+                      >
+                        {filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts[key]?.includes(p)) ? '전체 해제' : '전체 선택'}
+                      </button>
                     </div>
                     
-                    {/* 상품 목록 */}
+                    {/* 상품 목록 — TV */}
                     {isExpanded && (
                       <div style={{ 
                         padding: '12px 12px 12px 52px', 
@@ -438,9 +458,9 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                   <div key={mediaName} style={{ borderBottom: '1px solid hsl(var(--border))' }}>
                     {/* 매체 행 */}
                     <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '40px 1fr 100px 40px',
+                      display: 'flex',
                       alignItems: 'center',
+                      gap: '8px',
                       padding: '10px 12px',
                       backgroundColor: 'hsl(var(--muted) / 0.2)',
                       cursor: 'pointer',
@@ -486,7 +506,7 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                       <div style={{ fontSize: '13px', fontWeight: '500' }}>
                         {mediaName}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                      <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
                         {(products as string[]).length}개 상품
                       </div>
                       {selectedCount > 0 && (
@@ -497,14 +517,33 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
                           backgroundColor: 'hsl(var(--primary))',
                           color: 'hsl(var(--primary-foreground))',
                           fontWeight: '600',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          flexShrink: 0
                         }}>
                           {selectedCount}
                         </div>
                       )}
+                      <div style={{ flex: 1 }} />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const allSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts[key]?.includes(p))
+                          if (allSelected) {
+                            const newProducts = { ...selectedProducts }
+                            delete newProducts[key]
+                            setSelectedProducts(newProducts)
+                          } else {
+                            setSelectedProducts({ ...selectedProducts, [key]: [...filteredProducts] })
+                          }
+                        }}
+                        className="btn btn-ghost btn-sm"
+                        style={{ fontSize: '11px', flexShrink: 0, padding: '4px 8px' }}
+                      >
+                        {filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts[key]?.includes(p)) ? '전체 해제' : '전체 선택'}
+                      </button>
                     </div>
                     
-                    {/* 상품 목록 */}
+                    {/* 상품 목록 — DIGITAL */}
                     {isExpanded && (
                       <div style={{ 
                         padding: '12px 12px 12px 52px', 

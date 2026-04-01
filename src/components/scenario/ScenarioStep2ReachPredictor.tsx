@@ -452,14 +452,14 @@ export function ScenarioStep2ReachPredictor({
                       type="text"
                       value={media.impressions ? parseInt(media.impressions).toLocaleString('ko-KR') : ''}
                       onChange={(e) => handleImpressionsChange(media.id, e.target.value)}
-                      placeholder={media.type === 'unlinked' ? '필수' : '선택'}
+                      placeholder={media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA' ? '필수' : '선택'}
                       className="input"
                       style={{
                         width: '100%',
                         textAlign: 'right',
                         padding: '6px 8px',
                         fontSize: '13px',
-                        borderColor: validationActive && media.type === 'unlinked' && !media.impressions ? 'hsl(var(--destructive))' : undefined
+                        borderColor: validationActive && (media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA') && !media.impressions ? 'hsl(var(--destructive))' : undefined
                       }}
                     />
                   </div>
