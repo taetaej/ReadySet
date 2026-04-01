@@ -74,7 +74,7 @@ export function PageHeader({
       )}
 
       {/* 집계 카드들 - 우측 정렬 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+      <div style={{ display: 'none', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
         {/* Total Results */}
         <div style={{
           display: 'flex',

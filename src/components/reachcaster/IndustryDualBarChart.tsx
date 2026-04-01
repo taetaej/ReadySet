@@ -6,6 +6,17 @@ interface IndustryDualBarChartProps {
   onIndustryChange?: (industry: string) => void
 }
 
+// 매체별 액센트 컬러 (네온 계열)
+const MEDIA_COLORS: Record<string, string> = {
+  '전체': 'hsl(var(--foreground))',
+  'Meta': '#00D9FF',       // Cyan
+  'Google': '#FF3D00',     // Neon Orange-Red
+  'TikTok': 'hsl(var(--foreground))',
+  'kakao': '#FFD600',      // Neon Yellow
+  'NAVER 성과형': '#00FF94', // Neon Lime
+  'NAVER 보장형': '#00FF94', // Neon Lime
+}
+
 const INDUSTRY_LIST = [
   '뷰티', '식품', '패션', '전자제품', '자동차', '게임', '이커머스', '여행',
   '건강식품', '금융', '교육', '부동산', '의료', '스포츠', '엔터테인먼트',
@@ -358,7 +369,7 @@ function CustomTooltip({ active, payload, label, mode, drillMedia }: any) {
 }
 
 export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartProps) {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('뷰티')
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('전체')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mode, setMode] = useState<MetricMode>('ctr')
   const [drillMedia, setDrillMedia] = useState<string | null>(null)
@@ -390,10 +401,12 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
     value: mode === 'ctr' ? d.ctr : d.share,
     avg: overallAvg,
     _media: d.media,
+    _color: MEDIA_COLORS[d.media] || 'hsl(var(--foreground))',
   }))
 
   // 레벨 2 차트 데이터
   const productData = drillMedia ? getProductData(selectedIndustry, drillMedia) : []
+  const drillColor = drillMedia ? (MEDIA_COLORS[drillMedia] || 'hsl(var(--foreground))') : 'hsl(var(--foreground))'
   const mediaAvg = drillMedia
     ? (mode === 'ctr'
       ? (mediaData.find(d => d.media === drillMedia)?.ctr ?? 2.3)
@@ -405,6 +418,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
     fullName: d.product,
     value: mode === 'ctr' ? d.ctr : d.share,
     avg: mediaAvg,
+    _color: drillColor,
   }))
 
   const chartData = drillMedia ? level2Data : level1Data
@@ -438,18 +452,16 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
               <ArrowLeft size={12} />
               매체 전체 보기
             </button>
-          ) : (
-            <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', margin: '0 0 2px 0', fontFamily: 'Paperlogy, sans-serif' }}>
-              Industry Trend
-            </p>
-          )}
+          ) : null}
           <h3 style={{
             fontSize: '15px', fontWeight: '700', margin: 0,
             color: 'hsl(var(--foreground))', fontFamily: 'Paperlogy, sans-serif', lineHeight: '1.3'
           }}>
             {drillMedia
               ? `${drillMedia}의 광고상품별 ${mode === 'ctr' ? 'CTR' : '광고비 비중'}`
-              : `우리 업종, 어떤 매체가 ${mode === 'ctr' ? '더 효율적일까?' : '더 많이 쓰일까?'}`
+              : mode === 'ctr'
+                ? `${selectedIndustry} 업종에서 가장 반응이 뜨거운 매체는?`
+                : `${selectedIndustry} 업종에서 가장 투자 비중이 높은 매체는?`
             }
           </h3>
           {!drillMedia && (
@@ -565,14 +577,24 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
             <Bar
               dataKey="value"
               fill="hsl(var(--foreground))"
-              fillOpacity={0.65}
-              radius={[3, 3, 0, 0]}
+              fillOpacity={0.12}
+              radius={0}
               maxBarSize={32}
               cursor={!drillMedia ? 'pointer' : 'default'}
               onClick={(data: any) => {
                 if (!drillMedia && data?._media && data._media !== '전체') {
                   setDrillMedia(data._media)
                 }
+              }}
+              shape={(props: any) => {
+                const { x, y, width, height, _color } = props
+                const barColor = _color || 'hsl(var(--foreground))'
+                return (
+                  <g>
+                    <rect x={x} y={y} width={width} height={height} fill="hsl(var(--foreground))" fillOpacity={0.12} />
+                    <rect x={x} y={y} width={width} height={2.5} fill={barColor} fillOpacity={0.9} />
+                  </g>
+                )
               }}
             />
             <Line dataKey="avg" stroke="transparent" dot={false} />
