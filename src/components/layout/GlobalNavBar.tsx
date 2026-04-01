@@ -654,7 +654,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                 borderTop: '1px solid hsl(var(--border) / 0.4)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '11px', color: 'hsl(var(--foreground))' }}>솔루션 커버리지</span>
+                  <span style={{ fontSize: '11px', color: 'hsl(var(--foreground))' }}>솔루션 사용현황</span>
                   <span style={{ fontSize: '11px', fontWeight: '700' }} className="text-foreground">2/2</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
