@@ -182,7 +182,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       id: 11,
       solution: 'ReadySet',
       scenarioName: '개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가입니다.',
-      message: 'Strategy Builder 등급에 도달했습니다.',
+      message: 'Strategy Builder 레벨에 도달했습니다.',
       completedMinutesAgo: 360,
       isNew: false,
       status: 'info',

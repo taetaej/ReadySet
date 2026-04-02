@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, Award, Flame, Lock, Zap, Activity, Target, Crown, Star } from 'lucide-react'
+import { ChevronRight, Award, Flame, Lock, Zap, Activity, Target, Crown, Star, Rocket, Hourglass, PartyPopper } from 'lucide-react'
 
 const grades = [
   { name: 'Slot-In Ready', icon: Zap, description: 'ReadySet의 잠재력을 탐색 중인 예비 전략가.' },
@@ -83,7 +83,7 @@ export function GradeCard() {
 
             {nextGrade && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '10px' }} className="text-muted-foreground">
-                <span>Next</span>
+                <span>Next Level</span>
                 <ChevronRight size={10} />
                 <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
                 <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
@@ -91,55 +91,58 @@ export function GradeCard() {
             )}
 
             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
-              <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>승급 조건</span>
-
-              {/* Set-Power */}
-              <div style={{ marginBottom: '12px', marginTop: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: '600', color: 'hsl(var(--muted-foreground))' }}>①</span>
-                    <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>Set-Power</span>
-                    <div style={{ fontSize: '8px', marginTop: '1px' }} className="text-muted-foreground">누적 결과물</div>
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: '800' }} className="text-foreground">48개</span>
-                </div>
-                {(() => {
-                  return (
-                    <div style={{ position: 'relative', marginTop: '12px' }}>
-                      <div style={{ position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
-                        <div style={{ position: 'absolute', left: 0, right: '14px', height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden' }}>
-                          <div style={{ width: `${animatedFill}%`, height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-                        </div>
-                        <div style={{
-                          position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
-                          width: '20px', height: '20px', borderRadius: '50%',
-                          backgroundColor: 'hsl(var(--card))', border: '2px solid hsl(var(--border))',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1,
-                          animation: 'gradeIconWobble 2s ease-in-out infinite'
-                        }}>
-                          <Award size={10} style={{ color: 'hsl(var(--muted-foreground))', opacity: 0.5 }} />
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                        <span style={{ fontSize: '8px' }} className="text-muted-foreground">31개</span>
-                        <span style={{ fontSize: '8px' }} className="text-muted-foreground">다음 등급까지 32개 더 필요</span>
-                        <span style={{ fontSize: '8px', marginRight: '3px' }} className="text-muted-foreground">80개</span>
-                      </div>
-                    </div>
-                  )
-                })()}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>Let's Level Up!</span>
+                <span style={{ display: 'inline-flex' }}><Rocket size={13} style={{ color: 'hsl(var(--primary))' }} /></span>
               </div>
 
-              {/* 솔루션 스탬프 */}
-              <div style={{ paddingTop: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: '600', color: 'hsl(var(--muted-foreground))' }}>②</span>
-                    <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>솔루션 스탬프</span>
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: '700' }} className="text-foreground">2/2</span>
+              {/* 미션 1 */}
+              <div style={{ marginTop: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <span style={{ fontSize: '8px', fontWeight: '600', color: 'hsl(var(--muted-foreground))' }}>Mission 1</span>
+                  <span style={{ fontSize: '9px', fontWeight: '500', color: 'hsl(var(--primary))', backgroundColor: 'hsl(var(--primary) / 0.1)', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px', minWidth: '52px', justifyContent: 'center' }}>
+                    In Progress
+                    <Hourglass size={9} style={{ display: 'inline-block', animation: 'hourglassFlip 3s ease-in-out infinite' }} />
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))', marginBottom: '4px' }}>Scale Your Results</div>
+                <div style={{ fontSize: '9px', lineHeight: '1.5' }} className="text-muted-foreground">총 80개의 결과물을 확보하세요.</div>
+                <div style={{ position: 'relative', marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '8px' }} className="text-muted-foreground">48/80 to next level</span>
+                  </div>
+                  <div style={{ position: 'relative', height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'visible' }}>
+                    <div style={{ width: `${animatedFill}%`, height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+                    {[25, 50, 75].map(milestone => {
+                      const reached = animatedFill >= milestone
+                      return (
+                        <div key={milestone} style={{
+                          position: 'absolute', left: `${milestone}%`, top: 0,
+                          width: '1px', height: '100%',
+                          backgroundColor: 'hsl(var(--card) / 0.6)',
+                          zIndex: 1
+                        }} />
+                      )
+                    })}
+                  </div>
+                  <div style={{ fontSize: '8px', color: 'hsl(var(--primary))', marginTop: '4px' }}>
+                    {animatedFill >= 75 ? '거의 다 왔어요!' : animatedFill >= 50 ? '절반을 넘었어요!' : animatedFill >= 25 ? '좋은 출발이에요!' : '시작이 반이에요!'}
+                  </div>
+                </div>
+              </div>
+
+              {/* 미션 2 */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <span style={{ fontSize: '8px', fontWeight: '600', color: 'hsl(var(--muted-foreground))' }}>Mission 2</span>
+                  <span style={{ fontSize: '9px', fontWeight: '500', color: 'hsl(var(--primary))', backgroundColor: 'hsl(var(--primary) / 0.1)', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px', minWidth: '52px', justifyContent: 'center', animation: 'softBounce 2s ease-in-out infinite' }}>
+                    Complete
+                    <PartyPopper size={9} />
+                  </span>
+                </div>
+                <div style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))', marginBottom: '4px' }}>Expand Your Solution Stack</div>
+                <div style={{ fontSize: '9px', lineHeight: '1.5' }} className="text-muted-foreground">2개 이상의 솔루션을 사용하여 불꽃을 밝히세요.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
                   {[
                     { name: 'DataShot', color: '#7B61FF', done: true },
                     { name: 'Reach Caster', color: '#00C8FF', done: true },
@@ -148,10 +151,11 @@ export function GradeCard() {
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: s.done ? 1 : 0.4 }}>
                       {s.done
-                        ? <Flame size={12} fill={s.color} style={{ color: s.color, flexShrink: 0 }} />
+                        ? <Flame size={12} fill={s.color} style={{ color: s.color, flexShrink: 0, animation: 'flameFlicker 1.5s ease-in-out infinite' }} />
                         : <Lock size={12} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />
                       }
                       <span style={{ fontSize: '10px', color: s.done ? '#737373' : 'hsl(var(--muted-foreground))' }}>{s.name}</span>
+                      {!s.done && <span style={{ fontSize: '8px', color: 'hsl(var(--muted-foreground))' }}>(준비중)</span>}
                     </div>
                   ))}
                 </div>
