@@ -1,6 +1,6 @@
 import { ChevronDown, ArrowLeft } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
+import { ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 interface IndustryDualBarChartProps {
   onIndustryChange?: (industry: string) => void
@@ -10,11 +10,11 @@ interface IndustryDualBarChartProps {
 const MEDIA_COLORS: Record<string, string> = {
   '전체': 'hsl(var(--foreground))',
   'Meta': '#00D9FF',       // Cyan
-  'Google': '#FF3D00',     // Neon Orange-Red
+  'Google Ads': '#FF3D00',     // Neon Orange-Red
   'TikTok': 'hsl(var(--foreground))',
-  'kakao': '#FFD600',      // Neon Yellow
-  'NAVER 성과형': '#00FF94', // Neon Lime
-  'NAVER 보장형': '#00FF94', // Neon Lime
+  'Kakao 모먼트': '#FFD600',      // Neon Yellow
+  'NAVER 성과형 DA': '#00FF94', // Neon Lime
+  'NAVER 보장형 DA': '#00FF94', // Neon Lime
 }
 
 const INDUSTRY_LIST = [
@@ -28,209 +28,209 @@ const MEDIA_LEVEL: Record<string, { media: string; ctr: number; share: number }[
   '전체': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.9, share: 28 },
-    { media: 'Google', ctr: 2.0, share: 22 },
+    { media: 'Google Ads', ctr: 2.0, share: 22 },
     { media: 'TikTok', ctr: 3.2, share: 14 },
-    { media: 'kakao', ctr: 2.1, share: 16 },
-    { media: 'NAVER 성과형', ctr: 2.4, share: 12 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.1, share: 16 },
+    { media: 'NAVER 성과형 DA', ctr: 2.4, share: 12 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 8 },
   ],
   '뷰티': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.4, share: 35 },
-    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'Google Ads', ctr: 2.1, share: 18 },
     { media: 'TikTok', ctr: 3.8, share: 20 },
-    { media: 'kakao', ctr: 2.3, share: 14 },
-    { media: 'NAVER 성과형', ctr: 2.6, share: 9 },
-    { media: 'NAVER 보장형', ctr: 1.9, share: 4 },
+    { media: 'Kakao 모먼트', ctr: 2.3, share: 14 },
+    { media: 'NAVER 성과형 DA', ctr: 2.6, share: 9 },
+    { media: 'NAVER 보장형 DA', ctr: 1.9, share: 4 },
   ],
   '식품': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.5, share: 22 },
-    { media: 'Google', ctr: 1.9, share: 20 },
+    { media: 'Google Ads', ctr: 1.9, share: 20 },
     { media: 'TikTok', ctr: 2.8, share: 10 },
-    { media: 'kakao', ctr: 2.4, share: 25 },
-    { media: 'NAVER 성과형', ctr: 2.2, share: 15 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.4, share: 25 },
+    { media: 'NAVER 성과형 DA', ctr: 2.2, share: 15 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
   '패션': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.6, share: 38 },
-    { media: 'Google', ctr: 2.0, share: 15 },
+    { media: 'Google Ads', ctr: 2.0, share: 15 },
     { media: 'TikTok', ctr: 4.1, share: 22 },
-    { media: 'kakao', ctr: 2.2, share: 12 },
-    { media: 'NAVER 성과형', ctr: 2.3, share: 8 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 5 },
+    { media: 'Kakao 모먼트', ctr: 2.2, share: 12 },
+    { media: 'NAVER 성과형 DA', ctr: 2.3, share: 8 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 5 },
   ],
   '전자제품': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.4, share: 20 },
-    { media: 'Google', ctr: 2.2, share: 30 },
+    { media: 'Google Ads', ctr: 2.2, share: 30 },
     { media: 'TikTok', ctr: 2.6, share: 8 },
-    { media: 'kakao', ctr: 2.0, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.5, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.9, share: 10 },
+    { media: 'Kakao 모먼트', ctr: 2.0, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.5, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.9, share: 10 },
   ],
   '자동차': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.0, share: 18 },
-    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'Google Ads', ctr: 1.8, share: 28 },
     { media: 'TikTok', ctr: 2.2, share: 5 },
-    { media: 'kakao', ctr: 1.9, share: 20 },
-    { media: 'NAVER 성과형', ctr: 2.1, share: 16 },
-    { media: 'NAVER 보장형', ctr: 1.6, share: 13 },
+    { media: 'Kakao 모먼트', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형 DA', ctr: 2.1, share: 16 },
+    { media: 'NAVER 보장형 DA', ctr: 1.6, share: 13 },
   ],
   '게임': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.2, share: 25 },
-    { media: 'Google', ctr: 2.4, share: 20 },
+    { media: 'Google Ads', ctr: 2.4, share: 20 },
     { media: 'TikTok', ctr: 4.5, share: 30 },
-    { media: 'kakao', ctr: 2.6, share: 10 },
-    { media: 'NAVER 성과형', ctr: 2.8, share: 10 },
-    { media: 'NAVER 보장형', ctr: 2.0, share: 5 },
+    { media: 'Kakao 모먼트', ctr: 2.6, share: 10 },
+    { media: 'NAVER 성과형 DA', ctr: 2.8, share: 10 },
+    { media: 'NAVER 보장형 DA', ctr: 2.0, share: 5 },
   ],
   '이커머스': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.8, share: 26 },
-    { media: 'Google', ctr: 2.3, share: 24 },
+    { media: 'Google Ads', ctr: 2.3, share: 24 },
     { media: 'TikTok', ctr: 3.0, share: 12 },
-    { media: 'kakao', ctr: 2.2, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.6, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+    { media: 'Kakao 모먼트', ctr: 2.2, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.6, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 6 },
   ],
   '여행': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.7, share: 30 },
-    { media: 'Google', ctr: 2.1, share: 25 },
+    { media: 'Google Ads', ctr: 2.1, share: 25 },
     { media: 'TikTok', ctr: 2.9, share: 10 },
-    { media: 'kakao', ctr: 2.0, share: 15 },
-    { media: 'NAVER 성과형', ctr: 2.3, share: 12 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.0, share: 15 },
+    { media: 'NAVER 성과형 DA', ctr: 2.3, share: 12 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
   '건강식품': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.1, share: 32 },
-    { media: 'Google', ctr: 2.0, share: 18 },
+    { media: 'Google Ads', ctr: 2.0, share: 18 },
     { media: 'TikTok', ctr: 3.3, share: 15 },
-    { media: 'kakao', ctr: 2.4, share: 20 },
-    { media: 'NAVER 성과형', ctr: 2.5, share: 10 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 5 },
+    { media: 'Kakao 모먼트', ctr: 2.4, share: 20 },
+    { media: 'NAVER 성과형 DA', ctr: 2.5, share: 10 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 5 },
   ],
   '금융': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 1.8, share: 15 },
-    { media: 'Google', ctr: 1.6, share: 32 },
+    { media: 'Google Ads', ctr: 1.6, share: 32 },
     { media: 'TikTok', ctr: 1.9, share: 5 },
-    { media: 'kakao', ctr: 1.7, share: 22 },
-    { media: 'NAVER 성과형', ctr: 1.9, share: 18 },
-    { media: 'NAVER 보장형', ctr: 1.4, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 1.7, share: 22 },
+    { media: 'NAVER 성과형 DA', ctr: 1.9, share: 18 },
+    { media: 'NAVER 보장형 DA', ctr: 1.4, share: 8 },
   ],
   '교육': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.2, share: 28 },
-    { media: 'Google', ctr: 1.9, share: 26 },
+    { media: 'Google Ads', ctr: 1.9, share: 26 },
     { media: 'TikTok', ctr: 2.4, share: 8 },
-    { media: 'kakao', ctr: 2.0, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.1, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.6, share: 6 },
+    { media: 'Kakao 모먼트', ctr: 2.0, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.1, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.6, share: 6 },
   ],
   '부동산': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 1.9, share: 20 },
-    { media: 'Google', ctr: 1.7, share: 30 },
+    { media: 'Google Ads', ctr: 1.7, share: 30 },
     { media: 'TikTok', ctr: 2.0, share: 4 },
-    { media: 'kakao', ctr: 1.8, share: 22 },
-    { media: 'NAVER 성과형', ctr: 2.0, share: 16 },
-    { media: 'NAVER 보장형', ctr: 1.5, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 1.8, share: 22 },
+    { media: 'NAVER 성과형 DA', ctr: 2.0, share: 16 },
+    { media: 'NAVER 보장형 DA', ctr: 1.5, share: 8 },
   ],
   '의료': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.1, share: 22 },
-    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'Google Ads', ctr: 1.8, share: 28 },
     { media: 'TikTok', ctr: 2.2, share: 6 },
-    { media: 'kakao', ctr: 1.9, share: 20 },
-    { media: 'NAVER 성과형', ctr: 2.1, share: 16 },
-    { media: 'NAVER 보장형', ctr: 1.6, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형 DA', ctr: 2.1, share: 16 },
+    { media: 'NAVER 보장형 DA', ctr: 1.6, share: 8 },
   ],
   '스포츠': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.0, share: 30 },
-    { media: 'Google', ctr: 2.2, share: 20 },
+    { media: 'Google Ads', ctr: 2.2, share: 20 },
     { media: 'TikTok', ctr: 3.5, share: 18 },
-    { media: 'kakao', ctr: 2.3, share: 14 },
-    { media: 'NAVER 성과형', ctr: 2.4, share: 12 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+    { media: 'Kakao 모먼트', ctr: 2.3, share: 14 },
+    { media: 'NAVER 성과형 DA', ctr: 2.4, share: 12 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 6 },
   ],
   '엔터테인먼트': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.3, share: 32 },
-    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'Google Ads', ctr: 2.1, share: 18 },
     { media: 'TikTok', ctr: 4.2, share: 25 },
-    { media: 'kakao', ctr: 2.4, share: 12 },
-    { media: 'NAVER 성과형', ctr: 2.5, share: 8 },
-    { media: 'NAVER 보장형', ctr: 1.9, share: 5 },
+    { media: 'Kakao 모먼트', ctr: 2.4, share: 12 },
+    { media: 'NAVER 성과형 DA', ctr: 2.5, share: 8 },
+    { media: 'NAVER 보장형 DA', ctr: 1.9, share: 5 },
   ],
   '가구/인테리어': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.3, share: 24 },
-    { media: 'Google', ctr: 2.0, share: 26 },
+    { media: 'Google Ads', ctr: 2.0, share: 26 },
     { media: 'TikTok', ctr: 2.5, share: 10 },
-    { media: 'kakao', ctr: 2.1, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.2, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.2, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
   '반려동물': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 3.2, share: 34 },
-    { media: 'Google', ctr: 2.1, share: 18 },
+    { media: 'Google Ads', ctr: 2.1, share: 18 },
     { media: 'TikTok', ctr: 3.6, share: 16 },
-    { media: 'kakao', ctr: 2.3, share: 16 },
-    { media: 'NAVER 성과형', ctr: 2.4, share: 10 },
-    { media: 'NAVER 보장형', ctr: 1.8, share: 6 },
+    { media: 'Kakao 모먼트', ctr: 2.3, share: 16 },
+    { media: 'NAVER 성과형 DA', ctr: 2.4, share: 10 },
+    { media: 'NAVER 보장형 DA', ctr: 1.8, share: 6 },
   ],
   '육아': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.6, share: 28 },
-    { media: 'Google', ctr: 1.9, share: 20 },
+    { media: 'Google Ads', ctr: 1.9, share: 20 },
     { media: 'TikTok', ctr: 2.8, share: 12 },
-    { media: 'kakao', ctr: 2.3, share: 22 },
-    { media: 'NAVER 성과형', ctr: 2.2, share: 12 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 6 },
+    { media: 'Kakao 모먼트', ctr: 2.3, share: 22 },
+    { media: 'NAVER 성과형 DA', ctr: 2.2, share: 12 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 6 },
   ],
   '서비스': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.5, share: 26 },
-    { media: 'Google', ctr: 2.0, share: 24 },
+    { media: 'Google Ads', ctr: 2.0, share: 24 },
     { media: 'TikTok', ctr: 2.7, share: 10 },
-    { media: 'kakao', ctr: 2.1, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.3, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.3, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
   '통신': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.0, share: 18 },
-    { media: 'Google', ctr: 1.8, share: 28 },
+    { media: 'Google Ads', ctr: 1.8, share: 28 },
     { media: 'TikTok', ctr: 2.2, share: 8 },
-    { media: 'kakao', ctr: 1.9, share: 20 },
-    { media: 'NAVER 성과형', ctr: 2.0, share: 16 },
-    { media: 'NAVER 보장형', ctr: 1.6, share: 10 },
+    { media: 'Kakao 모먼트', ctr: 1.9, share: 20 },
+    { media: 'NAVER 성과형 DA', ctr: 2.0, share: 16 },
+    { media: 'NAVER 보장형 DA', ctr: 1.6, share: 10 },
   ],
   '유통': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.6, share: 24 },
-    { media: 'Google', ctr: 2.1, share: 22 },
+    { media: 'Google Ads', ctr: 2.1, share: 22 },
     { media: 'TikTok', ctr: 2.8, share: 12 },
-    { media: 'kakao', ctr: 2.2, share: 20 },
-    { media: 'NAVER 성과형', ctr: 2.3, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.2, share: 20 },
+    { media: 'NAVER 성과형 DA', ctr: 2.3, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
   '기타': [
     { media: '전체', ctr: 2.3, share: 100 },
     { media: 'Meta', ctr: 2.5, share: 26 },
-    { media: 'Google', ctr: 2.0, share: 22 },
+    { media: 'Google Ads', ctr: 2.0, share: 22 },
     { media: 'TikTok', ctr: 2.7, share: 12 },
-    { media: 'kakao', ctr: 2.1, share: 18 },
-    { media: 'NAVER 성과형', ctr: 2.2, share: 14 },
-    { media: 'NAVER 보장형', ctr: 1.7, share: 8 },
+    { media: 'Kakao 모먼트', ctr: 2.1, share: 18 },
+    { media: 'NAVER 성과형 DA', ctr: 2.2, share: 14 },
+    { media: 'NAVER 보장형 DA', ctr: 1.7, share: 8 },
   ],
 }
 
@@ -244,7 +244,7 @@ const PRODUCT_LEVEL: Record<string, Record<string, { product: string; ctr: numbe
       { product: 'CONVERSIONS > facebook', ctr: 2.9, share: 6 },
       { product: 'LEAD_GENERATION > instagram', ctr: 2.6, share: 5 },
     ],
-    'Google': [
+    'Google Ads': [
       { product: '디스플레이 광고', ctr: 2.4, share: 9 },
       { product: '동영상 광고 (YouTube)', ctr: 2.1, share: 7 },
       { product: 'Performance Max', ctr: 2.3, share: 5 },
@@ -258,21 +258,21 @@ const PRODUCT_LEVEL: Record<string, Record<string, { product: string; ctr: numbe
       { product: '브랜드 인수 광고', ctr: 3.1, share: 3 },
       { product: '해시태그 챌린지', ctr: 2.8, share: 2 },
     ],
-    'kakao': [
+    'Kakao 모먼트': [
       { product: '카카오톡 비즈보드', ctr: 2.6, share: 8 },
       { product: '카카오톡 채널 광고', ctr: 2.4, share: 5 },
       { product: 'Daum 디스플레이', ctr: 2.1, share: 3 },
       { product: '카카오 모먼트 동영상', ctr: 2.3, share: 2 },
       { product: '카카오 스토리', ctr: 1.9, share: 1 },
     ],
-    'NAVER 성과형': [
+    'NAVER 성과형 DA': [
       { product: '파워링크', ctr: 2.9, share: 5 },
       { product: '쇼핑검색', ctr: 2.7, share: 3 },
       { product: 'GFA 배너', ctr: 2.4, share: 2 },
       { product: '브랜드검색', ctr: 2.2, share: 1 },
       { product: '동영상 광고', ctr: 2.0, share: 1 },
     ],
-    'NAVER 보장형': [
+    'NAVER 보장형 DA': [
       { product: '타임보드', ctr: 2.1, share: 2 },
       { product: '롤링보드', ctr: 1.9, share: 1 },
       { product: '브랜딩DA', ctr: 1.7, share: 1 },
@@ -295,28 +295,28 @@ const PRODUCT_LEVEL: Record<string, Record<string, { product: string; ctr: numbe
       { product: '브랜드 인수 광고', ctr: 3.4, share: 4 },
       { product: '해시태그 챌린지', ctr: 3.1, share: 3 },
     ],
-    'Google': [
+    'Google Ads': [
       { product: '디스플레이 광고', ctr: 2.3, share: 8 },
       { product: 'Performance Max', ctr: 2.5, share: 6 },
       { product: '동영상 광고 (YouTube)', ctr: 2.0, share: 5 },
       { product: '검색 광고', ctr: 1.8, share: 3 },
       { product: '디스커버리 광고', ctr: 1.6, share: 2 },
     ],
-    'kakao': [
+    'Kakao 모먼트': [
       { product: '카카오톡 비즈보드', ctr: 2.5, share: 7 },
       { product: '카카오톡 채널 광고', ctr: 2.3, share: 4 },
       { product: 'Daum 디스플레이', ctr: 2.0, share: 2 },
       { product: '카카오 모먼트 동영상', ctr: 2.2, share: 2 },
       { product: '카카오 스토리', ctr: 1.8, share: 1 },
     ],
-    'NAVER 성과형': [
+    'NAVER 성과형 DA': [
       { product: '파워링크', ctr: 2.6, share: 4 },
       { product: '쇼핑검색', ctr: 2.8, share: 3 },
       { product: 'GFA 배너', ctr: 2.2, share: 2 },
       { product: '브랜드검색', ctr: 2.0, share: 1 },
       { product: '동영상 광고', ctr: 1.9, share: 1 },
     ],
-    'NAVER 보장형': [
+    'NAVER 보장형 DA': [
       { product: '타임보드', ctr: 2.0, share: 2 },
       { product: '롤링보드', ctr: 1.8, share: 1 },
       { product: '브랜딩DA', ctr: 1.6, share: 1 },
@@ -561,7 +561,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
             data={chartData}
             margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
           >
-            <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.4} />
+
             <XAxis
               dataKey="name"
               tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10, fontFamily: 'Paperlogy, sans-serif' }}
@@ -603,7 +603,7 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
         </div>
         {!drillMedia && (
           <p style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', margin: '4px 0 0 0', fontFamily: 'Paperlogy, sans-serif', opacity: 0.7 }}>
-            막대 클릭 시 광고상품 상세
+            막대 클릭 시 광고상품으로 드릴다운
           </p>
         )}
       </div>
