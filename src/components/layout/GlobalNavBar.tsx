@@ -97,8 +97,8 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       message: 'Solution Expert까지 50% 도달했습니다.',
       completedMinutesAgo: 10,
       isNew: true,
-      status: 'info',
-      type: 'notice',
+      status: 'success',
+      type: 'achievement',
       resultUrl: null
     },
     {
@@ -185,8 +185,8 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       message: 'Strategy Builder 레벨에 도달했습니다.',
       completedMinutesAgo: 360,
       isNew: false,
-      status: 'info',
-      type: 'notice',
+      status: 'success',
+      type: 'achievement',
       resultUrl: null
     }
   ]
