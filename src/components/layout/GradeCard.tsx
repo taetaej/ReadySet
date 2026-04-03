@@ -19,6 +19,7 @@ const currentGrade = {
 export function GradeCard() {
   const [showGradeTooltip, setShowGradeTooltip] = useState(false)
   const [animatedFill, setAnimatedFill] = useState(0)
+  const [showCheck, setShowCheck] = useState(false)
   const gradeRef = useRef<HTMLDivElement>(null)
 
   const currentGradeIndex = grades.findIndex(g => g.name === currentGrade.name)
@@ -27,13 +28,16 @@ export function GradeCard() {
   useEffect(() => {
     if (showGradeTooltip) {
       setAnimatedFill(0)
+      setShowCheck(false)
       const timer = setTimeout(() => {
         const start = 31, end = 81, current = 48
         setAnimatedFill(Math.round(((current - start) / (end - start)) * 100))
       }, 50)
-      return () => clearTimeout(timer)
+      const checkTimer = setTimeout(() => setShowCheck(true), 600)
+      return () => { clearTimeout(timer); clearTimeout(checkTimer) }
     } else {
       setAnimatedFill(0)
+      setShowCheck(false)
     }
   }, [showGradeTooltip])
 
@@ -81,22 +85,14 @@ export function GradeCard() {
               {currentGrade.description}
             </div>
 
-            {nextGrade && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '10px' }} className="text-muted-foreground">
-                <span>Next Level</span>
-                <ChevronRight size={10} />
-                <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
-                <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
-              </div>
-            )}
-
             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
               <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>Let's Level Up!</span>
 
               {/* 미션 1 */}
               <div style={{ marginTop: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
                     <span style={{ fontSize: '8px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>Mission 1</span>
                     <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>결과물 80개 보유하기</span>
                   </div>
@@ -124,8 +120,12 @@ export function GradeCard() {
 
               {/* 미션 2 */}
               <div style={{ marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {showCheck 
+                      ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+                      : <svg width="14" height="14" viewBox="0 0 24 24" style={{ flexShrink: 0, visibility: 'hidden' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/></svg>
+                    }
                     <span style={{ fontSize: '8px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>Mission 2</span>
                     <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>솔루션 2개 이상 사용하기</span>
                   </div>
@@ -158,6 +158,15 @@ export function GradeCard() {
                   ))}
                 </div>
               </div>
+
+              {nextGrade && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }} className="text-muted-foreground">
+                  <span>Next Level</span>
+                  <ChevronRight size={10} />
+                  <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
+                  <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1146,3 +1146,11 @@
   70% { transform: translateY(-2px) scaleY(1.12) rotate(2deg); filter: brightness(1.25); }
   85% { transform: translateY(-1px) scaleY(1.05) rotate(-1deg); filter: brightness(1.15); }
 }
+
+@keyframes stampPop {
+  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+  40% { transform: scale(1.4) rotate(5deg); opacity: 1; }
+  60% { transform: scale(0.85) rotate(-2deg); }
+  80% { transform: scale(1.1) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
