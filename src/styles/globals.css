@@ -1154,3 +1154,21 @@
   80% { transform: scale(1.1) rotate(1deg); }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loader-spin {
+  animation: spin 3s linear infinite;
+}
+
+.hourglass-flip {
+  animation: hourglassFlip 3s ease-in-out infinite;
+}
+
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-3px); }
+}

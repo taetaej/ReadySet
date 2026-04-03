@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, Award, Flame, Lock, Zap, Activity, Target, Crown, Star } from 'lucide-react'
+import { ChevronRight, Award, Flame, Zap, Activity, Target, Crown, Star, CheckCheck } from 'lucide-react'
 
 const grades = [
   { name: 'Slot-In Ready', icon: Zap, description: 'ReadySet의 잠재력을 탐색 중인 예비 전략가.' },
@@ -65,7 +65,6 @@ export function GradeCard() {
       }}
       onClick={() => setShowGradeTooltip(!showGradeTooltip)}
     >
-      <currentGrade.icon size={16} style={{ color: 'hsl(var(--primary-foreground))' }} />
       <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))' }}>
         {currentGrade.name}
       </span>
@@ -115,17 +114,18 @@ export function GradeCard() {
               </div>
             </div>
 
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
-              <span style={{ fontSize: '11px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>Let's Level Up!</span>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
+              <span style={{ fontSize: '15px', fontWeight: '700', color: 'hsl(var(--foreground))' }}>Let's Level Up!</span>
 
               {/* 미션 1 */}
               <div style={{ marginTop: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {showCheck1
-                      ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-                      : <svg width="14" height="14" viewBox="0 0 24 24" style={{ flexShrink: 0, visibility: 'hidden' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/></svg>
-                    }
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+                      <span style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: 'hsl(var(--muted-foreground))', animation: 'dotBounce 1.4s ease-in-out infinite', animationDelay: '0s' }} />
+                      <span style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: 'hsl(var(--muted-foreground))', animation: 'dotBounce 1.4s ease-in-out infinite', animationDelay: '0.2s' }} />
+                      <span style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: 'hsl(var(--muted-foreground))', animation: 'dotBounce 1.4s ease-in-out infinite', animationDelay: '0.4s' }} />
+                    </span>
                     <span style={{ fontSize: '8px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>Mission 1</span>
                     <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>결과물 80개 보유하기</span>
                   </div>
@@ -156,8 +156,8 @@ export function GradeCard() {
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {showCheck2 
-                      ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-                      : <svg width="14" height="14" viewBox="0 0 24 24" style={{ flexShrink: 0, visibility: 'hidden' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/></svg>
+                      ? <CheckCheck size={14} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }} />
+                      : <CheckCheck size={14} style={{ flexShrink: 0, visibility: 'hidden' }} />
                     }
                     <span style={{ fontSize: '8px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>Mission 2</span>
                     <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>솔루션 2개 이상 사용하기</span>
@@ -178,7 +178,7 @@ export function GradeCard() {
                         backgroundColor: s.done ? `${s.color}15` : 'transparent'
                       }}>
                         {s.locked
-                          ? <Lock size={13} style={{ color: 'hsl(var(--muted-foreground) / 0.3)' }} />
+                          ? <span style={{ fontSize: '6px', color: 'hsl(var(--muted-foreground) / 0.4)', textAlign: 'center', lineHeight: '1.1' }}>준비중</span>
                           : <Flame size={13}
                               fill={s.done ? s.color : 'none'}
                               style={{ color: s.done ? s.color : 'hsl(var(--muted-foreground) / 0.25)' }}
@@ -186,7 +186,6 @@ export function GradeCard() {
                         }
                       </div>
                       <span style={{ fontSize: '7px', color: s.done ? '#737373' : 'hsl(var(--muted-foreground) / 0.4)', textAlign: 'center' }}>{s.name}</span>
-                      {s.locked ? <span style={{ fontSize: '6px', color: 'hsl(var(--muted-foreground) / 0.4)' }}>(준비중)</span> : <span style={{ fontSize: '6px', visibility: 'hidden' }}>(준비중)</span>}
                     </div>
                   ))}
                 </div>
