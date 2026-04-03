@@ -36,7 +36,7 @@ export function GradeCard() {
         setAnimatedFill(Math.round(((current - start) / (end - start)) * 100))
       }, 50)
       const check1Timer = setTimeout(() => setShowCheck1(true), 700)
-      const check2Timer = setTimeout(() => setShowCheck2(true), 1100)
+      const check2Timer = setTimeout(() => setShowCheck2(true), 50)
       return () => { clearTimeout(timer); clearTimeout(check1Timer); clearTimeout(check2Timer) }
     } else {
       setAnimatedFill(0)
