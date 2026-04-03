@@ -1,7 +1,8 @@
-import { Bell, ChevronDown, ChevronRight, Sun, Moon, Zap, Activity, Target, Award, Crown, Star, LogOut, Info, TrendingUp, Database, DollarSign, Lock, Flame } from 'lucide-react'
+import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
+import { GradeCard } from './GradeCard'
 
 interface GlobalNavBarProps {
   isDarkMode: boolean
@@ -12,11 +13,9 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
   const navigate = useNavigate()
   const [showClientLayer, setShowClientLayer] = useState(false)
   const [showNotificationLayer, setShowNotificationLayer] = useState(false)
-  const [showGradeTooltip, setShowGradeTooltip] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const clientRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
-  const gradeRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
   // 외부 클릭 시 레이어 닫기
@@ -28,9 +27,6 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setShowNotificationLayer(false)
       }
-      if (gradeRef.current && !gradeRef.current.contains(event.target as Node)) {
-        setShowGradeTooltip(false)
-      }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false)
       }
@@ -39,51 +35,6 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  // 현재 사용자 등급 (예시: Strategy Builder)
-  const currentGrade = {
-    name: 'Strategy Builder',
-    icon: Target,
-    description: '개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가.'
-  }
-
-  // 등급 정보
-  const grades = [
-    {
-      name: 'Slot-In Ready',
-      icon: Zap,
-      description: 'ReadySet의 잠재력을 탐색 중인 예비 전략가.'
-    },
-    {
-      name: 'Active Slotter',
-      icon: Activity,
-      description: '데이터의 흐름을 만들기 시작한 실무 전략가.'
-    },
-    {
-      name: 'Strategy Builder',
-      icon: Target,
-      description: '개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가.'
-    },
-    {
-      name: 'Solution Expert',
-      icon: Award,
-      description: '플랫폼을 완벽히 활용해 최적의 해답을 도출하는 전문가.'
-    },
-    {
-      name: 'Master Architect',
-      icon: Crown,
-      description: '복잡한 시나리오를 구조화하여 전략 생태계를 구축한 마스터.'
-    },
-    {
-      name: 'ReadySet Visionary',
-      icon: Star,
-      description: '플랫폼의 한계를 넘어 전략의 새 지평을 여는 독보적 선구자.'
-    }
-  ]
-
-  // 다음 등급 찾기
-  const currentGradeIndex = grades.findIndex(grade => grade.name === currentGrade.name)
-  const nextGrade = currentGradeIndex < grades.length - 1 ? grades[currentGradeIndex + 1] : null
 
   // 광고주 목록 데이터 (자음 오름차순 정렬)
   const allAdvertisers = [
@@ -138,6 +89,17 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       status: 'success',
       type: 'task',
       resultUrl: '/datashot/dataset/detail'
+    },
+    {
+      id: 35,
+      solution: 'ReadySet',
+      scenarioName: '결과물 25개, 솔루션 2개 필요',
+      message: 'Solution Expert까지 50% 도달했습니다.',
+      completedMinutesAgo: 10,
+      isNew: true,
+      status: 'success',
+      type: 'achievement',
+      resultUrl: null
     },
     {
       id: 4,
@@ -215,6 +177,17 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       status: 'success',
       type: 'task',
       resultUrl: '/datashot/dataset/detail'
+    },
+    {
+      id: 11,
+      solution: 'ReadySet',
+      scenarioName: '개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가입니다.',
+      message: 'Strategy Builder 레벨에 도달했습니다.',
+      completedMinutesAgo: 360,
+      isNew: false,
+      status: 'success',
+      type: 'achievement',
+      resultUrl: null
     }
   ]
 
@@ -534,7 +507,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                             fontSize: '10px',
                             backgroundColor: '#3b82f6',
                             color: 'white',
-                            padding: '2px 6px',
+                            padding: '1px 4px',
                             borderRadius: '4px',
                             fontWeight: '600'
                           }}>
@@ -584,113 +557,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
         }} />
 
         {/* 등급 섹션 */}
-        <div 
-          ref={gradeRef}
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            cursor: 'pointer',
-            padding: '6px 12px',
-            borderRadius: '16px',
-            transition: 'all 0.2s',
-            position: 'relative'
-          }}
-          onClick={() => setShowGradeTooltip(!showGradeTooltip)}
-        >
-          <currentGrade.icon size={16} style={{ color: 'hsl(var(--primary-foreground))' }} />
-          <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))' }}>
-            {currentGrade.name}
-          </span>
-
-          {/* 등급 카드 */}
-          {showGradeTooltip && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              marginTop: '8px',
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border) / 0.6)',
-              borderRadius: '16px',
-              padding: '0',
-              width: '280px',
-              boxShadow: '0 16px 40px 0 rgb(0 0 0 / 0.12)',
-              zIndex: 1000,
-              overflow: 'hidden'
-            }}
-            onClick={(e) => e.stopPropagation()}
-            >
-              {/* ① 등급 + Next + Set Power */}
-              <div style={{ padding: '20px 20px 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                  <currentGrade.icon size={16} style={{ color: 'hsl(var(--foreground))' }} />
-                  <span style={{ fontSize: '15px', fontWeight: '700' }} className="text-foreground">{currentGrade.name}</span>
-                </div>
-                <div style={{ fontSize: '11px', lineHeight: '1.4', marginTop: '4px' }} className="text-muted-foreground">
-                  {currentGrade.description}
-                </div>
-
-                {/* Next 등급 */}
-                {nextGrade && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '10px' }} className="text-muted-foreground">
-                    <span>Next</span>
-                    <ChevronRight size={10} />
-                    <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
-                    <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
-                  </div>
-                )}
-
-                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <div>
-                      <span style={{ fontSize: '11px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>Set-Power</span>
-                      <div style={{ fontSize: '8px', marginTop: '1px' }} className="text-muted-foreground">누적 결과물</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: '800', flexShrink: 0 }} className="text-foreground">48</span>
-                    <div style={{ flex: 1, height: '4px', borderRadius: '2px', backgroundColor: 'hsl(var(--muted))', overflow: 'hidden' }}>
-                      <div style={{ width: '59%', height: '100%', borderRadius: '2px', backgroundColor: 'hsl(var(--primary))', transition: 'width 0.5s ease' }} />
-                    </div>
-                    <span style={{ fontSize: '11px', flexShrink: 0 }} className="text-muted-foreground">/ 81</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* ② 솔루션 사용현황 */}
-              <div style={{
-                padding: '12px 20px',
-                borderTop: '1px solid hsl(var(--border) / 0.4)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '11px', color: 'hsl(var(--foreground))' }}>솔루션 사용현황</span>
-                  <span style={{ fontSize: '11px', fontWeight: '700' }} className="text-foreground">2/2</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {[
-                    { name: 'DataShot', color: '#7B61FF', done: true },
-                    { name: 'Reach Caster', color: '#00C8FF', done: true },
-                    { name: 'Ad Curator', color: '#00E676', done: false },
-                    { name: 'Budget Optimizer', color: '#FF3B7A', done: false },
-                  ].map((s, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      opacity: s.done ? 1 : 0.4
-                    }}>
-                      {s.done
-                        ? <Flame size={12} fill={s.color} style={{ color: s.color, flexShrink: 0 }} />
-                        : <Lock size={12} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />
-                      }
-                      <span style={{ fontSize: '10px', color: s.done ? '#737373' : 'hsl(var(--muted-foreground))' }}>{s.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-        </div>
+        <GradeCard />
       </div>
 
       {/* Main GNB */}

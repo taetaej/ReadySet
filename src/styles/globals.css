@@ -1100,3 +1100,75 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px currentColor !important;
 }
+
+@keyframes gradeIconWobble {
+  0%, 100% { transform: translateY(-50%) rotate(0deg); }
+  25% { transform: translateY(-50%) rotate(-8deg); }
+  75% { transform: translateY(-50%) rotate(8deg); }
+}
+
+@keyframes gradeBoxFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes thumbBounce {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.2); }
+  50% { transform: rotate(0deg) scale(1); }
+  75% { transform: rotate(10deg) scale(1.1); }
+}
+
+@keyframes hourglassFlip {
+  0%, 80% { transform: rotate(0deg); }
+  90% { transform: rotate(180deg); }
+  100% { transform: rotate(180deg); }
+}
+
+@keyframes partyBounce {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20% { transform: rotate(-10deg) scale(1.2); }
+  40% { transform: rotate(10deg) scale(1.15); }
+  60% { transform: rotate(-5deg) scale(1.1); }
+  80% { transform: rotate(5deg) scale(1.05); }
+}
+
+@keyframes softBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes flameFlicker {
+  0%, 100% { transform: translateY(0) scaleY(1) rotate(0deg); filter: brightness(1); }
+  15% { transform: translateY(-1px) scaleY(1.1) rotate(-2deg); filter: brightness(1.2); }
+  30% { transform: translateY(-2px) scaleY(1.15) rotate(1deg); filter: brightness(1.3); }
+  50% { transform: translateY(-1px) scaleY(0.95) rotate(-1deg); filter: brightness(1.1); }
+  70% { transform: translateY(-2px) scaleY(1.12) rotate(2deg); filter: brightness(1.25); }
+  85% { transform: translateY(-1px) scaleY(1.05) rotate(-1deg); filter: brightness(1.15); }
+}
+
+@keyframes stampPop {
+  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+  40% { transform: scale(1.4) rotate(5deg); opacity: 1; }
+  60% { transform: scale(0.85) rotate(-2deg); }
+  80% { transform: scale(1.1) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loader-spin {
+  animation: spin 3s linear infinite;
+}
+
+.hourglass-flip {
+  animation: hourglassFlip 3s ease-in-out infinite;
+}
+
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-3px); }
+}
