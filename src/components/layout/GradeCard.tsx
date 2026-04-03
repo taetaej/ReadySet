@@ -19,7 +19,8 @@ const currentGrade = {
 export function GradeCard() {
   const [showGradeTooltip, setShowGradeTooltip] = useState(false)
   const [animatedFill, setAnimatedFill] = useState(0)
-  const [showCheck, setShowCheck] = useState(false)
+  const [showCheck1, setShowCheck1] = useState(false)
+  const [showCheck2, setShowCheck2] = useState(false)
   const gradeRef = useRef<HTMLDivElement>(null)
 
   const currentGradeIndex = grades.findIndex(g => g.name === currentGrade.name)
@@ -28,16 +29,19 @@ export function GradeCard() {
   useEffect(() => {
     if (showGradeTooltip) {
       setAnimatedFill(0)
-      setShowCheck(false)
+      setShowCheck1(false)
+      setShowCheck2(false)
       const timer = setTimeout(() => {
         const start = 31, end = 81, current = 48
         setAnimatedFill(Math.round(((current - start) / (end - start)) * 100))
       }, 50)
-      const checkTimer = setTimeout(() => setShowCheck(true), 600)
-      return () => { clearTimeout(timer); clearTimeout(checkTimer) }
+      const check1Timer = setTimeout(() => setShowCheck1(true), 700)
+      const check2Timer = setTimeout(() => setShowCheck2(true), 1100)
+      return () => { clearTimeout(timer); clearTimeout(check1Timer); clearTimeout(check2Timer) }
     } else {
       setAnimatedFill(0)
-      setShowCheck(false)
+      setShowCheck1(false)
+      setShowCheck2(false)
     }
   }, [showGradeTooltip])
 
@@ -77,12 +81,38 @@ export function GradeCard() {
         >
           {/* ① 등급 + Next + Set Power */}
           <div style={{ padding: '20px 20px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-              <currentGrade.icon size={16} style={{ color: 'hsl(var(--foreground))' }} />
-              <span style={{ fontSize: '15px', fontWeight: '700' }} className="text-foreground">{currentGrade.name}</span>
+            <div style={{ position: 'relative' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }} className="text-foreground">{currentGrade.name}</div>
+              <div style={{ fontSize: '10px', lineHeight: '1.4' }} className="text-muted-foreground">
+                {currentGrade.description}
+              </div>
             </div>
-            <div style={{ fontSize: '11px', lineHeight: '1.4', marginTop: '4px' }} className="text-muted-foreground">
-              {currentGrade.description}
+
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', marginTop: '8px' }}>
+                {grades.map((grade, i) => {
+                  const isCurrent = grade.name === currentGrade.name
+                  const height = 20 + i * 6
+                  return (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                      <div style={{
+                        width: '100%',
+                        height: `${height}px`,
+                        borderRadius: '4px',
+                        backgroundColor: isCurrent ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
+                        transition: 'background-color 0.3s ease'
+                      }} />
+                      <span style={{
+                        fontSize: '6px',
+                        fontWeight: isCurrent ? '700' : '400',
+                        color: isCurrent ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                        textAlign: 'center',
+                        lineHeight: '1.2'
+                      }}>{grade.name}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }}>
@@ -92,7 +122,10 @@ export function GradeCard() {
               <div style={{ marginTop: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+                    {showCheck1
+                      ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+                      : <svg width="14" height="14" viewBox="0 0 24 24" style={{ flexShrink: 0, visibility: 'hidden' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/></svg>
+                    }
                     <span style={{ fontSize: '8px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>Mission 1</span>
                     <span style={{ fontSize: '10px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>결과물 80개 보유하기</span>
                   </div>
@@ -122,7 +155,7 @@ export function GradeCard() {
               <div style={{ marginTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {showCheck 
+                    {showCheck2 
                       ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, animation: 'stampPop 0.5s ease-out forwards' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
                       : <svg width="14" height="14" viewBox="0 0 24 24" style={{ flexShrink: 0, visibility: 'hidden' }}><path d="M21.801 10A10 10 0 1 1 17 3.335"/></svg>
                     }
@@ -159,16 +192,9 @@ export function GradeCard() {
                 </div>
               </div>
 
-              {nextGrade && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid hsl(var(--border) / 0.4)' }} className="text-muted-foreground">
-                  <span>Next Level</span>
-                  <ChevronRight size={10} />
-                  <nextGrade.icon size={12} style={{ color: 'hsl(var(--foreground))' }} />
-                  <span style={{ fontWeight: '600', fontSize: '11px' }} className="text-foreground">{nextGrade.name}</span>
-                </div>
-              )}
             </div>
           </div>
+
         </div>
       )}
     </div>
