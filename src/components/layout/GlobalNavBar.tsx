@@ -92,8 +92,8 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     },
     {
       id: 35,
-      solution: 'ReadySet',
-      scenarioName: '결과물 25개, 솔루션 2개 필요',
+      solution: '레벨 안내',
+      scenarioName: '다음 등급까지 결과물 25개, 솔루션 2개 필요',
       message: 'Solution Expert까지 50% 도달했습니다.',
       completedMinutesAgo: 10,
       isNew: true,
@@ -180,8 +180,8 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     },
     {
       id: 11,
-      solution: 'ReadySet',
-      scenarioName: '개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가입니다.',
+      solution: '레벨 안내',
+      scenarioName: 'Strategy Builder는 개별 솔루션을 조합해 전략의 기틀을 잡는 숙련가입니다.',
       message: 'Strategy Builder 레벨에 도달했습니다.',
       completedMinutesAgo: 360,
       isNew: false,
