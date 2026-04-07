@@ -28,17 +28,17 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
     }
     
     return budgetPoints.map((budget) => {
-      // S-curve 공식 사용 (로지스틱 함수) - 60%에서 시작해서 100%까지
+      // 로그 곡선 (체감 수익 곡선) — 예산 증가 대비 Reach 증가폭이 점점 줄어드는 형태
       const normalized = (budget - minBudget) / (maxBudget - minBudget)
       const baseReach = 60 // 시작점 60%
-      const maxReach = 100 // 최대 100%
-      const reachRange = maxReach - baseReach // 40% 범위
+      const maxReach = 95 // 최대 95% (100%에 수렴하지만 도달하지 않음)
+      const reachRange = maxReach - baseReach
       
-      // 로지스틱 함수로 60~100% 범위 매핑
-      const reach = baseReach + (reachRange / (1 + Math.exp(-10 * (normalized - 0.5))))
+      // 로그 함수: 초반에 빠르게 오르고 후반에 완만해짐
+      const reach = baseReach + reachRange * (Math.log(1 + normalized * 9) / Math.log(10))
       
-      // 예측 범위 (신뢰 구간) - 시각적으로 확인 가능한 범위
-      const uncertainty = 5 + (normalized * 3) // 5%~8% 범위로 넓게
+      // 예측 범위 (신뢰 구간)
+      const uncertainty = 3 + (normalized * 4) // 3%~7% 범위
       const upperBound = Math.min(100, reach + uncertainty)
       const lowerBound = Math.max(baseReach, reach - uncertainty)
       
@@ -59,18 +59,16 @@ export function ReachCurveChart({ data, isDarkMode = false }: ReachCurveChartPro
     return Math.max(0, Math.floor((minReach - 10) / 10) * 10)
   }, [chartData])
 
-  // 최적 포인트 찾기 (기울기가 가장 급격하게 변하는 지점 = 변곡점)
+  // 최적 포인트 찾기 (한계 효율이 급격히 떨어지는 지점 = 기울기 변화가 큰 곳)
   const optimalPoint = useMemo(() => {
-    // S-curve의 변곡점은 normalized = 0.5 지점
-    // 예산으로 환산하면 (minBudget + maxBudget) / 2
-    const inflectionBudget = 1350000000 // 13.5억
+    // 로그 곡선에서 효율 감소가 시작되는 지점 — 대략 전체 범위의 30~40% 지점
+    const efficiencyBudget = 750000000 // 7.5억
     
-    // 해당 예산에 가장 가까운 데이터 포인트 찾기
     let optimal = chartData[0]
-    let minDiff = Math.abs(chartData[0].budget - inflectionBudget)
+    let minDiff = Math.abs(chartData[0].budget - efficiencyBudget)
     
     chartData.forEach(point => {
-      const diff = Math.abs(point.budget - inflectionBudget)
+      const diff = Math.abs(point.budget - efficiencyBudget)
       if (diff < minDiff) {
         minDiff = diff
         optimal = point

@@ -450,16 +450,19 @@ export function ScenarioStep2ReachPredictor({
                   <div>
                     <input
                       type="text"
-                      value={media.impressions ? parseInt(media.impressions).toLocaleString('ko-KR') : ''}
+                      value={media.category === 'TVC' ? '' : media.impressions ? parseInt(media.impressions).toLocaleString('ko-KR') : ''}
                       onChange={(e) => handleImpressionsChange(media.id, e.target.value)}
-                      placeholder={media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA' ? '필수' : '선택'}
+                      placeholder={media.category === 'TVC' ? '-' : media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA' ? '필수' : '선택'}
+                      disabled={media.category === 'TVC'}
                       className="input"
                       style={{
                         width: '100%',
                         textAlign: 'right',
                         padding: '6px 8px',
                         fontSize: '13px',
-                        borderColor: validationActive && (media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA') && !media.impressions ? 'hsl(var(--destructive))' : undefined
+                        borderColor: validationActive && media.category !== 'TVC' && (media.type === 'unlinked' || media.mediaName === 'NAVER 보장형 DA' || media.mediaName === 'NAVER 성과형 DA') && !media.impressions ? 'hsl(var(--destructive))' : undefined,
+                        opacity: media.category === 'TVC' ? 0.5 : 1,
+                        cursor: media.category === 'TVC' ? 'not-allowed' : undefined
                       }}
                     />
                   </div>

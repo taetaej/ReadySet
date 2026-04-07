@@ -353,10 +353,10 @@ function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: Scena
     const n = (budget - minBudget) / (maxBudget - minBudget)
     const base = metrics.reach1 * 0.75
     const max = Math.min(95, metrics.reach1 * 1.15)
-    return Math.round((base + ((max - base) / (1 + Math.exp(-8 * (n - 0.45))))) * 10) / 10
+    return Math.round((base + (max - base) * (Math.log(1 + n * 9) / Math.log(10))) * 10) / 10
   }
 
-  const peakBudget = minBudget + (maxBudget - minBudget) * 0.75
+  const peakBudget = minBudget + (maxBudget - minBudget) * 0.3
 
   // 기본 budgetPoints (1.5억 간격 + 피크 포인트 포함)
   const budgetPoints: number[] = []
@@ -520,12 +520,12 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
     const n = (budget - minBudget) / (maxBudget - minBudget)
     const base = metrics.reach1 * 0.75
     const max = Math.min(95, metrics.reach1 * 1.15)
-    return Math.round((base + ((max - base) / (1 + Math.exp(-8 * (n - 0.45))))) * 10) / 10
+    return Math.round((base + (max - base) * (Math.log(1 + n * 9) / Math.log(10))) * 10) / 10
   }
 
-  // 시나리오별 피크 예산 계산: S-curve의 효율 피크(한계수익 체감 시작점)를 찾음
+  // 시나리오별 피크 예산 계산: 로그 곡선의 효율 피크(한계수익 체감 시작점)를 찾음
   // 조건 동일 → 기준 커브의 피크, 조건 상이 → 자체 커브의 피크
-  const basePeakN = 0.75
+  const basePeakN = 0.3
   const findPeakBudget = (metrics: ScenarioMetrics) => {
     // reach1이 높을수록 피크가 일찍 옴 (효율 포화가 빠름)
     // reach1이 낮을수록 피크가 늦게 옴 (더 많은 예산이 필요)
