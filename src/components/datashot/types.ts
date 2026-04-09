@@ -368,98 +368,43 @@ export interface MetricGroup {
   metrics: MetricItem[]
 }
 
-export const metaMetrics: MetricGroup[] = [
-  {
-    group: '성과',
-    metrics: [
-      { id: 'clicks_all', label: '클릭(전체)', selected: false },
-      { id: 'cpc', label: 'CPC', selected: false },
-      { id: 'cpm', label: 'CPM', selected: false },
-      { id: 'cpv', label: 'CPV', selected: false },
-      { id: 'ctr', label: 'CTR', selected: false },
-      { id: 'vtr', label: 'VTR', selected: false },
-      { id: 'frequency', label: '빈도', selected: false },
-      { id: 'impressions', label: '노출수', selected: false },
-      { id: 'reach', label: '도달수', selected: false },
-      { id: 'spend', label: '광고 소진금액', selected: false }
-    ]
-  },
-  {
-    group: '참여',
-    metrics: [
-      { id: 'link_click', label: '링크 클릭 수', selected: false },
-      { id: 'cost_per_link_click', label: '링크 클릭당 비용', selected: false },
-      { id: 'link_ctr', label: '링크 클릭률', selected: false },
-      { id: 'cost_per_video_3s', label: '동영상 3초 이상 조회당 비용', selected: false },
-      { id: 'cost_per_video_15s', label: '동영상 15초 이상 조회당 비용', selected: false },
-      { id: 'video_play_3s', label: '3초 재생수', selected: false },
-      { id: 'video_play_15s', label: '15초 재생수', selected: false },
-      { id: 'post_reaction', label: '게시물 반응수', selected: false },
-      { id: 'post_engagement', label: '게시물 참여수', selected: false },
-      { id: 'cost_per_post_engagement', label: '게시물 참여당 비용', selected: false },
-      { id: 'video_views_3s', label: '동영상 3초 이상 조회수', selected: false },
-      { id: 'video_views_15s', label: '동영상 15초 이상 조회수', selected: false },
-      { id: 'video_views_30s', label: '동영상 30초 이상 조회수', selected: false }
-    ]
-  },
-  {
-    group: '진단',
-    metrics: [
-      { id: 'video_view_25', label: '동영상 25% 재생수', selected: false },
-      { id: 'video_view_50', label: '동영상 50% 재생수', selected: false },
-      { id: 'video_view_75', label: '동영상 75% 재생수', selected: false },
-      { id: 'video_view_95', label: '동영상 95% 재생수', selected: false },
-      { id: 'video_view_100', label: '동영상 100% 재생', selected: false }
-    ]
-  },
-  {
-    group: '전환',
-    metrics: [
-      { id: 'purchase', label: '구매수', selected: false },
-      { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
-      { id: 'complete_registration', label: '등록 완료수', selected: false },
-      { id: 'cost_per_registration', label: '등록 완료당 비용', selected: false },
-      { id: 'install', label: '설치수', selected: false },
-      { id: 'cost_per_install', label: '설치당 비용', selected: false }
-    ]
-  }
-]
+export { metaMetrics } from './metaMetrics'
 
 // Google Ads 지표
 export const googleMetrics: MetricGroup[] = [
   {
     group: '실적',
     metrics: [
+      { id: 'cost', label: '광고비', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
-      { id: 'cost', label: '광고비', selected: false },
       { id: 'conversions', label: '조회수', selected: false },
+      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
+      { id: 'ctr', label: '클릭률(CTR)', selected: false },
+      { id: 'cpv', label: '조회당 비용(CPV)', selected: false },
+      { id: 'vtr', label: '조회율(VTR)', selected: false },
       { id: 'video_views_25', label: '25% 재생수', selected: false },
       { id: 'video_views_50', label: '50% 재생수', selected: false },
       { id: 'video_views_75', label: '75% 재생수', selected: false },
       { id: 'video_views_100', label: '100% 재생수', selected: false },
-      { id: 'ctr', label: '클릭률(CTR)', selected: false },
-      { id: 'vtr', label: '조회율(VTR)', selected: false },
       { id: 'video_views_25_rate', label: '25% 재생 진행률', selected: false },
       { id: 'video_views_50_rate', label: '50% 재생 진행률', selected: false },
       { id: 'video_views_75_rate', label: '75% 재생 진행률', selected: false },
       { id: 'video_views_100_rate', label: '100% 재생 진행률', selected: false },
-      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
-      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
-      { id: 'cpv', label: '조회당 비용(CPV)', selected: false }
     ]
   },
   {
     group: '전환',
     metrics: [
       { id: 'all_conversions', label: '전환수', selected: false },
-      { id: 'conversions_value', label: '설치수', selected: false },
-      { id: 'purchases', label: '구매수', selected: false },
-      { id: 'cost_per_conversion', label: '구매당 비용', selected: false },
       { id: 'conversion_value', label: '전환율(전체)', selected: false },
+      { id: 'cost_per_conversion', label: '전환당 비용', selected: false },
+      { id: 'purchases', label: '구매수', selected: false },
+      { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
+      { id: 'conversions_value', label: '설치수', selected: false },
       { id: 'installs', label: '설치율', selected: false },
-      { id: 'cost_per_install', label: '전환당 비용', selected: false },
-      { id: 'install_rate', label: '설치당 비용', selected: false }
+      { id: 'install_rate', label: '설치당 비용', selected: false },
     ]
   }
 ]
@@ -628,31 +573,13 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
   'Google Ads': [
     {
       category: '기기유형',
-      options: ['데스크톱', '모바일', '태블릿']
+      options: ['컴퓨터', '휴대전화', '태블릿', 'TV 화면', '기타']
     }
   ],
   'Meta': [
     {
       category: '기기유형',
-      options: ['데스크톱', '모바일 웹', '분류되지 않음', '앱 내']
-    },
-    {
-      category: '게재위치',
-      options: [
-        'Facebook Marketplace',
-        'Facebook 검색 결과',
-        'Facebook 동영상 피드',
-        'Facebook 릴스',
-        'Facebook 릴스 광고',
-        'Facebook 스토리',
-        'Instagram 릴스',
-        'Instagram 스토리',
-        'Instagram 탐색 탭',
-        'Instagram 탐색 홈',
-        'Instagram 프로필 피드',
-        '분류되지 않음',
-        '피드'
-      ]
+      options: ['모바일 웹', '앱 내', '데스크톱', '분류되지 않음']
     }
   ],
   'kakao모먼트': [

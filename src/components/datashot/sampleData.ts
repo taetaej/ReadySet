@@ -1,3 +1,7 @@
+import { metaCampaignObjectives } from './metaCampaignObjectives'
+import { metaPlatforms } from './metaPlatforms'
+import { metaPerformanceGoals } from './metaPerformanceGoals'
+
 // 데이터샷 상세 페이지 샘플 데이터
 
 // 샘플 데이터 생성 함수 - Meta
@@ -229,28 +233,7 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       label: '캠페인 목표',
       key: 'campaignObjective',
       required: true,
-      options: [
-        '게시물 참여',
-        '도달',
-        '동영상 조회',
-        '전환',
-        '잠재 고객 확보',
-        '트래픽',
-        '앱 설치',
-        '브랜드 인지도',
-        '이벤트 응답',
-        '메시지',
-        '모바일 앱 설치',
-        '쿠폰 발급',
-        '앱 홍보',
-        '인지도',
-        '참여',
-        '잠재 고객',
-        '판매',
-        '페이지 좋아요',
-        '카탈로그 판매',
-        '매장 유입'
-      ]
+      options: [...metaCampaignObjectives]
     },
     {
       label: '구매 유형',
@@ -262,52 +245,13 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       label: '플랫폼',
       key: 'platform',
       required: false,
-      options: [
-        'facebook',
-        'instagram',
-        'facebook&instagram',
-        'messenger',
-        'audience_network',
-        'facebook&instagram&messenger',
-        'facebook&messenger',
-        'audience_network&facebook',
-        'audience_network&facebook&instagram',
-        'audience_network&facebook&instagram&messenger',
-        'audience_network&facebook&messenger',
-        'audience_network&instagram',
-        'instagram&whatsapp',
-        'instagram&messenger',
-        'audience_network&instagram&messenger'
-      ]
+      options: [...metaPlatforms]
     },
     {
       label: '성과 목표',
       key: 'performanceGoal',
       required: false,
-      options: [
-        'CLICKS',
-        '링크 클릭수 극대화',
-        '앱 이벤트 수 극대화',
-        '잠재 고객 수 극대화',
-        '노출',
-        '일일 고유 도달 극대화',
-        '앱 설치수 극대화',
-        '광고 상기도 성과 증대',
-        '브랜드 인지도',
-        '랜딩 페이지 조회수 극대화',
-        '전환값 극대화',
-        '이벤트 응답',
-        '게시물 참여 극대화',
-        'Instagram 프로필 방문 수 극대화',
-        '대화',
-        'ThruPlay 조회 극대화',
-        '동영상 연속 2초 이상 재생 극대화',
-        '전환 이벤트',
-        '알림 설정 극대화',
-        '통화 수를 최대한 늘려보세요',
-        '전환 잠재 고객 수 극대화',
-        '동영상 10초 이상 조회'
-      ]
+      options: [...metaPerformanceGoals]
     }
   ]
 }
@@ -320,11 +264,11 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'campaignType',
       required: true,
       options: [
+        '실적 최대화',
         '디맨드젠 캠페인',
-        '앱',
-        '디스플레이',
         '동영상',
-        '실적 최대화'
+        '디스플레이',
+        '앱'
       ]
     },
     {
@@ -332,15 +276,15 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'campaignSubType',
       required: false,
       options: [
-        '지정되지 않음',
         '건너뛸 수 없음',
-        '앱 참여',
-        '타겟 게재빈도',
         '광고 순서',
-        '전환 유도',
-        '스마트 디스플레이 캠페인',
+        '앱 설치',
+        '앱 참여',
         '아웃스트림',
-        '앱 설치'
+        '스마트 디스플레이 캠페인',
+        '전환 유도',
+        '타겟 게재빈도',
+        '지정되지 않음'
       ]
     },
     {
@@ -349,15 +293,15 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       required: false,
       options: [
         '고정 CPM',
-        '타겟 CPM',
+        '수동 CPC',
         '전환 가치 극대화',
         '전환수 최대화',
-        '타겟 CPA',
-        '클릭수 최대화',
-        '타겟 광고 투자수익(ROAS)',
-        '수동 CPC',
         '조회 가능 CPM',
         '최대 CPV',
+        '클릭수 최대화',
+        '타겟 광고 투자수익(ROAS)',
+        '타겟 CPA',
+        '타겟 CPM',
         '타겟 CPV'
       ]
     },
@@ -366,16 +310,16 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'adGroupType',
       required: false,
       options: [
-        '마스트헤드',
         '건너뛸 수 없는 인스트림',
-        '효율적 잠재고객 도달',
-        '지정되지 않음',
-        '디스플레이',
-        '범퍼',
-        '반응형 동영상 광고',
         '건너뛸 수 있는 인스트림',
+        '디스플레이',
+        '마스트헤드',
+        '반응형 동영상 광고',
+        '범퍼',
         '아웃스트림',
-        '인피드 광고 동영상'
+        '인피드 광고 동영상',
+        '효율적 잠재고객 도달',
+        '지정되지 않음'
       ]
     },
     {
@@ -383,21 +327,21 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'adType',
       required: false,
       options: [
-        '마스트헤드 광고',
         '건너뛸 수 없는 인스트림 광고',
-        '범퍼 광고',
         '건너뛸 수 있는 인스트림 광고',
-        '디맨드젠 동영상 광고',
-        '디맨드젠 이미지 광고',
-        '디맨드젠 제품 광고',
         '디맨드젠 캐러셀 광고',
-        '앱 참여 광고',
+        '디맨드젠 제품 광고',
+        '디맨드젠 이미지 광고',
+        '디맨드젠 동영상 광고',
         '반응형 이미지 광고',
         '반응형 동영상 광고',
-        '이미지 광고',
+        '범퍼 광고',
         '아웃스트림 광고',
+        '앱 참여 광고',
         '앱 설치 광고',
+        '이미지 광고',
         '인피드 동영상 광고',
+        '마스트헤드 광고',
         'HTML5 광고'
       ]
     }
