@@ -133,9 +133,9 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
           {/* 광고 분류 조건 */}
           <div style={{ marginBottom: '24px' }}>
             {(() => {
-              // kakao모먼트에서 기기유형 외 타겟팅 선택 시 소재 유형 비활성화
+              // kakao모먼트에서 디바이스 외 타겟팅 선택 시 소재 유형 비활성화
               const isKakao = formData.media === 'kakao모먼트'
-              const kakaoTargetingDisablesAdFormat = isKakao && !!formData.targetingCategory && formData.targetingCategory !== '기기유형'
+              const kakaoTargetingDisablesAdFormat = isKakao && !!formData.targetingCategory && formData.targetingCategory !== '디바이스'
               return (
                 <AdProductsSelector
                   media={formData.media}
@@ -156,7 +156,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
-                if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '기기유형') {
+                if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '디바이스') {
                   // 소재 유형 선택값이 있을 때만 얼럿 표시 후 대기
                   try {
                     const sel = JSON.parse(formData.products[0] || '{}')
@@ -381,7 +381,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
                     소재 유형 조회 제한 안내
                   </div>
                   <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.7' }}>
-                    타겟팅 옵션 '선택 안 함' 또는 '기기유형' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.
+                    타겟팅 옵션 '선택 안 함' 또는 '디바이스' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.
                   </div>
                 </div>
               )}

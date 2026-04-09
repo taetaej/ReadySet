@@ -362,17 +362,22 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
       key: 'campaignType',
       required: false,
       options: [
-        '디스플레이',
-        '포커스 풀뷰',
-        '포커스 보드',
-        '리치팝 올데이',
-        '상품 카탈로그',
-        '프로필 풀뷰',
-        '스폰서드 보드',
-        '카카오톡비즈보드',
+        '카카오 비즈보드',
         '카카오 비즈보드 CPT',
+        '디스플레이',
+        '상품 카탈로그',
+        '동영상',
+        '개인화 메시지',
+        '다음쇼핑',
+        '리치팝 올데이',
+        '스폰서드 보드',
+        '카카오 선물하기 홈 CPT',
+        '카카오톡 비즈보드 채팅탭 CPT',
         '카카오톡 채널',
-        '동영상'
+        '카카오TV',
+        '포커스 보드',
+        '포커스 풀뷰',
+        '프로필 풀뷰'
       ]
     },
     {
@@ -385,26 +390,27 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
       label: '입찰 방식',
       key: 'pricingType',
       required: false,
-      options: ['CPC', 'CPA', 'CPM', 'CPT', 'CPMS', 'CPV']
+      options: ['CPA', 'CPC', 'CPM', 'CPV', 'CPT', 'CPMS']
     },
     {
       label: '소재 유형',
       key: 'adFormat',
       required: false,
       options: [
-        '이미지 카탈로그',
         '이미지 배너',
         '이미지 네이티브',
+        '이미지 카탈로그',
+        '비디오 인스트림',
         '비디오 네이티브',
-        '리치 네이티브',
-        '다이나믹 카탈로그',
-        '콘텐츠',
+        '와이드 리스트',
+        '와이드 이미지',
         '기본 텍스트',
+        '다이나믹 카탈로그',
+        '리치 네이티브',
+        '콘텐츠',
         '캐러셀 커머스',
         '캐러셀 피드',
-        '프리미엄 동영상',
-        '와이드 리스트',
-        '와이드 이미지'
+        '프리미엄 동영상'
       ]
     }
   ]
@@ -418,13 +424,13 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       key: 'campaignObjective',
       required: true,
       options: [
-        '쇼핑 프로모션',
-        '앱 전환',
         '웹사이트 전환',
+        '앱 전환',
         '인지도 및 트래픽',
-        '참여 유도',
         '동영상 조회',
-        '카탈로그 판매'
+        '쇼핑 프로모션',
+        '카탈로그 판매',
+        '참여 유도'
       ]
     },
     {
@@ -438,18 +444,18 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       key: 'placement',
       required: false,
       options: [
+        '네이버 > 스마트채널',
+        '네이버 > 피드 영역',
         '네이버 > 배너 영역 > 네이버 메인',
         '네이버 > 배너 영역 > 서비스 통합',
+        '네이버 퍼포먼스 네트워크 > 스마트채널',
+        '네이버 퍼포먼스 네트워크 > 배너 영역',
         '네이버 > 쇼핑 영역',
-        '네이버 패밀리 매체 > 배너 영역',
+        '네이버 > 인스트림 영역',
         '네이버 > 커뮤니케이션 영역',
-        '네이버 > 피드 영역',
         '네이버 패밀리 매체 > 스마트채널',
         '네이버 패밀리 매체 > 피드 영역',
-        '네이버 > 스마트채널',
-        '네이버 퍼포먼스 네트워크 > 배너 영역',
-        '네이버 퍼포먼스 네트워크 > 스마트채널',
-        '네이버 > 인스트림 영역'
+        '네이버 패밀리 매체 > 배너 영역'
       ]
     }
   ]
@@ -495,7 +501,7 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
       label: '과금 유형',
       key: 'chargeType',
       required: false,
-      options: ['CPM', 'CPT']
+      options: ['CPM', 'CPT', 'CPV']
     }
   ]
 }
@@ -507,7 +513,7 @@ export const tiktokAdProductStructure: MediaAdProductStructure = {
       label: '목표',
       key: 'objective',
       required: true,
-      options: ['커뮤니티 상호작용', '리드 생성', '도달', '동영상 조회', '트래픽', '브랜드 고려 단계', '앱 프로모션', '웹사이트 전환', '판매']
+      options: ['도달', '도달 (예약형)', '트래픽', '동영상 조회', '커뮤니티 상호작용', '앱 프로모션', '리드 생성', '판매', '브랜드 고려 단계', '웹사이트 전환']
     },
     {
       label: '최적화 목표',
