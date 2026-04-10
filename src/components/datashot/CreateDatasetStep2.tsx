@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown, Info, X } from 'lucide-react'
+import { ListPlus, Plus, Minus, Search, ChevronDown, X } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
@@ -22,53 +22,11 @@ interface Props {
 
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
-  const [showAdFormatAlert, setShowAdFormatAlert] = useState(false)
-  const [pendingCat, setPendingCat] = useState<string>('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
   return (
     <>
-    {/* 소재유형 비활성화 얼럿 */}
-    {showAdFormatAlert && (
-      <div className="dialog-overlay">
-        <div className="dialog-content">
-          <div className="dialog-header">
-            <h3 className="dialog-title">소재 유형 사용 불가</h3>
-            <p className="dialog-description">
-              선택한 타겟팅 옵션에서는 소재 유형 설정이 불가합니다.<br />
-              소재 유형 기존 선택 값은 초기화됩니다.<br />
-              계속 진행하시겠습니까?
-            </p>
-          </div>
-          <div className="dialog-footer">
-            <button
-              onClick={() => { setShowAdFormatAlert(false); setPendingCat('') }}
-              className="btn btn-secondary btn-sm"
-            >
-              취소
-            </button>
-            <button
-              onClick={() => {
-                try {
-                  const sel = JSON.parse(formData.products[0] || '{}')
-                  delete sel['adFormat']
-                  const products = Object.keys(sel).length > 0 ? [JSON.stringify(sel)] : []
-                  setFormData({ ...formData, targetingCategory: pendingCat, targetingOptions: [], products })
-                } catch {
-                  setFormData({ ...formData, targetingCategory: pendingCat, targetingOptions: [] })
-                }
-                setShowAdFormatAlert(false)
-                setPendingCat('')
-              }}
-              className="btn btn-primary btn-sm"
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
     <div style={{ width: '800px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>상세 설정</h2>
 
@@ -132,20 +90,12 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         <>
           {/* 광고 분류 조건 */}
           <div style={{ marginBottom: '24px' }}>
-            {(() => {
-              // kakao모먼트에서 디바이스 외 타겟팅 선택 시 소재 유형 비활성화
-              const isKakao = formData.media === 'kakao모먼트'
-              const kakaoTargetingDisablesAdFormat = isKakao && !!formData.targetingCategory && formData.targetingCategory !== '디바이스'
-              return (
-                <AdProductsSelector
-                  media={formData.media}
-                  value={formData.products}
-                  onChange={(products) => setFormData({ ...formData, products })}
-                  validationActive={validationActive}
-                  disabledFields={kakaoTargetingDisablesAdFormat ? ['adFormat'] : []}
-                />
-              )
-            })()}
+            <AdProductsSelector
+              media={formData.media}
+              value={formData.products}
+              onChange={(products) => setFormData({ ...formData, products })}
+              validationActive={validationActive}
+            />
           </div>
 
           {/* 타겟팅 옵션 */}
@@ -156,21 +106,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
-                if (formData.media === 'kakao모먼트' && cat !== '' && cat !== '디바이스') {
-                  // 소재 유형 선택값이 있을 때만 얼럿 표시 후 대기
-                  try {
-                    const sel = JSON.parse(formData.products[0] || '{}')
-                    if (sel['adFormat']) {
-                      setPendingCat(cat)
-                      setShowAdFormatAlert(true)
-                      return
-                    }
-                  } catch { /* noop */ }
-                  // 소재 유형 없으면 바로 적용
-                  setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
-                } else {
-                  setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
-                }
+                setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
               }}
               onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
               validationActive={validationActive}
@@ -219,9 +155,9 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
 }
 
 function MetricGroupRow({ group, selected, onChange, searchQuery }: { group: MetricGroup; selected: string[]; onChange: (next: string[]) => void; searchQuery: string }) {
-  const allIds = group.metrics.map(m => m.id)
-  const allSelected = allIds.every(id => selected.includes(id))
   const filtered = group.metrics.filter(m => m.label.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredIds = filtered.map(m => m.id)
+  const allSelected = filteredIds.length > 0 && filteredIds.every(id => selected.includes(id))
   const hasMatch = filtered.length > 0
   const [manualOpen, setManualOpen] = useState(true)
   const open = searchQuery ? hasMatch : manualOpen
@@ -256,7 +192,7 @@ function MetricGroupRow({ group, selected, onChange, searchQuery }: { group: Met
         <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>{group.group}</span>
         {open && (
           <button
-            onClick={e => { e.stopPropagation(); onChange(allSelected ? selected.filter(id => !allIds.includes(id)) : [...new Set([...selected, ...allIds])]) }}
+            onClick={e => { e.stopPropagation(); onChange(allSelected ? selected.filter(id => !filteredIds.includes(id)) : [...new Set([...selected, ...filteredIds])]) }}
             className="btn btn-ghost btn-sm"
             style={{ fontSize: '11px' }}
           >
@@ -318,7 +254,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   const [open, setOpen] = useState(true)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [showInfoTooltip, setShowInfoTooltip] = useState(false)
+
   const [keywordSearch, setKeywordSearch] = useState('')
   const [keywordResults, setKeywordResults] = useState<string[]>([])
   const [hasSearchedKeyword, setHasSearchedKeyword] = useState(false)
@@ -326,7 +262,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   const isKeywordMode = category === '키워드' && media === '네이버 보장형 DA'
   const opts = categories.find(t => t.category === category)?.options ?? []
   const filtered = opts.filter(o => o.toLowerCase().includes(search.toLowerCase()))
-  const allSelected = opts.length > 0 && opts.every(o => selected.includes(o))
+  const allSelected = filtered.length > 0 && filtered.every(o => selected.includes(o))
   const toggle = (o: string) => onOptionsChange(selected.includes(o) ? selected.filter(v => v !== o) : [...selected, o])
 
   const handleKeywordSearch = () => {
@@ -360,33 +296,6 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
         </span>
         <span style={{ fontSize: '13px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
           타겟팅 옵션
-          {media === 'kakao모먼트' && (
-            <div
-              style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
-              onClick={e => e.stopPropagation()}
-              onMouseEnter={() => setShowInfoTooltip(true)}
-              onMouseLeave={() => setShowInfoTooltip(false)}
-            >
-              <Info size={13} style={{ color: 'hsl(var(--muted-foreground))', cursor: 'default' }} />
-              {showInfoTooltip && (
-                <div style={{
-                  position: 'absolute', top: '100%', left: '0',
-                  marginTop: '6px', zIndex: 1100,
-                  backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px', padding: '10px 14px',
-                  width: '300px', boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                  pointerEvents: 'none'
-                }}>
-                  <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>
-                    소재 유형 조회 제한 안내
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.7' }}>
-                    타겟팅 옵션 '선택 안 함' 또는 '디바이스' 선택 시에만, 소재 유형 기준 데이터 조회가 가능합니다.
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </span>
         {open && category && (
           <>
@@ -415,7 +324,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
             </div>
             {!isKeywordMode && (
               <button
-                onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? [] : opts) }}
+                onClick={e => { e.stopPropagation(); onOptionsChange(allSelected ? selected.filter(s => !filtered.includes(s)) : [...new Set([...selected, ...filtered])]) }}
                 className="btn btn-ghost btn-sm"
                 style={{ fontSize: '11px', flexShrink: 0 }}
               >

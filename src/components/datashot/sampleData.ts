@@ -495,7 +495,7 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
       label: '상품 유형',
       key: 'productType',
       required: false,
-      options: ['배너_이미지_확장형', '배너_이미지형']
+      options: ['동영상_5초 SKIP형', '배너_이미지형', '배너_이미지형_확장형']
     },
     {
       label: '과금 유형',
@@ -519,7 +519,7 @@ export const tiktokAdProductStructure: MediaAdProductStructure = {
       label: '최적화 목표',
       key: 'optimizationGoal',
       required: false,
-      options: ['클릭', '전환', '설치', '인앱 이벤트', '가치', '도달', '팔로워', '양식 제출', '랜딩 페이지 조회', 'TikTok 페이지 방문', '6초 조회수', '15초 조회수', '참여 세션', '고려 단계 시청자 확보']
+      options: ['전환', '인앱 이벤트', '랜딩 페이지 조회', '설치', '가치', '클릭', '6초 조회수', '15초 조회수', '고려 단계 시청자 확보', '도달', '양식 제출', '참여 세션', '팔로워', 'TikTok 페이지 방문']
     },
     {
       label: '게재 위치',
