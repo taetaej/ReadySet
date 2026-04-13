@@ -523,13 +523,6 @@ export const naverNospMetrics: MetricGroup[] = [
       { id: 'video_views_10s', label: '동영상 10초 재생수', selected: false },
     ]
   },
-  {
-    group: '클릭 상세',
-    metrics: [
-      { id: 'landing_clicks', label: '랜딩 클릭수', selected: false },
-      { id: 'reaction_clicks', label: '반응 클릭수', selected: false },
-    ]
-  },
 ]
 // TikTok 지표
 export const tiktokMetrics: MetricGroup[] = [
