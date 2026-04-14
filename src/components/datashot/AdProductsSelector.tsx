@@ -57,12 +57,11 @@ function CollapsibleFieldRow({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const hasIds = isOptionObjects(options)
-  const allLabels = options.map(o => getOptionLabel(o))
-  const allSelected = allLabels.every(l => selected.includes(l))
-
   const filtered = hasIds
     ? (options as AdProductOption[]).filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
     : (options as string[]).filter(o => o.toLowerCase().includes(search.toLowerCase()))
+  const filteredLabels = filtered.map(o => getOptionLabel(o))
+  const allSelected = filteredLabels.length > 0 && filteredLabels.every(l => selected.includes(l))
 
   const toggle = (v: string) => { if (!readOnly && !disabled) onChange(selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v]) }
 
@@ -101,7 +100,7 @@ function CollapsibleFieldRow({
         )}
         {!readOnly && open && (
           <button
-            onClick={e => { e.stopPropagation(); onChange(allSelected ? [] : allLabels) }}
+            onClick={e => { e.stopPropagation(); onChange(allSelected ? selected.filter(s => !filteredLabels.includes(s)) : [...new Set([...selected, ...filteredLabels])]) }}
             className="btn btn-ghost btn-sm"
             style={{ fontSize: '11px', flexShrink: 0 }}
           >

@@ -368,98 +368,43 @@ export interface MetricGroup {
   metrics: MetricItem[]
 }
 
-export const metaMetrics: MetricGroup[] = [
-  {
-    group: '성과',
-    metrics: [
-      { id: 'clicks_all', label: '클릭(전체)', selected: false },
-      { id: 'cpc', label: 'CPC', selected: false },
-      { id: 'cpm', label: 'CPM', selected: false },
-      { id: 'cpv', label: 'CPV', selected: false },
-      { id: 'ctr', label: 'CTR', selected: false },
-      { id: 'vtr', label: 'VTR', selected: false },
-      { id: 'frequency', label: '빈도', selected: false },
-      { id: 'impressions', label: '노출수', selected: false },
-      { id: 'reach', label: '도달수', selected: false },
-      { id: 'spend', label: '광고 소진금액', selected: false }
-    ]
-  },
-  {
-    group: '참여',
-    metrics: [
-      { id: 'link_click', label: '링크 클릭 수', selected: false },
-      { id: 'cost_per_link_click', label: '링크 클릭당 비용', selected: false },
-      { id: 'link_ctr', label: '링크 클릭률', selected: false },
-      { id: 'cost_per_video_3s', label: '동영상 3초 이상 조회당 비용', selected: false },
-      { id: 'cost_per_video_15s', label: '동영상 15초 이상 조회당 비용', selected: false },
-      { id: 'video_play_3s', label: '3초 재생수', selected: false },
-      { id: 'video_play_15s', label: '15초 재생수', selected: false },
-      { id: 'post_reaction', label: '게시물 반응수', selected: false },
-      { id: 'post_engagement', label: '게시물 참여수', selected: false },
-      { id: 'cost_per_post_engagement', label: '게시물 참여당 비용', selected: false },
-      { id: 'video_views_3s', label: '동영상 3초 이상 조회수', selected: false },
-      { id: 'video_views_15s', label: '동영상 15초 이상 조회수', selected: false },
-      { id: 'video_views_30s', label: '동영상 30초 이상 조회수', selected: false }
-    ]
-  },
-  {
-    group: '진단',
-    metrics: [
-      { id: 'video_view_25', label: '동영상 25% 재생수', selected: false },
-      { id: 'video_view_50', label: '동영상 50% 재생수', selected: false },
-      { id: 'video_view_75', label: '동영상 75% 재생수', selected: false },
-      { id: 'video_view_95', label: '동영상 95% 재생수', selected: false },
-      { id: 'video_view_100', label: '동영상 100% 재생', selected: false }
-    ]
-  },
-  {
-    group: '전환',
-    metrics: [
-      { id: 'purchase', label: '구매수', selected: false },
-      { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
-      { id: 'complete_registration', label: '등록 완료수', selected: false },
-      { id: 'cost_per_registration', label: '등록 완료당 비용', selected: false },
-      { id: 'install', label: '설치수', selected: false },
-      { id: 'cost_per_install', label: '설치당 비용', selected: false }
-    ]
-  }
-]
+export { metaMetrics } from './metaMetrics'
 
 // Google Ads 지표
 export const googleMetrics: MetricGroup[] = [
   {
     group: '실적',
     metrics: [
+      { id: 'cost', label: '광고비', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
-      { id: 'cost', label: '광고비', selected: false },
       { id: 'conversions', label: '조회수', selected: false },
+      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
+      { id: 'ctr', label: '클릭률(CTR)', selected: false },
+      { id: 'cpv', label: '조회당 비용(CPV)', selected: false },
+      { id: 'vtr', label: '조회율(VTR)', selected: false },
       { id: 'video_views_25', label: '25% 재생수', selected: false },
       { id: 'video_views_50', label: '50% 재생수', selected: false },
       { id: 'video_views_75', label: '75% 재생수', selected: false },
       { id: 'video_views_100', label: '100% 재생수', selected: false },
-      { id: 'ctr', label: '클릭률(CTR)', selected: false },
-      { id: 'vtr', label: '조회율(VTR)', selected: false },
       { id: 'video_views_25_rate', label: '25% 재생 진행률', selected: false },
       { id: 'video_views_50_rate', label: '50% 재생 진행률', selected: false },
       { id: 'video_views_75_rate', label: '75% 재생 진행률', selected: false },
       { id: 'video_views_100_rate', label: '100% 재생 진행률', selected: false },
-      { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
-      { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
-      { id: 'cpv', label: '조회당 비용(CPV)', selected: false }
     ]
   },
   {
     group: '전환',
     metrics: [
       { id: 'all_conversions', label: '전환수', selected: false },
-      { id: 'conversions_value', label: '설치수', selected: false },
-      { id: 'purchases', label: '구매수', selected: false },
-      { id: 'cost_per_conversion', label: '구매당 비용', selected: false },
       { id: 'conversion_value', label: '전환율(전체)', selected: false },
+      { id: 'cost_per_conversion', label: '전환당 비용', selected: false },
+      { id: 'purchases', label: '구매수', selected: false },
+      { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
+      { id: 'conversions_value', label: '설치수', selected: false },
       { id: 'installs', label: '설치율', selected: false },
-      { id: 'cost_per_install', label: '전환당 비용', selected: false },
-      { id: 'install_rate', label: '설치당 비용', selected: false }
+      { id: 'install_rate', label: '설치당 비용', selected: false },
     ]
   }
 ]
@@ -469,33 +414,37 @@ export const kakaoMetrics: MetricGroup[] = [
   {
     group: '기본',
     metrics: [
+      { id: 'cost', label: '비용', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
       { id: 'cpc', label: '클릭당 비용', selected: false },
       { id: 'cpm', label: '노출당 비용', selected: false },
-      { id: 'clicks', label: '클릭수', selected: false },
-      { id: 'conversions', label: '전환수', selected: false },
-      { id: 'cost', label: '비용', selected: false },
       { id: 'ctr', label: '클릭률', selected: false },
-      { id: 'impressions', label: '노출수', selected: false },
-      { id: 'cpv', label: '재생당 비용', selected: false }
+      { id: 'cpv', label: '재생당 비용', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'video_views', label: '재생수', selected: false },
+      { id: 'video_play_cost', label: '재생당 비용', selected: false },
+      { id: 'conversions', label: '전환수', selected: false },
     ]
   },
   {
     group: '동영상',
     metrics: [
-      { id: 'video_views_100_rate', label: '동영상 100% 진행률', selected: false },
-      { id: 'video_views_25_rate', label: '동영상 25% 진행률', selected: false },
-      { id: 'video_views_50_rate', label: '동영상 50% 진행률', selected: false },
-      { id: 'video_views_75_rate', label: '동영상 75% 진행률', selected: false },
-      { id: 'vtr', label: '조회율', selected: false },
-      { id: 'video_views', label: '재생수', selected: false },
       { id: 'video_views_25', label: '25% 재생수', selected: false },
       { id: 'video_views_50', label: '50% 재생수', selected: false },
       { id: 'video_views_75', label: '75% 재생수', selected: false },
       { id: 'video_views_100', label: '100% 재생수', selected: false },
-      { id: 'video_play_time', label: '재생수', selected: false },
-      { id: 'video_play_time_avg', label: '재생당 비용', selected: false },
+      { id: 'video_views_3s', label: '3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '10초 재생수', selected: false },
+      { id: 'video_views_15s', label: '15초 재생수', selected: false },
+      { id: 'video_views_30s', label: '30초 재생수', selected: false },
+      { id: 'video_views_60s', label: '60초 재생수', selected: false },
+      { id: 'video_views_10s_cost', label: '10초 이상 재생당 비용', selected: false },
       { id: 'video_views_15s_cost', label: '15초 이상 재생당 비용', selected: false },
-      { id: 'video_views_10s_cost', label: '10초 이상 재생당 비용', selected: false }
+      { id: 'video_views_25_rate', label: '동영상 25% 진행률', selected: false },
+      { id: 'video_views_50_rate', label: '동영상 50% 진행률', selected: false },
+      { id: 'video_views_75_rate', label: '동영상 75% 진행률', selected: false },
+      { id: 'video_views_100_rate', label: '동영상 100% 진행률', selected: false },
     ]
   },
   {
@@ -504,24 +453,14 @@ export const kakaoMetrics: MetricGroup[] = [
       { id: 'message_open', label: '열람수', selected: false },
       { id: 'message_click', label: '전체 클릭수', selected: false },
       { id: 'message_open_rate', label: '열람률', selected: false },
-      { id: 'message_click_rate', label: '메시지 클릭률', selected: false }
+      { id: 'message_click_rate', label: '메시지 클릭률', selected: false },
     ]
   },
   {
     group: '카카오 친구',
     metrics: [
       { id: 'channel_add_cpa', label: 'CPA', selected: false },
-      { id: 'channel_add_cvr', label: 'CVR', selected: false }
-    ]
-  },
-  {
-    group: '동영상',
-    metrics: [
-      { id: 'video_views_3s', label: '3초 재생수', selected: false },
-      { id: 'video_views_10s', label: '10초 재생수', selected: false },
-      { id: 'video_views_15s', label: '15초 재생수', selected: false },
-      { id: 'video_views_30s', label: '30초 재생수', selected: false },
-      { id: 'video_views_60s', label: '60초 재생수', selected: false }
+      { id: 'channel_add_cvr', label: 'CVR', selected: false },
     ]
   }
 ]
@@ -534,29 +473,24 @@ export const naverGfaMetrics: MetricGroup[] = [
       { id: 'cost', label: '매출(소진금액)', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
-      { id: 'ctr', label: '클릭률', selected: false }
+      { id: 'cpc', label: '클릭당 비용', selected: false },
+      { id: 'cpm', label: '1,000회 노출당 비용', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false },
+    ]
+  },
+  {
+    group: '재생',
+    metrics: [
+      { id: 'cpv', label: '조회당 비용', selected: false },
+      { id: 'vtr', label: '조회율', selected: false },
+      { id: 'video_views', label: '비디오 재생 횟수', selected: false },
     ]
   },
   {
     group: '전환',
     metrics: [
       { id: 'conversions', label: '전환수', selected: false },
-      { id: 'cost_per_conversion', label: '전환당 비용', selected: false }
-    ]
-  },
-  {
-    group: '재생',
-    metrics: [
-      { id: 'video_views', label: '비디오 재생 횟수', selected: false },
-      { id: 'vtr', label: '조회율', selected: false },
-      { id: 'cpv', label: '조회당 비용', selected: false }
-    ]
-  },
-  {
-    group: '기본',
-    metrics: [
-      { id: 'cpc', label: '클릭당 비용', selected: false },
-      { id: 'cpm', label: '1,000회 노출당 비용', selected: false }
+      { id: 'cost_per_conversion', label: '전환당 비용', selected: false },
     ]
   }
 ]
@@ -566,16 +500,16 @@ export const naverNospMetrics: MetricGroup[] = [
   {
     group: '기본',
     metrics: [
-      { id: 'clicks', label: '클릭수', selected: false },
       { id: 'cost', label: '광고비', selected: false },
       { id: 'cost_guaranteed', label: '집행금액', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
       { id: 'video_views', label: '동영상 조회수', selected: false },
       { id: 'cpc', label: 'CPC', selected: false },
       { id: 'cpm', label: 'CPM', selected: false },
       { id: 'cpv', label: 'CPV', selected: false },
       { id: 'ctr', label: 'CTR', selected: false },
-      { id: 'vtr', label: 'VTR', selected: false }
+      { id: 'vtr', label: 'VTR', selected: false },
     ]
   },
   {
@@ -585,6 +519,8 @@ export const naverNospMetrics: MetricGroup[] = [
       { id: 'video_views_50', label: '동영상 50% 재생수', selected: false },
       { id: 'video_views_75', label: '동영상 75% 재생수', selected: false },
       { id: 'video_views_100', label: '동영상 100% 재생수', selected: false },
+      { id: 'video_views_3s', label: '동영상 3초 재생수', selected: false },
+      { id: 'video_views_10s', label: '동영상 10초 재생수', selected: false },
     ]
   },
 ]
@@ -594,22 +530,27 @@ export const tiktokMetrics: MetricGroup[] = [
     group: '주요',
     metrics: [
       { id: 'spend', label: '광고 소진금액', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
       { id: 'conversions', label: '전환수', selected: false },
       { id: 'cpc', label: 'CPC', selected: false },
       { id: 'cpm', label: 'CPM', selected: false },
-      { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'cpv', label: 'CPV', selected: false },
+      { id: 'cpa', label: 'CPA', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false },
+      { id: 'vtr', label: '재생율', selected: false },
+      { id: 'cvr', label: '전환율', selected: false },
     ]
   },
   {
     group: '상호작용',
     metrics: [
-      { id: 'video_views_2s', label: '2초 이상 동영상 시청', selected: false },
-      { id: 'video_views_6s', label: '6초 이상 동영상 시청', selected: false },
       { id: 'video_view_25', label: '동영상 25% 재생', selected: false },
       { id: 'video_view_50', label: '동영상 50% 재생', selected: false },
       { id: 'video_view_75', label: '동영상 75% 재생', selected: false },
       { id: 'video_view_100', label: '동영상 100% 재생', selected: false },
+      { id: 'video_views_2s', label: '2초 이상 동영상 시청', selected: false },
+      { id: 'video_views_6s', label: '6초 이상 동영상 시청', selected: false },
     ]
   }
 ]
@@ -628,86 +569,85 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
   'Google Ads': [
     {
       category: '기기유형',
-      options: ['데스크톱', '모바일', '태블릿']
+      options: ['컴퓨터', '휴대전화', '태블릿', 'TV 화면', '기타']
     }
   ],
   'Meta': [
     {
       category: '기기유형',
-      options: ['데스크톱', '모바일 웹', '분류되지 않음', '앱 내']
-    },
-    {
-      category: '게재위치',
-      options: [
-        'Facebook Marketplace',
-        'Facebook 검색 결과',
-        'Facebook 동영상 피드',
-        'Facebook 릴스',
-        'Facebook 릴스 광고',
-        'Facebook 스토리',
-        'Instagram 릴스',
-        'Instagram 스토리',
-        'Instagram 탐색 탭',
-        'Instagram 탐색 홈',
-        'Instagram 프로필 피드',
-        '분류되지 않음',
-        '피드'
-      ]
+      options: ['모바일 웹', '앱 내', '데스크톱', '분류되지 않음']
     }
   ],
   'kakao모먼트': [
     {
-      category: '기기유형',
-      options: ['PC', '모바일']
+      category: '성별',
+      options: ['남', '여', '알 수 없음']
     },
     {
-      category: '게재지면',
-      options: ['카카오톡', '카카오스토리', 'Daum']
+      category: '연령대',
+      options: ['15~19', '20~24', '25~29', '30~34', '35~39', '40~44', '45~49', '50~54', '55~59', '60~64', '65~69', '70 이상', '알 수 없음']
     },
     {
-      category: '연령',
-      options: ['10대', '20대', '30대', '40대', '50대', '60대 이상']
+      category: '성별x연령',
+      options: ['남성 15~19', '남성 20~24', '남성 25~29', '남성 30~34', '남성 35~39', '남성 40~44', '남성 45~49', '남성 50~54', '남성 55~59', '남성 60~64', '남성 65~69', '남성 70 이상', '여성 15~19', '여성 20~24', '여성 25~29', '여성 30~34', '여성 35~39', '여성 40~44', '여성 45~49', '여성 50~54', '여성 55~59', '여성 60~64', '여성 65~69', '여성 70 이상']
     },
     {
       category: '지역',
-      options: ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주']
+      options: ['서울특별시', '경기도', '인천광역시', '부산광역시', '대구광역시', '대전광역시', '광주광역시', '울산광역시', '세종특별자치시', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '제주특별자치도', '해외', '알 수 없음']
     },
     {
-      category: '소재형식',
-      options: ['이미지', '동영상', '캐러셀']
+      category: '디바이스',
+      options: ['Android', 'iOS', 'PC', '기타']
+    },
+    {
+      category: '게재지면',
+      options: ['카카오톡 채널', '카카오 비즈보드', '카카오 비즈보드 CPT', '카카오톡 비즈보드 채팅탭 CPT', '디스플레이', '동영상', '리치팝 올데이', '상품 카탈로그', '포커스 보드', '포커스 풀뷰', '프로필 풀뷰']
     }
   ],
   '네이버 성과형 DA': [],
   '네이버 보장형 DA': [
     {
-      category: '게재위치',
-      options: ['메인', '시간', '키워드', '소재오픈']
+      category: '노출영역',
+      options: [
+        'M_치지직_인스트림_LIVE_중간광고(s)',
+        'M_치지직_인스트림_동영상광고(s)',
+        'M_치지직_인스트림_생중계 전광고(s)',
+        'M_치지직_인스트림_엔터_코스트리밍_생중계 전광고(s)',
+        'M_치지직_인스트림_엔터_코스트리밍_생중계 중간광고(s',
+        'M_치지직_인스트림_코스트리밍_생중계_전광고_1',
+        'P_치지직_인스트림_LIVE_중간광고(s)',
+        'P_치지직_인스트림_동영상광고(s)',
+        'P_치지직_인스트림_생중계 전광고(s)',
+        'P_치지직_인스트림_엔터_코스트리밍_생중계 전광고(s)',
+        'P_치지직_인스트림_엔터_코스트리밍_생중계 중간광고(s',
+        'P_치지직_인스트림_코스트리밍_생중계_전광고_1'
+      ]
     },
     {
       category: '시간',
-      options: ['오전', '오후', '저녁', '심야']
+      options: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
     }
   ],
   'TikTok': [
     {
       category: '플랫폼',
-      options: ['TikTok', 'Pangle', '글로벌 앱 번들']
-    },
-    {
-      category: '성별x연령',
-      options: ['남성 13-17', '남성 18-24', '남성 25-34', '남성 35-44', '남성 45-54', '남성 55+', '여성 13-17', '여성 18-24', '여성 25-34', '여성 35-44', '여성 45-54', '여성 55+']
+      options: ['Android', 'iPhone', 'iPad', 'WAP (모바일 웹)', '알 수 없음']
     },
     {
       category: '성별',
-      options: ['남성', '여성']
+      options: ['남성', '여성', '알 수 없음']
     },
     {
       category: '연령',
-      options: ['13-17', '18-24', '25-34', '35-44', '45-54', '55+']
+      options: ['13~17', '18~24', '25~34', '35~44', '45~54', '55+', '알 수 없음']
+    },
+    {
+      category: '성별X연령',
+      options: ['남성 13-17', '남성 18-24', '남성 25-34', '남성 35-44', '남성 45-54', '남성 55+', '여성 13-17', '여성 18-24', '여성 25-34', '여성 35-44', '여성 45-54', '여성 55+']
     },
     {
       category: '국가',
-      options: ['대한민국', '미국', '일본', '영국', '독일', '프랑스', '캐나다', '호주', '브라질', '인도', '인도네시아', '태국', '베트남', '말레이시아', '필리핀']
+      options: ['한국', '일본', '미국', '영국', '독일', '프랑스', '이탈리아', '스페인', '캐나다', '포르투갈', '아르헨티나', '볼리비아', '콜롬비아', '우루과이', '에콰도르', '싱가포르', '홍콩', '대만', '베트남', '태국', '필리핀', '인도네시아', '말레이시아', '파키스탄', 'UAE', '사우디아라비아', '카타르', '쿠웨이트', '오만', '레바논', '이집트', '터키', '오스트리아', '폴란드', '브라질', '칠레', '페루', '코스타리카', '남아프리카공화국', '멕시코', '알 수 없음']
     }
   ]
 }

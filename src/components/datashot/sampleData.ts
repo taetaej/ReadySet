@@ -1,3 +1,7 @@
+import { metaCampaignObjectives } from './metaCampaignObjectives'
+import { metaPlatforms } from './metaPlatforms'
+import { metaPerformanceGoals } from './metaPerformanceGoals'
+
 // 데이터샷 상세 페이지 샘플 데이터
 
 // 샘플 데이터 생성 함수 - Meta
@@ -229,28 +233,7 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       label: '캠페인 목표',
       key: 'campaignObjective',
       required: true,
-      options: [
-        '게시물 참여',
-        '도달',
-        '동영상 조회',
-        '전환',
-        '잠재 고객 확보',
-        '트래픽',
-        '앱 설치',
-        '브랜드 인지도',
-        '이벤트 응답',
-        '메시지',
-        '모바일 앱 설치',
-        '쿠폰 발급',
-        '앱 홍보',
-        '인지도',
-        '참여',
-        '잠재 고객',
-        '판매',
-        '페이지 좋아요',
-        '카탈로그 판매',
-        '매장 유입'
-      ]
+      options: [...metaCampaignObjectives]
     },
     {
       label: '구매 유형',
@@ -262,52 +245,13 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       label: '플랫폼',
       key: 'platform',
       required: false,
-      options: [
-        'facebook',
-        'instagram',
-        'facebook&instagram',
-        'messenger',
-        'audience_network',
-        'facebook&instagram&messenger',
-        'facebook&messenger',
-        'audience_network&facebook',
-        'audience_network&facebook&instagram',
-        'audience_network&facebook&instagram&messenger',
-        'audience_network&facebook&messenger',
-        'audience_network&instagram',
-        'instagram&whatsapp',
-        'instagram&messenger',
-        'audience_network&instagram&messenger'
-      ]
+      options: [...metaPlatforms]
     },
     {
       label: '성과 목표',
       key: 'performanceGoal',
       required: false,
-      options: [
-        'CLICKS',
-        '링크 클릭수 극대화',
-        '앱 이벤트 수 극대화',
-        '잠재 고객 수 극대화',
-        '노출',
-        '일일 고유 도달 극대화',
-        '앱 설치수 극대화',
-        '광고 상기도 성과 증대',
-        '브랜드 인지도',
-        '랜딩 페이지 조회수 극대화',
-        '전환값 극대화',
-        '이벤트 응답',
-        '게시물 참여 극대화',
-        'Instagram 프로필 방문 수 극대화',
-        '대화',
-        'ThruPlay 조회 극대화',
-        '동영상 연속 2초 이상 재생 극대화',
-        '전환 이벤트',
-        '알림 설정 극대화',
-        '통화 수를 최대한 늘려보세요',
-        '전환 잠재 고객 수 극대화',
-        '동영상 10초 이상 조회'
-      ]
+      options: [...metaPerformanceGoals]
     }
   ]
 }
@@ -320,11 +264,11 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'campaignType',
       required: true,
       options: [
+        '실적 최대화',
         '디맨드젠 캠페인',
-        '앱',
-        '디스플레이',
         '동영상',
-        '실적 최대화'
+        '디스플레이',
+        '앱'
       ]
     },
     {
@@ -332,15 +276,15 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'campaignSubType',
       required: false,
       options: [
-        '지정되지 않음',
         '건너뛸 수 없음',
-        '앱 참여',
-        '타겟 게재빈도',
         '광고 순서',
-        '전환 유도',
-        '스마트 디스플레이 캠페인',
+        '앱 설치',
+        '앱 참여',
         '아웃스트림',
-        '앱 설치'
+        '스마트 디스플레이 캠페인',
+        '전환 유도',
+        '타겟 게재빈도',
+        '지정되지 않음'
       ]
     },
     {
@@ -349,15 +293,15 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       required: false,
       options: [
         '고정 CPM',
-        '타겟 CPM',
+        '수동 CPC',
         '전환 가치 극대화',
         '전환수 최대화',
-        '타겟 CPA',
-        '클릭수 최대화',
-        '타겟 광고 투자수익(ROAS)',
-        '수동 CPC',
         '조회 가능 CPM',
         '최대 CPV',
+        '클릭수 최대화',
+        '타겟 광고 투자수익(ROAS)',
+        '타겟 CPA',
+        '타겟 CPM',
         '타겟 CPV'
       ]
     },
@@ -366,16 +310,16 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'adGroupType',
       required: false,
       options: [
-        '마스트헤드',
         '건너뛸 수 없는 인스트림',
-        '효율적 잠재고객 도달',
-        '지정되지 않음',
-        '디스플레이',
-        '범퍼',
-        '반응형 동영상 광고',
         '건너뛸 수 있는 인스트림',
+        '디스플레이',
+        '마스트헤드',
+        '반응형 동영상 광고',
+        '범퍼',
         '아웃스트림',
-        '인피드 광고 동영상'
+        '인피드 광고 동영상',
+        '효율적 잠재고객 도달',
+        '지정되지 않음'
       ]
     },
     {
@@ -383,21 +327,21 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       key: 'adType',
       required: false,
       options: [
-        '마스트헤드 광고',
         '건너뛸 수 없는 인스트림 광고',
-        '범퍼 광고',
         '건너뛸 수 있는 인스트림 광고',
-        '디맨드젠 동영상 광고',
-        '디맨드젠 이미지 광고',
-        '디맨드젠 제품 광고',
         '디맨드젠 캐러셀 광고',
-        '앱 참여 광고',
+        '디맨드젠 제품 광고',
+        '디맨드젠 이미지 광고',
+        '디맨드젠 동영상 광고',
         '반응형 이미지 광고',
         '반응형 동영상 광고',
-        '이미지 광고',
+        '범퍼 광고',
         '아웃스트림 광고',
+        '앱 참여 광고',
         '앱 설치 광고',
+        '이미지 광고',
         '인피드 동영상 광고',
+        '마스트헤드 광고',
         'HTML5 광고'
       ]
     }
@@ -418,17 +362,22 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
       key: 'campaignType',
       required: false,
       options: [
-        '디스플레이',
-        '포커스 풀뷰',
-        '포커스 보드',
-        '리치팝 올데이',
-        '상품 카탈로그',
-        '프로필 풀뷰',
-        '스폰서드 보드',
-        '카카오톡비즈보드',
+        '카카오 비즈보드',
         '카카오 비즈보드 CPT',
+        '디스플레이',
+        '상품 카탈로그',
+        '동영상',
+        '개인화 메시지',
+        '다음쇼핑',
+        '리치팝 올데이',
+        '스폰서드 보드',
+        '카카오 선물하기 홈 CPT',
+        '카카오톡 비즈보드 채팅탭 CPT',
         '카카오톡 채널',
-        '동영상'
+        '카카오TV',
+        '포커스 보드',
+        '포커스 풀뷰',
+        '프로필 풀뷰'
       ]
     },
     {
@@ -441,26 +390,27 @@ export const kakaoAdProductStructure: MediaAdProductStructure = {
       label: '입찰 방식',
       key: 'pricingType',
       required: false,
-      options: ['CPC', 'CPA', 'CPM', 'CPT', 'CPMS', 'CPV']
+      options: ['CPA', 'CPC', 'CPM', 'CPV', 'CPT', 'CPMS']
     },
     {
       label: '소재 유형',
       key: 'adFormat',
       required: false,
       options: [
-        '이미지 카탈로그',
         '이미지 배너',
         '이미지 네이티브',
+        '이미지 카탈로그',
+        '비디오 인스트림',
         '비디오 네이티브',
-        '리치 네이티브',
-        '다이나믹 카탈로그',
-        '콘텐츠',
+        '와이드 리스트',
+        '와이드 이미지',
         '기본 텍스트',
+        '다이나믹 카탈로그',
+        '리치 네이티브',
+        '콘텐츠',
         '캐러셀 커머스',
         '캐러셀 피드',
-        '프리미엄 동영상',
-        '와이드 리스트',
-        '와이드 이미지'
+        '프리미엄 동영상'
       ]
     }
   ]
@@ -474,13 +424,13 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       key: 'campaignObjective',
       required: true,
       options: [
-        '쇼핑 프로모션',
-        '앱 전환',
         '웹사이트 전환',
+        '앱 전환',
         '인지도 및 트래픽',
-        '참여 유도',
         '동영상 조회',
-        '카탈로그 판매'
+        '쇼핑 프로모션',
+        '카탈로그 판매',
+        '참여 유도'
       ]
     },
     {
@@ -494,18 +444,18 @@ export const naverGfaAdProductStructure: MediaAdProductStructure = {
       key: 'placement',
       required: false,
       options: [
+        '네이버 > 스마트채널',
+        '네이버 > 피드 영역',
         '네이버 > 배너 영역 > 네이버 메인',
         '네이버 > 배너 영역 > 서비스 통합',
+        '네이버 퍼포먼스 네트워크 > 스마트채널',
+        '네이버 퍼포먼스 네트워크 > 배너 영역',
         '네이버 > 쇼핑 영역',
-        '네이버 패밀리 매체 > 배너 영역',
+        '네이버 > 인스트림 영역',
         '네이버 > 커뮤니케이션 영역',
-        '네이버 > 피드 영역',
         '네이버 패밀리 매체 > 스마트채널',
         '네이버 패밀리 매체 > 피드 영역',
-        '네이버 > 스마트채널',
-        '네이버 퍼포먼스 네트워크 > 배너 영역',
-        '네이버 퍼포먼스 네트워크 > 스마트채널',
-        '네이버 > 인스트림 영역'
+        '네이버 패밀리 매체 > 배너 영역'
       ]
     }
   ]
@@ -545,13 +495,13 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
       label: '상품 유형',
       key: 'productType',
       required: false,
-      options: ['배너_이미지_확장형', '배너_이미지형']
+      options: ['동영상_5초 SKIP형', '배너_이미지형', '배너_이미지형_확장형']
     },
     {
       label: '과금 유형',
       key: 'chargeType',
       required: false,
-      options: ['CPM', 'CPT']
+      options: ['CPM', 'CPT', 'CPV']
     }
   ]
 }
@@ -563,13 +513,13 @@ export const tiktokAdProductStructure: MediaAdProductStructure = {
       label: '목표',
       key: 'objective',
       required: true,
-      options: ['커뮤니티 상호작용', '리드 생성', '도달', '동영상 조회', '트래픽', '브랜드 고려 단계', '앱 프로모션', '웹사이트 전환', '판매']
+      options: ['도달', '도달 (예약형)', '트래픽', '동영상 조회', '커뮤니티 상호작용', '앱 프로모션', '리드 생성', '판매', '브랜드 고려 단계', '웹사이트 전환']
     },
     {
       label: '최적화 목표',
       key: 'optimizationGoal',
       required: false,
-      options: ['클릭', '전환', '설치', '인앱 이벤트', '가치', '도달', '팔로워', '양식 제출', '랜딩 페이지 조회', 'TikTok 페이지 방문', '6초 조회수', '15초 조회수', '참여 세션', '고려 단계 시청자 확보']
+      options: ['전환', '인앱 이벤트', '랜딩 페이지 조회', '설치', '가치', '클릭', '6초 조회수', '15초 조회수', '고려 단계 시청자 확보', '도달', '양식 제출', '참여 세션', '팔로워', 'TikTok 페이지 방문']
     },
     {
       label: '게재 위치',
