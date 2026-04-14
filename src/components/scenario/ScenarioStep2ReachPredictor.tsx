@@ -1085,7 +1085,7 @@ export function ScenarioStep2ReachPredictor({
         <div className="dialog-overlay" onClick={() => setShowGlobalTargetDialog(false)}>
           <div className="dialog-content dialog-md" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             <div className="dialog-header">
-              <h3 className="dialog-title">타겟 GRP 선택</h3>
+              <h3 className="dialog-title">타겟 선택</h3>
               <p className="dialog-description">
                 도달률 산출에 적용할 타겟 모수를 선택하세요
               </p>
