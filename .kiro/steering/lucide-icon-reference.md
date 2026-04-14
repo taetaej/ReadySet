@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Lucide 아이콘 사용 현황 정리
 
 ## 문서 정보

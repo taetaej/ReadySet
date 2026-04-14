@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Design System Guide
 
 > Reach Caster 프로젝트의 UI 디자인 시스템 가이드

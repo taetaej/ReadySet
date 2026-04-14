@@ -1,5 +1,5 @@
 ---
-inclusion: auto
+inclusion: manual
 ---
 
 # Dialog Size Policy
@@ -24,8 +24,7 @@ inclusion: auto
 - 예: `<div className="dialog-content dialog-lg">`
 - `width` vs `max-width`: sm/md는 `max-width` (작은 화면 대응), lg/xl/full은 `width` (고정 너비 필요)
 
-## 현재 사용 현황
-
+## 현재 사용 현
 - **confirm**: DatasetList 삭제/이동, CreateFolder, EditFolder, SlotDetail 삭제/이동, ScenarioComparisonResult 재설정
 - **sm (500px)**: ScenarioStep2 기간설정, ComponentLibrary 기본, AdProductsDialog/MetricsDialog 미지원 매체
 - **md (640px)**: ScenarioStep2 타겟, AdProductsDialog 광고상품, ReachPredictorResult 리치커브설정/타겟

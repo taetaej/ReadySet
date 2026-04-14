@@ -1085,10 +1085,7 @@ export function ScenarioStep2ReachPredictor({
         <div className="dialog-overlay" onClick={() => setShowGlobalTargetDialog(false)}>
           <div className="dialog-content dialog-md" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             <div className="dialog-header">
-              <h3 className="dialog-title">타겟 선택</h3>
-              <p className="dialog-description">
-                도달률 산출에 적용할 타겟 모수를 선택하세요
-              </p>
+              <h3 className="dialog-title">타겟 설정</h3>
             </div>
             <div style={{ padding: '24px' }}>
               {/* 남성 */}
@@ -1246,10 +1243,7 @@ export function ScenarioStep2ReachPredictor({
         <div className="dialog-overlay" onClick={() => setShowTargetDialog(null)}>
           <div className="dialog-content dialog-md" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
             <div className="dialog-header">
-              <h3 className="dialog-title">타겟팅 설정</h3>
-              <p className="dialog-description">
-                이 매체에 적용할 타겟 그룹을 선택하세요
-              </p>
+              <h3 className="dialog-title">타겟 설정</h3>
             </div>
             <div style={{ padding: '24px' }}>
               {/* 남성 */}
