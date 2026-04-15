@@ -13,7 +13,7 @@ export const metaMetrics: MetricGroup[] = [
       { id: 'cpm', label: 'CPM', selected: false },
       { id: 'ctr', label: 'CTR', selected: false },
       { id: 'cpv', label: 'CPV', selected: false },
-      { id: 'vtr', label: 'VTR', selected: false },
+      { id: 'vtr', label: 'VTR (3초 이상 재생률)', selected: false },
     ]
   },
   {
@@ -29,11 +29,11 @@ export const metaMetrics: MetricGroup[] = [
   {
     group: '참여',
     metrics: [
-      { id: 'video_views_3s', label: '동영상 3초 이상 조회수', selected: false },
-      { id: 'video_views_15s', label: '동영상 15초 이상 조회수', selected: false },
-      { id: 'video_views_30s', label: '동영상 30초 이상 조회수', selected: false },
-      { id: 'cost_per_video_3s', label: '동영상 3초 이상 조회당 비용', selected: false },
-      { id: 'cost_per_video_15s', label: '동영상 15초 이상 조회당 비용', selected: false },
+      { id: 'video_views_3s', label: '동영상 3초 이상 재생수', selected: false },
+      { id: 'video_views_15s', label: '동영상 15초 이상 재생수', selected: false },
+      { id: 'video_views_30s', label: '동영상 30초 이상 재생수', selected: false },
+      { id: 'cost_per_video_3s', label: '동영상 3초 이상 재생당 비용', selected: false },
+      { id: 'cost_per_video_15s', label: '동영상 15초 이상 재생당 비용', selected: false },
       { id: 'video_play_3s', label: '3초 재생수', selected: false },
       { id: 'video_play_15s', label: '15초 재생수', selected: false },
       { id: 'post_reaction', label: '게시물 반응수', selected: false },
