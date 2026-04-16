@@ -451,6 +451,7 @@ export const kakaoMetrics: MetricGroup[] = [
   {
     group: '발송',
     metrics: [
+      { id: 'message_send', label: '발송수', selected: false },
       { id: 'message_open', label: '열람수', selected: false },
       { id: 'message_click', label: '전체 클릭수', selected: false },
       { id: 'message_open_rate', label: '열람률', selected: false },
