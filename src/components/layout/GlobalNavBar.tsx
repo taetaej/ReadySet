@@ -55,7 +55,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
   // 상위 3개 광고주
   const topAdvertisers = allAdvertisers.slice(0, 3)
 
-  // 알림 목록 데이터 (최근 10개) - 솔루션명과 결과물명 구조로 변경
+  // 알림 목록 데이터 (최근 30개) - 솔루션명과 결과물명 구조로 변경
   const notifications = [
     {
       id: 1,
@@ -450,7 +450,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                   fontSize: '12px',
                   marginTop: '2px'
                 }} className="text-muted-foreground">
-                  {notifications.filter(n => n.isNew).length}개의 새로운 알림 • 최근 10개 알림만 표시됩니다
+                  {notifications.filter(n => n.isNew).length}개의 새로운 알림 • 최근 30개 알림만 표시됩니다
                 </div>
               </div>
 
