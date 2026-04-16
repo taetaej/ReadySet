@@ -378,7 +378,7 @@ export const googleMetrics: MetricGroup[] = [
       { id: 'cost', label: '광고비', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
-      { id: 'conversions', label: '조회수', selected: false },
+      { id: 'views', label: '조회수', selected: false },
       { id: 'cpc', label: '클릭당 비용(CPC)', selected: false },
       { id: 'cpm', label: '1,000회 노출당 비용(CPM)', selected: false },
       { id: 'ctr', label: '클릭률(CTR)', selected: false },
@@ -392,19 +392,20 @@ export const googleMetrics: MetricGroup[] = [
       { id: 'video_views_50_rate', label: '50% 재생 진행률', selected: false },
       { id: 'video_views_75_rate', label: '75% 재생 진행률', selected: false },
       { id: 'video_views_100_rate', label: '100% 재생 진행률', selected: false },
+      { id: 'interactions', label: '상호작용 수', selected: false },
     ]
   },
   {
     group: '전환',
     metrics: [
-      { id: 'all_conversions', label: '전환수', selected: false },
-      { id: 'conversion_value', label: '전환율(전체)', selected: false },
+      { id: 'conversions', label: '전환수', selected: false },
+      { id: 'conversion_rate', label: '전환율(전체)', selected: false },
       { id: 'cost_per_conversion', label: '전환당 비용', selected: false },
       { id: 'purchases', label: '구매수', selected: false },
       { id: 'cost_per_purchase', label: '구매당 비용', selected: false },
-      { id: 'conversions_value', label: '설치수', selected: false },
-      { id: 'installs', label: '설치율', selected: false },
-      { id: 'install_rate', label: '설치당 비용', selected: false },
+      { id: 'installs', label: '설치수', selected: false },
+      { id: 'install_rate', label: '설치율', selected: false },
+      { id: 'cost_per_install', label: '설치당 비용', selected: false },
     ]
   }
 ]
@@ -582,11 +583,11 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
   'kakao모먼트': [
     {
       category: '성별',
-      options: ['남', '여', '알 수 없음']
+      options: ['남', '여', '성별 알 수 없음']
     },
     {
-      category: '연령대',
-      options: ['15~19', '20~24', '25~29', '30~34', '35~39', '40~44', '45~49', '50~54', '55~59', '60~64', '65~69', '70 이상', '알 수 없음']
+      category: '연령',
+      options: ['15~19', '20~24', '25~29', '30~34', '35~39', '40~44', '45~49', '50~54', '55~59', '60~64', '65~69', '70 이상', '연령 알 수 없음']
     },
     {
       category: '성별x연령',
@@ -636,15 +637,15 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
     },
     {
       category: '성별',
-      options: ['남성', '여성', '알 수 없음']
+      options: ['남성', '여성', '성별 알 수 없음']
     },
     {
       category: '연령',
-      options: ['13~17', '18~24', '25~34', '35~44', '45~54', '55+', '알 수 없음']
+      options: ['13~17', '18~24', '25~34', '35~44', '45~54', '55+', '연령 알 수 없음']
     },
     {
       category: '성별X연령',
-      options: ['남성 13-17', '남성 18-24', '남성 25-34', '남성 35-44', '남성 45-54', '남성 55+', '여성 13-17', '여성 18-24', '여성 25-34', '여성 35-44', '여성 45-54', '여성 55+']
+      options: ['남성 13~17', '남성 18~24', '남성 25~34', '남성 35~44', '남성 45~54', '남성 55+', '남성 연령 알 수 없음', '여성 13~17', '여성 18~24', '여성 25~34', '여성 35~44', '여성 45~54', '여성 55+', '여성 연령 알 수 없음', '성별 알 수 없음 13~17', '성별 알 수 없음 18~24', '성별 알 수 없음 25~34', '성별 알 수 없음 35~44', '성별 알 수 없음 45~54', '성별 알 수 없음 55+', '성별 알 수 없음 연령 알 수 없음']
     },
     {
       category: '국가',
