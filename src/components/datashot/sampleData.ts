@@ -242,16 +242,16 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       options: ['경매', '예약']
     },
     {
-      label: '플랫폼',
-      key: 'platform',
-      required: false,
-      options: [...metaPlatforms]
-    },
-    {
       label: '성과 목표',
       key: 'performanceGoal',
       required: false,
       options: [...metaPerformanceGoals]
+    },
+    {
+      label: '플랫폼',
+      key: 'platform',
+      required: false,
+      options: [...metaPlatforms]
     }
   ]
 }
@@ -288,7 +288,7 @@ export const googleAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '입찰 전략',
+      label: '입찰 전략 유형',
       key: 'biddingStrategy',
       required: false,
       options: [
@@ -498,7 +498,7 @@ export const naverNospAdProductStructure: MediaAdProductStructure = {
       options: ['동영상_5초 SKIP형', '배너_이미지형', '배너_이미지형_확장형']
     },
     {
-      label: '과금 유형',
+      label: '과금 방식',
       key: 'chargeType',
       required: false,
       options: ['CPM', 'CPT', 'CPV']
@@ -550,6 +550,6 @@ export const adProductStructureByMedia: { [media: string]: MediaAdProductStructu
 export const metaAdProducts = {
   campaignObjectives: metaAdProductStructure.fields[0].options,
   buyingTypes: metaAdProductStructure.fields[1].options,
-  platforms: metaAdProductStructure.fields[2].options,
-  performanceGoals: metaAdProductStructure.fields[3].options
+  performanceGoals: metaAdProductStructure.fields[2].options,
+  platforms: metaAdProductStructure.fields[3].options
 }
