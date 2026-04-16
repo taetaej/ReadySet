@@ -1137,7 +1137,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                 Slot을 삭제하시겠습니까?
               </h3>
               <p className="dialog-description">
-                "{deletingFolder}" Slot을 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+                "{deletingFolder}" Slot을 삭제하면 포함된 모든 하위 작업물(생성 중·실행 중 포함)이 함께 삭제되며, 복원할 수 없습니다.
               </p>
             </div>
             <div className="dialog-footer">
