@@ -10,15 +10,16 @@
 | 2026. 2. 09 | AI | 시나리오 생성 페이지 상세 업데이트 | Reach Predictor Phase 1 구현 완료 | 1.3 |
 | 2026. 2. 12 | AI | 실제 구현 구조 반영 | 현재 프로젝트 파일 구조 기반 업데이트 | 1.4 |
 | 2026. 3. 05 | AI | 브레드크럼 네비게이션 구조 개선 | 솔루션 레이어 추가, 정책 문서화 | 1.5 |
+| 2026. 4. 16 | AI | 전체 구조 업데이트 | 실제 코드베이스 기반 기술스택·컴포넌트·프로젝트 구조 반영 | 1.6 |
 
 ---
 
 📢 본 문서는 예측/분석 고도화 프로젝트 정책서(v0.2)를 기반으로 작성된 정보 구조(IA) 가이드입니다.
 
-- 현재 버전: v1.5
+- 현재 버전: v1.6
 - 관리자: 신지아
 - 참고: 예측분석_고도화_프로젝트_정책서_v0.2.md
-- 최근 업데이트: 브레드크럼 네비게이션 구조 개선 (2026.03.05)
+- 최근 업데이트: 전체 구조 업데이트 — 기술스택·컴포넌트·프로젝트 구조 반영 (2026.04.16)
 
 ---
 
@@ -33,10 +34,16 @@
 │   ├── UI 컴포넌트
 │   │   ├── Lucide React 0.263.1 (아이콘)
 │   │   ├── React Day Picker 9.13.0 (날짜 선택)
+│   │   ├── Framer Motion 12.38.0 (애니메이션)
+│   │   ├── GSAP 3.14.2 (고급 애니메이션)
 │   │   └── 커스텀 컴포넌트 (shadcn 스타일)
-│   └── 차트/시각화
-│       ├── ECharts 6.0.0 (차트)
-│       └── Frappe Gantt 1.0.4 (타임라인)
+│   ├── 차트/시각화
+│   │   ├── Recharts 3.7.0 (리치커브 등 주요 차트)
+│   │   ├── ECharts 6.0.0 + echarts-for-react 3.0.6 (버블차트 등)
+│   │   └── Frappe Gantt 1.0.4 (타임라인)
+│   └── 유틸리티
+│       ├── date-fns 4.1.0 (날짜 처리)
+│       └── OGL 1.0.11 (WebGL 커서 효과)
 ├── 프로젝트 구조
 │   ├── src/
 │   │   ├── components/
@@ -45,10 +52,14 @@
 │   │   │   │   ├── GlobalNavBar.tsx (GNB)
 │   │   │   │   ├── Sidebar.tsx (SNB)
 │   │   │   │   ├── Breadcrumb.tsx (경로 표시)
+│   │   │   │   ├── GradeCard.tsx (등급 카드)
 │   │   │   │   ├── Footer.tsx (푸터)
 │   │   │   │   └── index.ts (export)
 │   │   │   ├── common/ (공통 컴포넌트)
 │   │   │   │   ├── Avatar.tsx (프로필 아바타)
+│   │   │   │   ├── Calendar.tsx (캘린더)
+│   │   │   │   ├── CircularText.tsx (원형 텍스트)
+│   │   │   │   ├── MediaIcons.tsx (매체 아이콘)
 │   │   │   │   ├── SplashCursor.tsx (커서 효과)
 │   │   │   │   └── SplitText.tsx (텍스트 애니메이션)
 │   │   │   ├── scenario/ (시나리오 관련)
@@ -60,20 +71,35 @@
 │   │   │   │   ├── types.ts (타입 정의)
 │   │   │   │   ├── utils.ts (유틸리티)
 │   │   │   │   └── index.ts (export)
-│   │   │   ├── WorkspaceLayout.tsx (SlotBoard 메인)
-│   │   │   ├── CreateScenario.tsx (시나리오 생성)
-│   │   │   ├── CreateFolder.tsx (Slot 생성)
-│   │   │   ├── EditFolder.tsx (Slot 수정)
-│   │   │   ├── SlotCard.tsx (Slot 카드)
-│   │   │   ├── SlotHeader.tsx (Slot 헤더)
-│   │   │   ├── SlotDetail.tsx (Slot 상세)
-│   │   │   ├── SlotListItem.tsx (시나리오 목록 아이템)
-│   │   │   ├── RatioFinderResult.tsx (Ratio Finder 결과)
-│   │   │   ├── ReachPredictorResult.tsx (Reach Predictor 결과)
-│   │   │   ├── RatioFinderDetailTable.tsx (상세 테이블)
-│   │   │   ├── DateRangePicker.tsx (날짜 범위 선택)
-│   │   │   ├── PageHeader.tsx (페이지 헤더)
-│   │   │   └── WelcomeSection.tsx (환영 섹션)
+│   │   │   ├── reachcaster/ (Reach Caster 화면)
+│   │   │   │   ├── WorkspaceLayout.tsx (SlotBoard 메인)
+│   │   │   │   ├── CreateScenario.tsx (시나리오 생성)
+│   │   │   │   ├── CreateFolder.tsx (Slot 생성)
+│   │   │   │   ├── EditFolder.tsx (Slot 수정)
+│   │   │   │   ├── SlotCard.tsx / SlotHeader.tsx / SlotDetail.tsx
+│   │   │   │   ├── SlotHome.tsx / SlotOverview.tsx / SlotSolutions.tsx
+│   │   │   │   ├── SlotListItem.tsx (시나리오 목록 아이템)
+│   │   │   │   ├── RatioFinderResult.tsx / RatioFinderDetailTable.tsx
+│   │   │   │   ├── ReachPredictorResult.tsx / ReachPredictorDetailTable.tsx
+│   │   │   │   ├── ReachPredictorScoreCards.tsx / ReachCurveChart.tsx
+│   │   │   │   ├── ScenarioComparisonPanel.tsx / ScenarioComparisonResult.tsx
+│   │   │   │   ├── SolutionOutputCard.tsx / DataInsightCard.tsx
+│   │   │   │   ├── IndustryBubbleChart.tsx / IndustryDualBarChart.tsx
+│   │   │   │   ├── DateRangePicker.tsx / CustomDateRangePicker.tsx
+│   │   │   │   ├── PageHeader.tsx / WelcomeSection.tsx / WelcomeSectionFixed.tsx
+│   │   │   │   └── 기타 UI 컴포넌트
+│   │   │   ├── datashot/ (DataShot 솔루션)
+│   │   │   │   ├── CreateDataset.tsx (데이터셋 생성 3단계 위자드)
+│   │   │   │   ├── CreateDatasetStep1~3.tsx (각 단계)
+│   │   │   │   ├── DatasetList.tsx / DatasetDetail.tsx
+│   │   │   │   ├── AdProductsSelector.tsx / IndustryDialog.tsx
+│   │   │   │   ├── MonthRangePicker.tsx / SampleDataModal.tsx
+│   │   │   │   └── types.ts / sampleData.ts / apiMappings.ts
+│   │   │   ├── spinx/ (SpinX AI 어시스턴트)
+│   │   │   │   ├── SpinXButton.tsx (SpinX 플로팅 버튼)
+│   │   │   │   └── SpinXPanel.tsx (SpinX 채팅 패널)
+│   │   │   ├── ComponentLibrary.tsx (컴포넌트 라이브러리)
+│   │   │   └── README.md (컴포넌트 문서)
 │   │   ├── styles/
 │   │   │   └── globals.css (전역 스타일)
 │   │   ├── utils/
@@ -81,13 +107,24 @@
 │   │   ├── App.tsx (라우팅 설정)
 │   │   ├── main.tsx (진입점)
 │   │   └── index.css (기본 스타일)
-│   ├── guide/ (개발 가이드)
-│   │   ├── Lucide_Icon_Guide.md
-│   │   ├── Q_Developer_Planning_Guide.md
-│   │   └── Screen_Specification_Guide.md
+│   ├── .kiro/ (Kiro IDE 설정)
+│   │   ├── hooks/ (에이전트 훅)
+│   │   │   ├── auto-type-check.kiro.hook (타입 체크 자동화)
+│   │   │   ├── check-steering-policy.kiro.hook (정책 준수 체크)
+│   │   │   └── detailed-commit-msg.kiro.hook (커밋 메시지 상세화)
+│   │   ├── specs/ (기능 스펙)
+│   │   │   └── reach-predictor-phase1/ (RP Phase 1)
+│   │   └── steering/ (에이전트 가이드)
+│   │       ├── agent-efficiency-policy.md (효율 정책, auto)
+│   │       ├── codebase-patterns-steering.md (코드 패턴, auto)
+│   │       ├── ui-dialog-policy.md (다이얼로그 정책, manual)
+│   │       ├── ui-validation-message-policy.md (밸리데이션 정책, manual)
+│   │       ├── design-system-guide.md (디자인 시스템, manual)
+│   │       ├── lucide-icon-reference.md (아이콘 레퍼런스, manual)
+│   │       └── screen-specification-guide.md (화면 명세, manual)
 │   ├── plan/ (기획 문서)
-│   │   ├── spec/
-│   │   │   └── Common_Layout_Spec.md
+│   │   ├── spec/ (화면별 상세 스펙 8개)
+│   │   ├── eunseo/ (프로젝트 관리 문서)
 │   │   └── strategic(highlevel)/
 │   │       ├── 예측분석_고도화_프로젝트_정책서_v0.1.md
 │   │       └── 예측분석_플랫폼_IA_v1.0.md (본 문서)
@@ -1216,6 +1253,27 @@ Shared 폴더
 ---
 
 이 IA는 예측분석_고도화_프로젝트_정책서_v0.2에 정의된 모든 기능과 구조를 체계적으로 정리하여 개발팀이 시스템을 구현할 때 참고할 수 있는 정보 구조를 제공합니다.
+
+### 주요 업데이트 내용 (v1.5 → v1.6)
+
+- **기술 스택 업데이트**:
+  - Recharts 3.7.0 추가 (리치커브 등 주요 차트)
+  - echarts-for-react 3.0.6 추가 (ECharts React 래퍼)
+  - Framer Motion 12.38.0 추가 (애니메이션)
+  - GSAP 3.14.2 추가 (고급 애니메이션)
+  - date-fns 4.1.0 추가 (날짜 처리)
+
+- **컴포넌트 구조 대폭 업데이트**:
+  - reachcaster/ 폴더 신설: 기존 루트 레벨 컴포넌트들을 reachcaster/ 하위로 재구성
+  - datashot/ 폴더 신설: DataShot 솔루션 전체 구현 (데이터셋 생성 3단계 위자드)
+  - spinx/ 폴더 신설: SpinX AI 어시스턴트 (플로팅 버튼 + 채팅 패널)
+  - common/ 확장: Calendar, CircularText, MediaIcons 추가
+  - layout/ 확장: GradeCard 추가
+
+- **프로젝트 구조 변경**:
+  - guide/ → .kiro/steering/으로 이동 (디자인 시스템, 아이콘 레퍼런스, 화면 명세)
+  - .kiro/ 디렉토리 추가 (hooks, specs, steering)
+  - Kiro 에이전트 훅 3개 설정 (타입 체크, 정책 준수, 커밋 메시지)
 
 ### 주요 업데이트 내용 (v1.3 → v1.4)
 
