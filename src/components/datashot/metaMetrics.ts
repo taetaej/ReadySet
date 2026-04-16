@@ -8,12 +8,10 @@ export const metaMetrics: MetricGroup[] = [
       { id: 'spend', label: '광고 소진금액', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks_all', label: '클릭(전체)', selected: false },
-      { id: 'frequency', label: '빈도', selected: false },
       { id: 'cpc', label: 'CPC', selected: false },
       { id: 'cpm', label: 'CPM', selected: false },
       { id: 'ctr', label: 'CTR', selected: false },
-      { id: 'cpv', label: 'CPV', selected: false },
-      { id: 'vtr', label: 'VTR (3초 이상 재생률)', selected: false },
+      { id: 'vtr', label: '동영상 3초 이상 재생률', selected: false },
     ]
   },
   {
@@ -34,8 +32,6 @@ export const metaMetrics: MetricGroup[] = [
       { id: 'video_views_30s', label: '동영상 30초 이상 재생수', selected: false },
       { id: 'cost_per_video_3s', label: '동영상 3초 이상 재생당 비용', selected: false },
       { id: 'cost_per_video_15s', label: '동영상 15초 이상 재생당 비용', selected: false },
-      { id: 'video_play_3s', label: '3초 재생수', selected: false },
-      { id: 'video_play_15s', label: '15초 재생수', selected: false },
       { id: 'post_reaction', label: '게시물 반응수', selected: false },
       { id: 'post_engagement', label: '게시물 참여수', selected: false },
       { id: 'cost_per_post_engagement', label: '게시물 참여당 비용', selected: false },
