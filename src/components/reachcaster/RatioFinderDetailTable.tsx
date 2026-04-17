@@ -180,11 +180,31 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
 
   const formatNumber = (num: number) => num.toLocaleString('ko-KR')
   
+  const formatDecimal = (num: number) => {
+    return num.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
+  
   // 단위를 포함한 포맷팅 함수
   const formatWithUnit = (num: number, unit: string) => {
     return (
       <>
         {formatNumber(num)}
+        <span style={{ 
+          fontSize: '10px', 
+          opacity: 0.5, 
+          marginLeft: '4px',
+          fontWeight: '400'
+        }}>
+          {unit}
+        </span>
+      </>
+    )
+  }
+  
+  const formatDecimalWithUnit = (num: number, unit: string) => {
+    return (
+      <>
+        {formatDecimal(num)}
         <span style={{ 
           fontSize: '10px', 
           opacity: 0.5, 
@@ -366,14 +386,14 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.impressions, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.effectiveImpression, '회') : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.reach, '회') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(parseFloat(categorySubTotal.frequency), '회') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? categorySubTotal.grp : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatDecimalWithUnit(parseFloat(categorySubTotal.frequency), '회') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatDecimal(parseFloat(categorySubTotal.grp)) : '-'}</div>
                 <div style={{ padding: '12px 8px', textAlign: 'right' }}>{hasData ? formatWithUnit(categorySubTotal.cprp, '원') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach1 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach1), '%') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach2 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach2), '%') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach3 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach3), '%') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach4 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach4), '%') : '-'}</div>
-                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach5 !== '-' ? formatWithUnit(parseFloat(categorySubTotal.reach5), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach1 !== '-' ? formatDecimalWithUnit(parseFloat(categorySubTotal.reach1), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach2 !== '-' ? formatDecimalWithUnit(parseFloat(categorySubTotal.reach2), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach3 !== '-' ? formatDecimalWithUnit(parseFloat(categorySubTotal.reach3), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach4 !== '-' ? formatDecimalWithUnit(parseFloat(categorySubTotal.reach4), '%') : '-'}</div>
+                <div style={{ padding: '12px 8px', textAlign: 'right' }} className={!hasData || categorySubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{hasData && categorySubTotal.reach5 !== '-' ? formatDecimalWithUnit(parseFloat(categorySubTotal.reach5), '%') : '-'}</div>
               </div>
 
               {/* 2depth: Media - 비중이 0이면 표시하지 않음 */}
@@ -413,14 +433,14 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.impressions, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.effectiveImpression, '회')}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.reach, '회')}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(mediaSubTotal.frequency), '회')}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{mediaSubTotal.grp}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatDecimalWithUnit(parseFloat(mediaSubTotal.frequency), '회')}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatDecimal(parseFloat(mediaSubTotal.grp))}</div>
                       <div style={{ padding: '10px 8px', textAlign: 'right' }}>{formatWithUnit(mediaSubTotal.cprp, '원')}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach1 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach1), '%') : '-'}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach2 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach2), '%') : '-'}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach3 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach3), '%') : '-'}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach4 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach4), '%') : '-'}</div>
-                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach5 !== '-' ? formatWithUnit(parseFloat(mediaSubTotal.reach5), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach1 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach1 !== '-' ? formatDecimalWithUnit(parseFloat(mediaSubTotal.reach1), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach2 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach2 !== '-' ? formatDecimalWithUnit(parseFloat(mediaSubTotal.reach2), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach3 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach3 !== '-' ? formatDecimalWithUnit(parseFloat(mediaSubTotal.reach3), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach4 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach4 !== '-' ? formatDecimalWithUnit(parseFloat(mediaSubTotal.reach4), '%') : '-'}</div>
+                      <div style={{ padding: '10px 8px', textAlign: 'right' }} className={mediaSubTotal.reach5 === '-' ? 'text-muted-foreground' : ''}>{mediaSubTotal.reach5 !== '-' ? formatDecimalWithUnit(parseFloat(mediaSubTotal.reach5), '%') : '-'}</div>
                     </div>
 
                     {/* 3depth: Products */}
@@ -444,14 +464,14 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.impressions, '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.effectiveImpression, '회')}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.reach, '회')}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(parseFloat(product.frequency), '회')}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }}>{product.grp}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatDecimalWithUnit(parseFloat(product.frequency), '회')}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }}>{formatDecimal(parseFloat(product.grp))}</div>
                         <div style={{ padding: '8px', textAlign: 'right' }}>{formatWithUnit(product.cprp, '원')}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach1 === '-' ? 'text-muted-foreground' : ''}>{product.reach1 !== '-' ? formatWithUnit(parseFloat(product.reach1), '%') : '-'}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach2 === '-' ? 'text-muted-foreground' : ''}>{product.reach2 !== '-' ? formatWithUnit(parseFloat(product.reach2), '%') : '-'}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach3 === '-' ? 'text-muted-foreground' : ''}>{product.reach3 !== '-' ? formatWithUnit(parseFloat(product.reach3), '%') : '-'}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach4 === '-' ? 'text-muted-foreground' : ''}>{product.reach4 !== '-' ? formatWithUnit(parseFloat(product.reach4), '%') : '-'}</div>
-                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach5 === '-' ? 'text-muted-foreground' : ''}>{product.reach5 !== '-' ? formatWithUnit(parseFloat(product.reach5), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach1 === '-' ? 'text-muted-foreground' : ''}>{product.reach1 !== '-' ? formatDecimalWithUnit(parseFloat(product.reach1), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach2 === '-' ? 'text-muted-foreground' : ''}>{product.reach2 !== '-' ? formatDecimalWithUnit(parseFloat(product.reach2), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach3 === '-' ? 'text-muted-foreground' : ''}>{product.reach3 !== '-' ? formatDecimalWithUnit(parseFloat(product.reach3), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach4 === '-' ? 'text-muted-foreground' : ''}>{product.reach4 !== '-' ? formatDecimalWithUnit(parseFloat(product.reach4), '%') : '-'}</div>
+                        <div style={{ padding: '8px', textAlign: 'right' }} className={product.reach5 === '-' ? 'text-muted-foreground' : ''}>{product.reach5 !== '-' ? formatDecimalWithUnit(parseFloat(product.reach5), '%') : '-'}</div>
                       </div>
                     ))}
                   </div>
