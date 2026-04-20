@@ -22,11 +22,45 @@ interface Props {
 
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
+  const [showMetricsResetAlert, setShowMetricsResetAlert] = useState(false)
+  const [pendingTargetingCat, setPendingTargetingCat] = useState<string>('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
   return (
     <>
+    {/* 지표 초기화 확인 얼럿 */}
+    {showMetricsResetAlert && (
+      <div className="dialog-overlay">
+        <div className="dialog-content">
+          <div className="dialog-header">
+            <h3 className="dialog-title">지표 초기화 안내</h3>
+            <p className="dialog-description">
+              {pendingTargetingCat} 선택 시 기존 선택된 지표가 초기화됩니다.<br />
+              계속 진행하시겠습니까?
+            </p>
+          </div>
+          <div className="dialog-footer">
+            <button
+              onClick={() => { setShowMetricsResetAlert(false); setPendingTargetingCat('') }}
+              className="btn btn-secondary btn-sm"
+            >
+              취소
+            </button>
+            <button
+              onClick={() => {
+                setFormData({ ...formData, targetingCategory: pendingTargetingCat, targetingOptions: [], metrics: [] })
+                setShowMetricsResetAlert(false)
+                setPendingTargetingCat('')
+              }}
+              className="btn btn-primary btn-sm"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div style={{ width: '800px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>상세 설정</h2>
 
@@ -106,6 +140,21 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
+                if (formData.media === 'Meta' && cat === '기기유형' && formData.metrics.length > 0) {
+                  setPendingTargetingCat(cat)
+                  setShowMetricsResetAlert(true)
+                  return
+                }
+                if (formData.media === 'kakao모먼트' && cat === '디바이스' && formData.metrics.length > 0) {
+                  setPendingTargetingCat(cat)
+                  setShowMetricsResetAlert(true)
+                  return
+                }
+                if (formData.media === '네이버 보장형 DA' && cat === '노출영역' && formData.metrics.length > 0) {
+                  setPendingTargetingCat(cat)
+                  setShowMetricsResetAlert(true)
+                  return
+                }
                 setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
               }}
               onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
@@ -138,7 +187,22 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               )}
             </div>
             <MetricGroupList
-              groups={metricsByMedia[formData.media] ?? []}
+              groups={(() => {
+                const base = metricsByMedia[formData.media] ?? []
+                if (formData.media === 'Meta' && formData.targetingCategory === '기기유형') {
+                  const excluded = ['post_reaction', 'post_engagement', 'cost_per_post_engagement', 'link_click', 'cost_per_link_click', 'link_ctr', 'complete_registration', 'cost_per_registration']
+                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
+                }
+                if (formData.media === 'kakao모먼트' && formData.targetingCategory === '디바이스') {
+                  const excluded = ['conversions', 'message_send', 'message_open', 'message_click', 'message_open_rate', 'message_click_rate', 'channel_add_cpa', 'channel_add_cvr']
+                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
+                }
+                if (formData.media === '네이버 보장형 DA' && formData.targetingCategory === '노출영역') {
+                  const excluded = ['cost', 'cost_guaranteed', 'cpc', 'cpm', 'cpv']
+                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
+                }
+                return base
+              })()}
               selected={formData.metrics}
               onChange={metrics => setFormData({ ...formData, metrics })}
               searchQuery={metricsSearch}
