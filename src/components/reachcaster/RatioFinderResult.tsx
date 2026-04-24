@@ -17,16 +17,17 @@ interface RatioFinderResultProps {
 
 // 샘플 시뮬레이션 데이터 (10% 단위, 11개 조합) - 컴포넌트 외부로 이동
 const generateSimulationData = () => {
+  // 실제 모델 결과처럼 들쭉날쭉한 리치 데이터
+  const reachValues = [15.2, 18.7, 24.3, 35.1, 38.6, 32.8, 29.4, 22.1, 25.8, 19.3, 8.5]
   const data = []
-  for (let tvcRatio = 0; tvcRatio <= 100; tvcRatio += 10) {
+  for (let i = 0; i <= 10; i++) {
+    const tvcRatio = i * 10
     const digitalRatio = 100 - tvcRatio
-    // 도달률은 50:50 근처에서 최대가 되도록 시뮬레이션
-    const reach = 45 + 30 * Math.exp(-Math.pow((tvcRatio - 50) / 30, 2)) + Math.random() * 3
     data.push({
       tvcRatio,
       digitalRatio,
-      reach: parseFloat(reach.toFixed(2)),
-      tvcBudget: tvcRatio * 10000000, // 예시: 총 10억 기준
+      reach: reachValues[i],
+      tvcBudget: tvcRatio * 10000000,
       digitalBudget: digitalRatio * 10000000,
       frequency: 3.2 + Math.random() * 0.8,
       grp: 150 + Math.random() * 50,
@@ -167,14 +168,15 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     const digitalData = simulationData.map(d => d.digitalRatio)
     const reachData = simulationData.map(d => d.reach)
 
-    // 컬러 정의
+    // 컬러 정의 - 미니멀 SaaS + 네온그린 브랜드
     const colors = {
-      tvc: isDarkMode ? '#f5f5f5' : '#1a1a1a',
-      tvcFaded: isDarkMode ? 'rgba(245, 245, 245, 0.4)' : 'rgba(26, 26, 26, 0.4)',
+      tvc: isDarkMode ? '#52525B' : '#D4D4D8',
+      tvcFaded: isDarkMode ? 'rgba(82, 82, 91, 0.35)' : 'rgba(212, 212, 216, 0.4)',
       digital: '#00FF9D',
-      digitalFaded: 'rgba(0, 255, 157, 0.4)',
-      reach: '#B794F6',
-      reachShadow: 'rgba(183, 148, 246, 0.5)'
+      digitalFaded: 'rgba(0, 255, 157, 0.35)',
+      reach: isDarkMode ? '#f5f5f5' : '#18181B',
+      reachShadow: isDarkMode ? 'rgba(245, 245, 245, 0.3)' : 'rgba(24, 24, 27, 0.2)',
+      optimalDigital: '#00FF9D'
     }
 
     return {
@@ -295,8 +297,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
             fontFamily: 'Paperlogy, sans-serif',
             fontSize: 12
           },
-          min: 40,
-          max: 80,
+          min: 0,
+          max: 50,
           axisLabel: {
             formatter: '{value}%',
             color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
@@ -342,14 +344,16 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           data: digitalData.map((val, idx) => ({
             value: val,
             itemStyle: {
-              color: selectedBarIndex === null || idx === selectedBarIndex
-                ? colors.digital
-                : colors.digitalFaded,
+              color: idx === maxReachIndex
+                ? colors.optimalDigital
+                : (selectedBarIndex === null || idx === selectedBarIndex
+                  ? colors.digital
+                  : colors.digitalFaded),
               borderWidth: 0
             },
             emphasis: {
               itemStyle: {
-                color: colors.digital
+                color: idx === maxReachIndex ? colors.optimalDigital : colors.digital
               }
             }
           })),
@@ -362,22 +366,34 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           type: 'line',
           yAxisIndex: 1,
           data: reachData,
-          smooth: true,
+          smooth: false,
           lineStyle: {
             color: colors.reach,
-            width: 3
+            width: 1,
+            type: 'solid',
+            shadowColor: colors.reachShadow,
+            shadowBlur: 4
           },
           itemStyle: {
             color: colors.reach,
             borderColor: colors.reach,
-            borderWidth: 3
+            borderWidth: 2
           },
-          symbol: 'circle',
-          symbolSize: 8,
+          symbol: 'diamond',
+          symbolSize: 10,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: (params: any) => `${Number(params.value).toFixed(2)}%`,
+            fontSize: 12,
+            fontWeight: '700',
+            color: isDarkMode ? '#f5f5f5' : '#1a1a1a',
+            distance: 8
+          },
           emphasis: {
-            scale: 1.3,
+            scale: 1.5,
             itemStyle: {
-              borderWidth: 4,
+              borderWidth: 3,
               shadowBlur: 10,
               shadowColor: colors.reachShadow
             }
@@ -791,7 +807,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               ref={chartRef}
               option={chartOption}
               style={{ height: '500px', width: '100%' }}
-              opts={{ renderer: 'svg' }}
+              opts={{ renderer: 'canvas' }}
               notMerge={false}
               lazyUpdate={true}
               onEvents={{

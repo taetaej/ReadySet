@@ -582,6 +582,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             <h1 style={{
               fontSize: '20px',
               fontWeight: '700',
+              fontFamily: "'Manrope', 'Paperlogy', sans-serif",
               margin: 0,
               color: 'hsl(var(--foreground))',
               transition: 'opacity 0.2s'

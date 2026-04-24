@@ -692,7 +692,7 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
             <div 
               className="dialog-content dialog-md" 
               onClick={(e) => e.stopPropagation()}
-              style={{ height: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+              style={{ maxHeight: '90vh', overflowY: 'auto' }}
             >
               <div className="dialog-header">
                 <h3 className="dialog-title">
@@ -771,9 +771,7 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr',
-                  gap: '8px',
-                  maxHeight: '400px',
-                  overflowY: 'auto'
+                  gap: '8px'
                 }}>
                   {filteredProducts.length > 0 ? (
                     filteredProducts.map((product: string) => (
