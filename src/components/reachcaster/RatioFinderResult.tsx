@@ -370,9 +370,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           lineStyle: {
             color: colors.reach,
             width: 1,
-            type: 'solid',
-            shadowColor: colors.reachShadow,
-            shadowBlur: 4
+            type: 'dashed',
+            opacity: 0.5
           },
           itemStyle: {
             color: colors.reach,
