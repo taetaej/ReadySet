@@ -604,7 +604,7 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
     },
     {
       category: '게재지면',
-      options: ['카카오톡 채널', '카카오 비즈보드', '카카오 비즈보드 CPT', '카카오톡 비즈보드 채팅탭 CPT', '디스플레이', '동영상', '리치팝 올데이', '상품 카탈로그', '포커스 보드', '포커스 풀뷰', '프로필 풀뷰']
+      options: ['카카오톡', '다음', '카카오서비스', '네트워크', '카카오스토리']
     }
   ],
   '네이버 성과형 DA': [],
