@@ -75,6 +75,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
   const [hasSearched, setHasSearched] = useState(false)
   const [activeMajor, setActiveMajor] = useState<string | null>(null)
   const [activeMid, setActiveMid] = useState<string | null>(null)
+  const initialIndustriesRef = useRef<string[]>(selectedIndustries)
+  const initialLevelRef = useRef<IndustryLevel | null>(industryLevel)
 
   useEffect(() => {
     if (isOpen) {
@@ -88,6 +90,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
       setActiveMajor(null)
       setActiveMid(null)
       setLocalLevel(industryLevel)
+      initialIndustriesRef.current = selectedIndustries
+      initialLevelRef.current = industryLevel
     }
   }, [isOpen])
 
@@ -215,6 +219,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     setHasSearched(false)
     setActiveMajor(null)
     setActiveMid(null)
+  }
+
+  const handleCancel = () => {
+    onUpdate(initialIndustriesRef.current, initialLevelRef.current!)
+    onClose()
   }
 
   const getMidItems = (): Array<{ major: string; mid: string; isMatch: boolean }> => {
@@ -367,7 +376,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
   }
 
   return (
-    <div className="dialog-overlay" onClick={onClose}>
+    <div className="dialog-overlay" onClick={handleCancel}>
       {showLevelChangeAlert && (
         <div className="dialog-overlay" onClick={e => e.stopPropagation()} style={{ zIndex: 1200 }}>
           <div className="dialog-content" onClick={e => e.stopPropagation()}>
@@ -435,7 +444,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             </div>
           </div>
           <p className="dialog-description">업종 분류 레벨을 먼저 선택해주세요. 레벨 변경 시 선택한 업종이 초기화됩니다.</p>
-          <button onClick={onClose} style={{ position: 'absolute', right: '24px', top: '24px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'hsl(var(--muted-foreground))' }}>
+          <button onClick={handleCancel} style={{ position: 'absolute', right: '24px', top: '24px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'hsl(var(--muted-foreground))' }}>
             <X size={20} />
           </button>
         </div>
@@ -698,7 +707,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
 
         <div className="dialog-footer">
           <button onClick={handleReset} className="btn btn-ghost btn-md" style={{ marginRight: 'auto' }}>초기화</button>
-          <button onClick={onClose} className="btn btn-secondary btn-md">취소</button>
+          <button onClick={handleCancel} className="btn btn-secondary btn-md">취소</button>
           <button
             onClick={onClose}
             disabled={selectedIndustries.length === 0}
