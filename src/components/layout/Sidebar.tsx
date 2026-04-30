@@ -151,54 +151,86 @@ export function Sidebar({
                 </div>
 
                 {/* DataShot 데이터셋 목록 */}
-                {expandedFolders.includes('samsung-datashot') && (
+                {expandedFolders.includes('samsung-datashot') && (() => {
+                  const datasets = [
+                    { name: '데이터셋 A', status: 'completed' },
+                    { name: '데이터셋 B', status: 'completed' },
+                    { name: '데이터셋 C', status: 'processing', progress: 3, total: 5 },
+                    { name: '데이터셋 D', status: 'completed' },
+                    { name: '데이터셋 E', status: 'completed' },
+                    { name: '데이터셋 F', status: 'pending' },
+                    { name: '데이터셋 G', status: 'completed' },
+                    { name: '데이터셋 H', status: 'completed' },
+                    { name: '데이터셋 I', status: 'completed' },
+                    { name: '데이터셋 J', status: 'completed' },
+                    { name: '데이터셋 K', status: 'completed' },
+                    { name: '데이터셋 L', status: 'completed' },
+                  ]
+                  const maxVisible = 10
+                  const visibleDatasets = datasets.slice(0, maxVisible)
+
+                  return (
                   <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }}>데이터셋 A</span>
-                    </div>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }}>데이터셋 B</span>
-                    </div>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }}>데이터셋 C</span>
-                    </div>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }}>데이터셋 D</span>
-                    </div>
+                    {visibleDatasets.map((dataset, idx) => (
+                      <div key={idx} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        padding: '6px 8px',
+                        borderRadius: '4px',
+                        marginBottom: '2px',
+                        fontSize: '13px'
+                      }}>
+                        <span 
+                          style={{ flex: 1 }} 
+                          className={dataset.status === 'pending' ? 'text-muted-foreground' : dataset.status === 'processing' ? 'animate-pulse-custom' : ''}
+                        >
+                          {dataset.name}
+                        </span>
+                        {dataset.status === 'processing' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"
+                                strokeDasharray={`${2 * Math.PI * 6 * ((dataset.progress || 0) / (dataset.total || 1))} ${2 * Math.PI * 6}`}
+                                strokeLinecap="round" />
+                            </svg>
+                          </div>
+                        )}
+                        {dataset.status === 'pending' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => navigate('/datashot')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '6px 8px',
+                        fontSize: '11px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        width: '100%',
+                        transition: 'all 0.2s'
+                      }}
+                      className="text-muted-foreground"
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                    >
+                      최근 {Math.min(datasets.length, maxVisible)}개 · 목록 보기
+                      <ChevronRight size={12} />
+                    </button>
                   </div>
-                )}
+                  )
+                })()}
 
                 {/* Reach Caster 솔루션 */}
                 <div 
@@ -254,136 +286,90 @@ export function Sidebar({
                 </div>
                 
                 {/* Reach Caster 결과물들 */}
-                {expandedFolders.includes('samsung-reachcaster') && (
+                {expandedFolders.includes('samsung-reachcaster') && (() => {
+                  const scenarios = [
+                    { name: '시나리오 A', status: 'completed' },
+                    { name: '시나리오 B', status: 'processing', progress: 2, total: 5 },
+                    { name: '시나리오 C', status: 'processing', progress: 4, total: 7 },
+                    { name: '시나리오 D', status: 'pending' },
+                    { name: '시나리오 E', status: 'completed' },
+                    { name: '시나리오 F', status: 'completed' },
+                    { name: '시나리오 G', status: 'completed' },
+                    { name: '시나리오 H', status: 'processing', progress: 1, total: 3 },
+                    { name: '시나리오 I', status: 'completed' },
+                    { name: '시나리오 J', status: 'completed' },
+                    { name: '시나리오 K', status: 'pending' },
+                    { name: '시나리오 L', status: 'completed' },
+                    { name: '시나리오 M', status: 'completed' },
+                    { name: '시나리오 N', status: 'completed' },
+                    { name: '시나리오 O', status: 'completed' },
+                  ]
+                  const maxVisible = 10
+                  const visibleScenarios = scenarios.slice(0, maxVisible)
+                  const hasMore = scenarios.length > maxVisible
+
+                  return (
                   <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
-                    {/* 완료된 시나리오 */}
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }}>시나리오 A</span>
-                    </div>
-                    
-                    {/* 생성 중인 시나리오 - 2/5 단계 */}
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span className="animate-pulse-custom" style={{ flex: 1 }}>
-                        시나리오 B
-                      </span>
-                      <div style={{ 
-                        width: '14px', 
-                        height: '14px', 
-                        position: 'relative',
-                        flexShrink: 0
+                    {visibleScenarios.map((scenario, idx) => (
+                      <div key={idx} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        padding: '6px 8px',
+                        borderRadius: '4px',
+                        marginBottom: '2px',
+                        fontSize: '13px'
                       }}>
-                        <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="6"
-                            stroke="hsl(var(--muted-foreground))"
-                            strokeWidth="1.5"
-                            fill="none"
-                          />
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="6"
-                            stroke="hsl(var(--primary))"
-                            strokeWidth="1.5"
-                            fill="none"
-                            strokeDasharray={`${2 * Math.PI * 6 * (2/5)} ${2 * Math.PI * 6}`}
-                            strokeLinecap="round"
-                          />
-                        </svg>
+                        <span 
+                          style={{ flex: 1 }} 
+                          className={scenario.status === 'pending' ? 'text-muted-foreground' : scenario.status === 'processing' ? 'animate-pulse-custom' : ''}
+                        >
+                          {scenario.name}
+                        </span>
+                        {scenario.status === 'processing' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"
+                                strokeDasharray={`${2 * Math.PI * 6 * ((scenario.progress || 0) / (scenario.total || 1))} ${2 * Math.PI * 6}`}
+                                strokeLinecap="round" />
+                            </svg>
+                          </div>
+                        )}
+                        {scenario.status === 'pending' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    
-                    {/* 생성 중인 시나리오 - 4/7 단계 */}
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span className="animate-pulse-custom" style={{ flex: 1 }}>
-                        시나리오 C
-                      </span>
-                      <div style={{ 
-                        width: '14px', 
-                        height: '14px', 
-                        position: 'relative',
-                        flexShrink: 0
-                      }}>
-                        <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="6"
-                            stroke="hsl(var(--muted-foreground))"
-                            strokeWidth="1.5"
-                            fill="none"
-                          />
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="6"
-                            stroke="hsl(var(--primary))"
-                            strokeWidth="1.5"
-                            fill="none"
-                            strokeDasharray={`${2 * Math.PI * 6 * (4/7)} ${2 * Math.PI * 6}`}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    
-                    {/* 대기 중인 시나리오 */}
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      marginBottom: '2px',
-                      fontSize: '13px'
-                    }}>
-                      <span style={{ flex: 1 }} className="text-muted-foreground">시나리오 D</span>
-                      <div style={{ 
-                        width: '14px', 
-                        height: '14px', 
-                        position: 'relative',
-                        flexShrink: 0
-                      }}>
-                        <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="6"
-                            stroke="hsl(var(--muted-foreground))"
-                            strokeWidth="1.5"
-                            fill="none"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+                    ))}
+                    <button
+                      onClick={() => navigate('/reachcaster')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '6px 8px',
+                        fontSize: '11px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        width: '100%',
+                        transition: 'all 0.2s'
+                      }}
+                      className="text-muted-foreground"
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                    >
+                      최근 {Math.min(scenarios.length, maxVisible)}개 · 목록 보기
+                      <ChevronRight size={12} />
+                    </button>
                   </div>
-                )}
+                  )
+                })()}
 
                 {/* Ad Curator 솔루션 */}
                 <div className="tree-node" style={{ marginBottom: '4px', opacity: 0.6 }}>
