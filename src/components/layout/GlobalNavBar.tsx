@@ -77,7 +77,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: true,
       status: 'info',
       type: 'notice',
-      resultUrl: null
+      resultUrl: '/datashot'
     },
     {
       id: 3,
@@ -88,7 +88,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: true,
       status: 'success',
       type: 'task',
-      resultUrl: '/datashot/dataset/detail'
+      resultUrl: '/datashot/3'
     },
     {
       id: 35,
@@ -143,7 +143,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: false,
       status: 'success',
       type: 'task',
-      resultUrl: '/datashot/dataset/detail'
+      resultUrl: '/datashot/7'
     },
     {
       id: 8,
@@ -176,7 +176,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: false,
       status: 'success',
       type: 'task',
-      resultUrl: '/datashot/dataset/detail'
+      resultUrl: '/datashot/10'
     },
     {
       id: 11,
@@ -411,7 +411,12 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             flex: 1,
             minWidth: 0
           }}>
-            R/C {notifications[0].scenarioName}: {notifications[0].message}
+            {(() => {
+              const latest = notifications.find(n => n.isNew) || notifications[0]
+              const prefix = latest.solution === 'DataShot' ? 'D/S' : 
+                             latest.solution === 'Reach Caster' ? 'R/C' : ''
+              return `${prefix} ${latest.scenarioName}: ${latest.message}`
+            })()}
           </span>
 
           {/* 알림 목록 레이어 */}
