@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react'
+import { getDarkMode, setDarkMode } from '../utils/theme'
 
 /**
  * /error 페이지
@@ -10,6 +11,11 @@ import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react'
 export function ErrorPage() {
   const [searchParams] = useSearchParams()
   const errorMessage = searchParams.get('message') || '일시적인 오류가 발생했습니다.'
+
+  // 다크모드 상태 복원 (직접 진입 시에도 적용되도록)
+  useEffect(() => {
+    setDarkMode(getDarkMode())
+  }, [])
 
   const handleRetry = () => {
     window.location.href = '/'
