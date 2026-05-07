@@ -35,6 +35,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [updateTooltipOpen, setUpdateTooltipOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
@@ -996,7 +997,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                   <button
                     onClick={() => {
                       setContextMenuOpen(false)
-                      console.log('삭제:', datasetData?.id)
+                      setShowDeleteDialog(true)
                     }}
                     className="dropdown-item"
                   >
@@ -1440,6 +1441,59 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
         onClose={() => setMetricsModalOpen(false)}
         metricGroups={metricsData}
       />
+
+      {/* 삭제 확인 다이얼로그 */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                데이터셋을 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                "{datasetData?.name || '2024 Q1 Meta 캠페인 데이터'}"{(() => {
+                  const name = datasetData?.name || '2024 Q1 Meta 캠페인 데이터'
+                  const lastChar = name[name.length - 1]
+                  const code = lastChar.charCodeAt(0)
+                  const hasJongseong = code >= 0xAC00 && code <= 0xD7A3 && (code - 0xAC00) % 28 !== 0
+                  return hasJongseong ? '을' : '를'
+                })()} 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowDeleteDialog(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await new Promise(resolve => setTimeout(resolve, 1000))
+                    setShowDeleteDialog(false)
+                    setShowToast({ type: 'success', message: '데이터셋이 성공적으로 삭제되었습니다.' })
+                    setTimeout(() => {
+                      navigate('/datashot')
+                    }, 1500)
+                  } catch (error) {
+                    setShowToast({ type: 'error', message: '데이터셋 삭제에 실패했습니다. 다시 시도해주세요.' })
+                  } finally {
+                    setShowDeleteDialog(false)
+                  }
+                }}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 토스트 알림 */}
       {showToast && (
