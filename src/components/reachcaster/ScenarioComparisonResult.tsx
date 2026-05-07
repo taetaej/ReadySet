@@ -270,7 +270,7 @@ function PerformanceComboChart({ allData, labels }: {
           ))}
         </Bar>
         <Line
-          yAxisId="right" dataKey="avgFreq" type="monotone"
+          yAxisId="right" dataKey="avgFreq" type="linear"
           stroke="hsl(var(--foreground))" strokeWidth={2}
           dot={{ r: 3.5, fill: 'hsl(var(--foreground))', stroke: 'hsl(var(--foreground))', strokeWidth: 1.5 }}
         />

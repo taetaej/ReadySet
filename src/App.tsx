@@ -11,6 +11,8 @@ import { SplashCursor } from './components/common/SplashCursor'
 import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot'
 // Component Library
 import { ComponentLibrary } from './components/ComponentLibrary'
+// Error Page
+import { ErrorPage } from './components/ErrorPage'
 
 function App() {
   console.log('App 컴포넌트 렌더링됨 - SlotBoardLayout 사용')
@@ -29,6 +31,7 @@ function App() {
         <Route path="/datashot/new" element={<CreateDataset />} />
         <Route path="/datashot/:id" element={<DatasetDetail />} />
         <Route path="/component" element={<ComponentLibrary />} />
+        <Route path="/error" element={<ErrorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
