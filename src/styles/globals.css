@@ -903,6 +903,12 @@
     50% { opacity: 0; }
   }
 
+  /* [역질문 타이머] SpinX 역질문 타이머 프로그레스 바 — 제거 시 이 키프레임 삭제 */
+  @keyframes spinx-clarify-timer {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
   /* Full-Slot Completed 뱃지 샤이닝 효과 */
   @keyframes full-slot-shine {
     0%, 100% { 
