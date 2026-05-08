@@ -211,14 +211,13 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           const reach = params[2]
           return `
             <div style="padding: 4px;">
-              <div style="font-weight: 600; margin-bottom: 8px;">비중 조합 ${params[0].dataIndex + 1}</div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 10px; height: 10px; background: ${colors.tvc}; border-radius: 2px;"></span>
-                <span>TVC: ${tvc.value}%</span>
+                <span>TVC: ${tvc.value}% (Reach 1+ ${reach.value}%)</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 10px; height: 10px; background: ${colors.digital}; border-radius: 2px;"></span>
-                <span>Digital: ${digital.value}%</span>
+                <span>Digital: ${digital.value}% (Reach 1+ ${reach.value}%)</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};">
                 <span style="display: inline-block; width: 10px; height: 10px; background: ${colors.reach}; border-radius: 50%;"></span>
