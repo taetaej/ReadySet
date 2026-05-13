@@ -411,7 +411,12 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             flex: 1,
             minWidth: 0
           }}>
-            {(notifications.find(n => n.isNew) || notifications[0]).message}
+            {(() => {
+              const latest = notifications.find(n => n.isNew) || notifications[0]
+              const prefix = latest.solution === 'DataShot' ? 'D/S' : 
+                             latest.solution === 'Reach Caster' ? 'R/C' : ''
+              return `${prefix} ${latest.scenarioName}: ${latest.message}`
+            })()}
           </span>
 
           {/* 알림 목록 레이어 */}
