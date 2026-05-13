@@ -320,12 +320,24 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
             <div style={{
               padding: '14px 24px',
               borderTop: `1px solid ${colors.border}`,
-              display: 'flex', justifyContent: 'flex-end',
+              display: 'flex', justifyContent: 'flex-end', gap: '8px',
             }}>
               <button
                 onClick={() => setDialogOpen(false)}
                 style={{
-                  padding: '8px 20px', borderRadius: '6px',
+                  padding: '8px 16px', borderRadius: '6px',
+                  fontSize: '12px', fontWeight: 500,
+                  backgroundColor: 'transparent', color: colors.textMuted,
+                  border: `1px solid ${colors.border}`,
+                  cursor: 'pointer', fontFamily: 'Paperlogy, sans-serif',
+                }}
+              >
+                닫기
+              </button>
+              <button
+                onClick={() => setDialogOpen(false)}
+                style={{
+                  padding: '8px 16px', borderRadius: '6px',
                   fontSize: '12px', fontWeight: 600,
                   backgroundColor: 'hsl(var(--foreground))',
                   color: 'hsl(var(--background))',
@@ -333,7 +345,7 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
                   fontFamily: 'Paperlogy, sans-serif',
                 }}
               >
-                완료
+                적용
               </button>
             </div>
           </div>
