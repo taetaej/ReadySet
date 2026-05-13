@@ -226,9 +226,9 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
             style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
             onClick={() => setDialogOpen(false)}
           />
-          <div className="dialog-content dialog-sm" style={{
+          <div className="dialog-content dialog-md" style={{
             position: 'relative', display: 'flex', flexDirection: 'column',
-            maxHeight: '80vh', overflow: 'hidden',
+            height: '480px', overflow: 'hidden',
           }}>
             {/* Header */}
             <div style={{
@@ -276,6 +276,19 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
               >
                 <Plus size={13} /> 파일 추가
               </button>
+
+              {/* 업로드 제한 안내 */}
+              <div style={{
+                fontSize: '11px', color: colors.textDim, lineHeight: 1.6,
+                marginBottom: '16px', fontFamily: 'Paperlogy, sans-serif',
+                padding: '8px 10px', borderRadius: '6px',
+                backgroundColor: 'hsl(var(--muted) / 0.3)',
+              }}>
+                <span style={{ fontWeight: 600 }}>업로드 제한</span><br />
+                · 최대 5개 파일 · 총 용량 100MB 이내<br />
+                · 허용 형식: PDF, PPTX, XLSX, CSV<br />
+                · 이미지, ZIP 파일 업로드 불가
+              </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 {docs.map(doc => (
