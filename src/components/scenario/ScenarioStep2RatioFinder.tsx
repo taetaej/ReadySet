@@ -302,12 +302,34 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                       checked={isSelected}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedMedia([...selectedMedia, mediaKey])
+                          const newSelectedMedia = [...selectedMedia, mediaKey]
+                          setSelectedMedia(newSelectedMedia)
+                          // 같은 카테고리 내 매체들 항상 균등 분배
+                          const sameCategoryMedia = newSelectedMedia.filter(m => m.startsWith(selectedMediaCategory))
+                          const count = sameCategoryMedia.length
+                          const base = Math.floor(100 / count)
+                          const remainder = 100 - base * count
+                          const newMediaRatios = { ...mediaRatios }
+                          sameCategoryMedia.forEach((key, idx) => {
+                            newMediaRatios[key] = base + (idx < remainder ? 1 : 0)
+                          })
+                          setMediaRatios(newMediaRatios)
                         } else {
-                          setSelectedMedia(selectedMedia.filter(m => m !== mediaKey))
+                          const newSelectedMedia = selectedMedia.filter(m => m !== mediaKey)
+                          setSelectedMedia(newSelectedMedia)
                           setExpandedMedia(expandedMedia.filter(m => m !== mediaKey))
                           const newMediaRatios = { ...mediaRatios }
                           delete newMediaRatios[mediaKey]
+                          // 남은 같은 카테고리 매체들 재분배
+                          const sameCategoryMedia = newSelectedMedia.filter(m => m.startsWith(selectedMediaCategory))
+                          if (sameCategoryMedia.length > 0) {
+                            const count = sameCategoryMedia.length
+                            const base = Math.floor(100 / count)
+                            const remainder = 100 - base * count
+                            sameCategoryMedia.forEach((key, idx) => {
+                              newMediaRatios[key] = base + (idx < remainder ? 1 : 0)
+                            })
+                          }
                           setMediaRatios(newMediaRatios)
                           const newProductRatios = { ...productRatios }
                           delete newProductRatios[mediaKey]
@@ -469,7 +491,20 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                             onClick={() => {
                               const newProductRatios = { ...productRatios }
                               const { [product]: removed, ...rest } = newProductRatios[mediaKey]
-                              newProductRatios[mediaKey] = rest
+                              // 남은 상품들 균등 재분배
+                              const remainingProducts = Object.keys(rest)
+                              if (remainingProducts.length > 0) {
+                                const count = remainingProducts.length
+                                const base = Math.floor(100 / count)
+                                const remainder = 100 - base * count
+                                const redistributed: { [key: string]: number } = {}
+                                remainingProducts.forEach((p, idx) => {
+                                  redistributed[p] = base + (idx < remainder ? 1 : 0)
+                                })
+                                newProductRatios[mediaKey] = redistributed
+                              } else {
+                                newProductRatios[mediaKey] = rest
+                              }
                               setProductRatios(newProductRatios)
                             }}
                             style={{
@@ -692,7 +727,7 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
             <div 
               className="dialog-content dialog-md" 
               onClick={(e) => e.stopPropagation()}
-              style={{ maxHeight: '90vh', overflowY: 'auto' }}
+              style={{ height: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
             >
               <div className="dialog-header">
                 <h3 className="dialog-title">
@@ -764,6 +799,13 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                     >
                       {allSelected ? '전체 해제' : '전체 선택'}
                     </button>
+                  </div>
+                  <div style={{ 
+                    marginTop: '8px',
+                    fontSize: '11px', 
+                    color: 'hsl(var(--muted-foreground))'
+                  }}>
+                    선택됨: {productSelectionDialog.selectedProducts.length}/{allProducts.length}
                   </div>
                 </div>
 
@@ -837,12 +879,18 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
                   onClick={() => {
                     const mediaKey = productSelectionDialog.mediaName
                     const newProductRatios = { ...productRatios }
+                    const selectedProducts = productSelectionDialog.selectedProducts
+                    const count = selectedProducts.length
                     
-                    // 새로 선택된 상품들 추가
+                    // 항상 균등 분배
                     newProductRatios[mediaKey] = {}
-                    productSelectionDialog.selectedProducts.forEach(product => {
-                      newProductRatios[mediaKey][product] = productRatios[mediaKey]?.[product] || 0
-                    })
+                    if (count > 0) {
+                      const base = Math.floor(100 / count)
+                      const remainder = 100 - base * count
+                      selectedProducts.forEach((product, idx) => {
+                        newProductRatios[mediaKey][product] = base + (idx < remainder ? 1 : 0)
+                      })
+                    }
                     
                     setProductRatios(newProductRatios)
                     setProductSelectionDialog({ open: false, mediaName: '', selectedProducts: [] })
