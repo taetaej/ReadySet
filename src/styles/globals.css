@@ -1178,3 +1178,37 @@
   0%, 60%, 100% { transform: translateY(0); }
   30% { transform: translateY(-3px); }
 }
+
+
+/* Shiny Text Effect — 클래스 토글로 반복 재생 */
+@keyframes shiny-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shiny-text-active {
+  background: linear-gradient(
+    120deg,
+    currentColor 40%,
+    hsl(var(--muted-foreground) / 0.4) 50%,
+    currentColor 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shiny-text 3s linear infinite;
+}
+
+
+/* Split Text Reveal — 아래에서 위로 등장 */
+@keyframes splitReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

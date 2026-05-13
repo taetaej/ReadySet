@@ -63,27 +63,36 @@ export function Sidebar({
         <div>
             {/* 삼성 갤럭시 S24 캠페인 Slot */}
             <div 
-              onClick={() => onToggleFolder('samsung')}
               className="tree-node"
               style={{ marginBottom: '4px' }}
             >
-              <ChevronRight 
-                size={12} 
-                style={{ 
-                  transform: expandedFolders.includes('samsung') ? 'rotate(90deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s'
-                }}
-              />
-              <Archive size={16} />
-              <span style={{ 
-                fontSize: '14px', 
-                flex: 1,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
-                삼성 갤럭시 S24 캠페인
-              </span>
+              <div
+                onClick={(e) => { e.stopPropagation(); onToggleFolder('samsung') }}
+                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: '4px' }}
+              >
+                <ChevronRight 
+                  size={12} 
+                  style={{ 
+                    transform: expandedFolders.includes('samsung') ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s'
+                  }}
+                />
+              </div>
+              <div
+                onClick={() => navigate('/slot/SLT001', { state: { slotData: { title: '삼성 갤럭시 S24 캠페인', advertiser: '삼성전자', description: '삼성 갤럭시 S24 출시를 위한 마케팅 캠페인입니다.', owner: '김민수', createdAt: '2024-01-15', updatedAt: '2시간 전' } } })}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, cursor: 'pointer', minWidth: 0 }}
+              >
+                <Archive size={16} />
+                <span style={{ 
+                  fontSize: '14px', 
+                  flex: 1,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  삼성 갤럭시 S24 캠페인
+                </span>
+              </div>
               <span style={{ 
                 fontSize: '12px', 
                 padding: '2px 8px',

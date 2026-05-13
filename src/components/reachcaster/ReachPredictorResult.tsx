@@ -263,7 +263,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       showBreadcrumb={true}
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
-        { label: slotData.title },
+        { label: slotData.title, href: '/slot/SLT001' },
         { label: 'Reach Caster', href: '/reachcaster' },
         { label: scenarioData?.name || 'Reach Predictor Result' }
       ]}
