@@ -77,7 +77,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: true,
       status: 'info',
       type: 'notice',
-      resultUrl: '/datashot'
+      resultUrl: null
     },
     {
       id: 3,
