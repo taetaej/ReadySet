@@ -265,7 +265,7 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
               fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' as const,
               letterSpacing: '0.08em', color: colors.textDim,
             }}>
-              Final Strategy Set · {completedCount}/{solutionFlow.length} Completed
+              Ready to Final Set · {completedCount}/{solutionFlow.length} Completed
             </span>
             {isAdmin && (
               <button
@@ -278,7 +278,7 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                   padding: 0, marginLeft: '6px',
                   transition: 'color 0.15s',
                 }}
-                title="Final Strategy Set 관리"
+                title="Ready to Final Set 관리"
                 onMouseEnter={e => e.currentTarget.style.color = colors.text}
                 onMouseLeave={e => e.currentTarget.style.color = colors.textDim}
               >
@@ -559,7 +559,7 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                           fontSize: '11px', color: colors.textDim,
                           fontFamily: 'Paperlogy, sans-serif',
                         }}>
-                          Empty
+                          No Outputs Yet
                         </span>
                       </div>
                     )}
@@ -678,7 +678,7 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
                   <div style={{ fontSize: '16px', fontWeight: 700, color: colors.text, fontFamily: 'Paperlogy, sans-serif' }}>
-                    Final Strategy Set 관리
+                    Ready to Final Set 관리
                   </div>
                   <div style={{ fontSize: '12px', color: colors.textMuted, marginTop: '3px', fontFamily: 'Paperlogy, sans-serif' }}>
                     솔루션별 결과물을 최대 10개까지 선택하세요.

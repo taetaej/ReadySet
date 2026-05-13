@@ -25,7 +25,7 @@ const SOLUTION_DOT_COLORS: Record<string, string> = {
   'Reach Caster': '#06B6D4',
   'Budget Optimizer': '#F43F5E',
   'Ad Curator': '#10B981',
-  'Documents': 'hsl(var(--muted-foreground))',
+  'Resources': 'hsl(var(--muted-foreground))',
 }
 
 /* ─── Slot Feed Section ─── */
@@ -45,7 +45,7 @@ export function SlotFeedSection() {
           fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' as const,
           letterSpacing: '0.08em', color: colors.textDim,
         }}>
-          Slot Feed
+          Activity Log
         </span>
         <span style={{
           fontSize: '10px', color: colors.textDim,
@@ -139,7 +139,7 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
           fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' as const,
           letterSpacing: '0.08em', color: colors.textDim,
         }}>
-          Documents · {docs.length}
+          Resources · {docs.length}
         </span>
         {isAdmin && (
           <button
@@ -238,7 +238,7 @@ export function DocumentsSection({ isAdmin }: DocumentsSectionProps) {
             }}>
               <div>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: colors.text, fontFamily: 'Paperlogy, sans-serif' }}>
-                  Documents 관리
+                  Resources 관리
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textMuted, marginTop: '3px', fontFamily: 'Paperlogy, sans-serif' }}>
                   파일을 추가하거나 삭제하세요.

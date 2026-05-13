@@ -107,10 +107,10 @@ export const MOCK_DOCUMENTS: DocumentItem[] = [
 export const MOCK_ACTIVITY: ActivityItem[] = [
   { id: 'A1', user: '김민수', solution: 'Reach Caster', action: '시나리오 생성', detail: '스포츠 용품 시즌 오프', timestamp: '2시간 전' },
   { id: 'A2', user: '이지은', solution: 'DataShot', action: '데이터셋 생성', detail: '전자제품 업종 벤치마크', timestamp: '5시간 전' },
-  { id: 'A3', user: '김민수', solution: 'Documents', action: '파일 업로드', detail: '캠페인 기획서_v2.pdf', timestamp: '1일 전' },
+  { id: 'A3', user: '김민수', solution: 'Resources', action: '파일 업로드', detail: '캠페인 기획서_v2.pdf', timestamp: '1일 전' },
   { id: 'A4', user: '이지은', solution: 'DataShot', action: '데이터셋 생성', detail: '25-39세 남성 미디어 소비 패턴', timestamp: '2일 전' },
   { id: 'A5', user: '박서연', solution: 'Reach Caster', action: '시나리오 생성', detail: '갤럭시 S24 런칭 캠페인', timestamp: '3일 전' },
   { id: 'A6', user: '김민수', solution: 'Reach Caster', action: '시나리오 생성', detail: '8주 기간 / 12억 예산', timestamp: '4일 전' },
-  { id: 'A7', user: '이지은', solution: 'Documents', action: '파일 업로드', detail: '타겟 분석 리포트.xlsx', timestamp: '5일 전' },
+  { id: 'A7', user: '이지은', solution: 'Resources', action: '파일 업로드', detail: '타겟 분석 리포트.xlsx', timestamp: '5일 전' },
   { id: 'A8', user: '김민수', solution: 'DataShot', action: '데이터셋 생성', detail: '경쟁사 미디어 믹스 분석', timestamp: '6일 전' },
 ]
