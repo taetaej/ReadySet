@@ -496,7 +496,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
           : currentView === 'slotDetail' && selectedSlot
           ? [
               { label: 'SlotBoard', href: '/slotboard' }, 
-              { label: selectedSlot.title }, 
+              { label: selectedSlot.title, href: `/slot/${selectedSlot.id}` }, 
               { label: 'Reach Caster' }
             ]
           : []
