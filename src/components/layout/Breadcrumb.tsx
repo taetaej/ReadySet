@@ -30,8 +30,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 onClick={() => {
                   if (item.onClick) {
                     item.onClick()
-                  }
-                  if (item.href) {
+                  } else if (item.href) {
                     navigate(item.href)
                   }
                 }}

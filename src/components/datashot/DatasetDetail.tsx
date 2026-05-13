@@ -738,7 +738,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       showBreadcrumb={true}
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
-        { label: slotData?.title || '삼성 갤럭시 S24 캠페인', href: '/slot/SLT001' },
+        { label: slotData?.title || '삼성 갤럭시 S24 캠페인', onClick: () => navigate('/slot/SLT001', { state: { slotData } }) },
         { label: 'DataShot', href: '/datashot' },
         { label: datasetData?.name || '2024 Q1 Meta 캠페인 데이터' }
       ]}

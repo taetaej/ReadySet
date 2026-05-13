@@ -181,7 +181,7 @@ export function DatasetList() {
       showBreadcrumb={true}
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
-        { label: slotData.title, href: `/slot/${slotData.id || 'SLT001'}` },
+        { label: slotData.title, onClick: () => navigate('/slot/SLT001', { state: { slotData } }) },
         { label: 'DataShot' }
       ]}
       isDarkMode={isDarkMode}

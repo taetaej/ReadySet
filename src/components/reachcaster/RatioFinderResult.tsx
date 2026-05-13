@@ -439,7 +439,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       showBreadcrumb={true}
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
-        { label: slotData.title, href: '/slot/SLT001' },
+        { label: slotData.title, onClick: () => navigate('/slot/SLT001', { state: { slotData } }) },
         { label: 'Reach Caster', href: '/reachcaster' },
         { label: scenarioData?.name || 'Ratio Finder Result' }
       ]}
