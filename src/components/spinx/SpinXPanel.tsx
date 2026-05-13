@@ -11,7 +11,7 @@ export function SpinXPanel({
   isOpen,
   onClose,
   isDarkMode = false,
-  scenarioName = '25-34세 여성 타겟 집중 공략',
+  scenarioName = '25-34세 여성 타겟 집중 공략 디지털+TV 최적 비중 분석',
   analysisType = 'ratioFinder',
   positioning = 'fixed'
 }: SpinXPanelProps) {

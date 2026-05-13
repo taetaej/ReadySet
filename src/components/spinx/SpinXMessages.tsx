@@ -128,8 +128,8 @@ export function SpinXMessages({
       <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
         {/* NotebookLM 스타일 초기 분석 */}
         <div style={{ marginTop: '24px' }}>
-          {/* 분석 모듈 칩 + 시나리오명 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          {/* 분석 모듈 칩 + 시나리오명 (세로 배치) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
             <span
               style={{
                 padding: '4px 12px',
@@ -138,10 +138,10 @@ export function SpinXMessages({
                 fontWeight: '500',
                 backgroundColor: 'hsl(var(--foreground))',
                 color: 'hsl(var(--background))',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                flexShrink: 0
+                alignSelf: 'flex-start'
               }}
             >
               {analysisType === 'ratioFinder' ? (
@@ -158,14 +158,14 @@ export function SpinXMessages({
             </span>
             <h4
               style={{
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: '600',
                 margin: 0,
                 color: 'hsl(var(--foreground))',
                 fontFamily: 'Paperlogy, sans-serif',
                 lineHeight: '1.4',
-                flex: 1,
-                minWidth: 0
+                wordBreak: 'keep-all',
+                overflowWrap: 'break-word'
               }}
             >
               {scenarioName}
