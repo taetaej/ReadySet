@@ -121,17 +121,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     const result: Array<{ major: string; isMatch: boolean }> = []
     majors.forEach(major => {
       const directMatch = major.toLowerCase().includes(q)
-      if (localLevel === 'major') {
-        if (directMatch) result.push({ major, isMatch: true })
-      } else if (localLevel === 'mid') {
-        const hasChildMatch = Object.keys(industryCategories[major]).some(mid => mid.toLowerCase().includes(q))
-        if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
-      } else {
-        const hasChildMatch = Object.entries(industryCategories[major]).some(([mid, minors]) =>
-          mid.toLowerCase().includes(q) || (minors as string[]).some(m => m.toLowerCase().includes(q))
-        )
-        if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
-      }
+      const hasChildMatch = Object.entries(industryCategories[major]).some(([mid, minors]) =>
+        mid.toLowerCase().includes(q) || (minors as string[]).some(m => m.toLowerCase().includes(q))
+      )
+      if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
     })
     return result
   }
@@ -145,12 +138,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     const result: Array<{ mid: string; isMatch: boolean }> = []
     mids.forEach(mid => {
       const directMatch = mid.toLowerCase().includes(q)
-      if (localLevel === 'mid') {
-        if (directMatch) result.push({ mid, isMatch: true })
-      } else {
-        const hasChildMatch = (industryCategories[major][mid] as string[]).some(m => m.toLowerCase().includes(q))
-        if (directMatch || hasChildMatch) result.push({ mid, isMatch: directMatch })
-      }
+      const hasChildMatch = (industryCategories[major][mid] as string[]).some(m => m.toLowerCase().includes(q))
+      if (directMatch || hasChildMatch) result.push({ mid, isMatch: directMatch })
     })
     return result
   }
@@ -616,9 +605,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                       major, major,
                       localLevel !== 'major',
                       activeMajor === major && !isIndustrySearchMode,
-                      () => { if (!isIndustrySearchMode && localLevel !== 'major') { setActiveMajor(activeMajor === major ? null : major); setActiveMid(null) } },
+                      () => { if (localLevel !== 'major') { if (isIndustrySearchMode) { setSearchQuery(''); setSearchInput('') } setActiveMajor(activeMajor === major ? null : major); setActiveMid(null) } },
                       undefined,
-                      isIndustrySearchMode && !isMatch,
+                      false,
                       'major'
                     ))
                   }
@@ -641,9 +630,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                           `${major} > ${mid}`, mid,
                           localLevel === 'minor',
                           activeMid === mid && activeMajor === major && !isIndustrySearchMode,
-                          () => { if (!isIndustrySearchMode && localLevel === 'minor') { setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
+                          () => { if (localLevel === 'minor') { if (isIndustrySearchMode) { setSearchQuery(''); setSearchInput('') } setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
                           isIndustrySearchMode ? `${major} >` : undefined,
-                          isIndustrySearchMode && !isMatch,
+                          false,
                           'mid'
                         ))
                   }

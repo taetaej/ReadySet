@@ -135,7 +135,7 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
       <div>
         <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>데이터 미리보기</h3>
         <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '16px' }}>
-          샘플 데이터 5행을 통해 데이터 구조를 확인하세요.
+          샘플 데이터를 통해 데이터 구조를 확인하세요.
         </p>
 
         {totalRows === 0 ? (
