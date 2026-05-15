@@ -150,7 +150,7 @@ export function DatasetList() {
   // 업종 표시 함수
   const getIndustryDisplay = (dataset: { industry: string; industryLevel?: 'major' | 'mid' | 'minor' | null; industryCount?: number }) => {
     if (!dataset.industryLevel || dataset.industry === '전체') {
-      return { icon: <Building2 size={14} />, text: '전체' }
+      return { icon: <Building2 size={14} />, text: '대분류 22개' }
     }
     const levelLabel = { major: '대분류', mid: '중분류', minor: '소분류' }[dataset.industryLevel]
     const count = dataset.industryCount ?? 1

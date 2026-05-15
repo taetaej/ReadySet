@@ -182,8 +182,8 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
               <tbody>
                 {mockRows.map((row, i) => (
                   <tr key={i} style={{ backgroundColor: i % 2 === 1 ? 'hsl(var(--muted) / 0.2)' : 'transparent' }}>
-                    <td style={td()}>{periodStr}</td>
-                    <td style={td()}>{formData.media || 'Meta'}</td>
+                    <td style={td(false, true)}>{periodStr}</td>
+                    <td style={td(false, true)}>{formData.media || 'Meta'}</td>
                     <td style={td(false, true)}>{row.ind[0]}</td>
                     <td style={td(false, true)}>{row.ind[1]}</td>
                     <td style={td(false, true)}>{row.ind[2]}</td>
@@ -197,7 +197,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
                         ? val.toFixed(m.id === 'vtr' ? 1 : 2)
                         : val.toLocaleString()
                       return (
-                        <td key={m.id} style={td(true)}>
+                        <td key={m.id} style={{ ...td(true), color: '#0A0A0A' }}>
                           {formatted}
                           {unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: isPercent ? '2px' : '4px', fontWeight: '400' }}>{unit}</span>}
                         </td>
