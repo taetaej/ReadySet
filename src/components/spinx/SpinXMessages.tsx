@@ -313,9 +313,9 @@ export function SpinXMessages({
                     }}
                   >
                     {typeof msg.content === 'string' ? msg.content : ''}
-                    <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '6px', textAlign: 'right' }}>
-                      {msg.timestamp}
-                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '4px' }}>
+                    {msg.timestamp}
                   </div>
                 </div>
               ) : (
