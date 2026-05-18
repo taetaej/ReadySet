@@ -135,7 +135,7 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
       <div>
         <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>데이터 미리보기</h3>
         <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '16px' }}>
-          샘플 데이터 5행을 통해 데이터 구조를 확인하세요.
+          샘플 데이터를 통해 데이터 구조를 확인하세요.
         </p>
 
         {totalRows === 0 ? (
@@ -190,8 +190,8 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
             <tbody>
               {generateMockRows(formData).map((row, i) => (
                 <tr key={i} style={{ borderBottom: i < 4 ? '1px solid hsl(var(--border))' : 'none' }}>
-                  <td style={{ padding: '10px 12px', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.period}</td>
-                  <td style={{ padding: '10px 12px', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.media}</td>
+                  <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.period}</td>
+                  <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.media}</td>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[0] || '—'}</td>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[1] || '—'}</td>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[2] || '—'}</td>
@@ -205,7 +205,7 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
                       ? v.toFixed(2)
                       : v.toLocaleString()
                     return (
-                      <td key={j} style={{ padding: '10px 12px', fontSize: '12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <td key={j} style={{ padding: '10px 12px', fontSize: '12px', textAlign: 'right', whiteSpace: 'nowrap', color: '#0A0A0A' }}>
                         {formatted}
                         {unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: isPercent ? '2px' : '4px', fontWeight: '400' }}>{unit}</span>}
                       </td>

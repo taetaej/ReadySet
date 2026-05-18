@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles } from 'lucide-react'
+import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles, AlertCircle, X } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
@@ -14,6 +14,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
   const [showClientLayer, setShowClientLayer] = useState(false)
   const [showNotificationLayer, setShowNotificationLayer] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', title: string, message: string } | null>(null)
   const clientRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -35,6 +36,16 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
 
   // 광고주 목록 데이터 (자음 오름차순 정렬)
   const allAdvertisers = [
@@ -77,7 +88,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: true,
       status: 'info',
       type: 'notice',
-      resultUrl: '/datashot'
+      resultUrl: null
     },
     {
       id: 3,
@@ -484,7 +495,10 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                     e.currentTarget.style.backgroundColor = 'transparent'
                   }}
                   onClick={() => {
-                    if (notification.resultUrl) {
+                    if (notification.id === 7) {
+                      setShowToast({ type: 'error', title: '존재하지 않는 항목', message: '삭제된 데이터셋이므로 정보를 확인할 수 없습니다.' })
+                      setShowNotificationLayer(false)
+                    } else if (notification.resultUrl) {
                       navigate(notification.resultUrl)
                       setShowNotificationLayer(false)
                     }
@@ -719,6 +733,29 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
           </div>
         </div>
       </header>
+
+      {/* 에러 토스트 */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.title}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
