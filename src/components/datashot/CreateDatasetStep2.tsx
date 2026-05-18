@@ -22,47 +22,17 @@ interface Props {
 
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
-  const [showMetricsResetAlert, setShowMetricsResetAlert] = useState(false)
-  const [pendingTargetingCat, setPendingTargetingCat] = useState<string>('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
 
   return (
     <>
-    {/* 지표 초기화 확인 얼럿 */}
-    {showMetricsResetAlert && (
-      <div className="dialog-overlay">
-        <div className="dialog-content">
-          <div className="dialog-header">
-            <h3 className="dialog-title">지표 초기화 안내</h3>
-            <p className="dialog-description">
-              {pendingTargetingCat} 선택 시 기존 선택된 지표가 초기화됩니다.<br />
-              계속 진행하시겠습니까?
-            </p>
-          </div>
-          <div className="dialog-footer">
-            <button
-              onClick={() => { setShowMetricsResetAlert(false); setPendingTargetingCat('') }}
-              className="btn btn-secondary btn-sm"
-            >
-              취소
-            </button>
-            <button
-              onClick={() => {
-                setFormData({ ...formData, targetingCategory: pendingTargetingCat, targetingOptions: [], metrics: [] })
-                setShowMetricsResetAlert(false)
-                setPendingTargetingCat('')
-              }}
-              className="btn btn-primary btn-sm"
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
+    
     <div style={{ width: '800px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>상세 설정</h2>
+      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '4px' }}>상세 설정</h2>
+      <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '24px', lineHeight: '1.5' }}>
+        상위 조건 선택에 따라 하위 설정 항목이 동적으로 변경됩니다.
+      </p>
 
       {/* 매체 */}
       <div style={{ marginBottom: '24px' }}>
@@ -140,22 +110,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               category={formData.targetingCategory}
               selected={formData.targetingOptions}
               onCategoryChange={cat => {
-                if (formData.media === 'Meta' && cat === '기기유형' && formData.metrics.length > 0) {
-                  setPendingTargetingCat(cat)
-                  setShowMetricsResetAlert(true)
-                  return
-                }
-                if (formData.media === 'kakao모먼트' && cat === '디바이스' && formData.metrics.length > 0) {
-                  setPendingTargetingCat(cat)
-                  setShowMetricsResetAlert(true)
-                  return
-                }
-                if (formData.media === '네이버 보장형 DA' && cat === '노출영역' && formData.metrics.length > 0) {
-                  setPendingTargetingCat(cat)
-                  setShowMetricsResetAlert(true)
-                  return
-                }
-                setFormData({ ...formData, targetingCategory: cat, targetingOptions: [] })
+                setFormData({ ...formData, targetingCategory: cat, targetingOptions: [], metrics: [] })
               }}
               onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
               validationActive={validationActive}
@@ -166,9 +121,12 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
           {/* 지표 */}
           <div>
             <hr style={{ border: 'none', borderTop: '1px solid hsl(var(--border))', margin: '8px 0 24px' }} />
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>
               지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
             </label>
+            <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px', lineHeight: '1.5' }}>
+              타겟팅 옵션 선택에 따라 조회 가능한 지표만 리스트에 노출됩니다.
+            </p>
             <div style={{ position: 'relative', marginBottom: '8px' }}>
               <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
               <input
