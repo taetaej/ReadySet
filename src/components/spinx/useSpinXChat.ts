@@ -6,6 +6,16 @@ import { availableModels, answerExamples, clarifyingQuestions, clarifyingAnswers
 
 type TimerId = ReturnType<typeof setTimeout>
 
+const formatTimestamp = () => {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  const h = String(now.getHours()).padStart(2, '0')
+  const min = String(now.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${d} ${h}:${min}`
+}
+
 export function useSpinXChat() {
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState(false)
@@ -144,7 +154,7 @@ export function useSpinXChat() {
       const userMessage: Message = {
         role: 'user',
         content: textToSend,
-        timestamp: '방금 전'
+        timestamp: formatTimestamp()
       }
 
       setMessages(prev => [...prev, userMessage])
@@ -181,7 +191,7 @@ export function useSpinXChat() {
           const aiResponse: Message = {
             role: 'assistant',
             content: clarifying.question,
-            timestamp: '방금 전',
+            timestamp: formatTimestamp(),
             originalQuestion: textToSend
           }
           setMessages(prev => [...prev, aiResponse])
@@ -220,7 +230,7 @@ export function useSpinXChat() {
         const aiResponse: Message = {
           role: 'assistant',
           content: answer || '죄송합니다. 해당 질문에 대한 답변을 준비 중입니다. 다른 질문을 선택해주세요.',
-          timestamp: '방금 전',
+          timestamp: formatTimestamp(),
           originalQuestion: textToSend,
           webSources,
           ragSources
@@ -278,7 +288,7 @@ export function useSpinXChat() {
         type: 'error',
         message: '답변 생성이 중단되었습니다.'
       },
-      timestamp: '방금 전',
+      timestamp: formatTimestamp(),
       originalQuestion: currentQuestion
     }
 
@@ -454,7 +464,7 @@ export function useSpinXChat() {
     setMessages(prev => [...prev, {
       role: 'assistant' as const,
       content: `${model.displayName}(으)로 변경`,
-      timestamp: '방금 전',
+      timestamp: formatTimestamp(),
       isModelChange: true
     }])
   }

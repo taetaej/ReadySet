@@ -274,7 +274,7 @@ export function SpinXMessages({
               display: 'block'
             }}
           >
-            방금 전
+            {new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}-{String(new Date().getDate()).padStart(2, '0')} {String(new Date().getHours()).padStart(2, '0')}:{String(new Date().getMinutes()).padStart(2, '0')}
           </span>
 
           {/* 추가 대화 메시지들 */}
@@ -313,9 +313,9 @@ export function SpinXMessages({
                     }}
                   >
                     {typeof msg.content === 'string' ? msg.content : ''}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '4px' }}>
-                    {msg.timestamp}
+                    <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '6px', textAlign: 'right' }}>
+                      {msg.timestamp}
+                    </div>
                   </div>
                 </div>
               ) : (
