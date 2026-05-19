@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react'
+import { AlertCircle, ArrowLeft } from 'lucide-react'
 import { getDarkMode, setDarkMode } from '../utils/theme'
 
 /**
@@ -69,17 +69,6 @@ export function ErrorPage() {
 
         {/* 액션 버튼 */}
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={handleRetry}
-            className="btn btn-primary btn-sm"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              padding: '10px 20px', fontSize: '13px', fontWeight: '600',
-            }}
-          >
-            <RefreshCw size={14} />
-            새로고침
-          </button>
           <button
             onClick={handleGoBack}
             className="btn btn-secondary btn-sm"
