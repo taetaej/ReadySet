@@ -93,15 +93,6 @@ export function Sidebar({
                   삼성 갤럭시 S24 캠페인
                 </span>
               </div>
-              <span style={{ 
-                fontSize: '12px', 
-                padding: '2px 8px',
-                borderRadius: '12px',
-                minWidth: '24px',
-                textAlign: 'center'
-              }} className="bg-muted text-muted-foreground">
-                5
-              </span>
             </div>
             
             {expandedFolders.includes('samsung') && (
@@ -147,15 +138,6 @@ export function Sidebar({
                     }}
                   >
                     DataShot
-                  </span>
-                  <span style={{ 
-                    fontSize: '12px',
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    minWidth: '24px',
-                    textAlign: 'center'
-                  }} className="bg-background text-muted-foreground">
-                    4
                   </span>
                 </div>
 
@@ -282,15 +264,6 @@ export function Sidebar({
                     }}
                   >
                     Reach Caster
-                  </span>
-                  <span style={{ 
-                    fontSize: '12px',
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    minWidth: '24px',
-                    textAlign: 'center'
-                  }} className="bg-background text-muted-foreground">
-                    3
                   </span>
                 </div>
                 
@@ -433,15 +406,6 @@ export function Sidebar({
               }}>
                 LG 올레드 TV 런칭
               </span>
-              <span style={{ 
-                fontSize: '12px', 
-                padding: '2px 8px',
-                borderRadius: '12px',
-                minWidth: '24px',
-                textAlign: 'center'
-              }} className="bg-muted text-muted-foreground">
-                3
-              </span>
             </div>
             
             {/* 현대 아이오닉 6 마케팅 Slot */}
@@ -466,15 +430,6 @@ export function Sidebar({
                 textOverflow: 'ellipsis'
               }}>
                 현대 아이오닉 6 마케팅
-              </span>
-              <span style={{ 
-                fontSize: '12px', 
-                padding: '2px 8px',
-                borderRadius: '12px',
-                minWidth: '24px',
-                textAlign: 'center'
-              }} className="bg-muted text-muted-foreground">
-                12
               </span>
             </div>
           </div>
