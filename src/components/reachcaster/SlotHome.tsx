@@ -507,22 +507,11 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                               display: 'flex', alignItems: 'center', gap: '6px',
                               fontSize: '10px', color: colors.textDim,
                             }}>
-                              {/* Reach Caster: prefix + 핵심 지표 */}
+                              {/* Reach Caster: 모듈명 */}
                               {output.module && (
-                                <>
-                                  <span style={{ fontWeight: 500, color: colors.textDim, flexShrink: 0 }}>
-                                    {output.module === 'Ratio Finder' ? 'RF' : 'RP'} ·
-                                  </span>
-                                  {output.reach && (
-                                    <span>{output.reach}</span>
-                                  )}
-                                  {output.keyMetric && (
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                                      <ThumbsUp size={8} />
-                                      {output.keyMetric}
-                                    </span>
-                                  )}
-                                </>
+                                <span style={{ fontWeight: 500, color: colors.textDim, flexShrink: 0 }}>
+                                  {output.module}
+                                </span>
                               )}
                               {/* DataShot: 매체명 */}
                               {!output.module && output.media && (
@@ -760,7 +749,7 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                       <Search size={13} style={{ color: colors.textDim, flexShrink: 0 }} />
                       <input
                         type="text"
-                        placeholder="결과물 검색..."
+                        placeholder="결과물명 또는 ID 검색"
                         value={dialogSearch[activeSlot.key] || ''}
                         onChange={e => setDialogSearch(prev => ({ ...prev, [activeSlot.key]: e.target.value }))}
                         style={{
@@ -847,12 +836,12 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                                     fontSize: '11px', color: colors.textDim,
                                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                                   }}>
-                                    {output.media}
+                                    #{parseInt(output.id.replace(/\D/g, ''), 10)}
                                   </div>
                                 )}
-                                {output.reach && (
+                                {output.module && (
                                   <div style={{ fontSize: '11px', color: colors.textDim }}>
-                                    통합 Reach 1+ {output.reach}{output.keyMetric && ` · ${output.keyMetric}`}
+                                    #{parseInt(output.id.replace(/\D/g, ''), 10)}
                                   </div>
                                 )}
                               </div>
