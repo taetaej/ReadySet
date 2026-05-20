@@ -33,34 +33,34 @@
   stroke-dashoffset: 0;
 }
 
-/* IDLE: mostly aligned to the X. Small gyroscopic breathing only. */
+/* IDLE: slow gyroscopic rotation — always moving */
 .spinx-symbol[data-motion='idle'] .spinx-symbol__orbit-spin--outer {
-  animation: spinx-idle-outer var(--spinx-duration) ease-in-out infinite;
+  animation: spinx-gyro-outer 12s linear infinite;
 }
 
 .spinx-symbol[data-motion='idle'] .spinx-symbol__orbit-spin--inner {
-  animation: spinx-idle-inner var(--spinx-duration) ease-in-out infinite;
+  animation: spinx-gyro-inner 10s linear infinite;
 }
 
 .spinx-symbol[data-motion='idle'] .spinx-symbol__core {
   animation: spinx-core-pulse var(--spinx-core-duration) ease-in-out infinite;
 }
 
-/* HOVER: idle until the parent SVG is hovered. */
+/* HOVER: X shape at rest, gyro spin on hover */
 .spinx-symbol[data-motion='hover'] .spinx-symbol__orbit-spin--outer {
-  animation: spinx-idle-outer var(--spinx-duration) ease-in-out infinite;
+  animation: spinx-gyro-outer 12s linear infinite;
 }
 
 .spinx-symbol[data-motion='hover'] .spinx-symbol__orbit-spin--inner {
-  animation: spinx-idle-inner var(--spinx-duration) ease-in-out infinite;
+  animation: spinx-gyro-inner 10s linear infinite;
 }
 
 .spinx-symbol[data-motion='hover']:hover .spinx-symbol__orbit-spin--outer {
-  animation: spinx-ring-cw 3s linear infinite, spinx-gyro-outer 4s ease-in-out infinite;
+  animation: spinx-gyro-outer 3s linear infinite;
 }
 
 .spinx-symbol[data-motion='hover']:hover .spinx-symbol__orbit-spin--inner {
-  animation: spinx-ring-ccw 3s linear infinite, spinx-gyro-inner 5s ease-in-out infinite;
+  animation: spinx-gyro-inner 2.5s linear infinite;
 }
 
 .spinx-symbol[data-motion='hover']:hover .spinx-symbol__ring-flow {
@@ -73,11 +73,11 @@
 
 /* ACTIVE: continuous counter-rotating gyroscopic motion. */
 .spinx-symbol[data-motion='active'] .spinx-symbol__orbit-spin--outer {
-  animation: spinx-ring-cw 4s linear infinite, spinx-gyro-outer 3.5s ease-in-out infinite;
+  animation: spinx-gyro-outer 4s linear infinite;
 }
 
 .spinx-symbol[data-motion='active'] .spinx-symbol__orbit-spin--inner {
-  animation: spinx-ring-ccw 4s linear infinite, spinx-gyro-inner 4s ease-in-out infinite;
+  animation: spinx-gyro-inner 3s linear infinite;
 }
 
 .spinx-symbol[data-motion='active'] .spinx-symbol__ring-flow {
@@ -147,6 +147,16 @@
   70%      { transform: rotate(2deg) scale(.998); }
 }
 
+@keyframes spinx-idle-outer-gyro {
+  0%, 100% { transform: perspective(500px) rotateY(55deg) rotateX(5deg); }
+  50%      { transform: perspective(500px) rotateY(55deg) rotateX(-5deg) scale(1.02); }
+}
+
+@keyframes spinx-idle-inner-gyro {
+  0%, 100% { transform: perspective(500px) rotateX(65deg) rotateY(-5deg); }
+  50%      { transform: perspective(500px) rotateX(65deg) rotateY(5deg) scale(1.02); }
+}
+
 @keyframes spinx-flow {
   from { stroke-dashoffset: 0; opacity: .35; }
   50%  { opacity: .95; }
@@ -187,21 +197,13 @@
 }
 
 @keyframes spinx-gyro-outer {
-  0%   { transform: rotate(0deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
-  20%  { transform: rotate(72deg) perspective(500px) rotateX(35deg) rotateY(-20deg); }
-  40%  { transform: rotate(144deg) perspective(500px) rotateX(-15deg) rotateY(35deg); }
-  60%  { transform: rotate(216deg) perspective(500px) rotateX(30deg) rotateY(10deg); }
-  80%  { transform: rotate(288deg) perspective(500px) rotateX(-25deg) rotateY(-30deg); }
-  100% { transform: rotate(360deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+  0%   { transform: perspective(500px) rotateY(0deg); }
+  100% { transform: perspective(500px) rotateY(360deg); }
 }
 
 @keyframes spinx-gyro-inner {
-  0%   { transform: rotate(0deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
-  20%  { transform: rotate(-72deg) perspective(500px) rotateX(-30deg) rotateY(25deg); }
-  40%  { transform: rotate(-144deg) perspective(500px) rotateX(20deg) rotateY(-35deg); }
-  60%  { transform: rotate(-216deg) perspective(500px) rotateX(-35deg) rotateY(-15deg); }
-  80%  { transform: rotate(-288deg) perspective(500px) rotateX(25deg) rotateY(30deg); }
-  100% { transform: rotate(-360deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+  0%   { transform: perspective(500px) rotateX(0deg); }
+  100% { transform: perspective(500px) rotateX(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

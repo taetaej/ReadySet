@@ -595,26 +595,26 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
             href="/slotboard"
             style={{
               textDecoration: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
             }}
           >
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              fontFamily: "'Manrope', 'Paperlogy', sans-serif",
-              margin: 0,
-              color: 'hsl(var(--foreground))',
-              transition: 'opacity 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.7'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1'
-            }}
-            >
-              ReadySet
-            </h1>
+            <img 
+              src={isDarkMode ? '/readyset_logo_dark_white.svg' : '/readyset_logo_light_black.svg'}
+              alt="ReadySet"
+              style={{
+                height: '36px',
+                width: 'auto',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.7'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+            />
           </a>
         </div>
 

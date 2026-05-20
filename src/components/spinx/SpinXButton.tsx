@@ -47,14 +47,14 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
         height: '64px',
         borderRadius: '50%',
         border: 'none',
-        backgroundColor: isDarkMode ? 'hsl(var(--primary-foreground))' : 'hsl(var(--primary))',
+        backgroundColor: '#09090b',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: isHovered
-          ? '0 12px 32px rgba(40, 234, 255, 0.4)'
-          : '0 8px 24px rgba(40, 234, 255, 0.25)',
+          ? '0 12px 32px rgba(255, 255, 255, 0.35)'
+          : '0 8px 24px rgba(255, 255, 255, 0.2)',
         transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         transform: isHovered ? 'scale(1.08)' : 'scale(1)',
         zIndex: 1000,
@@ -63,7 +63,7 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
         ...style
       }}
     >
-      <SpinXSymbol size={48} motion={effectiveMotion} title="" />
+      <SpinXSymbol size={48} motion={effectiveMotion} title="" style={{ transform: 'rotate(45deg)' }} />
 
       {/* 새 메시지 뱃지 */}
       {hasNewMessage && (
