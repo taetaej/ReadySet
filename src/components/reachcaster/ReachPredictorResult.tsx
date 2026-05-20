@@ -1418,6 +1418,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           <SpinXButton 
             onClick={() => setSpinXOpen(true)} 
             hasNewMessage={false}
+            isOpen={spinXOpen}
             style={{
               position: 'relative',
               bottom: 'auto',

@@ -1141,7 +1141,7 @@ export function ScenarioComparisonResult({
 
       {/* SpinX 버튼 */}
       <div style={{ position: 'fixed', bottom: '24px', right: spinXOpen ? '424px' : '24px', zIndex: 998, transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-        <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} style={{ position: 'relative', bottom: 'auto', right: 'auto' }} />
+        <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} isOpen={spinXOpen} style={{ position: 'relative', bottom: 'auto', right: 'auto' }} />
       </div>
       </div>
 

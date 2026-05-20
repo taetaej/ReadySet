@@ -1,0 +1,179 @@
+/* Pulse Node X — 형광그린 X 노드 애니메이션 시스템 */
+
+.pulse-node-x {
+  --pnx-duration: 6s;
+  --pnx-engage-duration: 1s;
+  --pnx-settle-duration: 1.2s;
+  --pnx-green: #00ff9d;
+  --pnx-green-soft: #80ffce;
+  --pnx-green-dim: #00cc7d;
+
+  display: inline-block;
+  overflow: visible;
+  vertical-align: middle;
+  isolation: isolate;
+}
+
+.pulse-node-x__arm,
+.pulse-node-x__node,
+.pulse-node-x__core {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
+/* === IDLE: 부드러운 breathing === */
+.pulse-node-x[data-motion='idle'] .pulse-node-x__node--tl,
+.pulse-node-x[data-motion='idle'] .pulse-node-x__node--br {
+  animation: pnx-node-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='idle'] .pulse-node-x__node--tr,
+.pulse-node-x[data-motion='idle'] .pulse-node-x__node--bl {
+  animation: pnx-node-breathe var(--pnx-duration) ease-in-out infinite 1.5s;
+}
+
+.pulse-node-x[data-motion='idle'] .pulse-node-x__core {
+  animation: pnx-core-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='idle'] .pulse-node-x__arm {
+  animation: pnx-arm-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+/* === HOVER: 빠른 펄스 === */
+.pulse-node-x[data-motion='hover'] .pulse-node-x__node--tl,
+.pulse-node-x[data-motion='hover'] .pulse-node-x__node--br {
+  animation: pnx-node-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='hover'] .pulse-node-x__node--tr,
+.pulse-node-x[data-motion='hover'] .pulse-node-x__node--bl {
+  animation: pnx-node-breathe var(--pnx-duration) ease-in-out infinite 1.5s;
+}
+
+.pulse-node-x[data-motion='hover'] .pulse-node-x__core {
+  animation: pnx-core-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='hover']:hover .pulse-node-x__node {
+  animation: pnx-node-pulse 1.2s ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='hover']:hover .pulse-node-x__core {
+  animation: pnx-core-flash 1s ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='hover']:hover .pulse-node-x__arm {
+  animation: pnx-arm-glow 1.4s ease-in-out infinite;
+}
+
+/* === ENGAGE: 클릭 시 burst === */
+.pulse-node-x[data-motion='engage'] .pulse-node-x__node {
+  animation: pnx-node-burst var(--pnx-engage-duration) cubic-bezier(.2,.8,.2,1) both;
+}
+
+.pulse-node-x[data-motion='engage'] .pulse-node-x__core {
+  animation: pnx-core-burst var(--pnx-engage-duration) ease-out both;
+}
+
+.pulse-node-x[data-motion='engage'] .pulse-node-x__arm {
+  animation: pnx-arm-flash var(--pnx-engage-duration) ease-out both;
+}
+
+/* === ACTIVE: 지속적 펄스 === */
+.pulse-node-x[data-motion='active'] .pulse-node-x__node--tl,
+.pulse-node-x[data-motion='active'] .pulse-node-x__node--br {
+  animation: pnx-node-pulse 1.6s ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='active'] .pulse-node-x__node--tr,
+.pulse-node-x[data-motion='active'] .pulse-node-x__node--bl {
+  animation: pnx-node-pulse 1.6s ease-in-out infinite 0.4s;
+}
+
+.pulse-node-x[data-motion='active'] .pulse-node-x__core {
+  animation: pnx-core-flash 1.8s ease-in-out infinite;
+}
+
+.pulse-node-x[data-motion='active'] .pulse-node-x__arm {
+  animation: pnx-arm-glow 2s ease-in-out infinite;
+}
+
+/* === SETTLE: 정렬 복귀 === */
+.pulse-node-x[data-motion='settle'] .pulse-node-x__node {
+  animation: pnx-node-settle var(--pnx-settle-duration) cubic-bezier(.16,1,.3,1) both;
+}
+
+.pulse-node-x[data-motion='settle'] .pulse-node-x__core {
+  animation: pnx-core-breathe var(--pnx-duration) ease-in-out infinite;
+}
+
+/* === STATIC === */
+.pulse-node-x[data-motion='static'] .pulse-node-x__node,
+.pulse-node-x[data-motion='static'] .pulse-node-x__core,
+.pulse-node-x[data-motion='static'] .pulse-node-x__arm {
+  animation: none;
+}
+
+/* === Keyframes === */
+@keyframes pnx-node-breathe {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes pnx-node-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); filter: brightness(1); }
+  50%      { opacity: 1; transform: scale(1.3); filter: brightness(1.4); }
+}
+
+@keyframes pnx-node-burst {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  40%  { transform: scale(1.6); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+@keyframes pnx-node-settle {
+  0%   { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+@keyframes pnx-core-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50%      { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes pnx-core-flash {
+  0%, 100% { transform: scale(1); opacity: 0.9; filter: brightness(1); }
+  50%      { transform: scale(1.2); opacity: 1; filter: brightness(1.5); }
+}
+
+@keyframes pnx-core-burst {
+  0%   { transform: scale(0.7); opacity: 0.5; }
+  35%  { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+@keyframes pnx-arm-breathe {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 0.85; }
+}
+
+@keyframes pnx-arm-glow {
+  0%, 100% { opacity: 0.7; filter: brightness(1); }
+  50%      { opacity: 1; filter: brightness(1.3); }
+}
+
+@keyframes pnx-arm-flash {
+  0%   { opacity: 0.4; }
+  40%  { opacity: 1; filter: brightness(1.6); }
+  100% { opacity: 0.7; filter: brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-node-x,
+  .pulse-node-x * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

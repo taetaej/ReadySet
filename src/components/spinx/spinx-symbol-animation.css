@@ -1,0 +1,213 @@
+/* SpinX square symbol animation system
+   - Asset background is transparent by design. Do not add <rect> in the SVG.
+   - Works best when the SVG is inline, embedded as React JSX, or opened as the standalone animated SVG.
+*/
+
+.spinx-symbol {
+  --spinx-duration: 8s;
+  --spinx-engage-duration: 1.15s;
+  --spinx-settle-duration: 1.4s;
+  --spinx-core-duration: 2.4s;
+  --spinx-cyan: #28eaff;
+  --spinx-cyan-soft: #a6fbff;
+  --spinx-metal: #e9f3f6;
+  --spinx-graphite: #122126;
+
+  display: inline-block;
+  overflow: visible;
+  vertical-align: middle;
+  color: var(--spinx-cyan);
+  isolation: isolate;
+}
+
+.spinx-symbol__orbit-spin,
+.spinx-symbol__core,
+.spinx-symbol__ring-flow {
+  transform-box: view-box;
+  transform-origin: 256px 256px;
+  will-change: transform, opacity, filter;
+}
+
+.spinx-symbol__ring-flow {
+  stroke-dasharray: 38 318;
+  stroke-dashoffset: 0;
+}
+
+/* IDLE: mostly aligned to the X. Small gyroscopic breathing only. */
+.spinx-symbol[data-motion='idle'] .spinx-symbol__orbit-spin--outer {
+  animation: spinx-idle-outer var(--spinx-duration) ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='idle'] .spinx-symbol__orbit-spin--inner {
+  animation: spinx-idle-inner var(--spinx-duration) ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='idle'] .spinx-symbol__core {
+  animation: spinx-core-pulse var(--spinx-core-duration) ease-in-out infinite;
+}
+
+/* HOVER: idle until the parent SVG is hovered. */
+.spinx-symbol[data-motion='hover'] .spinx-symbol__orbit-spin--outer {
+  animation: spinx-idle-outer var(--spinx-duration) ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='hover'] .spinx-symbol__orbit-spin--inner {
+  animation: spinx-idle-inner var(--spinx-duration) ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='hover']:hover .spinx-symbol__orbit-spin--outer {
+  animation: spinx-ring-cw 3s linear infinite, spinx-gyro-outer 4s ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='hover']:hover .spinx-symbol__orbit-spin--inner {
+  animation: spinx-ring-ccw 3s linear infinite, spinx-gyro-inner 5s ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='hover']:hover .spinx-symbol__ring-flow {
+  animation: spinx-flow 0.9s linear infinite;
+}
+
+.spinx-symbol[data-motion='hover']:hover .spinx-symbol__core {
+  animation: spinx-core-pulse 0.8s ease-in-out infinite;
+}
+
+/* ACTIVE: continuous counter-rotating gyroscopic motion. */
+.spinx-symbol[data-motion='active'] .spinx-symbol__orbit-spin--outer {
+  animation: spinx-ring-cw 4s linear infinite, spinx-gyro-outer 3.5s ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='active'] .spinx-symbol__orbit-spin--inner {
+  animation: spinx-ring-ccw 4s linear infinite, spinx-gyro-inner 4s ease-in-out infinite;
+}
+
+.spinx-symbol[data-motion='active'] .spinx-symbol__ring-flow {
+  animation: spinx-flow 1.55s linear infinite;
+}
+
+.spinx-symbol[data-motion='active'] .spinx-symbol__core {
+  animation: spinx-core-pulse 1.35s ease-in-out infinite;
+}
+
+/* ENGAGE: short activation burst. Useful on click/open. */
+.spinx-symbol[data-motion='engage'] .spinx-symbol__orbit-spin--outer {
+  animation: spinx-engage-outer var(--spinx-engage-duration) cubic-bezier(.2,.8,.2,1) both;
+}
+
+.spinx-symbol[data-motion='engage'] .spinx-symbol__orbit-spin--inner {
+  animation: spinx-engage-inner var(--spinx-engage-duration) cubic-bezier(.2,.8,.2,1) both;
+}
+
+.spinx-symbol[data-motion='engage'] .spinx-symbol__ring-flow {
+  animation: spinx-flow .62s linear 2;
+}
+
+.spinx-symbol[data-motion='engage'] .spinx-symbol__core {
+  animation: spinx-core-flash var(--spinx-engage-duration) ease-out both;
+}
+
+/* SETTLE: returns to the aligned X moment. Useful after closing. */
+.spinx-symbol[data-motion='settle'] .spinx-symbol__orbit-spin--outer {
+  animation: spinx-settle-outer var(--spinx-settle-duration) cubic-bezier(.16,1,.3,1) both;
+}
+
+.spinx-symbol[data-motion='settle'] .spinx-symbol__orbit-spin--inner {
+  animation: spinx-settle-inner var(--spinx-settle-duration) cubic-bezier(.16,1,.3,1) both;
+}
+
+.spinx-symbol[data-motion='settle'] .spinx-symbol__core {
+  animation: spinx-core-pulse var(--spinx-core-duration) ease-in-out infinite;
+}
+
+/* STATIC: no motion. */
+.spinx-symbol[data-motion='static'] .spinx-symbol__orbit-spin,
+.spinx-symbol[data-motion='static'] .spinx-symbol__ring-flow,
+.spinx-symbol[data-motion='static'] .spinx-symbol__core {
+  animation: none;
+}
+
+@keyframes spinx-ring-cw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes spinx-ring-ccw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+@keyframes spinx-idle-outer {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  35%      { transform: rotate(4deg) scale(1.006); }
+  70%      { transform: rotate(-2deg) scale(.998); }
+}
+
+@keyframes spinx-idle-inner {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  35%      { transform: rotate(-4deg) scale(1.006); }
+  70%      { transform: rotate(2deg) scale(.998); }
+}
+
+@keyframes spinx-flow {
+  from { stroke-dashoffset: 0; opacity: .35; }
+  50%  { opacity: .95; }
+  to   { stroke-dashoffset: -356; opacity: .35; }
+}
+
+@keyframes spinx-core-pulse {
+  0%, 100% { transform: scale(1); filter: saturate(1); opacity: .95; }
+  45%      { transform: scale(1.07); filter: saturate(1.5); opacity: 1; }
+}
+
+@keyframes spinx-core-flash {
+  0%   { transform: scale(.94); opacity: .86; }
+  28%  { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: .96; }
+}
+
+@keyframes spinx-engage-outer {
+  0%   { transform: rotate(0deg) scale(1); }
+  62%  { transform: rotate(142deg) scale(1.035); }
+  100% { transform: rotate(180deg) scale(1); }
+}
+
+@keyframes spinx-engage-inner {
+  0%   { transform: rotate(0deg) scale(1); }
+  62%  { transform: rotate(-142deg) scale(1.035); }
+  100% { transform: rotate(-180deg) scale(1); }
+}
+
+@keyframes spinx-settle-outer {
+  0%   { transform: rotate(96deg) scale(1.018); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes spinx-settle-inner {
+  0%   { transform: rotate(-96deg) scale(1.018); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes spinx-gyro-outer {
+  0%   { transform: rotate(0deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+  20%  { transform: rotate(72deg) perspective(500px) rotateX(35deg) rotateY(-20deg); }
+  40%  { transform: rotate(144deg) perspective(500px) rotateX(-15deg) rotateY(35deg); }
+  60%  { transform: rotate(216deg) perspective(500px) rotateX(30deg) rotateY(10deg); }
+  80%  { transform: rotate(288deg) perspective(500px) rotateX(-25deg) rotateY(-30deg); }
+  100% { transform: rotate(360deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+}
+
+@keyframes spinx-gyro-inner {
+  0%   { transform: rotate(0deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+  20%  { transform: rotate(-72deg) perspective(500px) rotateX(-30deg) rotateY(25deg); }
+  40%  { transform: rotate(-144deg) perspective(500px) rotateX(20deg) rotateY(-35deg); }
+  60%  { transform: rotate(-216deg) perspective(500px) rotateX(-35deg) rotateY(-15deg); }
+  80%  { transform: rotate(-288deg) perspective(500px) rotateX(25deg) rotateY(30deg); }
+  100% { transform: rotate(-360deg) perspective(500px) rotateX(0deg) rotateY(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinx-symbol,
+  .spinx-symbol * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

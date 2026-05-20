@@ -1241,6 +1241,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         onClick={() => setSpinxOpen(!spinxOpen)}
         hasNewMessage={false}
         isDarkMode={isDarkMode}
+        isOpen={spinxOpen}
       />
 
       {/* SpinX 채팅 패널 */}
