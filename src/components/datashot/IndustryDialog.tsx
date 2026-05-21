@@ -121,8 +121,8 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     const result: Array<{ major: string; isMatch: boolean }> = []
     majors.forEach(major => {
       const directMatch = major.toLowerCase().includes(q)
-      const hasChildMatch = Object.entries(industryCategories[major]).some(([mid, minors]) =>
-        mid.toLowerCase().includes(q) || (minors as string[]).some(m => m.toLowerCase().includes(q))
+      const hasChildMatch = Object.keys(industryCategories[major]).some(mid =>
+        mid.toLowerCase().includes(q)
       )
       if (directMatch || hasChildMatch) result.push({ major, isMatch: directMatch })
     })
@@ -138,18 +138,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     const result: Array<{ mid: string; isMatch: boolean }> = []
     mids.forEach(mid => {
       const directMatch = mid.toLowerCase().includes(q)
-      const hasChildMatch = (industryCategories[major][mid] as string[]).some(m => m.toLowerCase().includes(q))
-      if (directMatch || hasChildMatch) result.push({ mid, isMatch: directMatch })
+      if (directMatch) result.push({ mid, isMatch: directMatch })
     })
     return result
-  }
-
-  const getFilteredMinors = (major: string, mid: string) => {
-    const minors = (industryCategories[major]?.[mid] as string[]) || []
-    const filtered = minors.filter(minor => (brandCountMap[`${major} > ${mid} > ${minor}`] || 0) > 0)
-    if (!isIndustrySearchMode) return filtered
-    const q = searchQuery.toLowerCase()
-    return filtered.filter(m => m.toLowerCase().includes(q))
   }
 
   const trimPathToLevel = (path: string): string => {
@@ -221,24 +212,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
     return []
   }
 
-  const getMinorItems = (): Array<{ major: string; mid: string; minor: string }> => {
-    if (activeMajor && activeMid && !isIndustrySearchMode)
-      return getFilteredMinors(activeMajor, activeMid).map(minor => ({ major: activeMajor, mid: activeMid, minor }))
-    if (isIndustrySearchMode)
-      return getAllMajors().flatMap(major =>
-        getFilteredMids(major).flatMap(({ mid }) =>
-          getFilteredMinors(major, mid).map(minor => ({ major, mid, minor }))
-        )
-      )
-    return []
-  }
-
   if (!isOpen) return null
 
   const filteredMajorItems = getFilteredMajors()
   const filteredMajors = filteredMajorItems.map(({ major }) => major)
   const midItems = getMidItems()
-  const minorItems = getMinorItems()
   const filteredSelected = [...selectedIndustries].sort((a, b) => a.localeCompare(b, 'ko'))
 
   const handleSelectAll = (paths: string[]) => {
@@ -339,7 +317,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           )}
           <span style={{ fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.4' }}>
             {isIndustrySearchMode ? highlightText(label, searchQuery) : label}
-            {childCount !== undefined && (
+            {childCount !== undefined && columnLevel !== 'mid' && (
               <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', fontWeight: 400 }}> ({childCount})</span>
             )}
           </span>
@@ -426,7 +404,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 }}>
                   <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>업종 노출 기준</div>
                   <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.6' }}>
-                    보유 데이터 기준으로 속한 브랜드가 1개 이상인 업종만 표시됩니다. 브랜드가 0건인 업종은 목록에 노출되지 않습니다.
+                    신뢰할 수 있는 수준의 데이터가 확보된 업종만 표시됩니다.
                   </div>
                 </div>
               )}
@@ -453,9 +431,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               { value: 'minor' as IndustryLevel, label: '소분류' },
             ]).map(({ value, label }, i, arr) => {
               const isActive = localLevel === value
+              const isDisabled = value === 'minor'
               return (
                 <button key={value}
                   onClick={() => {
+                    if (isDisabled) return
                     if (localLevel !== value) {
                       if (selectedIndustries.length > 0) {
                         setPendingLevel(value)
@@ -477,9 +457,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                     borderRadius: 0, border: 'none',
                     borderRight: i < arr.length - 1 ? '1px solid hsl(var(--border))' : 'none',
                     backgroundColor: isActive ? 'hsl(var(--muted))' : 'transparent',
-                    color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                    color: isDisabled ? 'hsl(var(--muted-foreground))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                     padding: '6px 16px', fontSize: '13px',
-                    fontWeight: isActive ? '500' : '400', cursor: 'pointer',
+                    fontWeight: isActive ? '500' : '400',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isDisabled ? 0.4 : 1,
                   }}
                 >
                   {label}
@@ -601,7 +583,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                   {filteredMajors.length === 0
                     ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                    : filteredMajorItems.map(({ major, isMatch }) => renderRow(
+                    : filteredMajorItems.map(({ major }) => renderRow(
                       major, major,
                       localLevel !== 'major',
                       activeMajor === major && !isIndustrySearchMode,
@@ -617,7 +599,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               <div style={{ ...colStyle, opacity: localLevel === 'major' ? 0.3 : 1 }}>
                 <div style={colHeaderStyle}>
                   <span>업종(중)</span>
-                  {localLevel === 'mid' && <SelectAllButton paths={midItems.filter(({ isMatch }) => isMatch).map(({ major, mid }) => `${major} > ${mid}`)} />}
+                  {localLevel === 'mid' && <SelectAllButton paths={midItems.filter(({ isMatch: m }) => m).map(({ major, mid }) => `${major} > ${mid}`)} />}
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                   {localLevel === 'major'
@@ -626,7 +608,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                       ? <div style={emptyStyle}>업종(대)를 클릭하면<br />하위 업종(중)이 표시됩니다.</div>
                       : midItems.length === 0
                         ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                        : midItems.map(({ major, mid, isMatch }) => renderRow(
+                        : midItems.map(({ major, mid }) => renderRow(
                           `${major} > ${mid}`, mid,
                           localLevel === 'minor',
                           activeMid === mid && activeMajor === major && !isIndustrySearchMode,
@@ -639,26 +621,12 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 </div>
               </div>
 
-              <div style={{ ...colStyle, opacity: localLevel !== 'minor' ? 0.3 : 1 }}>
+              <div style={{ ...colStyle, opacity: 0.3, pointerEvents: 'none' }}>
                 <div style={colHeaderStyle}>
                   <span>업종(소)</span>
-                  {localLevel === 'minor' && <SelectAllButton paths={minorItems.map(({ major, mid, minor }) => `${major} > ${mid} > ${minor}`)} />}
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                  {localLevel !== 'minor'
-                    ? <div style={emptyStyle}>{localLevel === 'major' ? '대분류' : '중분류'} 레벨에서는<br />사용하지 않습니다</div>
-                    : !activeMid && !isIndustrySearchMode
-                      ? <div style={emptyStyle}>업종(중)을 클릭하면<br />하위 업종(소)이 표시됩니다.</div>
-                      : minorItems.length === 0
-                        ? <div style={emptyStyle}>검색 결과가 없습니다</div>
-                        : minorItems.map(({ major, mid, minor }) => renderRow(
-                          `${major} > ${mid} > ${minor}`, minor, false,
-                          false, undefined,
-                          isIndustrySearchMode ? `${major} > ${mid} >` : undefined,
-                          undefined,
-                          'minor'
-                        ))
-                  }
+                  <div style={emptyStyle}>소분류는 추후 제공 예정입니다</div>
                 </div>
               </div>
 
@@ -673,7 +641,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
                   {selectedIndustries.length === 0 ? (
-                    <div style={emptyStyle}>선택된 업종이 없습니다<br /><span style={{ fontSize: '11px' }}>좌측에서 [+]로 추가하세요</span></div>
+                    <div style={emptyStyle}>선택한 업종이 없습니다<br /><span style={{ fontSize: '11px' }}>좌측에서 [+]로 추가하세요</span></div>
                   ) : filteredSelected.length === 0 ? (
                     <div style={emptyStyle}>검색 결과가 없습니다</div>
                   ) : filteredSelected.map(industry => (
