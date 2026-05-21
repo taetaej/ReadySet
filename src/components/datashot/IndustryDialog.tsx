@@ -317,7 +317,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           )}
           <span style={{ fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.4' }}>
             {isIndustrySearchMode ? highlightText(label, searchQuery) : label}
-            {childCount !== undefined && (
+            {childCount !== undefined && columnLevel !== 'mid' && (
               <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', fontWeight: 400 }}> ({childCount})</span>
             )}
           </span>
