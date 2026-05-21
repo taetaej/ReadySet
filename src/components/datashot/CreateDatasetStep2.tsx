@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ListPlus, Plus, Minus, Search, ChevronDown, X } from 'lucide-react'
+import { ListPlus, Plus, Minus, Search, ChevronDown, X, Info, Undo2 } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
+import { adProductStructureByMedia } from './sampleData'
 import { mediaIconMap } from '../common/MediaIcons'
 
 const metricsByMedia: Record<string, MetricGroup[]> = {
@@ -29,10 +30,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
     <>
     
     <div style={{ width: '800px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '4px' }}>상세 설정</h2>
-      <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '24px', lineHeight: '1.5' }}>
-        상위 조건 선택에 따라 하위 설정 항목이 동적으로 변경됩니다.
-      </p>
+      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>상세 설정</h2>
 
       {/* 매체 */}
       <div style={{ marginBottom: '24px' }}>
@@ -90,9 +88,41 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
             </div>
           </div>
         </div>
+      ) : adProductStructureByMedia[formData.media]?.fields[0]?.options.length === 0 ? (
+        <div style={{
+          padding: '48px 40px',
+          textAlign: 'center',
+          border: '1px dashed hsl(var(--border))',
+          borderRadius: '8px',
+          color: 'hsl(var(--muted-foreground))',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <Undo2 size={32} style={{ opacity: 0.5 }} />
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>
+              설정한 조건에 해당하는 데이터가 없습니다
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.8 }}>
+              Step1으로 돌아가 기간 또는 업종을 다시 선택해주세요.
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           {/* 광고 분류 조건 */}
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: '8px',
+            padding: '12px', marginBottom: '16px',
+            backgroundColor: 'hsl(var(--muted) / 0.5)',
+            border: '1px solid hsl(var(--border))', borderRadius: '6px',
+            fontSize: '12px', color: 'hsl(var(--muted-foreground))'
+          }}>
+            <Info size={14} style={{ flexShrink: 0, marginTop: '4px' }} />
+            <span style={{ lineHeight: '1.8' }}>Step1에서 설정한 기간, 업종의 집행 데이터가 있는 {adProductStructureByMedia[formData.media]?.fields[0]?.label ?? '광고상품'}만 표시됩니다.<br />{adProductStructureByMedia[formData.media]?.fields[0]?.label ?? '광고상품'} 선택에 따라 아래 항목의 선택 가능한 값이 변경됩니다.</span>
+          </div>
           <div style={{ marginBottom: '24px' }}>
             <AdProductsSelector
               media={formData.media}
@@ -125,7 +155,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               지표 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
             </label>
             <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px', lineHeight: '1.5' }}>
-              타겟팅 옵션 선택에 따라 조회 가능한 지표만 리스트에 노출됩니다.
+              타겟팅 옵션 선택에 따라 조회 가능한 지표만 리스트에 표시됩니다.
             </p>
             <div style={{ position: 'relative', marginBottom: '8px' }}>
               <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))', pointerEvents: 'none' }} />
