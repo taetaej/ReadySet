@@ -112,7 +112,7 @@ function DiffIndicator({ value, inverse = false, format }: { value: number; inve
   const isPositive = value > 0
   const isGood = inverse ? !isPositive : isPositive
   const Icon = isPositive ? TrendingUp : TrendingDown
-  const display = format ? format(value) : `${isPositive ? '+' : ''}${value.toFixed(1)}`
+  const display = format ? format(value) : `${isPositive ? '+' : ''}${value.toFixed(2)}`
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: isGood ? 'hsl(142.1 76.2% 36.3%)' : 'hsl(var(--destructive))' }}>
       <Icon size={10} />{display}
@@ -165,7 +165,7 @@ function ReachCPRPChart({ allData, labels, targetLabels }: {
         <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '2px' }}>{d.label}</div>
         <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', lineHeight: '1.4' }}>{d.target}</div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.x.toFixed(1)}%</span></div>
+          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.x.toFixed(2)}%</span></div>
           <div>CPRP: <span style={{ fontWeight: '600' }}>{d.y.toLocaleString('ko-KR')}원</span></div>
         </div>
         <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.8', marginTop: '4px' }}>
@@ -190,7 +190,7 @@ function ReachCPRPChart({ allData, labels, targetLabels }: {
         />
         <YAxis
           dataKey="y" type="number" name="CPRP"
-          tickFormatter={v => `${(v / 1000000).toFixed(1)}M`}
+          tickFormatter={v => `${(v / 1000000).toFixed(2)}M`}
           stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
           width={56}
           label={{ value: 'CPRP (원)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }}
@@ -236,8 +236,8 @@ function PerformanceComboChart({ allData, labels }: {
       }}>
         <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>{d.name}</div>
         <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach1.toFixed(1)}%</span></div>
-          <div>Avg. Frequency: <span style={{ fontWeight: '600' }}>{d.avgFreq.toFixed(1)}회</span></div>
+          <div>Reach 1+: <span style={{ fontWeight: '600' }}>{d.reach1.toFixed(2)}%</span></div>
+          <div>Avg. Frequency: <span style={{ fontWeight: '600' }}>{d.avgFreq.toFixed(2)}회</span></div>
         </div>
       </div>
     )
@@ -258,7 +258,7 @@ function PerformanceComboChart({ allData, labels }: {
         />
         <YAxis
           yAxisId="right" orientation="right"
-          tickFormatter={v => `${v.toFixed(1)}회`}
+          tickFormatter={v => `${v.toFixed(2)}회`}
           stroke="#e4e4e7" tick={{ fill: '#71717a', fontSize: 11 }}
           width={48}
           label={{ value: 'Avg. Freq', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'end' } }}
@@ -477,7 +477,7 @@ function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: Scena
         <ComposedChart data={baseCurveData} margin={{ top: 20, right: 24, bottom: 20, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} horizontal={false} />
           <XAxis dataKey="budget" type="number" domain={[minBudget, maxBudget]}
-            tickFormatter={v => `${(v / 100000000).toFixed(1)}억`}
+            tickFormatter={v => `${(v / 100000000).toFixed(2)}억`}
             stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }} />
           <YAxis tickFormatter={v => `${v}%`} stroke="hsl(var(--border))" tick={{ fill: '#71717a', fontSize: 11 }} width={50}
             label={{ value: '예측 Reach (%)', angle: 0, position: 'top', offset: 8, style: { fill: '#71717a', fontSize: 12, fontWeight: 500, textAnchor: 'start' } }} />
@@ -600,14 +600,14 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
                 {isUnder ? (
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(142.1 76.2% 36.3%)' }}>
-                      +{(r.headroom / 100000000).toFixed(1)}억
+                      +{(r.headroom / 100000000).toFixed(2)}억
                     </div>
                     <div style={{ fontSize: '10px', color: 'hsl(142.1 76.2% 36.3%)', marginTop: '2px' }}>증액 추천</div>
                   </div>
                 ) : isOver ? (
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--destructive))' }}>
-                      −{(Math.abs(r.headroom) / 100000000).toFixed(1)}억
+                      −{(Math.abs(r.headroom) / 100000000).toFixed(2)}억
                     </div>
                     <div style={{ fontSize: '10px', color: 'hsl(var(--destructive))', marginTop: '2px' }}>효율 저하</div>
                   </div>
@@ -653,29 +653,29 @@ export function ScenarioComparisonResult({
   const keyMetrics: { key: keyof ScenarioMetrics; label: string; unit: string; unitLabel?: string; fmt: (v: number) => string; fmtValue?: (v: number) => string; inverse?: boolean; category?: string }[] = comparisonType === 'budget' ? [
     // Budget Scaling: 예산이 변수이므로 Budget을 강조
     { key: 'targetPopulation', label: 'Target Population', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Market Scale' },
-    { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
-    { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(2)}%`, category: 'Reach 1+' },
+    { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
     { key: 'cprp', label: 'CPRP', unit: '원', unitLabel: '원', fmt: v => `${v.toLocaleString('ko-KR')}원`, fmtValue: v => v.toLocaleString('ko-KR'), inverse: true, category: 'Efficiency' },
-    { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(1) },
-    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(1)}회`, fmtValue: v => v.toFixed(1) },
+    { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(2) },
+    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(2)}회`, fmtValue: v => v.toFixed(2) },
     { key: 'reachCount', label: 'Reach Count', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Volume' },
     { key: 'impression', label: 'Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
     { key: 'effectiveImpression', label: 'Effective Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
   ] : [
     // Reach Flow
     { key: 'targetPopulation', label: 'Target Population', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Reach Flow' },
-    { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(1)}%`, category: 'Reach 1+' },
-    { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
-    { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(1)}%` },
+    { key: 'reach1', label: 'Reach 1+', unit: '%', fmt: v => `${v.toFixed(2)}%`, category: 'Reach 1+' },
+    { key: 'reach2', label: 'Reach 2+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach3', label: 'Reach 3+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach4', label: 'Reach 4+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
+    { key: 'reach5', label: 'Reach 5+', unit: '%', fmt: v => `${v.toFixed(2)}%` },
     // Efficiency
     { key: 'cprp', label: 'CPRP', unit: '원', unitLabel: '원', fmt: v => `${v.toLocaleString('ko-KR')}원`, fmtValue: v => v.toLocaleString('ko-KR'), inverse: true, category: 'Efficiency' },
-    { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(1) },
-    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(1)}회`, fmtValue: v => v.toFixed(1) },
+    { key: 'grps', label: 'GRPs', unit: '', fmt: v => v.toFixed(2) },
+    { key: 'avgFrequency', label: 'Avg. Frequency', unit: '회', unitLabel: '회', fmt: v => `${v.toFixed(2)}회`, fmtValue: v => v.toFixed(2) },
     // Volume
     { key: 'reachCount', label: 'Reach Count', unit: '명', unitLabel: '명', fmt: v => `${v.toLocaleString('ko-KR')}명`, fmtValue: v => v.toLocaleString('ko-KR'), category: 'Volume' },
     { key: 'impression', label: 'Impression', unit: '회', unitLabel: '회', fmt: v => `${v.toLocaleString('ko-KR')}회`, fmtValue: v => v.toLocaleString('ko-KR') },
@@ -1089,7 +1089,7 @@ export function ScenarioComparisonResult({
                             {!s.isBase && (
                               <span style={{ marginLeft: '6px' }}>
                                 <DiffIndicator value={diff} inverse={m.inverse} format={v => {
-                                  if (m.unit === '%') return `${v > 0 ? '+' : ''}${v.toFixed(1)}%p`
+                                  if (m.unit === '%') return `${v > 0 ? '+' : ''}${v.toFixed(2)}%p`
                                   if (m.key === 'cprp') return `${v > 0 ? '+' : ''}${Math.abs(v).toLocaleString('ko-KR')}원`
                                   if (m.unitLabel === '명') return `${v > 0 ? '+' : ''}${v.toLocaleString('ko-KR')}명`
                                   if (m.unitLabel === '회') return `${v > 0 ? '+' : ''}${v.toLocaleString('ko-KR')}회`

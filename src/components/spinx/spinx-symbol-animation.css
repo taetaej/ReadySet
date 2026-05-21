@@ -197,13 +197,21 @@
 }
 
 @keyframes spinx-gyro-outer {
-  0%   { transform: perspective(500px) rotateY(0deg); }
-  100% { transform: perspective(500px) rotateY(360deg); }
+  0%   { transform: perspective(500px) rotateY(45deg); }
+  20%  { transform: perspective(500px) rotateY(117deg); }
+  40%  { transform: perspective(500px) rotateY(189deg); }
+  60%  { transform: perspective(500px) rotateY(261deg); }
+  80%  { transform: perspective(500px) rotateY(333deg); }
+  100% { transform: perspective(500px) rotateY(405deg); }
 }
 
 @keyframes spinx-gyro-inner {
-  0%   { transform: perspective(500px) rotateX(0deg); }
-  100% { transform: perspective(500px) rotateX(360deg); }
+  0%   { transform: perspective(500px) rotateX(45deg); }
+  20%  { transform: perspective(500px) rotateX(117deg); }
+  40%  { transform: perspective(500px) rotateX(189deg); }
+  60%  { transform: perspective(500px) rotateX(261deg); }
+  80%  { transform: perspective(500px) rotateX(333deg); }
+  100% { transform: perspective(500px) rotateX(405deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

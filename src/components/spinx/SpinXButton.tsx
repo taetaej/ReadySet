@@ -46,7 +46,7 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
         width: '64px',
         height: '64px',
         borderRadius: '50%',
-        border: 'none',
+        border: isDarkMode ? '1.5px solid rgba(255, 255, 255, 0.5)' : 'none',
         backgroundColor: '#09090b',
         cursor: 'pointer',
         display: 'flex',

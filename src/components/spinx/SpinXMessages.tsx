@@ -1,11 +1,12 @@
 // SpinXMessages.tsx — 메시지 목록 (초기 요약/추천질문 + 대화 메시지 루프 + 로딩 스켈레톤)
 
-import { Copy, Check, Scale, Target, Rotate3d } from 'lucide-react'
+import { Copy, Check, Scale, Target } from 'lucide-react'
 import type { Message, RagSource } from './spinxTypes'
 import { suggestedQuestions } from './spinxData'
 import { SpinXSourceAccordion } from './SpinXSourceAccordion'
 import { SpinXChartBubble } from './SpinXChartBubble'
 import { SpinXErrorBubble } from './SpinXErrorBubble'
+import { SpinXSymbol } from './SpinXSymbol'
 
 interface SpinXMessagesProps {
   isDarkMode: boolean
@@ -411,13 +412,11 @@ export function SpinXMessages({
               >
                 <div
                   style={{
-                    animation: 'rotate3d 2s linear infinite',
                     display: 'flex',
                     alignItems: 'center',
-                    color: '#00ff9d'
                   }}
                 >
-                  <Rotate3d size={20} />
+                  <SpinXSymbol size={24} motion="active" title="" style={{ transform: 'rotate(45deg)' }} />
                 </div>
                 <div style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                   {loadingMessage}
