@@ -823,6 +823,11 @@
     background-color: hsl(var(--background));
   }
 
+  .toast--info {
+    border-color: #3B82F6;
+    background-color: hsl(var(--background));
+  }
+
   .toast__icon {
     flex-shrink: 0;
     margin-top: 0.125rem;
