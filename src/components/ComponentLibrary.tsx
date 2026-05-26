@@ -3,7 +3,7 @@ import { AppLayout } from './layout/AppLayout'
 import { Avatar } from './common/Avatar'
 import { MonthRangePicker } from './datashot/MonthRangePicker'
 import { CustomDateRangePicker } from './reachcaster/CustomDateRangePicker'
-import { Search, Plus, Filter, Share2, X, Info, Scale, Target, ChevronRight, ChevronDown, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertCircle, ChevronLeft, ChevronsLeft, ChevronsRight, Link2, FileSpreadsheet, FileText } from 'lucide-react'
+import { Search, Plus, Filter, Share2, X, Info, Scale, Target, ChevronRight, ChevronDown, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertTriangle, ChevronLeft, ChevronsLeft, ChevronsRight, Link2, FileSpreadsheet, FileText } from 'lucide-react'
 
 export function ComponentLibrary() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -925,7 +925,7 @@ export function ComponentLibrary() {
                   border: '1px solid hsl(var(--destructive) / 0.3)',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                 }}>
-                  <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))', flexShrink: 0 }} />
+                  <AlertTriangle size={20} style={{ color: 'hsl(var(--destructive))', flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '2px', color: 'hsl(var(--foreground))' }}>오류</p>
                     <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>Slot 생성에 실패했습니다. 다시 시도해주세요.</p>
@@ -1446,7 +1446,7 @@ export function ComponentLibrary() {
               ) : showToast.type === 'info' ? (
                 <Info size={20} style={{ color: '#3B82F6' }} />
               ) : (
-                <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+                <AlertTriangle size={20} style={{ color: 'hsl(var(--destructive))' }} />
               )}
             </div>
             <div className="toast__content">
