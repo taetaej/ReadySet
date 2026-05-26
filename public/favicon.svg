@@ -2,7 +2,6 @@
 	<defs>
 		<image  width="32" height="31" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAfCAMAAACxiD++AAAAAXNSR0IB2cksfwAAATJQTFRF////////////////////////////////AAAA////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ojKKOAAAAGZ0Uk5TX3V2d3BcNwgATvz/9tWLGoPuZwcFpv6UFdf9cTPv9CVVpavdnnT34QKE+0Uj+WUR63In+l4DmvU2FNI8uLrF7AGoDgzK5C/fNVv47ZAQBJLJJAvAHtlE5yF9yLKYFupKLZPPDdCtny3F4AAAAVBJREFUeJyF0t0rQ3EYB/DnW+hoOCsSbUWInTWk3cy4mAsupORCij/QS6nlQiu7wAVLFLWTt7YaduECM6amiD2/g3POnpNfnZ7vOb/Peek5DwhE+D7sC7X1k5vdu7+kqpKmvUuCqAmoMGjBmwjIh1Lt9Rr5UZaFjgcG1IFHWbTjngF1Ob8CeKmo1H2ngHv5W1HkEHwuiYB6ccO1BzkZ0ADyXPuvPMAQrrkOnv8Dqg0eIIwLrkZWBsMwuUZwKoIxM1jgMHoCO4haPxY4Vhd8+q2jUTEcOZ/UZhw4OzmBQ/t+HPvkanW4Mft3MoldcgOawp6VEsAO1YMZpFWYxlOGBECzSHHtK1pzVteHOWwrYWzJgKLlvCWTMqAFdSvNm5cyiAWSlky9ioAWc2dcQ596Rp7JROcm10hoXQb0MaLGIR5Y8xja8Q0VlgoeE7WCVRWWvwBDREaw6BCxuAAAAABJRU5ErkJggg=="/>
 	</defs>
-	<style>
-	</style>
-	<use id="레이어 2" href="#img1" x="0" y="1"/>
+	<rect x="0" y="0" width="32" height="32" rx="6" ry="6" fill="#09090b"/>
+	<use id="레이어 2" href="#img1" x="4" y="5" width="24" height="23" transform="translate(4, 4) scale(0.75)"/>
 </svg>
