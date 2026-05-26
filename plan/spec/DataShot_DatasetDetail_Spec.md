@@ -86,7 +86,7 @@
 | Copy Link | Link2(16px) | 현재 URL 클립보드 복사 → 성공 토스트 |
 | Export to CSV | FileSpreadsheet(16px) | Full 파일 CSV 다운로드 |
 
-- CSV 파일명: `[추출자ID]_[추출일시].csv` (강제 삽입, 변경 불가)
+- CSV 파일명: `DS_Dataset_Result_yyyymmdd.csv` (강제 삽입, 변경 불가. 예: DS_Dataset_Result_20260526.csv)
 - 화면 필터/정렬 상태와 무관하게 Full 파일 전체 행 다운로드
 
 #### 3.3.2 Info 툴팁 (hover)
@@ -320,7 +320,7 @@
 | 시나리오 | 동작 |
 |---|---|
 | Export 클릭 | Full 파일 전체 행 다운로드 (화면 필터/정렬 무관) |
-| 파일명 | `[추출자ID]_[추출일시].csv` 강제 |
+| 파일명 | `DS_Dataset_Result_yyyymmdd.csv` 강제 |
 | 다운로드 실패 | 에러 토스트 |
 
 ### 10.5 권한별 UI 차이
