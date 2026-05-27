@@ -1,8 +1,9 @@
 # DataShot — 데이터셋 목록 화면 상세 명세서
 
 > 목적: QA 테스트케이스(TC) 작성 기준 문서  
-> 버전: v1.0  
+> 버전: v1.1  
 > 작성일: 2026-05-26  
+> 최종 수정일: 2026-05-27  
 > 참조: `plan/eunseo/DataShot_Phase1_policy_IA_v1.0.md`
 
 ---
@@ -26,6 +27,9 @@
 ```
 ┌─────────────────────────────────────────────────────┐
 │ AppLayout (GlobalNavBar + Sidebar + Breadcrumb)      │
+│  ├── isDarkMode / onToggleDarkMode                  │
+│  ├── isSidebarCollapsed / onToggleSidebar           │
+│  └── expandedFolders / onToggleFolder               │
 ├─────────────────────────────────────────────────────┤
 │ SlotHeader (Slot 정보 표시)                          │
 ├─────────────────────────────────────────────────────┤
@@ -39,7 +43,18 @@
 └─────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Breadcrumb
+### 2.2 의존 모듈
+
+| 모듈 | 역할 |
+|---|---|
+| `AppLayout` | 전체 레이아웃 래퍼 (GNB + Sidebar + Breadcrumb) |
+| `SlotHeader` | Slot 정보 헤더 (reachcaster에서 공유) |
+| `useSidebarState` | 사이드바 상태 관리 훅 (collapsed, expandedFolders) |
+| `maskEmail` | 이메일 마스킹 유틸 (예: `user@example.com` → `us***@example.com`) |
+| `getDarkMode` / `setDarkMode` | 다크모드 상태 관리 (utils/theme) |
+| `sampleDatasets` | 목 데이터 (types.ts에서 import) |
+
+### 2.3 Breadcrumb
 
 | 순서 | 라벨 | 동작 |
 |---|---|---|
