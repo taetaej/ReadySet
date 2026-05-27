@@ -3,7 +3,7 @@ import { AppLayout } from './layout/AppLayout'
 import { Avatar } from './common/Avatar'
 import { MonthRangePicker } from './datashot/MonthRangePicker'
 import { CustomDateRangePicker } from './reachcaster/CustomDateRangePicker'
-import { Search, Plus, Filter, Share2, X, Info, Scale, Target, ChevronRight, ChevronDown, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertCircle, ChevronLeft, ChevronsLeft, ChevronsRight, Link2, FileSpreadsheet, FileText } from 'lucide-react'
+import { Search, Plus, Filter, Share2, X, Info, Scale, Target, ChevronRight, ChevronDown, LayoutGrid, List, MoreVertical, Edit, Trash2, Copy, CheckCircle, AlertTriangle, ChevronLeft, ChevronsLeft, ChevronsRight, Link2, FileSpreadsheet, FileText } from 'lucide-react'
 
 export function ComponentLibrary() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -34,7 +34,7 @@ export function ComponentLibrary() {
   const [showTargetDialog, setShowTargetDialog] = useState(false)
   
   // 토스트 상태
-  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null)
 
   // 토스트 자동 닫기
   useEffect(() => {
@@ -874,6 +874,12 @@ export function ComponentLibrary() {
             >
               오류 토스트 표시
             </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setShowToast({ type: 'info', message: "현재 'O03_음료및기호식품' Slot에 위치한 시나리오 상세 페이지입니다." })}
+            >
+              안내 토스트 표시
+            </button>
           </ComponentGroup>
 
           <ComponentGroup label="Toast Preview">
@@ -907,7 +913,7 @@ export function ComponentLibrary() {
                 </div>
               </div>
 
-              <div>
+              <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--muted-foreground))' }}>Error Toast</div>
                 <div style={{
                   display: 'flex',
@@ -919,10 +925,33 @@ export function ComponentLibrary() {
                   border: '1px solid hsl(var(--destructive) / 0.3)',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                 }}>
-                  <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))', flexShrink: 0 }} />
+                  <AlertTriangle size={20} style={{ color: 'hsl(var(--destructive))', flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '2px', color: 'hsl(var(--foreground))' }}>오류</p>
                     <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>Slot 생성에 실패했습니다. 다시 시도해주세요.</p>
+                  </div>
+                  <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+                    <X size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px', color: 'hsl(var(--muted-foreground))' }}>Info Toast (안내)</div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <Info size={20} style={{ color: '#3B82F6', flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '2px', color: 'hsl(var(--foreground))' }}>Slot 이동 안내</p>
+                    <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>현재 'O03_음료및기호식품' Slot에 위치한 시나리오 상세 페이지입니다.</p>
                   </div>
                   <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
                     <X size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
@@ -1410,17 +1439,19 @@ export function ComponentLibrary() {
 
         {/* 토스트 알림 */}
         {showToast && (
-          <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className={`toast ${showToast.type === 'success' ? 'toast--success' : showToast.type === 'info' ? 'toast--info' : 'toast--error'}`}>
             <div className="toast__icon">
               {showToast.type === 'success' ? (
                 <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+              ) : showToast.type === 'info' ? (
+                <Info size={20} style={{ color: '#3B82F6' }} />
               ) : (
-                <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+                <AlertTriangle size={20} style={{ color: 'hsl(var(--destructive))' }} />
               )}
             </div>
             <div className="toast__content">
               <p className="toast__title">
-                {showToast.type === 'success' ? '성공' : '오류'}
+                {showToast.type === 'success' ? '성공' : showToast.type === 'info' ? 'Slot 이동 안내' : '오류'}
               </p>
               <p className="toast__description">
                 {showToast.message}
