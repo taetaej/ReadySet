@@ -11,22 +11,22 @@
 | 2026. 2. 12 | AI | 실제 구현 구조 반영 | 현재 프로젝트 파일 구조 기반 업데이트 | 1.4 |
 | 2026. 3. 05 | AI | 브레드크럼 네비게이션 구조 개선 | 솔루션 레이어 추가, 정책 문서화 | 1.5 |
 | 2026. 4. 16 | AI | 전체 구조 업데이트 | 실제 코드베이스 기반 기술스택·컴포넌트·프로젝트 구조 반영 | 1.6 |
+| 2026. 5. 27 | AI | DataShot + Reach Caster 전체 IA 재작성 | 실제 구현 코드 기반 완전 업데이트 | 2.0 |
 
 ---
 
-📢 본 문서는 예측/분석 고도화 프로젝트 정책서(v0.2)를 기반으로 작성된 정보 구조(IA) 가이드입니다.
+📢 본 문서는 예측/분석 고도화 프로젝트의 실제 구현 코드를 기반으로 작성된 정보 구조(IA) 가이드입니다.
 
-- 현재 버전: v1.6
+- 현재 버전: v2.0
 - 관리자: 신지아
-- 참고: 예측분석_고도화_프로젝트_정책서_v0.2.md
-- 최근 업데이트: 전체 구조 업데이트 — 기술스택·컴포넌트·프로젝트 구조 반영 (2026.04.16)
+- 최근 업데이트: DataShot 솔루션 전체 IA 추가, Reach Caster 최신 구현 반영, SlotHome 구조 반영 (2026.05.27)
 
 ---
 
 ## 1. 전체 시스템 구조
 
 ```
-예측/분석 플랫폼 (React SPA)
+예측/분석 플랫폼 — ReadySet (React SPA)
 ├── 기술 스택
 │   ├── 프론트엔드: React 18.2.0 + TypeScript 5.0.2
 │   ├── 라우팅: React Router DOM 7.13.0
@@ -38,1337 +38,850 @@
 │   │   ├── GSAP 3.14.2 (고급 애니메이션)
 │   │   └── 커스텀 컴포넌트 (shadcn 스타일)
 │   ├── 차트/시각화
-│   │   ├── Recharts 3.7.0 (리치커브 등 주요 차트)
-│   │   ├── ECharts 6.0.0 + echarts-for-react 3.0.6 (버블차트 등)
+│   │   ├── Recharts 3.7.0 (리치커브, 콤보차트 등)
+│   │   ├── ECharts 6.0.0 + echarts-for-react 3.0.6 (버블차트, 바차트)
 │   │   └── Frappe Gantt 1.0.4 (타임라인)
 │   └── 유틸리티
 │       ├── date-fns 4.1.0 (날짜 처리)
 │       └── OGL 1.0.11 (WebGL 커서 효과)
-├── 프로젝트 구조
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/ (레이아웃 컴포넌트)
-│   │   │   │   ├── AppLayout.tsx (전체 레이아웃)
-│   │   │   │   ├── GlobalNavBar.tsx (GNB)
-│   │   │   │   ├── Sidebar.tsx (SNB)
-│   │   │   │   ├── Breadcrumb.tsx (경로 표시)
-│   │   │   │   ├── GradeCard.tsx (등급 카드)
-│   │   │   │   ├── Footer.tsx (푸터)
-│   │   │   │   └── index.ts (export)
-│   │   │   ├── common/ (공통 컴포넌트)
-│   │   │   │   ├── Avatar.tsx (프로필 아바타)
-│   │   │   │   ├── Calendar.tsx (캘린더)
-│   │   │   │   ├── CircularText.tsx (원형 텍스트)
-│   │   │   │   ├── MediaIcons.tsx (매체 아이콘)
-│   │   │   │   ├── SplashCursor.tsx (커서 효과)
-│   │   │   │   └── SplitText.tsx (텍스트 애니메이션)
-│   │   │   ├── scenario/ (시나리오 관련)
-│   │   │   │   ├── ScenarioStep1.tsx (기본 정보)
-│   │   │   │   ├── ScenarioStep2RatioFinder.tsx (Ratio Finder 설정)
-│   │   │   │   ├── ScenarioStep2ReachPredictor.tsx (Reach Predictor 설정)
-│   │   │   │   ├── ReachPredictorMediaDialog.tsx (매체 선택)
-│   │   │   │   ├── constants.ts (상수)
-│   │   │   │   ├── types.ts (타입 정의)
-│   │   │   │   ├── utils.ts (유틸리티)
-│   │   │   │   └── index.ts (export)
-│   │   │   ├── reachcaster/ (Reach Caster 화면)
-│   │   │   │   ├── WorkspaceLayout.tsx (SlotBoard 메인)
-│   │   │   │   ├── CreateScenario.tsx (시나리오 생성)
-│   │   │   │   ├── CreateFolder.tsx (Slot 생성)
-│   │   │   │   ├── EditFolder.tsx (Slot 수정)
-│   │   │   │   ├── SlotCard.tsx / SlotHeader.tsx / SlotDetail.tsx
-│   │   │   │   ├── SlotHome.tsx / SlotOverview.tsx / SlotSolutions.tsx
-│   │   │   │   ├── SlotListItem.tsx (시나리오 목록 아이템)
-│   │   │   │   ├── RatioFinderResult.tsx / RatioFinderDetailTable.tsx
-│   │   │   │   ├── ReachPredictorResult.tsx / ReachPredictorDetailTable.tsx
-│   │   │   │   ├── ReachPredictorScoreCards.tsx / ReachCurveChart.tsx
-│   │   │   │   ├── ScenarioComparisonPanel.tsx / ScenarioComparisonResult.tsx
-│   │   │   │   ├── SolutionOutputCard.tsx / DataInsightCard.tsx
-│   │   │   │   ├── IndustryBubbleChart.tsx / IndustryDualBarChart.tsx
-│   │   │   │   ├── DateRangePicker.tsx / CustomDateRangePicker.tsx
-│   │   │   │   ├── PageHeader.tsx / WelcomeSection.tsx / WelcomeSectionFixed.tsx
-│   │   │   │   └── 기타 UI 컴포넌트
-│   │   │   ├── datashot/ (DataShot 솔루션)
-│   │   │   │   ├── CreateDataset.tsx (데이터셋 생성 3단계 위자드)
-│   │   │   │   ├── CreateDatasetStep1~3.tsx (각 단계)
-│   │   │   │   ├── DatasetList.tsx / DatasetDetail.tsx
-│   │   │   │   ├── AdProductsSelector.tsx / IndustryDialog.tsx
-│   │   │   │   ├── MonthRangePicker.tsx / SampleDataModal.tsx
-│   │   │   │   └── types.ts / sampleData.ts / apiMappings.ts
-│   │   │   ├── spinx/ (SpinX AI 어시스턴트)
-│   │   │   │   ├── SpinXButton.tsx (SpinX 플로팅 버튼)
-│   │   │   │   └── SpinXPanel.tsx (SpinX 채팅 패널)
-│   │   │   ├── ComponentLibrary.tsx (컴포넌트 라이브러리)
-│   │   │   └── README.md (컴포넌트 문서)
-│   │   ├── styles/
-│   │   │   └── globals.css (전역 스타일)
-│   │   ├── utils/
-│   │   │   └── theme.ts (테마 관리)
-│   │   ├── App.tsx (라우팅 설정)
-│   │   ├── main.tsx (진입점)
-│   │   └── index.css (기본 스타일)
-│   ├── .kiro/ (Kiro IDE 설정)
-│   │   ├── hooks/ (에이전트 훅)
-│   │   │   ├── auto-type-check.kiro.hook (타입 체크 자동화)
-│   │   │   ├── check-steering-policy.kiro.hook (정책 준수 체크)
-│   │   │   └── detailed-commit-msg.kiro.hook (커밋 메시지 상세화)
-│   │   ├── specs/ (기능 스펙)
-│   │   │   └── reach-predictor-phase1/ (RP Phase 1)
-│   │   └── steering/ (에이전트 가이드)
-│   │       ├── agent-efficiency-policy.md (효율 정책, auto)
-│   │       ├── codebase-patterns-steering.md (코드 패턴, auto)
-│   │       ├── ui-dialog-policy.md (다이얼로그 정책, manual)
-│   │       ├── ui-validation-message-policy.md (밸리데이션 정책, manual)
-│   │       ├── design-system-guide.md (디자인 시스템, manual)
-│   │       ├── lucide-icon-reference.md (아이콘 레퍼런스, manual)
-│   │       └── screen-specification-guide.md (화면 명세, manual)
-│   ├── plan/ (기획 문서)
-│   │   ├── spec/ (화면별 상세 스펙 8개)
-│   │   ├── eunseo/ (프로젝트 관리 문서)
-│   │   └── strategic(highlevel)/
-│   │       ├── 예측분석_고도화_프로젝트_정책서_v0.1.md
-│   │       └── 예측분석_플랫폼_IA_v1.0.md (본 문서)
-│   └── public/
-│       └── favicon.svg
 ├── 라우팅 구조 (React Router)
 │   ├── / → SlotBoard 메인 (WorkspaceLayout)
 │   ├── /slotboard → SlotBoard 메인
+│   ├── /slot/:slotId → Slot Home (SlotHome)
 │   ├── /reachcaster → Slot 상세 (WorkspaceLayout initialView="slotDetail")
 │   ├── /reachcaster/scenario/new → 시나리오 생성 (CreateScenario)
 │   ├── /reachcaster/scenario/ratio-finder/result → Ratio Finder 결과
 │   ├── /reachcaster/scenario/reach-predictor/result → Reach Predictor 결과
+│   ├── /datashot → 데이터셋 목록 (DatasetList)
+│   ├── /datashot/new → 데이터셋 생성 (CreateDataset)
+│   ├── /datashot/:id → 데이터셋 상세 (DatasetDetail)
+│   ├── /docs → 문서 (DocsLayout)
+│   ├── /docs/:slug → 문서 상세
+│   ├── /component → 컴포넌트 라이브러리
+│   ├── /error → 에러 페이지
 │   └── /* → 루트로 리다이렉트
-├── 인증 및 권한 관리
-│   ├── adly 메인 연동 로그인
-│   ├── 사용자 역할 관리 (Admin/Marketer/Agency/Client)
-│   └── 권한 매트릭스 적용
-├── 글로벌 네비게이션 (GNB)
-│   ├── 플랫폼 로고 및 홈
-│   ├── 솔루션 메뉴
-│   │   ├── Reach Caster (구현 완료)
-│   │   ├── Data Shot (준비중)
-│   │   ├── Ad Curator (준비중)
-│   │   └── Budget Optimizer (준비중)
-│   ├── 사용자 프로필
-│   └── 설정/알림
-├── 사이드 네비게이션 (SNB)
-│   ├── 워크스페이스 (SlotBoard)
-│   ├── Slot 목록 (트리 구조)
-│   │   ├── 전체 펼치기/접기
-│   │   ├── Slot별 시나리오 개수 표시
-│   │   └── 솔루션별 그룹핑
-│   └── 빠른 네비게이션
-├── SlotBoard (워크스페이스 메인)
-│   ├── 페이지 헤더
-│   │   ├── 타이틀: "SlotBoard"
-│   │   ├── New Slot 버튼 (크고 둥근 스타일)
-│   │   └── 솔루션별 결과 개수 스코어카드
-│   │       ├── Total Results
-│   │       ├── Data Shot
-│   │       ├── Ad Curator
-│   │       ├── Budget Optimizer
-│   │       └── Reach Caster
-│   ├── 검색/필터/정렬 영역
-│   │   ├── Slot 개수 표시 (예: "25 Slots")
-│   │   ├── 검색 (아이콘 + 텍스트 버튼)
-│   │   │   └── 확장 시: Slot명, 광고주명 검색
-│   │   ├── 정렬 (ArrowUpDown 아이콘 + "정렬")
-│   │   │   ├── Slot명 A→Z / Z→A
-│   │   │   ├── 광고주 A→Z / Z→A
-│   │   │   ├── 수정일 최신순 / 오래된순
-│   │   │   └── 생성일 최신순 / 오래된순
-│   │   ├── 필터 (Filter 아이콘 + "필터")
-│   │   │   ├── 광고주 (검색 가능)
-│   │   │   ├── 가시성 (Internal/Private/Shared)
-│   │   │   └── 필터 개수 뱃지 표시
-│   │   └── Slot 관리 버튼
-│   ├── Slot 카드 그리드
-│   │   ├── Slot 카드
-│   │   │   ├── 광고주 프로필 아바타
-│   │   │   ├── Slot명
-│   │   │   ├── 광고주명 (ID)
-│   │   │   ├── 가시성 뱃지
-│   │   │   ├── 설명
-│   │   │   ├── 솔루션별 결과 개수
-│   │   │   ├── 최종 수정일
-│   │   │   └── 관리 메뉴 (수정/삭제)
-│   │   └── 관리 모드
-│   │       ├── 체크박스 선택
-│   │       ├── 전체 선택/해제
-│   │       └── 일괄 삭제
-│   └── 페이지네이션
-│       ├── 페이지당 표시 개수 선택 (10/20/50/100)
-│       ├── 페이지 정보 (1-20 / 25개)
-│       └── 페이지 네비게이션
-├── Slot 생성/수정 페이지
-│   ├── Breadcrumb (GNB 하단)
-│   │   ├── 생성: SlotBoard / 새 Slot 생성
-│   │   └── 수정: SlotBoard / Slot 수정
-│   ├── 폼 영역
-│   │   ├── 기본 정보
-│   │   │   ├── Slot명 (필수, 30자 이내)
-│   │   │   └── 설명 (선택)
-│   │   ├── 광고주 설정
-│   │   │   └── 광고주 선택 (검색 가능 드롭다운)
-│   │   └── 가시성 설정
-│   │       ├── Private (본인만)
-│   │       ├── Internal (모든 운영자)
-│   │       └── Shared (대행사/광고주 선택)
-│   └── 액션 버튼
-│       ├── 취소 (변경사항 확인 다이얼로그)
-│       └── 저장
-├── Slot 상세 페이지 (Reach Caster)
-│   ├── URL: /reachcaster
-│   ├── Breadcrumb
-│   │   └── SlotBoard / {Slot명} / Reach Caster
-│   ├── Slot 헤더 (컴팩트 디자인)
-│   │   ├── 가시성 뱃지
-│   │   ├── Slot 타이틀
-│   │   ├── 광고주 프로필 + 이름 + ID (타이틀 아래, 구분선 + 설명)
-│   │   └── 우측 액션
-│   │       ├── Info 아이콘 (호버 툴팁)
-│   │       │   ├── Slot ID
-│   │       │   ├── 생성일시 (작성자)
-│   │       │   └── 수정일시 (수정자)
-│   │       └── 관리 메뉴 (수정/삭제)
-│   ├── 시나리오 섹션
-│   │   ├── 타이틀 영역
-│   │   │   ├── "Scenario" 타이틀
-│   │   │   └── New Scenario 버튼 (크고 둥근 스타일)
-│   │   ├── 버튼 섹션
-│   │   │   ├── 시나리오 개수 표시 (예: "15 Scenarios (3개 선택됨)")
-│   │   │   ├── 검색 (Search 아이콘 + "검색")
-│   │   │   │   └── 시나리오명, 작성자 실시간 검색
-│   │   │   ├── 필터 (Filter 아이콘 + "필터")
-│   │   │   │   ├── 분석 모듈 (최상단, 체크박스)
-│   │   │   │   ├── 상태 (Pending/Processing/Completed/Error)
-│   │   │   │   ├── 업종
-│   │   │   │   ├── 타겟 GRP
-│   │   │   │   └── 기간 범위
-│   │   │   ├── 뷰 모드 토글 (List / Timeline)
-│   │   │   └── 일괄 작업 (선택 시)
-│   │   │       ├── 삭제
-│   │   │       └── 이동 (동일 광고주 다른 Slot)
-│   │   ├── List 뷰
-│   │   │   ├── 테이블 헤더 (정렬 가능)
-│   │   │   │   ├── 체크박스
-│   │   │   │   ├── 시나리오 ID
-│   │   │   │   ├── 시나리오
-│   │   │   │   ├── 분석 모듈 (아이콘 + 텍스트, primary 색상)
-│   │   │   │   ├── 업종
-│   │   │   │   ├── 타겟 GRP (아이콘 포함)
-│   │   │   │   ├── 기간 (화살표 →)
-│   │   │   │   ├── 상태 (뱃지 + 재시도 링크)
-│   │   │   │   ├── 진행도 (프로그레스 바 + 설명)
-│   │   │   │   ├── 작성자(ID)
-│   │   │   │   ├── 작성일시
-│   │   │   │   └── 관리 (vertical 메뉴)
-│   │   │   └── 페이지네이션
-│   │   └── Timeline 뷰
-│   │       ├── Zoom 컨트롤
-│   │       │   ├── 월 단위 (특정 월 하나)
-│   │       │   ├── 분기 단위 (3개월)
-│   │       │   └── 년 단위 (12개월)
-│   │       ├── 기간 네비게이션
-│   │       │   ├── 이전/다음 화살표
-│   │       │   └── "오늘" 버튼
-│   │       └── 타임라인 바
-│   │           ├── 시나리오 바 (겹치지 않게 레이어 배치)
-│   │           ├── 상태별 색상 구분
-│   │           └── 진행도 표시
-│   └── 정렬 기능 (List/Timeline 공통 적용)
-├── 시나리오 생성 페이지
-│   ├── URL: /reachcaster/scenario/new
-│   ├── Breadcrumb
-│   │   └── SlotBoard / {Slot명} / Reach Caster / 새 시나리오 생성
-│   └── 콘텐츠 (준비 중)
-└── 라우팅 구조
-    ├── / 또는 /slotboard → SlotBoard 메인
-    ├── /reachcaster → Slot 상세 (첫 번째 Slot 자동 로드)
-    ├── /reachcaster/scenario/new → 시나리오 생성
-    ├── /reachcaster/scenario/ratio-finder/result → Ratio Finder 결과
-    └── /reachcaster/scenario/reach-predictor/result → Reach Predictor 결과
+├── 프로젝트 구조
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/ (레이아웃)
+│   │   │   │   ├── AppLayout.tsx (전체 레이아웃 래퍼)
+│   │   │   │   ├── GlobalNavBar.tsx (GNB)
+│   │   │   │   ├── Sidebar.tsx (SNB)
+│   │   │   │   ├── Breadcrumb.tsx (경로 표시)
+│   │   │   │   ├── GradeCard.tsx (사용자 등급 카드)
+│   │   │   │   ├── Footer.tsx (푸터)
+│   │   │   │   └── index.ts
+│   │   │   ├── common/ (공통)
+│   │   │   │   ├── Avatar.tsx (프로필 아바타)
+│   │   │   │   ├── Calendar.tsx (캘린더)
+│   │   │   │   ├── CircularText.tsx (원형 텍스트)
+│   │   │   │   ├── MediaIcons.tsx (매체 아이콘)
+│   │   │   │   ├── SplashCursor.tsx (WebGL 커서 효과)
+│   │   │   │   └── SplitText.tsx (텍스트 애니메이션)
+│   │   │   ├── reachcaster/ (Reach Caster 솔루션)
+│   │   │   │   ├── WorkspaceLayout.tsx (SlotBoard 메인)
+│   │   │   │   ├── SlotHome.tsx (Slot 홈 — 솔루션 플로우)
+│   │   │   │   ├── SlotHomeSections.tsx (피드, 문서 섹션)
+│   │   │   │   ├── SlotOverview.tsx (솔루션 오버뷰 4카드)
+│   │   │   │   ├── SlotSolutions.tsx (솔루션 플로우 카드)
+│   │   │   │   ├── SlotCard.tsx / SlotHeader.tsx / SlotDetail.tsx
+│   │   │   │   ├── SlotListItem.tsx (시나리오 목록 아이템)
+│   │   │   │   ├── CreateScenario.tsx (시나리오 생성 위자드)
+│   │   │   │   ├── CreateFolder.tsx / EditFolder.tsx (Slot 생성/수정)
+│   │   │   │   ├── RatioFinderResult.tsx / RatioFinderDetailTable.tsx
+│   │   │   │   ├── ReachPredictorResult.tsx / ReachPredictorDetailTable.tsx
+│   │   │   │   ├── ReachPredictorScoreCards.tsx / ReachCurveChart.tsx
+│   │   │   │   ├── ScenarioComparisonPanel.tsx (비교 패널)
+│   │   │   │   ├── ScenarioComparisonResult.tsx (비교 결과)
+│   │   │   │   ├── SolutionOutputCard.tsx / DataInsightCard.tsx
+│   │   │   │   ├── IndustryBubbleChart.tsx / IndustryDualBarChart.tsx
+│   │   │   │   ├── WelcomeSection.tsx / WelcomeSectionFixed.tsx
+│   │   │   │   ├── DateRangePicker.tsx / CustomDateRangePicker.tsx
+│   │   │   │   ├── PageHeader.tsx
+│   │   │   │   └── slotHomeTypes.ts (타입 + 목 데이터)
+│   │   │   ├── scenario/ (시나리오 생성 공통)
+│   │   │   │   ├── ScenarioStep1.tsx (기본 정보)
+│   │   │   │   ├── ScenarioStep2RatioFinder.tsx (RF 설정)
+│   │   │   │   ├── ScenarioStep2ReachPredictor.tsx (RP 설정)
+│   │   │   │   ├── ReachPredictorMediaDialog.tsx (매체 선택)
+│   │   │   │   ├── constants.ts / types.ts / utils.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── datashot/ (DataShot 솔루션)
+│   │   │   │   ├── DatasetList.tsx (데이터셋 목록)
+│   │   │   │   ├── DatasetDetail.tsx (데이터셋 상세)
+│   │   │   │   ├── DatasetDetailModals.tsx (상세 모달 3종)
+│   │   │   │   ├── DatasetCharts.tsx (차트 시각화)
+│   │   │   │   ├── CreateDataset.tsx (생성 3단계 위자드)
+│   │   │   │   ├── CreateDatasetStep1.tsx (기본 정보)
+│   │   │   │   ├── CreateDatasetStep2.tsx (상세 설정)
+│   │   │   │   ├── CreateDatasetStep3.tsx (검토 및 실행)
+│   │   │   │   ├── AdProductsSelector.tsx (광고상품 선택)
+│   │   │   │   ├── IndustryDialog.tsx (업종 선택 다이얼로그)
+│   │   │   │   ├── MonthRangePicker.tsx (월/분기 기간 선택)
+│   │   │   │   ├── ConfigurationSummary.tsx (설정 요약 패널)
+│   │   │   │   ├── SampleDataModal.tsx (샘플 데이터 미리보기)
+│   │   │   │   ├── DisabledSelectBox.tsx (비활성 셀렉트)
+│   │   │   │   ├── createDatasetTypes.ts (폼 타입 + 유효성)
+│   │   │   │   ├── types.ts (Dataset 인터페이스)
+│   │   │   │   ├── apiMappings.ts (매체별 API 매핑)
+│   │   │   │   ├── sampleData.ts (샘플 데이터)
+│   │   │   │   ├── metaCampaignObjectives.ts (Meta 캠페인 목표)
+│   │   │   │   ├── metaMetrics.ts (Meta 지표)
+│   │   │   │   ├── metaPerformanceGoals.ts (Meta 성과 목표)
+│   │   │   │   ├── metaPlatforms.ts (Meta 플랫폼)
+│   │   │   │   └── index.ts
+│   │   │   ├── spinx/ (SpinX AI 어시스턴트)
+│   │   │   │   ├── SpinXButton.tsx (플로팅 버튼)
+│   │   │   │   ├── SpinXPanel.tsx (채팅 패널)
+│   │   │   │   ├── SpinXHeader.tsx / SpinXInput.tsx / SpinXMessages.tsx
+│   │   │   │   ├── SpinXChartBubble.tsx (차트 메시지)
+│   │   │   │   ├── SpinXClarifying.tsx (명확화 질문)
+│   │   │   │   ├── SpinXErrorBubble.tsx (에러 메시지)
+│   │   │   │   ├── SpinXFabExample.tsx (FAB 예시)
+│   │   │   │   └── PulseNodeX.tsx (펄스 애니메이션)
+│   │   │   ├── docs/ (문서 시스템)
+│   │   │   │   ├── DocsLayout.tsx / docsData.ts / docs.css
+│   │   │   │   └── index.ts
+│   │   │   ├── ComponentLibrary.tsx (컴포넌트 라이브러리)
+│   │   │   └── ErrorPage.tsx (에러 페이지)
+│   │   ├── styles/ → globals.css
+│   │   ├── utils/ → theme.ts
+│   │   ├── App.tsx (라우팅)
+│   │   └── main.tsx (진입점)
+│   ├── plan/ (기획 문서)
+│   │   ├── spec/ (화면별 상세 스펙)
+│   │   ├── eunseo/ (프로젝트 관리)
+│   │   └── strategic(highlevel)/ (정책서, IA)
+│   └── public/ (정적 리소스)
+│       ├── 로고 (다크/라이트 모드별)
+│       ├── 폰트 (Paperlogy Bold/Medium/Regular)
+│       └── SpinX 아이콘/애니메이션
+└── 글로벌 네비게이션 (GNB)
+    ├── 좌측: 플랫폼 로고 (ReadySet)
+    ├── 중앙: 알림 bar (최근 알림 메시지 1줄 노출)
+    ├── 우측
+    │   ├── 솔루션 메뉴 (드롭다운)
+    │   │   ├── Reach Caster (구현 완료)
+    │   │   ├── DataShot (구현 완료)
+    │   │   ├── Ad Curator (준비중)
+    │   │   └── Budget Optimizer (준비중)
+    │   ├── 알림 센터 (Bell 아이콘)
+    │   │   ├── 알림 목록 (최근 30개)
+    │   │   ├── 알림 타입: 작업 알림 / 사용자 공지 / 레벨 안내
+    │   │   ├── 읽음/안읽음 상태
+    │   │   └── 클릭 시 해당 결과 페이지 네비게이션
+    │   ├── 다크모드 토글 (Sun/Moon)
+    │   ├── 사용자 프로필 (Avatar + 드롭다운)
+    │   │   ├── 사용자 정보 (이름, 이메일, 역할)
+    │   │   ├── 등급 카드 (GradeCard)
+    │   │   └── 로그아웃
+    │   └── 광고주 선택 (드롭다운)
+    │       ├── 상위 3개 광고주 표시
+    │       └── 전체 광고주 목록 (검색 가능)
+    └── 토스트 알림 (성공/에러, 3초 자동 닫힘)
 ```
 
-## 1.1 컴포넌트 아키텍처
+---
 
-### 레이아웃 컴포넌트 (src/components/layout/)
+## 2. SlotBoard (워크스페이스 메인)
+
+```
+SlotBoard (URL: / 또는 /slotboard)
+├── 컴포넌트: WorkspaceLayout.tsx
+├── 페이지 헤더
+│   ├── 타이틀: "SlotBoard"
+│   ├── New Slot 버튼 (크고 둥근 primary 스타일)
+│   └── 솔루션별 결과 개수 스코어카드
+│       ├── Total Results
+│       ├── DataShot
+│       ├── Ad Curator
+│       ├── Budget Optimizer
+│       └── Reach Caster
+├── 검색/필터/정렬 영역
+│   ├── 좌측: Slot 개수 표시 (예: "25 Slots")
+│   └── 우측: 액션 버튼들
+│       ├── 검색 (Search 아이콘 + "검색")
+│       │   ├── 클릭 시 입력 필드 슬라이드 확장
+│       │   └── Slot명, 광고주명 실시간 검색
+│       ├── 정렬 (ArrowUpDown 아이콘 + "정렬")
+│       │   ├── Slot명 A→Z / Z→A
+│       │   ├── 광고주 A→Z / Z→A
+│       │   ├── 수정일 최신순 / 오래된순
+│       │   └── 생성일 최신순 / 오래된순
+│       ├── 필터 (Filter 아이콘 + "필터")
+│       │   ├── 광고주 (검색 가능 체크박스)
+│       │   ├── 가시성 (Internal/Private/Shared)
+│       │   └── 필터 개수 뱃지
+│       └── Slot 관리 버튼 (관리 모드 진입)
+├── Slot 카드 그리드 (auto-fill, minmax(300px, 1fr))
+│   ├── Slot 카드
+│   │   ├── 광고주 프로필 아바타 (색상별)
+│   │   ├── Slot명 (18px, 굵게)
+│   │   ├── 광고주명 (ID)
+│   │   ├── 가시성 뱃지 (Internal: 회색 / Private: 보라 / Shared: 초록)
+│   │   ├── 설명 (2줄 말줄임)
+│   │   ├── 솔루션별 결과 개수 (아이콘 + 개수)
+│   │   ├── 최종 수정일
+│   │   └── 관리 메뉴 (수정/삭제)
+│   └── 관리 모드
+│       ├── 체크박스 선택
+│       ├── 전체 선택/해제
+│       └── 일괄 삭제
+└── 페이지네이션
+    ├── 페이지당 표시 개수 (10/20/50/100)
+    ├── 페이지 정보 (1-20 / 25개)
+    └── 페이지 네비게이션
+```
+
+---
+
+## 3. Slot Home (슬롯 홈)
+
+```
+Slot Home (URL: /slot/:slotId)
+├── 컴포넌트: SlotHome.tsx
+├── 구성 섹션
+│   ├── Welcome Section (WelcomeSectionFixed)
+│   │   ├── 인사말: "Hello, {userName}!" (SplitText 애니메이션)
+│   │   ├── 서브텍스트: "Welcome to ReadySet Platform..."
+│   │   └── Bento Box 그리드 (3열: 2fr 5fr 3fr)
+│   │       ├── DataInsightCard (데이터 인사이트)
+│   │       ├── IndustryDualBarChart (업종별 듀얼 바 차트)
+│   │       └── SolutionOutputCard (솔루션 결과 카드)
+│   ├── Slot Overview (SlotOverview)
+│   │   ├── 타이틀: "Slot Overview" (48px)
+│   │   └── 4열 그리드 (솔루션별 카드)
+│   │       ├── DataShot (Database 아이콘, primary 색상)
+│   │       ├── Ad Curator (Target 아이콘, green)
+│   │       ├── Budget Optimizer (DollarSign 아이콘, amber)
+│   │       └── Reach Caster (TrendingUp 아이콘, blue)
+│   │       └── 각 카드: 솔루션명 + 선택된 시나리오명 + "결과 보기" 링크
+│   ├── Slot Solutions (SlotSolutions)
+│   │   ├── 솔루션 플로우 카드 (순서대로)
+│   │   │   ├── 1. DataShot → 2. Ad Curator → 3. Budget Optimizer → 4. Reach Caster
+│   │   │   └── 각 카드: 상태 (completed/in-progress/empty/coming-soon)
+│   │   └── 결과물 선택 기능 (AVAILABLE_OUTPUTS에서 선택)
+│   ├── Feed Section (SlotFeedSection)
+│   │   └── 최근 활동 피드 (사용자, 솔루션, 작업, 시간)
+│   └── Documents Section (DocumentsSection)
+│       └── 업로드된 문서 목록 (PDF, XLSX, PPTX, DOCX)
+├── 데이터 타입 (slotHomeTypes.ts)
+│   ├── SolutionSlot: { key, name, desc, path, status, selectedOutputs }
+│   ├── SelectedOutput: { id, title, media?, module?, period?, reach? }
+│   ├── DocumentItem: { id, name, type, size, uploadedAt, uploadedBy }
+│   └── ActivityItem: { id, user, solution, action, detail, timestamp }
+└── 솔루션 플로우 순서
+    ├── 1. DataShot: 업종별 벤치마크 기반 광고 효율 분석
+    ├── 2. Ad Curator: 캠페인 성과 기반 맞춤형 상품 큐레이션 (coming-soon)
+    ├── 3. Budget Optimizer: KPI 목표 기반 미디어믹스 예산 최적화 (coming-soon)
+    └── 4. Reach Caster: 크로스미디어 통합 도달 예측 시뮬레이션
+```
+
+---
+
+## 4. Reach Caster 솔루션
+
+### 4.1 Slot 상세 (시나리오 목록)
+
+```
+Slot 상세 (URL: /reachcaster)
+├── 컴포넌트: WorkspaceLayout (initialView="slotDetail")
+├── Breadcrumb: SlotBoard / {Slot명} / Reach Caster
+├── Slot 헤더 (컴팩트)
+│   ├── 좌측
+│   │   ├── 가시성 뱃지
+│   │   ├── Slot 타이틀 (24px, 굵게)
+│   │   └── 광고주 프로필 + 이름(ID) + 구분선 + 설명
+│   └── 우측
+│       ├── Info 아이콘 (호버 툴팁: Slot ID, 생성일시, 수정일시)
+│       └── 관리 메뉴 (수정/삭제)
+├── 시나리오 섹션
+│   ├── 타이틀: "Scenario" + New Scenario 버튼
+│   ├── 버튼 섹션
+│   │   ├── 시나리오 개수 (예: "15 Scenarios (3개 선택됨)")
+│   │   ├── 검색 (시나리오명, 작성자)
+│   │   ├── 필터
+│   │   │   ├── 분석 모듈 (Ratio Finder / Reach Predictor)
+│   │   │   ├── 상태 (Pending/Processing/Completed/Error)
+│   │   │   ├── 업종 / 타겟 GRP / 기간 범위
+│   │   │   └── 필터 초기화
+│   │   ├── 뷰 모드 토글 (List / Timeline)
+│   │   └── 일괄 작업 (삭제/이동)
+│   ├── List 뷰
+│   │   ├── 테이블 컬럼 (정렬 가능)
+│   │   │   ├── 체크박스 / 시나리오 ID / 시나리오명
+│   │   │   ├── 분석 모듈 (아이콘 + 텍스트, primary)
+│   │   │   ├── 업종 / 타겟 GRP / 기간
+│   │   │   ├── 상태 뱃지 (Completed: 검정, Processing: 회색, Error: 빨강)
+│   │   │   ├── 진행도 (프로그레스 바 + 단계 설명)
+│   │   │   ├── 작성자(ID) / 작성일시
+│   │   │   └── 관리 메뉴 (수정/복제/삭제)
+│   │   └── 페이지네이션
+│   └── Timeline 뷰
+│       ├── Zoom 컨트롤 (월/분기/년)
+│       ├── 기간 네비게이션 (이전/다음/"오늘")
+│       └── 타임라인 바 (상태별 색상, 겹치지 않게 레이어 배치)
+└── 정렬: List 뷰 정렬이 Timeline 뷰에도 자동 반영
+```
+
+### 4.2 시나리오 생성 (Reach Caster)
+
+```
+시나리오 생성 (URL: /reachcaster/scenario/new)
+├── 컴포넌트: CreateScenario.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / Reach Caster / 새 시나리오 생성
+├── 레이아웃
+│   ├── 좌측: 스테퍼 + 입력 폼 (800px)
+│   ├── 중앙: 세로 구분선
+│   └── 우측: Configuration Summary (420px)
+├── 미니멀 스테퍼 (상단)
+│   ├── Step 1: 기본 정보
+│   ├── Step 2: 상세 설정
+│   └── Step 3: 검토 및 실행
+├── Step 1: 기본 정보 (ScenarioStep1)
+│   ├── 시나리오명 * (최대 100자)
+│   ├── 설명 (선택, 최대 500자)
+│   ├── 분석 모듈 * (라디오 카드)
+│   │   ├── Ratio Finder: "TVC와 Digital의 최적 예산 비중을 탐색합니다."
+│   │   └── Reach Predictor: "매체 믹스에 따른 통합 광고 성과를 정밀하게 예측합니다."
+│   ├── 브랜드 * (검색 가능 드롭다운)
+│   ├── 업종 (브랜드 선택 시 자동 표시, 읽기 전용)
+│   ├── 캠페인 기간 * (DayPicker, "YYYY년 MM월 DD일")
+│   └── 타겟 GRP * (다이얼로그, 남성/여성 4열 그리드)
+├── Step 2: Ratio Finder (ScenarioStep2RatioFinder)
+│   ├── 총 예산 * (콤마 포맷팅, 한글 변환 표시)
+│   ├── 시뮬레이션 단위 * (5% / 10% / 20%)
+│   ├── 매체 선택 * (DIGITAL/TVC 탭, 아코디언)
+│   │   ├── 매체 목록 + 상품 선택 다이얼로그
+│   │   └── 유효성: DIGITAL 1개 이상, TVC 1개 이상
+│   └── 예산 배분 비중 * (매체별 + 상품별 100% 검증)
+├── Step 2: Reach Predictor (ScenarioStep2ReachPredictor)
+│   ├── 분석 대상 매체 설정 *
+│   │   ├── 전역 설정 (캠페인 기간 + 타겟 설정, 일괄 적용)
+│   │   ├── 매체 추가 버튼 → 매체 선택 다이얼로그 (1000×700px)
+│   │   │   ├── TVC / DIGITAL 탭
+│   │   │   ├── 테이블 형태 (+ - 확장/축소)
+│   │   │   ├── 검색 + 전체 선택
+│   │   │   └── 상품 선택 (3열 그리드)
+│   │   ├── 매체 설정 테이블 (2줄 레이아웃)
+│   │   │   ├── Row 1: 아이콘 + 매체/상품 + 확정 예산 + 예상 노출 + CPM + 삭제
+│   │   │   ├── Row 2: 캠페인 기간 버튼 + 타겟팅 버튼 (개별 설정 시 primary)
+│   │   │   └── 요약 행: 총 예산/노출/CPM 합계 (Info 툴팁)
+│   │   └── 유효성: 최소 1개 매체, 모든 예산 입력
+│   └── 리치커브 설정 *
+│       ├── 구간 (최소값 ~ 최대값, 원)
+│       ├── 리치커브 기준 설정 (라디오 카드)
+│       │   ├── 구간 수 기준: 슬라이더 2~20 (기본 10)
+│       │   └── 구간별 금액 기준: 입력 필드 (구간 수 ≤ 20 검증)
+│       └── 자동 계산 표시
+├── Step 3: 검토 및 실행 (Step3)
+│   ├── 소요 시간 안내 (최대 20분, 알림 센터 알림)
+│   └── 확인 메시지: "우측 Configuration Summary에서 설정 내용을 확인하세요!"
+├── Configuration Summary (우측 패널)
+│   ├── Step 1: Basic Information (시나리오명, 모듈, 브랜드, 업종, 기간, 타겟)
+│   ├── Step 2: Module Configuration (모듈별 설정 상세)
+│   └── Step 3: Review & Execute
+└── 네비게이션 버튼
+    ├── 취소 (ghost) / 이전 / 다음 / 시나리오 생성 요청
+    └── 유효성 검사 통과 시 활성화
+```
+
+### 4.3 Ratio Finder 결과
+
+```
+Ratio Finder 결과 (URL: /reachcaster/scenario/ratio-finder/result)
+├── 컴포넌트: RatioFinderResult.tsx
+├── 결과 헤더
+│   ├── 시나리오 정보 (시나리오명, 타입, 브랜드)
+│   ├── 실행 상태/시간
+│   └── 액션 (Export PDF/CSV, Copy, Move)
+├── 결과 대시보드
+│   ├── 핵심 지표 요약 (최적 배분 비율, 최대 도달률)
+│   ├── 리치커브 그래프 (최적 배분점 표시)
+│   └── 상세 데이터 테이블 (RatioFinderDetailTable)
+│       └── 매체/채널/상품별 세분화 결과
+└── SpinX AI 챗봇 (플로팅)
+```
+
+### 4.4 Reach Predictor 결과
+
+```
+Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
+├── 컴포넌트: ReachPredictorResult.tsx
+├── 결과 헤더 (동일 구조)
+├── 결과 대시보드
+│   ├── 스코어카드 (ReachPredictorScoreCards)
+│   │   └── 통합 도달률, 매체별 도달률, 매체별 기여도
+│   ├── 리치커브 차트 (ReachCurveChart)
+│   └── 상세 데이터 테이블 (ReachPredictorDetailTable)
+└── SpinX AI 챗봇 (플로팅)
+```
+
+### 4.5 시나리오 비교
+
+```
+시나리오 비교
+├── 컴포넌트: ScenarioComparisonPanel.tsx + ScenarioComparisonResult.tsx
+├── 비교 패널 (ScenarioComparisonPanel)
+│   ├── 비교 대상 시나리오 선택 (동일 타입만)
+│   ├── 비교 목적 설정 (ComparisonPurpose)
+│   └── 비교 실행
+├── 비교 결과 (ScenarioComparisonResult)
+│   ├── Reach & CPRP 차트 (ReachCPRPChart)
+│   ├── 성과 콤보 차트 (PerformanceComboChart)
+│   ├── 채널별 예산 배분 (StackedBar)
+│   ├── 통합 리치커브 (UnifiedReachCurve)
+│   ├── 예산 요약 테이블 (BudgetSummaryTable)
+│   └── 조건 차이 표시 (DiffIndicator)
+└── 조건 비교: 기간, 타겟 GRP, 예산 차이 하이라이트
+```
+
+---
+
+## 5. DataShot 솔루션
+
+### 5.1 데이터셋 목록
+
+```
+데이터셋 목록 (URL: /datashot)
+├── 컴포넌트: DatasetList.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / DataShot
+├── 페이지 헤더
+│   ├── 타이틀: "DataShot"
+│   └── New Dataset 버튼
+├── 데이터셋 목록 테이블
+│   ├── 컬럼
+│   │   ├── 데이터셋명
+│   │   ├── 매체
+│   │   ├── 업종
+│   │   ├── 조회기간
+│   │   ├── 상태 (Completed/Processing/Error)
+│   │   ├── 작성자
+│   │   ├── 작성일시
+│   │   └── 관리 메뉴
+│   └── 검색/필터/정렬
+└── 페이지네이션
+```
+
+### 5.2 데이터셋 생성 (3단계 위자드)
+
+```
+데이터셋 생성 (URL: /datashot/new)
+├── 컴포넌트: CreateDataset.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / DataShot / 새 데이터셋 생성
+├── 레이아웃
+│   ├── 좌측: 스테퍼 + 입력 폼 (800px)
+│   ├── 중앙: 세로 구분선
+│   └── 우측: Configuration Summary (ConfigurationSummary.tsx)
+├── 미니멀 스테퍼
+│   ├── Step 1: 기본 정보
+│   ├── Step 2: 상세 설정
+│   └── Step 3: 검토 및 실행
+├── Step 1: 기본 정보 (CreateDatasetStep1)
+│   ├── 데이터셋명 * (최대 30자, 글자수 카운터)
+│   │   └── 유효성: 필수, 공백만 불가
+│   ├── 설명 (선택, 최대 200자)
+│   ├── 구분선 (hr)
+│   ├── 조회기간 *
+│   │   ├── 기간 타입 라디오: 월별 / 분기별
+│   │   ├── MonthRangePicker (시작~종료)
+│   │   ├── 안내: "최근 2년치 데이터를 조회할 수 있습니다."
+│   │   └── 유효성: 필수, 종료 ≥ 시작, 최대 2년
+│   └── 업종 *
+│       ├── 클릭 시 IndustryDialog 열기
+│       ├── 업종 분류 레벨: 대분류 / 중분류 / 소분류
+│       ├── 선택 표시: "n개 업종 선택됨 (대분류)"
+│       └── 유효성: 최소 1개 선택
+├── Step 2: 상세 설정 (CreateDatasetStep2)
+│   ├── 매체 * (6개 버튼 그리드)
+│   │   ├── Google Ads / Meta / kakao모먼트
+│   │   ├── 네이버 성과형 DA / 네이버 보장형 DA / TikTok
+│   │   ├── 선택 시: primary 테두리 + 배경
+│   │   └── 매체 변경 시 하위 설정 초기화
+│   ├── 매체 미선택 시: 빈 상태 안내
+│   │   └── "매체를 먼저 선택해주세요 — 세분화된 조회 조건을 설정할 수 있습니다."
+│   ├── 데이터 없음 시: 안내
+│   │   └── "설정한 조건에 해당하는 데이터가 없습니다 — Step1으로 돌아가 기간 또는 업종을 다시 선택해주세요."
+│   ├── 안내 박스 (Info 아이콘)
+│   │   └── "Step1에서 설정한 기간, 업종의 집행 데이터가 있는 {광고상품}만 표시됩니다."
+│   ├── 광고 분류 조건 (AdProductsSelector)
+│   │   ├── 매체별 광고상품 구조 (apiMappings.ts 기반)
+│   │   ├── 계층적 선택 (상위 선택 → 하위 필터링)
+│   │   └── 유효성: 필수 선택
+│   ├── 타겟팅 옵션 (매체별 조건부 표시)
+│   │   ├── 카테고리 선택 (라디오)
+│   │   ├── 옵션 선택 (체크박스)
+│   │   └── 카테고리 변경 시 옵션 + 지표 초기화
+│   └── 지표 * (MetricGroupList)
+│       ├── 검색 기능 (실시간 필터링)
+│       ├── 그룹별 체크박스 (전체 선택/해제)
+│       ├── 타겟팅 옵션에 따라 조회 가능 지표 필터링
+│       │   ├── Meta + 기기유형: 일부 지표 제외
+│       │   ├── kakao모먼트 + 디바이스: 일부 지표 제외
+│       │   └── 네이버 보장형 DA + 노출영역: 일부 지표 제외
+│       └── 유효성: 최소 1개 선택
+├── Step 3: 검토 및 실행 (CreateDatasetStep3)
+│   ├── 샘플 데이터 미리보기 테이블
+│   │   ├── 선택한 지표 기반 컬럼 생성
+│   │   ├── 목 데이터 행 생성 (generateMockRows)
+│   │   └── "샘플 데이터 보기" 버튼 → SampleDataModal
+│   └── 실행 안내
+│       ├── 소요 시간 안내
+│       └── 완료 시 알림 센터 알림
+├── Configuration Summary (우측 패널)
+│   ├── Step 1: 데이터셋명, 조회기간, 업종 (레벨 + 선택 목록)
+│   ├── Step 2: 매체, 광고상품, 타겟팅, 지표 (그룹별 칩)
+│   └── Step 3: Review & Execute
+└── 네비게이션 버튼
+    ├── 취소 / 이전 / 다음 / 데이터셋 생성 요청
+    └── 유효성 검사 통과 시 활성화
+```
+
+### 5.3 데이터셋 상세
+
+```
+데이터셋 상세 (URL: /datashot/:id)
+├── 컴포넌트: DatasetDetail.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / DataShot / {데이터셋명}
+├── 상세 헤더
+│   ├── 데이터셋명
+│   ├── 상태 뱃지
+│   ├── 매체 아이콘 + 매체명
+│   ├── 생성일시 / 작성자
+│   └── 액션 (Export, 삭제)
+├── 설정 정보 요약
+│   ├── 업종 (클릭 시 IndustryModal)
+│   ├── 조회기간
+│   ├── 광고상품 (클릭 시 AdProductsModal)
+│   │   └── 타겟팅 정보 포함 (ReadOnlyTargetingSection)
+│   └── 지표 (클릭 시 MetricsModal)
+│       └── 그룹별 지표 목록 (ReadOnlyMetricGroupRow)
+├── 차트 시각화 (DatasetCharts)
+│   ├── TotalRowsCard (총 데이터 행 수)
+│   ├── ProgressCard (처리 진행도)
+│   └── 기타 시각화 차트
+├── 데이터 테이블
+│   ├── 지표별 필터링 (MetricFilter)
+│   ├── 정렬 기능
+│   └── 페이지네이션
+└── 모달 3종 (DatasetDetailModals)
+    ├── IndustryModal: 업종 목록 읽기 전용
+    ├── AdProductsModal: 광고상품 + 타겟팅 읽기 전용
+    └── MetricsModal: 지표 그룹별 읽기 전용
+```
+
+### 5.4 DataShot 데이터 구조
+
+```
+FormData (createDatasetTypes.ts)
+├── datasetName: string (최대 30자)
+├── description: string (최대 200자)
+├── media: string (6개 매체 중 택 1)
+├── industries: string[] (선택된 업종 목록)
+├── industryLevel: 'major' | 'mid' | 'minor' | null
+├── period: { startYear, startMonth, endYear, endMonth }
+├── periodType: 'month' | 'quarter'
+├── products: string[] (선택된 광고상품)
+├── metrics: string[] (선택된 지표 ID)
+├── targetingCategory: string (타겟팅 카테고리)
+└── targetingOptions: string[] (타겟팅 옵션)
+
+Dataset (types.ts)
+├── id, name, description
+├── media, industries, industryLevel
+├── period, periodType
+├── products, metrics
+├── targetingCategory, targetingOptions
+├── status: 'completed' | 'processing' | 'error'
+├── createdAt, createdBy
+└── 관련 인터페이스
+    ├── AdProductField: { label, options }
+    ├── MediaAdProductStructure: { fields }
+    ├── MetricItem: { id, label }
+    ├── MetricGroup: { group, metrics }
+    └── TargetingOption: { category, options }
+
+매체별 API 매핑 (apiMappings.ts)
+├── Google Ads: 캠페인유형 → 광고상품
+├── Meta: 캠페인목표 → 성과목표 → 노출위치
+├── kakao모먼트: 캠페인유형 → 광고상품
+├── 네이버 성과형 DA: 광고상품
+├── 네이버 보장형 DA: 광고상품
+└── TikTok: 캠페인목표 → 광고상품
+```
+
+---
+
+## 6. SpinX AI 어시스턴트
+
+```
+SpinX (src/components/spinx/)
+├── SpinXButton.tsx (플로팅 버튼)
+│   ├── 위치: 우측 하단 고정
+│   ├── 새 메시지 알림 표시 (hasNewMessage)
+│   ├── 다크모드 대응
+│   └── 열림/닫힘 상태 토글
+├── SpinXPanel.tsx (채팅 패널)
+│   ├── SpinXHeader (리셋, 닫기)
+│   ├── SpinXMessages (메시지 목록)
+│   │   ├── 텍스트 메시지 (각주 렌더링)
+│   │   ├── 차트 메시지 (SpinXChartBubble)
+│   │   └── 에러 메시지 (SpinXErrorBubble, 재시도)
+│   ├── SpinXClarifying (명확화 질문)
+│   └── SpinXInput (입력 영역)
+├── PulseNodeX.tsx (펄스 애니메이션 노드)
+└── 기능
+    ├── 시나리오 결과 기반 질의응답
+    ├── 차트 시각화 응답
+    ├── 에러 시 재시도 (retryCount 추적)
+    └── 대화 리셋
+```
+
+---
+
+## 7. 공통 컴포넌트 및 레이아웃
+
+### 7.1 레이아웃 (src/components/layout/)
+
 ```
 AppLayout
 ├── 역할: 전체 페이지 레이아웃 래퍼
-├── 구성: GNB + Sidebar + 메인 콘텐츠 영역
-└── 사용: 모든 페이지에서 공통 사용
+├── 구성: GNB + Sidebar + 메인 콘텐츠
+└── 사용: 모든 페이지 공통
 
 GlobalNavBar (GNB)
-├── 역할: 상단 글로벌 네비게이션
-├── 구성: 로고, 솔루션 메뉴, 사용자 프로필
-└── 고정: 모든 페이지에서 동일
+├── 좌측: 로고 (ReadySet, 클릭 시 홈)
+├── 중앙: 알림 bar 메시지
+│   ├── 알림 0개: "Ready to Set? 최상의 성과를 위한 전략을 세팅하세요."
+│   └── 알림 1개+: 가장 최근 알림 메시지
+├── 우측
+│   ├── 솔루션 메뉴 드롭다운
+│   ├── 알림 센터 (Bell, 읽지 않은 개수 뱃지)
+│   │   ├── 알림 타입: task(작업) / notice(공지) / level(레벨)
+│   │   ├── 솔루션명 + 결과물명 + 메시지
+│   │   └── 시간 표시 (n분 전)
+│   ├── 다크모드 토글
+│   ├── 사용자 프로필 메뉴
+│   │   ├── 사용자 정보
+│   │   ├── GradeCard (등급 카드)
+│   │   └── 로그아웃
+│   └── 광고주 선택 드롭다운
+└── 토스트 알림 시스템
 
 Sidebar (SNB)
-├── 역할: 좌측 사이드 네비게이션
-├── 구성: 워크스페이스, Slot 트리, 빠른 네비게이션
-└── 상태: 확장/축소 가능
+├── 워크스페이스 홈
+├── Slot 트리 (전체 펼치기/접기)
+│   ├── Slot별 시나리오 개수
+│   └── 솔루션별 그룹핑
+└── 빠른 네비게이션
 
 Breadcrumb
-├── 역할: 현재 위치 표시 및 상위 네비게이션
-├── 위치: GNB 하단
-├── 구조: 4단계 계층
+├── 4단계 계층
 │   ├── Level 1: SlotBoard (클릭 가능)
 │   ├── Level 2: Slot명 (클릭 불가)
 │   ├── Level 3: 솔루션명 (클릭 가능)
-│   └── Level 4: 세부 페이지명 (클릭 불가, 현재 위치)
-├── 표시 형식: "SlotBoard / {Slot명} / {솔루션명} / {세부 페이지명}"
-├── 구분자: ChevronRight 아이콘 (14px)
-└── 상세 정책: plan/spec/Breadcrumb_Navigation_Policy.md 참조
+│   └── Level 4: 세부 페이지명 (현재 위치)
+├── 구분자: ChevronRight (14px)
+└── 정책: plan/spec/Breadcrumb_Navigation_Policy.md
+
+GradeCard
+├── 사용자 등급 표시
+├── 등급 진행도
+└── 다음 등급까지 안내
 
 Footer
-├── 역할: 하단 정보 표시
-└── 내용: 저작권, 링크 등
+└── 저작권, 링크
 ```
 
-### 공통 컴포넌트 (src/components/common/)
+### 7.2 공통 컴포넌트 (src/components/common/)
+
 ```
-Avatar
-├── 역할: 사용자/광고주 프로필 아바타
-├── 기능: 이니셜 표시, 색상 자동 생성
-└── 사용: Slot 카드, 헤더 등
-
-SplashCursor
-├── 역할: 커서 인터랙션 효과
-└── 기술: OGL (WebGL 라이브러리)
-
-SplitText
-├── 역할: 텍스트 애니메이션
-└── 사용: 환영 메시지 등
+Avatar: 프로필 아바타 (이니셜, 색상 자동 생성)
+Calendar: 캘린더 컴포넌트
+CircularText: 원형 텍스트 애니메이션
+MediaIcons: 매체별 아이콘 (Google, Meta, Kakao, Naver, TikTok)
+SplashCursor: WebGL 커서 인터랙션 효과 (OGL)
+SplitText: 글자별 등장 애니메이션
 ```
 
-### 시나리오 컴포넌트 (src/components/scenario/)
-```
-CreateScenario (메인 컨테이너)
-├── 역할: 시나리오 생성 3단계 위자드
-├── 상태 관리: formData, validationActive, currentStep
-└── 하위 컴포넌트: Step1, Step2RatioFinder, Step2ReachPredictor
+---
 
-ScenarioStep1
-├── 역할: 기본 정보 입력
-├── 입력: 시나리오명, 모듈, 브랜드, 기간, 타겟 GRP
-└── 유효성 검사: 필수 필드 실시간 검증
+## 8. 상태 관리 및 데이터 흐름
 
-ScenarioStep2RatioFinder
-├── 역할: Ratio Finder 상세 설정
-├── 입력: 총 예산, 시뮬레이션 단위, 매체 선택, 예산 배분
-└── 검증: 비중 합계 100% 검증
+### 8.1 Reach Caster 상태
 
-ScenarioStep2ReachPredictor
-├── 역할: Reach Predictor 상세 설정
-├── 입력: 매체 설정, 리치커브 설정
-└── 검증: 예산 입력, 구간 수 제한
-
-ReachPredictorMediaDialog
-├── 역할: 매체 선택 다이얼로그
-├── 크기: 1000px × 700px
-├── 탭: TVC / DIGITAL
-└── 기능: 검색, 전체 선택, 상품 선택
-
-constants.ts
-├── sampleBrands: 브랜드 목록
-├── targetGrpOptions: 타겟 GRP 옵션
-└── mediaData: 매체 및 상품 데이터
-
-types.ts
-├── ScenarioFormData: 폼 데이터 타입
-├── ReachPredictorMedia: 매체 설정 타입
-└── 기타 인터페이스 정의
-
-utils.ts
-├── numberToKorean: 숫자 → 한글 변환
-├── formatNumber: 숫자 포맷팅
-└── 기타 유틸리티 함수
-```
-
-## 1.2 상태 관리 구조
-
-### CreateScenario 상태
 ```typescript
-// 폼 데이터
+// CreateScenario 상태
 formData: ScenarioFormData {
-  scenarioName: string
-  description: string
-  moduleType: 'ratio-finder' | 'reach-predictor'
-  brand: string
-  industry: string
-  period: { start: string, end: string }
-  targetGrp: string[]
-  totalBudget?: number
-  simulationUnit?: string
+  scenarioName, description, moduleType, brand, industry,
+  period: { start, end }, targetGrp: string[]
 }
 
 // Ratio Finder 전용
-selectedMedia: string[]
-mediaRatios: { [key: string]: number }
-productRatios: { [mediaKey: string]: { [productKey: string]: number } }
+totalBudget, simulationUnit, selectedMedia, mediaRatios, productRatios
 
 // Reach Predictor 전용
 reachPredictorMedia: ReachPredictorMedia[] {
-  id: string
-  category: 'DIGITAL' | 'TVC'
-  mediaName: string
-  productName: string
-  budget: string
-  impressions: string
-  period?: { start: string, end: string }
-  targetGrp?: string[]
+  id, category, mediaName, productName, budget, impressions, period?, targetGrp?
 }
+reachCurveSettings: { min, max, type, count/amount }
 
 // UI 상태
 currentStep: 1 | 2 | 3
 validationActive: boolean
 isSubmitting: boolean
-showToast: { type: 'success' | 'error', message: string } | null
 ```
 
-## 1.3 데이터 흐름
+### 8.2 DataShot 상태
+
+```typescript
+// CreateDataset 상태
+formData: FormData {
+  datasetName, description, media, industries, industryLevel,
+  period: { startYear, startMonth, endYear, endMonth },
+  periodType: 'month' | 'quarter',
+  products, metrics, targetingCategory, targetingOptions
+}
+
+// UI 상태
+currentStep: 1 | 2 | 3
+validationActive: boolean
+industryDialogOpen: boolean
+```
+
+### 8.3 데이터 흐름
 
 ```
-사용자 입력
+[사용자 입력]
     ↓
-Step 컴포넌트 (props로 formData, setFormData 전달)
+[Step 컴포넌트] (props: formData, setFormData)
     ↓
-CreateScenario 상태 업데이트
+[메인 컨테이너 상태 업데이트]
     ↓
-Configuration Summary 실시간 반영
+[Configuration Summary 실시간 반영]
     ↓
-유효성 검사 (validationActive 시)
+[유효성 검사] (validationActive 시)
     ↓
-다음 단계 진행 또는 차단
+[다음 단계 진행 또는 차단]
     ↓
-Step 3: 최종 확인
+[Step 3: 최종 확인]
     ↓
-시나리오 생성 요청 (비동기)
+[생성 요청 (비동기)]
     ↓
-완료 시 Slot 상세로 이동 (/reachcaster)
-```
-
-## 2. 사용자 플로우 기반 IA
-
-### 2.1 로그인 및 진입 플로우
-```
-adly 메인 로그인
-    ↓
-예측/분석 플랫폼 메뉴 선택
-    ↓
-권한 확인 및 워크스페이스 진입
-    ↓
-사용자 역할별 폴더 목록 표시
-    ↓
-폴더 선택
-    ↓
-시나리오 관리 화면
-```
-
-### 2.2 시나리오 생성 플로우
-```
-폴더 선택
-    ↓
-시나리오 생성 버튼 클릭
-    ↓
-솔루션 선택 (Reach Caster)
-    ↓
-모듈 선택 (Ratio Finder / Reach Predictor)
-    ↓
-기본 정보 입력 (시나리오명, 브랜드, 업종, 기간, 타겟 GRP)
-    ↓
-모듈별 특화 설정
-    ├── Ratio Finder: 총 예산, 예산 분배 비중, 시뮬레이션 단위
-    └── Reach Predictor: 매체별 예산, 타겟팅 설정, 리치커브 설정
-    ↓
-실행 요청 (비동기 처리)
-    ↓
-상태 모니터링 (대기중 → 처리중 → 완료/오류/취소)
-    ↓
-결과 확인 및 분석
-```
-
-## 3. 데이터 구조 및 관계
-
-### 3.1 핵심 엔티티 관계
-```
-사용자 (User)
-    ├── 역할 (Role): Admin/Marketer/Agency/Client
-    └── 권한 (Permission): CRUD 매트릭스
-
-광고주 (Advertiser)
-    ├── 폴더 (Folder) [1:N]
-    └── 데이터 격리 정책
-
-폴더 (Folder)
-    ├── 폴더 ID (PK, 자동 증분)
-    ├── 기본 정보: 폴더명, 설명
-    ├── 권한 설정: 광고주 ID, 가시성 설정, 공유 대상
-    ├── 가시성 설정 (Visibility): Private/Internal/Shared
-    ├── 시나리오 (Scenario) [1:N]
-    └── 메타데이터: 생성자, 생성일시, 수정자, 수정일시
-
-시나리오 (Scenario)
-    ├── 시나리오 ID (PK, 자동 증분)
-    ├── 기본 정보: 시나리오명, 설명
-    ├── 타입 (Type): Ratio Finder/Reach Predictor
-    ├── 브랜드 설정: 브랜드, 업종, 기간, 타겟 GRP
-    ├── 상태 (Status): Pending/Processing/Completed/Error/Cancelled
-    ├── 모듈별 특화 속성
-    │   ├── Ratio Finder: 총 예산, 예산 분배 비중, 시뮬레이션 단위
-    │   └── Reach Predictor: 매체별 예산, 타겟팅 설정, 리치커브 설정
-    ├── 설정 데이터 (Configuration)
-    ├── 결과 데이터 (Result)
-    └── 메타데이터: 생성자, 생성일시, 실행일시
-
-AnXer 챗봇
-    ├── 시나리오 단위 채팅 이력 (선택적 저장)
-    ├── 비교 뷰 세션 데이터 (임시 저장)
-    └── 인사이트 노트 (수동 저장)
-```
-
-### 3.2 권한 기반 데이터 접근 구조
-```
-관리자 (Admin)
-    └── 모든 광고주 폴더 접근
-
-운영자 (Marketer)
-    └── 할당된 광고주 폴더 접근
-
-대행사 (Agency)
-    └── 할당된 광고주 폴더 (읽기 전용)
-
-광고주 (Client)
-    └── 본인 광고주 폴더 (읽기 전용)
-```
-
-## 4. 기능별 정보 구조
-
-### 4.1 SlotBoard (워크스페이스 메인)
-```
-SlotBoard
-├── 글로벌 네비게이션 (GNB)
-│   ├── 플랫폼 로고
-│   ├── 솔루션 메뉴
-│   └── 사용자 프로필
-├── 사이드 네비게이션 (SNB)
-│   ├── 워크스페이스 홈
-│   ├── Slot 트리
-│   │   ├── 전체 펼치기/접기 토글
-│   │   ├── Slot 항목
-│   │   │   ├── Slot명
-│   │   │   ├── 시나리오 개수
-│   │   │   └── 솔루션별 하위 항목
-│   │   └── 준비중 솔루션 (비활성)
-│   └── 빠른 네비게이션
-├── 페이지 헤더
-│   ├── 타이틀: "SlotBoard"
-│   ├── New Slot 버튼
-│   │   └── 스타일: 크고 둥근 primary 버튼
-│   └── 솔루션별 스코어카드
-│       ├── Total Results (119)
-│       ├── Data Shot (23) - Benchmark에서 변경
-│       ├── Ad Curator (31)
-│       ├── Budget Optimizer (17)
-│       └── Reach Caster (48)
-├── 검색/필터/정렬 영역
-│   ├── 좌측: Slot 개수 표시
-│   │   └── 예: "25 Slots"
-│   └── 우측: 액션 버튼들
-│       ├── 검색 버튼 (Search 아이콘 + "검색")
-│       │   ├── 클릭 시 입력 필드 슬라이드 확장
-│       │   ├── Slot명, 광고주명 실시간 검색
-│       │   └── X 버튼으로 닫기
-│       ├── 정렬 버튼 (ArrowUpDown 아이콘 + "정렬")
-│       │   ├── 드롭다운 메뉴
-│       │   ├── Slot명 A→Z / Z→A
-│       │   ├── 광고주 A→Z / Z→A
-│       │   ├── 수정일 최신순 / 오래된순
-│       │   ├── 생성일 최신순 / 오래된순
-│       │   └── 선택 시 버튼 배경 강조
-│       ├── 필터 버튼 (Filter 아이콘 + "필터")
-│       │   ├── 드롭다운 메뉴
-│       │   ├── 광고주 (검색 가능 체크박스)
-│       │   ├── 가시성 (Internal/Private/Shared)
-│       │   ├── 필터 개수 뱃지
-│       │   └── 필터 초기화 버튼
-│       └── Slot 관리 버튼
-│           ├── 클릭 시 관리 모드 진입
-│           └── 관리 모드: 체크박스 + 일괄 작업
-├── Slot 카드 그리드
-│   ├── 그리드 레이아웃 (auto-fill, minmax(300px, 1fr))
-│   ├── Slot 카드
-│   │   ├── 광고주 프로필 아바타 (색상별)
-│   │   ├── Slot명 (18px, 굵게)
-│   │   ├── 광고주명 (ID 포함)
-│   │   ├── 가시성 뱃지
-│   │   │   ├── Internal: 회색
-│   │   │   ├── Private: 보라색
-│   │   │   └── Shared: 초록색
-│   │   ├── 설명 (2줄 말줄임)
-│   │   ├── 솔루션별 결과 개수
-│   │   │   ├── Reach Caster 아이콘 + 개수
-│   │   │   ├── Budget Optimizer 아이콘 + 개수
-│   │   │   └── Metric Hub 아이콘 + 개수
-│   │   ├── 최종 수정일
-│   │   └── 관리 메뉴 (vertical dots)
-│   │       ├── 수정
-│   │       └── 삭제
-│   └── 관리 모드
-│       ├── 체크박스 표시
-│       ├── 전체 선택/해제
-│       ├── 선택 개수 표시
-│       └── 일괄 삭제 버튼
-└── 페이지네이션
-    ├── 좌측: 페이지당 표시 개수 선택
-    │   └── 10 / 20 / 50 / 100
-    ├── 중앙: 페이지 정보
-    │   └── "1-20 / 25개"
-    └── 우측: 페이지 네비게이션
-        ├── 첫 페이지
-        ├── 이전 페이지
-        ├── 페이지 번호들 (최대 5개)
-        ├── 다음 페이지
-        └── 마지막 페이지
-```
-
-### 4.2 Slot 상세 화면 (Reach Caster)
-```
-Slot 상세 (URL: /reachcaster)
-├── Breadcrumb (GNB 하단)
-│   └── SlotBoard / {Slot명} / Reach Caster
-├── Slot 헤더 (컴팩트 디자인)
-│   ├── 좌측: Slot 정보
-│   │   ├── 1줄: 가시성 뱃지
-│   │   ├── 2줄: Slot 타이틀 (24px, 굵게)
-│   │   └── 3줄: 광고주 프로필 + 구분선 + 설명
-│   │       ├── 광고주 아바타 (32px)
-│   │       ├── 광고주명 + ID
-│   │       ├── 세로 구분선
-│   │       └── Slot 설명
-│   └── 우측: 액션 버튼
-│       ├── Info 아이콘 (호버 툴팁)
-│       │   ├── Slot ID
-│       │   ├── 생성일시 (작성자 ID)
-│       │   └── 수정일시 (수정자 ID)
-│       └── 관리 메뉴 (vertical dots)
-│           ├── 수정
-│           └── 삭제
-├── 시나리오 섹션
-│   ├── 타이틀 영역
-│   │   ├── "Scenario" 타이틀 (크게)
-│   │   └── New Scenario 버튼
-│   │       └── 스타일: 크고 둥근 primary 버튼 (48px 높이)
-│   ├── 버튼 섹션
-│   │   ├── 좌측: 시나리오 개수
-│   │   │   ├── 기본: "15 Scenarios"
-│   │   │   └── 선택 시: "15 Scenarios (3개 선택됨)"
-│   │   └── 우측: 액션 버튼들
-│   │       ├── 검색 (Search 아이콘 + "검색")
-│   │       │   ├── 확장 시 입력 필드
-│   │       │   └── 시나리오명, 작성자 검색
-│   │       ├── 필터 (Filter 아이콘 + "필터")
-│   │       │   ├── 분석 모듈 (최상단, 체크박스)
-│   │       │   │   ├── Ratio Finder (Scale 아이콘)
-│   │       │   │   └── Reach Predictor (Target 아이콘)
-│   │       │   ├── 상태 (체크박스)
-│   │       │   ├── 업종 (체크박스)
-│   │       │   ├── 타겟 GRP (체크박스)
-│   │       │   ├── 기간 범위 (날짜 선택)
-│   │       │   └── 필터 초기화
-│   │       ├── 뷰 모드 토글
-│   │       │   ├── List (활성 시 secondary)
-│   │       │   └── Timeline (활성 시 secondary)
-│   │       └── 일괄 작업 (선택 시 표시)
-│   │           ├── 선택 개수 표시
-│   │           ├── 삭제 버튼
-│   │           └── 이동 버튼
-│   │               └── 다이얼로그: 동일 광고주 Slot 선택
-│   ├── List 뷰
-│   │   ├── 테이블 헤더 (정렬 가능)
-│   │   │   ├── 체크박스 (전체 선택)
-│   │   │   ├── 시나리오 ID (정렬)
-│   │   │   ├── 시나리오 (정렬)
-│   │   │   ├── 분석 모듈 (정렬)
-│   │   │   ├── 업종 (정렬)
-│   │   │   ├── 타겟 GRP (정렬)
-│   │   │   ├── 기간 (정렬)
-│   │   │   ├── 상태 (정렬)
-│   │   │   ├── 진행도
-│   │   │   ├── 작성자(ID) (정렬)
-│   │   │   ├── 작성일시 (정렬)
-│   │   │   └── 관리
-│   │   ├── 테이블 행
-│   │   │   ├── 체크박스
-│   │   │   ├── 시나리오 ID (자동 증분)
-│   │   │   ├── 시나리오명
-│   │   │   ├── 분석 모듈
-│   │   │   │   ├── Ratio Finder: Scale 아이콘 + 텍스트 (primary)
-│   │   │   │   └── Reach Predictor: Target 아이콘 + 텍스트 (primary)
-│   │   │   ├── 업종
-│   │   │   ├── 타겟 GRP
-│   │   │   │   ├── 전체: Users 아이콘
-│   │   │   │   ├── 여성: User 아이콘
-│   │   │   │   └── 남성: User 아이콘
-│   │   │   ├── 기간 (YYYY-MM-DD → YYYY-MM-DD)
-│   │   │   ├── 상태 뱃지
-│   │   │   │   ├── Completed: 검정 배경
-│   │   │   │   ├── Processing: 회색 배경
-│   │   │   │   ├── Pending: 투명 배경
-│   │   │   │   ├── Error: 빨강 배경 + 재시도 링크
-│   │   │   │   └── 완료 시간 표시 (Completed/Error)
-│   │   │   ├── 진행도
-│   │   │   │   ├── 프로그레스 바 (상태별 색상)
-│   │   │   │   └── 단계 설명 (예: "데이터 수집 중...")
-│   │   │   ├── 작성자(ID)
-│   │   │   ├── 작성일시
-│   │   │   └── 관리 메뉴 (vertical dots)
-│   │   │       ├── 수정
-│   │   │       ├── 복제
-│   │   │       └── 삭제
-│   │   └── 페이지네이션
-│   │       ├── 페이지당 10개
-│   │       └── 페이지 네비게이션
-│   └── Timeline 뷰
-│       ├── 컨트롤 영역
-│       │   ├── Zoom 선택
-│       │   │   ├── 월 (특정 월 하나, 예: 2026년 1월)
-│       │   │   ├── 분기 (3개월, 예: 2026년 Q1)
-│       │   │   └── 년 (12개월, 예: 2026년)
-│       │   └── 기간 네비게이션
-│       │       ├── 이전 화살표
-│       │       ├── 현재 기간 표시
-│       │       ├── 다음 화살표
-│       │       └── "오늘" 버튼
-│       ├── 타임라인 헤더
-│       │   └── 날짜/월 표시 (Zoom에 따라)
-│       └── 타임라인 바
-│           ├── 시나리오 바 (42px 높이)
-│           │   ├── 시나리오명 표시
-│           │   ├── 기간에 맞춰 배치
-│           │   ├── 겹치지 않게 레이어 배치 (54px 간격)
-│           │   └── 상태별 색상
-│           │       ├── Completed: 검정
-│           │       ├── Processing: 회색
-│           │       ├── Pending: 연한 회색
-│           │       └── Error: 빨강
-│           └── 진행도 표시 (Processing 시)
-└── 정렬 기능
-    └── List 뷰 정렬이 Timeline 뷰에도 자동 반영
-```
-
-### 4.3 시나리오 생성/설정 화면
-```
-시나리오 생성 (URL: /reachcaster/scenario/new)
-├── Breadcrumb (GNB 하단)
-│   └── SlotBoard / {Slot명} / Reach Caster / 새 시나리오 생성
-├── 페이지 헤더
-│   ├── 타이틀: "새 시나리오 생성"
-│   └── 설명: "단계별로 시나리오 정보를 입력하고 분석을 시작하세요"
-├── 레이아웃 구조
-│   ├── 좌측: 스테퍼 + 입력 폼 (800px 고정)
-│   ├── 중앙: 세로 구분선 (1px)
-│   └── 우측: Configuration Summary (420px 고정)
-├── 미니멀 스테퍼 (상단)
-│   ├── Step 1: 기본 정보 (원형 번호 + 타이틀)
-│   ├── Step 2: 상세 설정 (원형 번호 + 타이틀)
-│   ├── Step 3: 검토 및 실행 (원형 번호 + 타이틀)
-│   ├── 현재 단계: primary 배경 + 흰색 텍스트
-│   ├── 완료 단계: 체크 아이콘 + muted 배경
-│   └── 미완료 단계: 투명 배경 + 테두리
-├── Step 1: 기본 정보
-│   ├── 타이틀: "기본 정보" (20px, 굵게, 24px 하단 여백)
-│   ├── 시나리오명 * (필수)
-│   │   ├── 텍스트 입력 (최대 100자)
-│   │   └── 유효성 검사: 필수 입력
-│   ├── 설명 (선택)
-│   │   └── 텍스트 영역 (최대 500자)
-│   ├── 분석 모듈 * (필수)
-│   │   ├── 라디오 버튼 (카드 형태)
-│   │   │   ├── Ratio Finder
-│   │   │   │   ├── Scale 아이콘
-│   │   │   │   ├── 타이틀
-│   │   │   │   └── 설명: "TVC와 Digital의 최적 예산 비중을 탐색합니다."
-│   │   │   └── Reach Predictor
-│   │   │       ├── Target 아이콘
-│   │   │       ├── 타이틀
-│   │   │       └── 설명: "매체 믹스에 따른 통합 광고 성과를 정밀하게 예측합니다."
-│   │   └── 선택 시 카드 primary 테두리 + 배경
-│   ├── 브랜드 * (필수)
-│   │   ├── 검색 가능 드롭다운
-│   │   ├── DSS 데이터 연동
-│   │   └── 유효성 검사: 필수 선택
-│   ├── 업종 (자동)
-│   │   ├── 브랜드 선택 시 자동 표시
-│   │   └── 읽기 전용
-│   ├── 캠페인 기간 * (필수)
-│   │   ├── 시작일 / 종료일 (DayPicker 캘린더)
-│   │   ├── 화살표 아이콘으로 구분
-│   │   ├── 날짜 형식: "YYYY년 MM월 DD일"
-│   │   └── 유효성 검사: 시작일 ≤ 종료일
-│   └── 타겟 GRP * (필수)
-│       ├── 다이얼로그 버튼 (선택 개수 표시)
-│       ├── 다이얼로그 UI
-│       │   ├── 남성 섹션 (4열 그리드)
-│       │   │   ├── M 15-19 ~ M 60+
-│       │   │   └── 체크박스 선택
-│       │   └── 여성 섹션 (4열 그리드)
-│       │       ├── F 15-19 ~ F 60+
-│       │       └── 체크박스 선택
-│       ├── 선택 표시
-│       │   ├── 24개 선택: "전체"
-│       │   └── 일부 선택: "n개 타겟 선택됨"
-│       └── 유효성 검사: 최소 1개 선택
-├── Step 2: 상세 설정 (모듈별 분기)
-│   ├── Ratio Finder 선택 시
-│   │   ├── 타이틀: "상세 설정 - Ratio Finder"
-│   │   ├── 총 예산 * (필수)
-│   │   │   ├── 숫자 입력 (콤마 포맷팅)
-│   │   │   ├── 단위: 원
-│   │   │   ├── 한글 변환 표시 (예: "= 일억원")
-│   │   │   └── 유효성 검사: 양수 입력
-│   │   ├── 시뮬레이션 단위 * (필수)
-│   │   │   ├── 라디오 버튼 (카드 형태)
-│   │   │   ├── 옵션: 5% / 10% / 20%
-│   │   │   └── 설명: 예산 배분 시뮬레이션 간격
-│   │   ├── 매체 선택 * (필수)
-│   │   │   ├── 탭: DIGITAL / TVC
-│   │   │   ├── 매체 목록 (아코디언)
-│   │   │   │   ├── 매체명 + 상품 개수
-│   │   │   │   ├── 체크박스 선택
-│   │   │   │   └── 확장 시 상품 목록
-│   │   │   ├── 상품 선택 다이얼로그
-│   │   │   │   ├── 검색 기능
-│   │   │   │   ├── 3열 그리드
-│   │   │   │   └── 체크박스 선택
-│   │   │   └── 유효성 검사: DIGITAL 1개 이상, TVC 1개 이상
-│   │   └── 예산 배분 비중 설정 * (필수)
-│   │       ├── 매체별 비중 입력 (%)
-│   │       │   ├── DIGITAL 합계 100%
-│   │       │   ├── TVC 합계 100%
-│   │       │   └── 실시간 합계 검증
-│   │       ├── 상품별 비중 입력 (%)
-│   │       │   ├── 각 매체 내 상품 합계 100%
-│   │       │   └── 실시간 합계 검증
-│   │       └── 유효성 검사: 모든 합계 100%
-│   └── Reach Predictor 선택 시
-│       ├── 타이틀: "상세 설정 - Reach Predictor"
-│       ├── 분석 대상 매체 설정 * (필수)
-│       │   ├── 라벨: "분석 대상 매체 설정 *" (8px 하단 여백)
-│       │   ├── 전역 설정 (회색 박스)
-│       │   │   ├── 2열 레이아웃
-│       │   │   ├── 캠페인 기간
-│       │   │   │   ├── Step 1 데이터 자동 로드
-│       │   │   │   ├── DayPicker 캘린더
-│       │   │   │   ├── 일괄 적용 버튼
-│       │   │   │   └── 날짜 형식: "YYYY년 MM월 DD일"
-│       │   │   └── 타겟 설정
-│       │   │       ├── Step 1 데이터 자동 로드
-│       │   │       ├── 다이얼로그 버튼
-│       │   │       ├── 선택 표시 (24개="전체", 그 외 개수)
-│       │   │       ├── 선택 칩 표시 (회색 배경, 스크롤)
-│       │   │       └── 일괄 적용 버튼
-│       │   ├── 매체 추가 버튼 (primary)
-│       │   ├── 매체 선택 다이얼로그
-│       │   │   ├── 크기: 1000px × 700px 고정
-│       │   │   ├── 탭: TVC (상단) / DIGITAL (하단)
-│       │   │   ├── 테이블 형태 (+ - 버튼으로 확장/축소)
-│       │   │   ├── 검색 기능 (매체명, 상품명)
-│       │   │   ├── 검색 결과 전체 선택 기능
-│       │   │   ├── 상품 선택 다이얼로그
-│       │   │   │   ├── 3열 그리드
-│       │   │   │   ├── 검색 기능
-│       │   │   │   └── 체크박스 선택
-│       │   │   └── 확인 버튼
-│       │   ├── 매체 설정 테이블
-│       │   │   ├── 2줄 레이아웃 (가로 스크롤 방지)
-│       │   │   ├── Row 1 (헤더)
-│       │   │   │   ├── 아이콘 (40px)
-│       │   │   │   ├── 간격 (24px)
-│       │   │   │   ├── 매체/상품 (240px)
-│       │   │   │   ├── 확정 예산 (원) * (130px)
-│       │   │   │   ├── 예상 노출 (130px)
-│       │   │   │   ├── CPM (원) (100px)
-│       │   │   │   └── 삭제 (우측 정렬)
-│       │   │   ├── Row 1 (데이터)
-│       │   │   │   ├── 카테고리 아이콘 + 뱃지
-│       │   │   │   │   ├── DIGITAL: Monitor 아이콘
-│       │   │   │   │   └── TVC: Tv 아이콘
-│       │   │   │   ├── 매체명 (굵게) + 상품명
-│       │   │   │   ├── 예산 입력 (필수, 콤마 포맷팅)
-│       │   │   │   ├── 노출 입력 (미연동 매체 필수)
-│       │   │   │   ├── CPM 자동 계산 (소수점 첫째자리 반올림, 정수 표시)
-│       │   │   │   └── X 버튼 (삭제)
-│       │   │   ├── Row 2 (설정 정보)
-│       │   │   │   ├── 64px 좌측 여백 (아이콘+간격)
-│       │   │   │   ├── 캠페인 기간 버튼
-│       │   │   │   │   ├── Calendar 아이콘
-│       │   │   │   │   ├── 전역 설정 / 개별 설정 표시
-│       │   │   │   │   ├── 개별 설정 시 primary 색상
-│       │   │   │   │   ├── 날짜 형식: "MM-DD ~ MM-DD"
-│       │   │   │   │   └── 클릭 시 다이얼로그
-│       │   │   │   └── 타겟팅 버튼
-│       │   │   │       ├── Users 아이콘
-│       │   │   │       ├── 전역 설정 / 개별 설정 표시
-│       │   │   │       ├── 개별 설정 시 primary 색상
-│       │   │   │       ├── 선택 표시 (전체/n개 선택)
-│       │   │   │       └── 클릭 시 다이얼로그
-│       │   │   ├── 개별 설정 다이얼로그
-│       │   │   │   ├── 기간 설정
-│       │   │   │   │   ├── DayPicker 캘린더
-│       │   │   │   │   ├── 임시 상태 관리
-│       │   │   │   │   └── 확인 버튼 클릭 시 적용
-│       │   │   │   └── 타겟 설정
-│       │   │   │       ├── Step 1과 동일한 UI
-│       │   │   │       ├── 남성/여성 섹션
-│       │   │   │       └── 4열 그리드
-│       │   │   └── 요약 행 (테이블 하단)
-│       │   │       ├── 라벨: "요약" + Info 아이콘
-│       │   │       │   └── 호버 시 툴팁: "* 입력된 값을 기준으로 계산된 결과입니다"
-│       │   │       ├── 총 예산 합계 (우측 정렬, 자동 계산)
-│       │   │       ├── 총 예상 노출 합계 (우측 정렬, 자동 계산)
-│       │   │       ├── CPM 합계 (우측 정렬, 자동 계산)
-│       │   │       │   └── 공식: (총 예산 / 총 예상 노출 × 1,000), 소수점 첫째자리 반올림
-│       │   │       └── 단위: 원, 회
-│       │   └── 유효성 검사
-│       │       ├── 최소 1개 매체 선택
-│       │       ├── 모든 매체 예산 입력
-│       │       └── 미연동 매체 노출 수 입력
-│       └── 리치커브 설정 *
-│           ├── 라벨: "리치커브 *" (필수, 16px 하단 여백)
-│           ├── 구간 * (필수)
-│           │   ├── 라벨: "구간"
-│           │   ├── 최소값 입력 (140px, 필수)
-│           │   ├── 화살표 아이콘
-│           │   ├── 최대값 입력 (140px, 필수)
-│           │   ├── 단위: 원
-│           │   └── 유효성 검사: 최소값 < 최대값
-│           ├── 리치커브 기준 설정
-│           │   ├── 라벨: "리치커브 기준 설정"
-│           │   ├── 라디오 버튼 (카드 형태)
-│           │   │   ├── 구간 수 기준 (기본값)
-│           │   │   │   └── 선택 시 primary 테두리 + 배경
-│           │   │   └── 구간별 금액 기준
-│           │   │       └── 선택 시 primary 테두리 + 배경
-│           │   ├── 구간 수 기준 선택 시
-│           │   │   ├── 라벨: "구간 수 (2~20)"
-│           │   │   ├── 슬라이더 (slider-custom 클래스)
-│           │   │   │   ├── 범위: 2~20
-│           │   │   │   ├── 기본값: 10
-│           │   │   │   ├── 진행 표시 (foreground 색상)
-│           │   │   │   └── primary 색상 thumb
-│           │   │   ├── 선택 값 표시 (primary 색상, "n개")
-│           │   │   └── 구간별 금액 자동 계산 표시
-│           │   │       └── 공식: (최대값 - 최소값) / 구간 수
-│           │   └── 구간별 금액 기준 선택 시
-│           │       ├── 라벨: "구간별 금액 *" (필수)
-│           │       ├── 숫자 입력 (140px, 콤마 포맷팅)
-│           │       ├── 단위: 원
-│           │       ├── 구간 수 자동 계산 표시
-│           │       │   ├── 공식: ceil((최대값 - 최소값) / 금액)
-│           │       │   └── 20개 초과 시 빨간색 경고
-│           │       └── 유효성 검사
-│           │           ├── 필수 입력
-│           │           └── 구간 수 ≤ 20
-│           └── 기본값: 구간 수 기준 10개
-├── Step 3: 검토 및 실행
-│   ├── 타이틀: "검토 및 실행"
-│   ├── 안내 메시지 (회색 박스)
-│   │   ├── Clock 아이콘
-│   │   ├── 타이틀: "시나리오 생성 소요 시간 안내"
-│   │   ├── 모듈별 설명
-│   │   │   ├── Ratio Finder
-│   │   │   │   ├── "TVC와 Digital의 최적 예산 비중을 탐색합니다."
-│   │   │   │   └── "AI 알고리즘이 수만 개의 조합을 시뮬레이션하여 데이터 기반의 최적 배분안을 도출합니다."
-│   │   │   │   └── "정밀 연산을 위해 최대 20분이 소요될 수 있으며, 완료 시 상단 알림 센터에서 알려드립니다."
-│   │   │   └── Reach Predictor
-│   │   │       ├── "매체 믹스에 따른 통합 광고 성과를 정밀하게 예측합니다."
-│   │   │       ├── "방대한 과거 집행 데이터를 분석하여 예상 도달률(Reach) 및 주요 지표를 계산합니다."
-│   │   │       └── "결과 도출까지 최대 20분이 소요되며, 완료 시 알림 센터에서 알려드립니다."
-│   │   └── 강조: "최대 20분", "알림 센터" (굵게)
-│   └── 확인 메시지 (회색 박스)
-│       ├── Check 아이콘
-│       └── "우측 Configuration Summary에서 설정 내용을 확인하세요!"
-├── Configuration Summary (우측, 420px)
-│   ├── 타이틀: "CONFIGURATION SUMMARY" (대문자, 작게)
-│   ├── Step 1: Basic Information
-│   │   ├── 시나리오명
-│   │   ├── 분석 모듈
-│   │   ├── 브랜드
-│   │   ├── 업종
-│   │   ├── 캠페인 기간 (화살표로 구분)
-│   │   └── 타겟 GRP
-│   │       ├── 개수 표시 (24개="전체")
-│   │       └── 칩 표시 (회색 배경, 스크롤)
-│   ├── Step 2: Module Configuration
-│   │   ├── Ratio Finder 선택 시
-│   │   │   ├── 총 예산 (원)
-│   │   │   ├── 시뮬레이션 단위
-│   │   │   └── 매체 배분
-│   │   │       ├── DIGITAL 비중 (%)
-│   │   │       ├── TVC 비중 (%)
-│   │   │       └── 상세 (매체명 + %, 상품명 + %)
-│   │   └── Reach Predictor 선택 시
-│   │       ├── 분석 대상 매체
-│   │       │   ├── 개수 표시
-│   │       │   └── 상세 (매체명 › 상품명)
-│   │       └── 리치커브
-│   │           ├── 예산 상한 (원)
-│   │           ├── 구간 (최소 ~ 최대 원)
-│   │           ├── 구간 수 (n개) - 구간 수 기준 시
-│   │           └── 구간별 금액 (원) - 금액 기준 시
-│   └── Step 3: Review & Execute
-│       └── "Pending" (미완료 시)
-├── 네비게이션 버튼 (하단)
-│   ├── 좌측: 취소 버튼 (ghost)
-│   └── 우측
-│       ├── 이전 버튼 (Step 2, 3에서 표시)
-│       ├── 다음 버튼 (Step 1, 2에서 표시)
-│       │   └── 유효성 검사 통과 시 활성화
-│       └── 시나리오 생성 요청 버튼 (Step 3)
-│           ├── 비동기 처리 시작
-│           └── 완료 시 Slot 상세로 이동
-└── 유효성 검사 규칙
-    ├── 실시간 검사 (입력 시작 후)
-    ├── 필수 필드 빨간색 테두리
-    ├── 에러 메시지 표시
-    └── 다음 단계 진행 차단
-```
-
-### 4.4 시나리오 결과 화면
-```
-시나리오 결과
-├── 결과 헤더
-│   ├── 시나리오 정보 (시나리오명, 타입, 브랜드)
-│   ├── 실행 상태/시간 (Completed, 실행일시)
-│   └── 액션 버튼
-│       ├── Export (PDF: 전체 리포트, CSV: 수치 데이터)
-│       ├── Copy (기존 설정 복사하여 새 시나리오 생성)
-│       └── Move (동일 광고주 내 다른 폴더로 이동, Admin/Marketer만)
-├── 결과 대시보드
-│   ├── 핵심 지표 요약
-│   │   ├── Ratio Finder: 최적 배분 비율, 최대 도달률
-│   │   └── Reach Predictor: 통합 도달률, 매체별 도달률, 매체별 기여도
-│   ├── 시각화 차트
-│   │   ├── Ratio Finder: 리치커브 그래프, 최적 배분점 표시
-│   │   └── Reach Predictor: 리치커브, 매체별 기여도 차트
-│   ├── 상세 데이터 테이블
-│   │   ├── 매체/채널/상품별 세분화 결과
-│   │   └── 예산 배분 및 도달률 상세 수치
-│   └── 분석 인사이트 (주요 발견 사항 및 추천 사항)
-├── 설정 정보 탭
-│   ├── 입력 파라미터 (브랜드, 업종, 기간, 타겟 GRP 등)
-│   ├── 모듈별 설정 상세
-│   │   ├── Ratio Finder: 총 예산, 예산 분배 비중, 시뮬레이션 단위
-│   │   └── Reach Predictor: 매체별 예산, 타겟팅 설정, 리치커브 설정
-│   └── 실행 로그 (실행 시작/완료 시간, 처리 속도 등)
-└── AnXer 챗봇
-    ├── 플로팅 버튼 (우측 하단)
-    ├── 채팅 인터페이스 (전용 UI 확장)
-    ├── 질의응답 기록 (시나리오 결과 데이터 기반)
-    └── 인사이트 노트 저장 (수동 저장 옵션)
-```
-
-### 4.5 시나리오 비교 화면
-```
-시나리오 비교
-├── 비교 헤더
-│   ├── 선택된 시나리오 목록 (동일 타입만 비교 가능)
-│   ├── 비교 기준 설정 (주요 지표 선택)
-│   └── Export 기능 (CSV: 비교 데이터)
-├── 비교 대시보드
-│   ├── 지표별 비교 차트
-│   │   ├── Ratio Finder: 최적 배분 비율 비교, 도달률 비교
-│   │   └── Reach Predictor: 통합 도달률 비교, 매체별 기여도 비교
-│   ├── 사이드 바이 사이드 비교
-│   │   ├── 시나리오별 주요 지표 나란히 표시
-│   │   └── 동일 지표에 대한 시나리오간 수치 비교
-│   ├── 차이점 하이라이트
-│   │   ├── 가장 높은/낮은 성과 시나리오 강조
-│   │   └── 주요 차이점 시각적 표시
-│   └── 비교 인사이트
-│       ├── 성과 우위 시나리오 식별
-│       └── 주요 차이점 및 개선 방향 제시
-├── 상세 비교 탭
-│   ├── 설정 비교
-│   │   ├── 브랜드, 업종, 기간, 타겟 GRP 비교
-│   │   └── 모듈별 설정 차이점 분석
-│   ├── 결과 비교
-│   │   ├── 주요 지표별 수치 비교 테이블
-│   │   └── 매체/채널/상품별 세분화 비교
-│   └── 성과 분석
-│       ├── ROI/효율성 비교
-│       └── 비용 대비 성과 분석
-└── AnXer 챗봇 (비교 분석 지원)
-    ├── 복수 시나리오 비교 데이터 기반 질의응답
-    ├── 세션 메모리 로드 (비교 대상 시나리오 데이터)
-    └── 동기화 규칙: 비교 대상 시나리오 삭제/이동 시 세션 종료
-```
-
-## 5. 상태 관리 구조
-
-### 5.1 시나리오 상태 플로우
-```
-시나리오 생성 요청
-    ↓
-대기중 (Pending)
-    ├── 취소 가능
-    ↓
-처리중 (Processing)
-    ├── 진행률 표시
-    ├── 취소 가능
-    ↓
-완료 (Completed) / 오류 (Error) / 취소 (Cancelled)
-    ├── 완료: 결과 확인 가능
-    ├── 오류: 재시도 가능
-    └── 취소: 재생성 필요
-```
-
-### 5.2 권한별 기능 접근 매트릭스
-```
-기능 구분
-├── 폴더 관리
-│   ├── Create: Admin, Marketer
-│   ├── Read: Admin, Marketer, Agency(할당), Client(할당)
-│   ├── Update: Admin, Marketer
-│   ├── Delete: Admin, Marketer
-│   └── Copy: Admin, Marketer
-├── 시나리오 관리
-│   ├── Create: Admin, Marketer
-│   ├── Read: All Users
-│   ├── Update: None (불변성 원칙)
-│   ├── Delete: Admin, Marketer
-│   ├── Copy: Admin, Marketer
-│   ├── Move: Admin, Marketer (동일 광고주 내)
-│   ├── Export: All Users
-│   └── Compare: All Users
-└── AnXer 챗봇
-    └── 사용: All Users (해당 위치)
-```
-
-## 6. 데이터 보안 및 격리 구조
-
-### 6.1 광고주별 데이터 격리
-```
-데이터 격리 레벨
-├── 광고주 레벨
-│   ├── 완전 분리된 데이터 저장
-│   ├── 교차 접근 차단
-│   └── 감사 로그 분리
-├── 폴더 레벨
-│   ├── 가시성 설정 기반 접근 제어
-│   ├── 역할별 권한 적용
-│   └── 동적 권한 상속
-└── 시나리오 레벨
-    ├── 폴더 권한 상속
-    ├── 실행 결과 보안
-    └── 이동 제약 (동일 광고주 내)
-```
-
-### 6.2 가시성 설정별 접근 구조
-```
-Private 폴더
-    ├── 생성자 접근
-    └── 관리자 접근
-
-Internal 폴더
-    ├── 모든 운영자 접근
-    └── 관리자 접근
-
-Shared 폴더
-    ├── 운영자 접근
-    ├── 관리자 접근
-    ├── 선택된 대행사 접근 (읽기 전용)
-    └── 선택된 광고주 접근 (읽기 전용)
-```
-
-## 7. 시스템 운영 정보 구조
-
-### 7.1 모니터링 대시보드
-```
-시스템 모니터링
-├── 성능 지표
-│   ├── 응답 속도 (목표: n분 이내)
-│   ├── 동시 사용자 수 (목표: nnn명)
-│   ├── 시나리오 처리량 (시간당 nnn개 시나리오 생성 처리 가능)
-│   └── 시스템 가용성 (24시간 운영, 점검 시 사전 공지)
-├── 사용 현황
-│   ├── 사용자별 활동 (로그인, 시나리오 생성, Export 등)
-│   ├── 폴더별 사용량 (시나리오 수, 사용 빈도)
-│   ├── 시나리오 실행 통계 (모듈별, 상태별 분류)
-│   └── 오류 발생 현황 (오류 유형, 발생 빈도, 해결 시간)
-├── 데이터 품질
-│   ├── 데이터 정합성 체크
-│   │   ├── CIM API 연동 상태 (응답 시간, 오류율)
-│   │   └── BRIDGE 데이터 업데이트 상태 (월 1회 업데이트 진행 상황)
-│   └── 모델 성능 지표
-│       ├── Ratio Finder 모델 정확도 및 실행 속도
-│       └── Reach Predictor 모델 정확도 및 실행 속도
-└── 비동기 처리 모니터링
-    ├── 대기열 상태 (대기중 시나리오 수, 대기 시간)
-    ├── 처리 진행 상태 (처리중 시나리오 수, 평균 처리 시간)
-    └── 완료/오류 비율 (성공률, 오류 유형별 분류)
-```
-
-### 7.2 버전 관리 구조
-```
-버전 관리
-├── 버전 체계 (Major.Minor.Patch)
-│   ├── Major (X.0.0): 대규모 업데이트 (핵심 로직 전면 개편, 비호환 변경, 신규 모듈 추가)
-│   ├── Minor (0.X.0): 기능 개선 및 추가 (기능 추가, UI/UX 개선, 호환 유지 로직 최적화)
-│   └── Patch (0.0.X): 버그 수정 및 최적화 (버그 수정, 정합성 보완, 성능/보안 패치)
-├── 릴리스 노트 (Release Note)
-│   ├── 버전 번호 (Version Number)
-│   ├── 릴리스 날짜 (Release Date)
-│   ├── 주요 업데이트 내용 (Update Highlights)
-│   └── 영향도 분석 (Impact)
-├── 버전 관리 단위
-│   └── 플랫폼 단위 관리 (Reach Caster 포함 예측/분석 플랫폼 통합 버전 기준)
-├── 호환성 관리
-│   ├── 이전 버전과의 호환성 체크
-│   └── 데이터 마이그레이션 정책
-└── 롤백 정책
-    ├── 비상 상황 시 이전 버전 복구 절차
-    └── 데이터 백업 및 복원 정책
-```
-
-### 7.3 내보내기 및 데이터 관리 정책
-```
-내보내기 관리
-├── 시나리오 상세 결과 내보내기
-│   ├── PDF: 시나리오 전체 결과 리포트 (차트, 표, 설정 정보 포함)
-│   └── CSV: 주요 수치 데이터 (매체별 도달률, 예산 배분 등)
-├── 시나리오 비교 결과 내보내기
-│   └── CSV: 비교 대상 시나리오들의 주요 지표 비교 데이터
-├── 이력 관리 정책
-│   ├── 이력 저장 안 함: 다운로드 및 내보내기 이력 별도 저장 안 함
-│   ├── 실시간 처리: 사용자 요청 시 즉시 파일 생성 후 다운로드 제공
-│   └── 임시 파일 관리: 생성된 파일은 다운로드 완료 후 서버에서 자동 삭제
-└── 접근 권한
-    ├── 시나리오 상세: 해당 시나리오에 접근 가능한 모든 사용자
-    └── 시나리오 비교: 비교 대상 모든 시나리오에 접근 가능한 사용자
+[완료 시 목록 페이지로 이동 + 알림 센터 알림]
 ```
 
 ---
 
-이 IA는 예측분석_고도화_프로젝트_정책서_v0.2에 정의된 모든 기능과 구조를 체계적으로 정리하여 개발팀이 시스템을 구현할 때 참고할 수 있는 정보 구조를 제공합니다.
+## 9. 권한 및 보안
 
-### 주요 업데이트 내용 (v1.5 → v1.6)
+### 9.1 사용자 역할
 
-- **기술 스택 업데이트**:
-  - Recharts 3.7.0 추가 (리치커브 등 주요 차트)
-  - echarts-for-react 3.0.6 추가 (ECharts React 래퍼)
-  - Framer Motion 12.38.0 추가 (애니메이션)
-  - GSAP 3.14.2 추가 (고급 애니메이션)
-  - date-fns 4.1.0 추가 (날짜 처리)
+```
+Admin: 모든 광고주 폴더 접근, 전체 CRUD
+Marketer: 할당된 광고주 폴더 접근, CRUD
+Agency: 할당된 광고주 폴더 (읽기 전용)
+Client: 본인 광고주 폴더 (읽기 전용)
+```
 
-- **컴포넌트 구조 대폭 업데이트**:
-  - reachcaster/ 폴더 신설: 기존 루트 레벨 컴포넌트들을 reachcaster/ 하위로 재구성
-  - datashot/ 폴더 신설: DataShot 솔루션 전체 구현 (데이터셋 생성 3단계 위자드)
-  - spinx/ 폴더 신설: SpinX AI 어시스턴트 (플로팅 버튼 + 채팅 패널)
-  - common/ 확장: Calendar, CircularText, MediaIcons 추가
-  - layout/ 확장: GradeCard 추가
+### 9.2 기능별 권한 매트릭스
 
-- **프로젝트 구조 변경**:
-  - guide/ → .kiro/steering/으로 이동 (디자인 시스템, 아이콘 레퍼런스, 화면 명세)
-  - .kiro/ 디렉토리 추가 (hooks, specs, steering)
-  - Kiro 에이전트 훅 3개 설정 (타입 체크, 정책 준수, 커밋 메시지)
+```
+Slot 관리: Create/Update/Delete → Admin, Marketer
+시나리오 관리: Create/Delete/Copy/Move → Admin, Marketer
+데이터셋 관리: Create/Delete → Admin, Marketer
+Export: All Users
+비교: All Users
+SpinX 챗봇: All Users
+```
 
-### 주요 업데이트 내용 (v1.3 → v1.4)
+### 9.3 데이터 격리
 
-- **실제 프로젝트 구조 반영**:
-  - 컴포넌트 파일 구조 확인 및 문서화
-  - src/components 디렉토리 구조 상세화
-  - src/components/layout: AppLayout, Breadcrumb, Footer, GlobalNavBar, Sidebar
-  - src/components/common: Avatar, SplashCursor, SplitText
-  - src/components/scenario: 시나리오 생성 관련 모듈화된 컴포넌트
+```
+광고주 레벨: 완전 분리, 교차 접근 차단
+Slot 레벨: 가시성 설정 기반 (Private/Internal/Shared)
+시나리오/데이터셋: Slot 권한 상속
+이동 제약: 동일 광고주 내에서만
+```
 
-- **라우팅 구조 명확화**:
-  - React Router 기반 SPA 구조
-  - 주요 라우트: /, /slotboard, /reachcaster, /reachcaster/scenario/new
-  - 결과 페이지: /reachcaster/scenario/ratio-finder/result, /reachcaster/scenario/reach-predictor/result
+---
 
-- **기술 스택 문서화**:
-  - React 18.2.0 + TypeScript
-  - React Router DOM 7.13.0
-  - UI 라이브러리: Lucide React (아이콘), React Day Picker (날짜 선택)
-  - 차트: ECharts, Frappe Gantt (타임라인)
-  - 빌드 도구: Vite 4.4.5
+## 10. 시나리오 상태 플로우
 
-- **컴포넌트 구조 상세화**:
-  - CreateScenario: 3단계 위자드 메인 컴포넌트
-  - ScenarioStep1: 기본 정보 입력 (시나리오명, 모듈, 브랜드, 기간, 타겟)
-  - ScenarioStep2RatioFinder: Ratio Finder 상세 설정
-  - ScenarioStep2ReachPredictor: Reach Predictor 상세 설정
-  - ReachPredictorMediaDialog: 매체 선택 다이얼로그
+```
+생성 요청 → Pending (취소 가능)
+    ↓
+Processing (진행률 표시, 취소 가능)
+    ↓
+Completed (결과 확인) / Error (재시도) / Cancelled (재생성)
+```
 
-- **파일 구조 정리**:
-  - guide/: 개발 가이드 문서 (Lucide Icon, Q Developer Planning, Screen Specification)
-  - plan/spec/: 공통 레이아웃 스펙
-  - plan/strategic(highlevel)/: 정책서 및 IA 문서
-  - src/styles/: 글로벌 CSS
-  - src/utils/: 유틸리티 함수 (theme.ts)
+---
 
-### 주요 업데이트 내용 (v1.2 → v1.3)
+## 11. 문서 시스템
 
-- **시나리오 생성 페이지 완전 구현**:
-  - 3단계 위자드 UI 상세 구조
-  - Step 1: 기본 정보 (시나리오명, 분석 모듈, 브랜드, 업종, 기간, 타겟 GRP)
-  - Step 2: 모듈별 상세 설정 (Ratio Finder / Reach Predictor)
-  - Step 3: 검토 및 실행 (안내 메시지, 확인)
-  
-- **Reach Predictor Phase 1 구현 완료**:
-  - 분석 대상 매체 설정
-    - 전역 설정 (캠페인 기간, 타겟 설정)
-    - 매체 선택 다이얼로그 (TVC/DIGITAL 탭, 테이블 형태)
-    - 매체 설정 테이블 (2줄 레이아웃, 가로 스크롤 방지)
-    - 개별 설정 (기간, 타겟팅)
-  - 리치커브 설정
-    - 예산 상한 (필수)
-    - 리치커브 상세 설정 (선택)
-      - 구간 (최소값 ~ 최대값)
-      - 구간 수 기준 (슬라이더, 2~20, 기본값 10)
-      - 구간별 금액 기준 (입력 필드, 자동 구간 수 계산)
+```
+Docs (URL: /docs/:slug)
+├── 컴포넌트: DocsLayout.tsx
+├── 데이터: docsData.ts
+├── 스타일: docs.css
+└── 기능: 마크다운 기반 문서 렌더링
+```
 
-- **UI/UX 개선 사항**:
-  - 단위 통일: 모든 금액 입력 "원" 단위로 변경
-  - 다크모드 개선: destructive 색상 가독성 향상 (HSL 0 90% 65%)
-  - 라디오 버튼: radio-custom 클래스 (shadcn 스타일)
-  - 슬라이더: slider-custom 클래스 (진행 표시, primary thumb)
-  - 2줄 레이아웃: 매체 테이블 가로 스크롤 방지 (800px 내 수용)
-  - 임시 상태 관리: 다이얼로그 확인 버튼 클릭 시 적용
+---
 
-- **Configuration Summary 실시간 업데이트**:
-  - Step별 입력 내용 즉시 반영
-  - 타겟 GRP 칩 표시
-  - 매체 배분 상세 표시 (매체명 › 상품명)
-  - 리치커브 설정 상세 표시
+## 12. 기타
 
-- **유효성 검사 강화**:
-  - 실시간 검사 (입력 시작 후)
-  - 필수 필드 빨간색 테두리
-  - 단계별 진행 차단
-  - Reach Predictor 추가 검사
-    - 구간별 금액 기준 선택 시 필수 입력
-    - 구간 수 20개 초과 방지
+### 12.1 에러 페이지
 
-### 주요 업데이트 내용 (v1.1 → v1.2)
+```
+ErrorPage (URL: /error)
+├── 컴포넌트: ErrorPage.tsx
+└── 404, 500 등 에러 상태 표시
+```
 
-- **실제 구현 기반 업데이트**: 개발 완료된 UI/UX 반영
-- **명칭 변경**: 
-  - "폴더" → "Slot" (일관성)
-  - "Benchmark" → "Data Shot" (솔루션명)
-- **SlotBoard 구현 상세**:
-  - 검색/필터/정렬 UI 구조 (아이콘 + 텍스트 버튼)
-  - 정렬 옵션 상세 (A→Z, 최신순 등)
-  - 페이지네이션 구조
-  - 관리 모드 기능
-- **Slot 상세 페이지 구현**:
-  - 컴팩트한 헤더 디자인 (Info 툴팁 활용)
-  - 시나리오 List/Timeline 뷰
-  - 검색/필터/정렬 기능 상세
-  - 타임라인 Zoom 기능 (월/분기/년)
-  - 일괄 작업 기능 (삭제/이동)
-- **라우팅 구조**: URL 기반 네비게이션 추가
-- **UI 컴포넌트 상세**: 실제 구현된 스타일, 색상, 크기 반영
+### 12.2 컴포넌트 라이브러리
+
+```
+ComponentLibrary (URL: /component)
+├── 컴포넌트: ComponentLibrary.tsx
+└── 디자인 시스템 컴포넌트 카탈로그
+```
+
+---
+
+## 주요 업데이트 내용 (v1.6 → v2.0)
+
+- **DataShot 솔루션 전체 IA 추가**:
+  - 데이터셋 목록/생성/상세 3개 화면 완전 문서화
+  - 3단계 위자드 (기본 정보 → 상세 설정 → 검토 및 실행)
+  - 6개 매체 지원 (Google Ads, Meta, kakao모먼트, 네이버 성과형/보장형 DA, TikTok)
+  - 매체별 광고상품 계층 구조, 타겟팅 옵션, 지표 그룹 상세
+  - Configuration Summary 실시간 반영
+  - DatasetDetail 모달 3종 (업종/광고상품/지표)
+
+- **Slot Home 구조 추가**:
+  - /slot/:slotId 라우트 추가
+  - Welcome Section (Bento Box 그리드)
+  - Slot Overview (4개 솔루션 카드)
+  - Slot Solutions (솔루션 플로우 순서)
+  - Feed Section + Documents Section
+
+- **시나리오 비교 기능 상세화**:
+  - ScenarioComparisonPanel + ScenarioComparisonResult
+  - 5종 차트 (Reach&CPRP, Performance Combo, StackedBar, UnifiedReachCurve, BudgetSummary)
+  - 조건 차이 하이라이트 (DiffIndicator)
+
+- **GNB 알림 시스템 상세화**:
+  - 알림 bar 노출 정책 (0개 시 고정 메시지, 1개+ 시 최근 알림)
+  - 알림 타입: task/notice/level
+  - 광고주 선택 드롭다운
+  - GradeCard (사용자 등급)
+
+- **SpinX AI 어시스턴트 상세화**:
+  - 10개 컴포넌트 구조 문서화
+  - 차트 메시지, 명확화 질문, 에러 재시도 기능
+
+- **라우팅 구조 확장**:
+  - /slot/:slotId, /datashot, /datashot/new, /datashot/:id
+  - /docs, /docs/:slug, /component, /error 추가

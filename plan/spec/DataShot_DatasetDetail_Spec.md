@@ -1,8 +1,9 @@
 # DataShot — 데이터셋 상세 화면 상세 명세서
 
 > 목적: QA 테스트케이스(TC) 작성 기준 문서  
-> 버전: v1.0  
+> 버전: v1.1  
 > 작성일: 2026-05-26  
+> 최종 수정일: 2026-05-27  
 > 참조: `plan/eunseo/DataShot_Phase1_policy_IA_v1.0.md`
 
 ---
@@ -38,7 +39,18 @@
 └─────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Breadcrumb
+### 2.2 의존 모듈
+
+| 모듈 | 역할 |
+|---|---|
+| `AppLayout` | 전체 레이아웃 래퍼 (GNB + Sidebar + Breadcrumb) |
+| `useSidebarState` | 사이드바 상태 관리 훅 |
+| `maskEmail` | 이메일 마스킹 유틸 |
+| `getDarkMode` / `setDarkMode` | 다크모드 상태 관리 |
+| `IndustryModal` / `AdProductsModal` / `MetricsModal` | 읽기 전용 상세 모달 (DatasetDetailModals.tsx) |
+| `generateSampleData` | 샘플 데이터 생성 (sampleData.ts) |
+
+### 2.3 Breadcrumb
 
 | 순서 | 라벨 | 동작 |
 |---|---|---|

@@ -1,8 +1,9 @@
 # DataShot — 데이터셋 생성 화면 상세 명세서
 
 > 목적: QA 테스트케이스(TC) 작성 기준 문서  
-> 버전: v1.0  
+> 버전: v1.1  
 > 작성일: 2026-05-26  
+> 최종 수정일: 2026-05-27  
 > 참조: `plan/eunseo/DataShot_Phase1_policy_IA_v1.0.md`
 
 ---
@@ -42,7 +43,26 @@
 - 최대 너비: 1400px, 중앙 정렬
 - 패딩: 32px
 
-### 2.2 Breadcrumb
+### 2.2 의존 모듈
+
+| 모듈 | 역할 |
+|---|---|
+| `AppLayout` | 전체 레이아웃 래퍼 (GNB + Sidebar + Breadcrumb) |
+| `useSidebarState` | 사이드바 상태 관리 훅 |
+| `CreateDatasetStep1` | Step 1 기본 정보 폼 |
+| `CreateDatasetStep2` | Step 2 상세 설정 폼 |
+| `CreateDatasetStep3` | Step 3 검토 및 추출 |
+| `ConfigurationSummary` | 우측 설정 요약 패널 |
+| `SampleDataModal` | 샘플 데이터 전체 컬럼 모달 |
+| `IndustryDialog` | 업종 선택 다이얼로그 |
+| `AdProductsSelector` | 광고상품 선택 컴포넌트 |
+| `MonthRangePicker` | 월/분기 기간 선택 컴포넌트 |
+| `adProductStructureByMedia` | 매체별 광고상품 필드 구조 (sampleData.ts) |
+| `metricsByMedia` | 매체별 지표 그룹 매핑 |
+| `targetingOptionsByMedia` | 매체별 타겟팅 옵션 (types.ts) |
+| `mediaIconMap` | 매체별 아이콘 (common/MediaIcons.tsx) |
+
+### 2.3 Breadcrumb
 
 | 순서 | 라벨 | 동작 |
 |---|---|---|
@@ -261,11 +281,11 @@ industryLevel !== null
 
 | 매체 | 필드 목록 |
 |---|---|
-| Google Ads | 캠페인 유형, 캠페인 하위 유형, 입찰 전략, 광고그룹 유형, 광고 유형 |
+| Google Ads | 캠페인 유형, 캠페인 하위 유형, 입찰 전략 유형, 광고그룹 유형, 광고 유형 |
 | Meta | 캠페인 목표, 구매 유형, 플랫폼, 성과 목표 |
-| kakao모먼트 | 광고 목표, 광고 유형, 광고 목표 설정, 입찰방식, 소재 유형 |
+| kakao모먼트 | 광고 목표, 광고 유형, 광고 목표 설정, 입찰 방식, 소재 유형 |
 | 네이버 성과형 DA | 캠페인 목적, 청구 기준, 게재 위치 |
-| 네이버 보장형 DA | 광고상품명, 캠페인 하위 유형, 입찰 전략, 광고그룹 유형, 광고 유형 |
+| 네이버 보장형 DA | 광고상품명, 상품 유형, 과금 방식 |
 | TikTok | 목표, 최적화 목표, 게재위치, 광고 형식 |
 
 - 매체 선택 시 Configuration Summary > Step 2 항목이 실시간 업데이트됨
@@ -305,6 +325,17 @@ industryLevel !== null
 | 카테고리 선택 | 단일 선택 |
 | 옵션 선택 | 다중 선택 |
 | 카테고리 변경 시 | targetingOptions, metrics 초기화 |
+
+#### 5.4.1 매체별 타겟팅 카테고리
+
+| 매체 | 카테고리 목록 | 비고 |
+|---|---|---|
+| Google Ads | 기기유형 | 1개 카테고리 |
+| Meta | 기기유형 | 1개 카테고리 |
+| kakao모먼트 | 성별, 연령, 성별x연령, 지역, 디바이스, 게재지면 | 6개 카테고리 |
+| 네이버 성과형 DA | (없음) | 타겟팅 섹션 미노출 |
+| 네이버 보장형 DA | 노출영역, 시간 | 2개 카테고리 |
+| TikTok | 플랫폼, 성별, 연령, 성별X연령, 국가 | 5개 카테고리 |
 
 | 유효성 검사 | 조건 | 에러 메시지 |
 |---|---|---|
