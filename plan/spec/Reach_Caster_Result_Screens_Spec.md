@@ -1,8 +1,8 @@
 # Reach Caster 결과 화면 정의서
 
 ## 문서 정보
-- **작성일**: 2026-03-05
-- **버전**: v1.0
+- **작성일**: 2026-05-27
+- **버전**: v1.1
 - **대상 화면**: Ratio Finder 결과, Reach Predictor 결과
 
 ---
@@ -332,6 +332,28 @@ Ratio Finder와 동일한 구조 및 스타일
 - 데이터 없음: 플레이스홀더 메시지 표시
 - 로딩 상태: 스켈레톤 UI (구현 예정)
 
+### 3.6 SpinX 연동
+
+#### 3.6.1 SpinX 버튼 위치
+- 결과 화면 우측 하단 고정 (`position: fixed`, `bottom: 32px`, `right: 32px`)
+- 패널 열림 시 `right: 424px`로 이동 (패널 400px + 간격 24px)
+- transition: `right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+#### 3.6.2 SpinX 패널 연동
+- `positioning` prop: `'fixed'` (결과 화면에서는 fixed)
+- 패널 열림 시 메인 콘텐츠 `marginRight: 400px` 전환
+- transition: `margin-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+#### 3.6.3 컨텍스트 전달
+- `scenarioName`: 시나리오명 전달
+- `analysisType`: 'ratioFinder' | 'reachPredictor'
+- `isDarkMode`: 다크모드 상태 전달
+
+#### 3.6.4 관련 컴포넌트
+- `SpinXButton.tsx`: 호출 버튼 (64px 원형, 모션 시스템)
+- `SpinXPanel.tsx`: AI 어시스턴트 패널
+- 상세 스펙: `SpinX_for_ReachCaster_Spec.md` 참조
+
 ---
 
 ## 4. 기술 스택
@@ -358,15 +380,15 @@ Ratio Finder와 동일한 구조 및 스타일
 - [ ] 로딩 스켈레톤 UI 추가
 - [ ] 토스트 메시지 (링크 복사 완료 등)
 - [ ] Export 기능 실제 구현 (Excel, PDF)
+- [x] AI 인사이트 추가 (SpinX for Reach Caster 구현 완료)
+- [x] 시나리오 공유 기능 (Share2 드롭다운 — Copy Link, Export to Excel, Export to PDF)
 
 ### 5.2 중기
 - [ ] 차트 데이터 실시간 업데이트
-- [ ] 비교 모드 (여러 시나리오 비교)
+- [x] 비교 모드 (ScenarioComparisonPanel + ScenarioComparisonResult 구현 완료)
 - [ ] 차트 확대/축소 기능
 
 ### 5.3 장기
-- [ ] AI 인사이트 추가 (최적 비중 추천 이유)
-- [ ] 시나리오 공유 기능
 - [ ] 커스텀 리포트 생성
 
 ---
@@ -380,6 +402,10 @@ Ratio Finder와 동일한 구조 및 스타일
 - `ReachPredictorScoreCards.tsx`: 스코어카드 컴포넌트
 - `RatioFinderDetailTable.tsx`: Ratio Finder 상세 테이블
 - `ReachPredictorDetailTable.tsx`: Reach Predictor 상세 테이블
+- `SpinXButton.tsx`: SpinX 호출 버튼
+- `SpinXPanel.tsx`: SpinX AI 어시스턴트 패널
+- `ScenarioComparisonPanel.tsx`: 시나리오 비교 설정 패널
+- `ScenarioComparisonResult.tsx`: 시나리오 비교 결과 화면
 
 ### 6.2 디자인 시스템
 - 색상: CSS 변수 기반 (`--foreground`, `--background`, `--primary`, etc.)

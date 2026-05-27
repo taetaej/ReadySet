@@ -1,8 +1,8 @@
 # SpinX for Reach Caster 화면 정의서
 
 ## 문서 정보
-- **작성일**: 2026-03-24
-- **버전**: v1.1
+- **작성일**: 2026-05-27
+- **버전**: v1.2
 - **대상 화면**: SpinX AI Agent 패널 (시나리오 결과 / 시나리오 비교 결과 내)
 - **관련 컴포넌트**: `SpinXPanel.tsx`, `SpinXButton.tsx`
 
@@ -53,9 +53,31 @@ SpinX는 다음 두 화면에서 호출 가능하다:
 
 ---
 
-## 3. 화면 구성
+## 3. 컴포넌트 아키텍처
 
-### 3.1 SpinX 호출 버튼 (SpinXButton)
+### 3.0 컴포넌트 트리
+
+```
+SpinXPanel.tsx (메인 셸 — 레이아웃 조합, 리셋/URL 다이얼로그)
+├── SpinXHeader.tsx (헤더 — 타이틀, 초기화, 닫기)
+├── SpinXMessages.tsx (메시지 목록 — 초기 요약, 추천질문, 대화 루프, 로딩)
+│   ├── SpinXSourceAccordion.tsx (웹검색/RAG 출처 아코디언)
+│   ├── SpinXChartBubble.tsx (차트 타입 메시지 렌더링)
+│   ├── SpinXErrorBubble.tsx (에러 메시지 + 재시도)
+│   └── SpinXSymbol.tsx (로딩 심볼 애니메이션)
+├── SpinXInput.tsx (입력 영역 — 텍스트, 첨부, 모델 선택, 세션 정보)
+└── SpinXClarifying.tsx (역질문 UI — 옵션 선택, 직접 입력, 타이머)
+
+useSpinXChat.ts (커스텀 훅 — 모든 상태 및 로직 관리)
+spinxTypes.ts (타입 정의)
+spinxData.ts (정적 데이터 — 모델 목록, 추천 질문, 답변 예시)
+```
+
+---
+
+## 4. 화면 구성
+
+### 4.1 SpinX 호출 버튼 (SpinXButton)
 
 **위치**: 시나리오 결과 화면 우측 하단 고정
 
@@ -72,12 +94,25 @@ transition: right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)
 
 | 요소 | 스타일 | 비고 |
 |------|--------|------|
-| 버튼 컨테이너 | 48px × 48px, border-radius 50% (원형) | — |
-| 배경 | `hsl(var(--foreground))` | 다크모드 자동 대응 |
-| 아이콘 | Rotate3d, 20px, `hsl(var(--background))` | lucide-react |
+| 버튼 컨테이너 | 64px × 64px, border-radius 50% (원형) | 기존 48px에서 변경 |
+| 배경 | `#09090b` (고정, 다크모드 무관) | — |
+| 테두리 | isDarkMode ? `1.5px solid rgba(255,255,255,0.5)` : `none` | 다크모드 분기 |
+| 아이콘 | SpinXSymbol 컴포넌트 (모션 시스템 적용) | — |
 | 그림자 | `0 4px 12px rgba(0, 0, 0, 0.15)` | — |
-| 호버 | `transform: scale(1.05)`, 그림자 강화 `0 6px 20px rgba(0, 0, 0, 0.2)` | transition 0.2s |
+| 호버 | shadow `0 12px 32px rgba(255,255,255,0.35)` | transition 0.2s |
 | 클릭 | `transform: scale(0.95)` | transition 0.1s |
+
+**SpinXSymbol 모션 시스템**:
+
+| 상태 | 설명 | 전환 조건 |
+|------|------|-----------|
+| idle | 정지 상태 | 기본 상태 |
+| hover | 마우스 오버 시 (패널 닫혀있을 때만) | mouseEnter (패널 닫힘 상태) |
+| engage | 패널 열릴 때 | 패널 open → 0.9초 후 active로 전환 |
+| active | 패널 열린 상태 | engage 후 자동 전환 |
+| settle | 패널 닫힐 때 | 패널 close → 1.1초 후 idle로 전환 |
+
+**모션 상태 전환 흐름**: `idle → hover → engage → active → settle → idle`
 
 **패널 열림 시 위치 이동**:
 - `right: 24px` → `right: 424px` (패널 400px + 간격 24px)
@@ -85,7 +120,7 @@ transition: right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)
 
 ---
 
-### 3.2 패널 레이아웃 (SpinXPanel)
+### 4.2 패널 레이아웃 (SpinXPanel)
 
 **위치**: 화면 우측 사이드 패널
 
@@ -139,7 +174,7 @@ z-index: 1000
 
 ---
 
-### 3.3 헤더 영역 [A]
+### 4.3 헤더 영역 [A]
 
 **레이아웃**: `(타이틀 블록) ... (초기화 버튼)(닫기 버튼)`
 
@@ -158,7 +193,7 @@ z-index: 1000
 
 ---
 
-### 3.4 메시지 영역 [B]
+### 4.4 메시지 영역 [B]
 
 **레이아웃**:
 ```css
@@ -175,7 +210,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.1 컨텍스트 요약 (패널 오픈 시 자동 수행)
+#### 4.4.1 컨텍스트 요약 (패널 오픈 시 자동 수행)
 
 패널이 열리면 현재 시나리오/비교 결과의 핵심 데이터를 자동으로 요약하여 표시한다.
 
@@ -208,7 +243,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.2 추천 질문 (패널 오픈 시 자동 수행)
+#### 4.4.2 추천 질문 (패널 오픈 시 자동 수행)
 
 컨텍스트 요약 아래에 4개의 추천 질문을 버튼 형태로 표시한다.
 
@@ -230,7 +265,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.3 사용자 메시지
+#### 4.4.3 사용자 메시지
 
 **레이아웃**: 우측 정렬 (`textAlign: right`)
 
@@ -245,7 +280,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.4 AI 응답 메시지
+#### 4.4.4 AI 응답 메시지
 
 **레이아웃**: 좌측 정렬 (전체 너비)
 
@@ -287,7 +322,27 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.5 출처 표시 — 웹 검색 출처 (Web Sources)
+#### 4.4.5 역질문 UI (Clarifying Question) + 타이머
+
+SpinX가 사용자에게 역질문을 보낼 때 옵션 선택 UI와 자동 건너뛰기 타이머를 표시한다.
+
+**25초 자동 건너뛰기 타이머**:
+
+| 요소 | 스타일 |
+|------|--------|
+| 프로그레스 바 | height 3px, borderRadius 2px, `hsl(var(--muted-foreground))` 색상 |
+| 애니메이션 | CSS keyframe `spinx-clarify-timer 25s linear forwards` (width: 100% → 0%) |
+| 타이머 만료 시 | 자동 "건너뛰기" 실행 |
+| 전송/건너뛰기 시 | 타이머 정리 (clearTimeout + 애니메이션 중단) |
+
+**역질문 UI 구성** (SpinXClarifying.tsx):
+- 옵션 버튼 목록 (선택지 제공)
+- 직접 입력 필드 (자유 텍스트)
+- 건너뛰기 버튼
+
+---
+
+#### 4.4.6 출처 표시 — 웹 검색 출처 (Web Sources)
 
 웹 검색 기반 응답에 출처 정보를 아코디언 형태로 표시한다.
 
@@ -314,7 +369,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.6 출처 표시 — RAG 참고 문서 (RAG Sources)
+#### 4.4.7 출처 표시 — RAG 참고 문서 (RAG Sources)
 
 내부 문서 검색 기반 응답에 참고 문서 정보를 아코디언 형태로 표시한다.
 
@@ -337,7 +392,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.4.7 각주 (Footnotes)
+#### 4.4.8 각주 (Footnotes)
 
 응답 텍스트 내 `[1]`, `[2]` 등의 각주를 인라인 뱃지로 렌더링한다.
 
@@ -363,7 +418,7 @@ background: hsl(var(--background));
 
 ---
 
-### 3.5 입력 영역 [C]
+### 4.5 입력 영역 [C]
 
 **레이아웃**:
 ```
@@ -384,7 +439,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.5.1 입력 필드
+#### 4.5.1 입력 필드
 
 | 요소 | 스타일 | 동작 |
 |------|--------|------|
@@ -400,7 +455,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.5.2 첨부 기능
+#### 4.5.2 첨부 기능
 
 **트리거**: Paperclip 아이콘 버튼 (16px, ghost 스타일)
 
@@ -436,7 +491,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.5.3 모델 선택
+#### 4.5.3 모델 선택
 
 **트리거**: 현재 모델명 드롭다운 클릭
 
@@ -449,10 +504,10 @@ background: hsl(var(--background));
 
 | Provider | 모델명 | 표시명 | 설명 |
 |----------|--------|--------|------|
+| Google | gemini-3pro | Gemini 3pro | 대량 컨텍스트 · 시장 탐색 (**기본 선택**) |
 | Anthropic | claude-sonnet-4.5 | Claude Sonnet 4.5 | 데이터 해석 · 전략 수립 |
 | Anthropic | claude-haiku-4.5 | Claude Haiku 4.5 | 빠르고 명확한 답변 |
 | OpenAI | gpt-4o | Chat GPT 4o | 창의적 기획 · 아이디어 |
-| Google | gemini-3pro | Gemini 3pro | 대량 컨텍스트 · 시장 탐색 |
 
 **모델 메뉴 스타일**:
 - 위치: 입력 필드 상단 (bottom-up)
@@ -479,7 +534,7 @@ background: hsl(var(--background));
 
 ---
 
-#### 3.5.4 세션 잔여 시간
+#### 4.5.4 세션 잔여 시간
 
 **위치**: 입력 영역 최하단
 
@@ -509,11 +564,24 @@ background: hsl(var(--background));
 
 ---
 
-## 4. 응답 처리
+## 5. 응답 처리
 
-### 4.1 로딩 상태
+### 5.1 스트리밍 효과 (Streaming Effect)
 
-**표시**: 로딩 인디케이터 + 순차 변경 메시지
+**표시**: 라인 단위 스트리밍 + 커서 깜빡임 애니메이션
+
+**스트리밍 구현 상세**:
+
+| 항목 | 정의 |
+|------|------|
+| 문자 출력 간격 | 12ms (setInterval) |
+| 출력 방식 | 라인 단위 프로그레시브 디스플레이 (line-by-line) |
+| 커서 애니메이션 | `spinx-cursor-blink` keyframe (opacity 1 → 0, 0.8s infinite) |
+| 상태 관리 | `streamingIndex` (현재 출력 위치), `streamingDisplayText` (화면 표시 텍스트) |
+| 자동 스크롤 | 스트리밍 중 `scrollIntoView({ behavior: 'smooth' })` 지속 호출 |
+| 완료 처리 | 전체 텍스트 출력 완료 시 커서 제거 + streamingIndex 리셋 |
+
+**로딩 상태** (스트리밍 시작 전):
 
 **로딩 메시지 순서** (0.8초 간격 순환):
 내용은 SpinX에서 내려줌
@@ -524,7 +592,7 @@ background: hsl(var(--background));
 | 애니메이션 | pulse (opacity 1 → 0.5 → 1, 2s infinite) |
 | 점 인디케이터 | 3개 원형 dot, 4px, 순차 bounce 애니메이션 |
 
-### 4.2 응답 중지
+### 5.2 응답 중지
 
 **조건**: 로딩 중일 때만 가능
 
@@ -534,7 +602,7 @@ background: hsl(var(--background));
 3. 대화에 에러 메시지 삽입: "답변 생성이 중단되었습니다."
 4. 재시도 가능
 
-### 4.3 에러 처리 및 재시도
+### 5.3 에러 처리 및 재시도
 
 **재시도 규칙**:
 
@@ -545,7 +613,7 @@ background: hsl(var(--background));
 | 재시도 소진 시 | 버튼 비활성화 (opacity 0.5, cursor not-allowed) |
 | 재시도 카운트 기준 | 원본 질문 텍스트 기준 (`Map<string, number>`) |
 
-### 4.4 응답 복사
+### 5.4 응답 복사
 
 **트리거**: AI 응답 메시지 호버 시 복사 버튼 표시
 
@@ -560,12 +628,12 @@ background: hsl(var(--background));
 
 ---
 
-## 5. 초기화 다이얼로그
+## 6. 초기화 다이얼로그
 
-### 5.1 트리거
+### 6.1 트리거
 헤더의 초기화(RotateCcw) 버튼 클릭
 
-### 5.2 다이얼로그 구성
+### 6.2 다이얼로그 구성
 
 | 요소 | 스타일 |
 |------|--------|
@@ -576,7 +644,7 @@ background: hsl(var(--background));
 | 취소 버튼 | `btn btn-secondary btn-sm` |
 | 초기화 버튼 | `btn btn-primary btn-sm` |
 
-### 5.3 초기화 동작
+### 6.3 초기화 동작
 
 1. 서버에 세션 삭제 요청
 2. localStorage에서 세션 ID 제거
@@ -587,9 +655,9 @@ background: hsl(var(--background));
 
 ---
 
-## 6. 인터랙션 플로우
+## 7. 인터랙션 플로우
 
-### 6.1 최초 오픈 (세션 없음)
+### 7.1 최초 오픈 (세션 없음)
 
 ```
 1. SpinX 버튼 클릭
@@ -601,7 +669,7 @@ background: hsl(var(--background));
 7. 패널에 요약 + 추천 질문 표시
 ```
 
-### 6.2 재방문 (세션 있음, 14일 이내)
+### 7.2 재방문 (세션 있음, 14일 이내)
 
 ```
 1. SpinX 버튼 클릭
@@ -613,7 +681,7 @@ background: hsl(var(--background));
 7. 잔여 시간 업데이트
 ```
 
-### 6.3 세션 만료 후 오픈
+### 7.3 세션 만료 후 오픈
 
 ```
 1. SpinX 버튼 클릭
@@ -624,7 +692,7 @@ background: hsl(var(--background));
 6. 새 세션 생성 (6.1 플로우)
 ```
 
-### 6.4 질문 → 응답
+### 7.4 질문 → 응답
 
 ```
 1. 사용자 메시지 입력 (또는 추천 질문 클릭)
@@ -637,7 +705,7 @@ background: hsl(var(--background));
 6. 자동 스크롤 (scrollIntoView smooth)
 ```
 
-### 6.5 비교 결과 삭제 시
+### 7.5 비교 결과 삭제 시
 
 ```
 1. 시나리오 비교 결과 삭제 실행
@@ -649,14 +717,14 @@ background: hsl(var(--background));
 --
 
 
-## 10. 공통 사항
+## 11. 공통 사항
 
-### 10.1 다크모드 지원
+### 11.1 다크모드 지원
 - 모든 색상은 CSS 변수 사용 (`hsl(var(--foreground))`)
 - 패널 배경, 메시지 영역 배경 모두 테마 대응
 - 차트 색상은 다크모드 분기 처리 (isDarkMode prop)
 
-### 10.2 폰트
+### 11.2 폰트
 - 기본: Paperlogy, sans-serif
 - 크기:
   - 헤더 타이틀: 18px
@@ -666,12 +734,12 @@ background: hsl(var(--background));
   - 보조 정보: 11-12px
   - 각주 뱃지: 9px
 
-### 10.3 반응형
+### 11.3 반응형
 - 패널 너비: 400px 고정
 - 메시지 영역: overflowY auto
 - 차트 응답: ResponsiveContainer width 100%
 
-### 10.4 접근성
+### 11.4 접근성
 - 버튼: 키보드 접근 가능 (button 태그)
 - textarea: Enter/Shift+Enter 키보드 인터랙션
 - 외부 클릭: 각주 팝오버 닫기
@@ -679,35 +747,49 @@ background: hsl(var(--background));
 
 ---
 
-## 11. 향후 개선 사항
+## 12. 향후 개선 사항
 
-### 11.1 단기
-- [ ] 스트리밍 응답 (SSE 기반 실시간 텍스트 출력)
+### 12.1 단기
+- [x] ~~스트리밍 응답 (라인 단위 프로그레시브 디스플레이)~~ ✅ 구현 완료
 - [ ] 대화 내보내기 (텍스트/PDF)
 - [ ] 추천 질문 동적 생성 (이전 대화 기반)
 
-### 11.2 중기
+### 12.2 중기
 - [ ] 멀티턴 컨텍스트 최적화 (토큰 관리)
 - [ ] 차트 응답 인터랙션 (호버, 클릭)
 - [ ] 음성 입력 지원
 
-### 11.3 장기
+### 12.3 장기
 - [ ] 시나리오 간 크로스 분석 ("A 시나리오와 B 시나리오 비교해줘")
 - [ ] 자동 리포트 생성
 - [ ] 팀 공유 세션 (같은 시나리오의 SpinX 대화를 팀원과 공유)
 
 ---
 
-## 12. 참고 자료
+## 13. 참고 자료
 
-### 12.1 관련 컴포넌트
-- `src/components/spinx/SpinXPanel.tsx`: SpinX 패널 메인 컴포넌트
-- `src/components/spinx/SpinXButton.tsx`: SpinX 호출 버튼
+### 13.1 관련 컴포넌트
+- `src/components/spinx/SpinXPanel.tsx` — 메인 셸
+- `src/components/spinx/SpinXButton.tsx` — 호출 버튼 + 모션 시스템
+- `src/components/spinx/SpinXHeader.tsx` — 헤더
+- `src/components/spinx/SpinXInput.tsx` — 입력 영역
+- `src/components/spinx/SpinXMessages.tsx` — 메시지 목록
+- `src/components/spinx/SpinXClarifying.tsx` — 역질문 UI
+- `src/components/spinx/SpinXSourceAccordion.tsx` — 출처 아코디언
+- `src/components/spinx/SpinXChartBubble.tsx` — 차트 버블
+- `src/components/spinx/SpinXErrorBubble.tsx` — 에러 버블
+- `src/components/spinx/SpinXSymbol.tsx` — 심볼 애니메이션
+- `src/components/spinx/PulseNodeX.tsx` — 펄스 노드 효과
+- `src/components/spinx/useSpinXChat.ts` — 커스텀 훅 (상태/로직)
+- `src/components/spinx/spinxTypes.ts` — 타입 정의
+- `src/components/spinx/spinxData.ts` — 정적 데이터
+- `src/components/spinx/spinx.css` — 스타일
+- `src/components/spinx/spinxKeyframes.css` — 키프레임 애니메이션
 - `src/components/reachcaster/RatioFinderResult.tsx`: Ratio Finder 결과 (SpinX 호출처)
 - `src/components/reachcaster/ReachPredictorResult.tsx`: Reach Predictor 결과 (SpinX 호출처)
 - `src/components/reachcaster/ScenarioComparisonResult.tsx`: 비교 결과 (SpinX 호출처)
 
-### 12.2 디자인 시스템
+### 13.2 디자인 시스템
 - 색상: CSS 변수 기반 (`hsl(var(--foreground))`, `hsl(var(--muted-foreground))`)
 - 폰트: Paperlogy, sans-serif
 - 간격: 4px 단위 (4, 6, 8, 10, 12, 16, 20, 24, 32px)
