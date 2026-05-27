@@ -13,6 +13,9 @@ import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot
 import { ComponentLibrary } from './components/ComponentLibrary'
 // Error Page
 import { ErrorPage } from './components/ErrorPage'
+// Docs
+import { DocsLayout } from './components/docs'
+import './components/docs/docs.css'
 
 function App() {
   console.log('App 컴포넌트 렌더링됨 - SlotBoardLayout 사용')
@@ -30,6 +33,8 @@ function App() {
         <Route path="/datashot" element={<DatasetList />} />
         <Route path="/datashot/new" element={<CreateDataset />} />
         <Route path="/datashot/:id" element={<DatasetDetail />} />
+        <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />
+        <Route path="/docs/:slug" element={<DocsLayout />} />
         <Route path="/component" element={<ComponentLibrary />} />
         <Route path="/error" element={<ErrorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

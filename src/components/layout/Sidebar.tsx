@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Archive, ChevronRight, ChevronLeft, Hexagon, LayoutGrid, BookOpen, FileText } from 'lucide-react'
+import { Archive, ChevronRight, ChevronLeft, Hexagon, LayoutGrid, BookOpen } from 'lucide-react'
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -24,12 +24,13 @@ export function Sidebar({
       borderRight: 'none',
       display: 'flex',
       flexDirection: 'column',
-      height: '100vh',
+      height: 'calc(100vh - 64px)',
       position: 'sticky',
-      top: 0,
+      top: '64px',
       width: isCollapsed ? '60px' : '320px',
       transition: 'width 0.3s ease',
-      flexShrink: 0
+      flexShrink: 0,
+      overflow: 'hidden'
     }}>
       <div className="workspace-sidebar-header" style={{ 
         borderBottom: 'none',
@@ -56,6 +57,7 @@ export function Sidebar({
       
       <nav className="workspace-sidebar-nav" style={{
         flex: 1,
+        minHeight: 0,
         overflowY: 'auto',
         overflowX: 'hidden',
         display: isCollapsed ? 'none' : 'block'
@@ -435,104 +437,45 @@ export function Sidebar({
           </div>
       </nav>
       
-      {/* Support Section - Glassy Tone on Tone */}
+      {/* User Guide - 목록 아래 자연 배치 */}
       {!isCollapsed && (
         <div style={{
-          marginTop: 'auto',
-          padding: '16px'
+          flexShrink: 0,
+          padding: '12px 16px',
+          borderTop: '1px solid hsl(var(--border) / 0.5)',
+          background: 'hsl(var(--background))'
         }}>
-          <div style={{
-          backgroundColor: 'hsl(var(--background) / 0.5)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderRadius: '12px',
-          padding: '16px',
-          border: '1px solid hsl(var(--border) / 0.5)',
-          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)'
-        }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: '500',
-            marginBottom: '6px'
-          }} className="text-foreground">
-            Need Help?
-          </div>
-          
-          <div style={{
-            fontSize: '11px',
-            marginBottom: '14px',
-            lineHeight: '1.4',
-            fontWeight: '400'
-          }} className="text-muted-foreground">
-            Explore guides and resources
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <button
-              onClick={() => window.open('/user-guide', '_blank')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '8px 10px',
-                backgroundColor: 'transparent',
-                border: '1px solid hsl(var(--border) / 0.3)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '400',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              className="text-foreground"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--accent) / 0.5)'
-                e.currentTarget.style.borderColor = 'hsl(var(--border))'
-                e.currentTarget.style.boxShadow = '0 0 12px 0 hsl(var(--primary) / 0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.borderColor = 'hsl(var(--border) / 0.3)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <BookOpen size={14} className="text-muted-foreground" />
-              <span style={{ flex: 1, textAlign: 'left' }}>User Guide</span>
-            </button>
-            
-            <button
-              onClick={() => window.open('/platform-overview', '_blank')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '8px 10px',
-                backgroundColor: 'transparent',
-                border: '1px solid hsl(var(--border) / 0.3)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '400',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              className="text-foreground"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--accent) / 0.5)'
-                e.currentTarget.style.borderColor = 'hsl(var(--border))'
-                e.currentTarget.style.boxShadow = '0 0 12px 0 hsl(var(--primary) / 0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.borderColor = 'hsl(var(--border) / 0.3)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <FileText size={14} className="text-muted-foreground" />
-              <span style={{ flex: 1, textAlign: 'left' }}>Platform Overview</span>
-            </button>
-          </div>
-        </div>
+          <button
+            onClick={() => navigate('/docs')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: 'transparent',
+              border: '1px solid hsl(var(--border) / 0.3)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            className="text-foreground"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'hsl(var(--accent) / 0.5)'
+              e.currentTarget.style.borderColor = 'hsl(var(--border))'
+              e.currentTarget.style.boxShadow = '0 0 12px 0 hsl(var(--primary) / 0.15)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.borderColor = 'hsl(var(--border) / 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <BookOpen size={15} className="text-muted-foreground" />
+            <span style={{ flex: 1, textAlign: 'left' }}>User Guide</span>
+          </button>
         </div>
       )}
     </aside>
