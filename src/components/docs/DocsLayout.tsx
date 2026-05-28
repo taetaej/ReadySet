@@ -354,7 +354,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         {/* 좌측 TOC Sidebar */}
         <aside className="docs-sidebar">
           <nav className="docs-toc">
-            {filteredStructure.map(section => (
+            {docsStructure.map(section => (
               <div key={section.id} className="docs-toc-section">
                 <button
                   className={`docs-toc-section-title ${section.disabled ? 'docs-toc--disabled' : ''}`}
