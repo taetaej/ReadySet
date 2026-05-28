@@ -3,10 +3,27 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  /* background: linear-gradient(135deg, 
+    hsl(210, 30%, 96%) 0%, 
+    hsl(45, 25%, 95%) 20%, 
+    hsl(200, 35%, 94%) 40%, 
+    hsl(120, 20%, 95%) 60%, 
+    hsl(340, 25%, 96%) 80%, 
+    hsl(220, 30%, 97%) 100%); */
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: 'Manrope', sans-serif;
 }
+
+/* .dark .docs-layout {
+  background: linear-gradient(135deg, 
+    hsl(220, 15%, 4%) 0%, 
+    hsl(45, 10%, 4.5%) 20%, 
+    hsl(200, 18%, 4%) 40%, 
+    hsl(120, 12%, 4.2%) 60%, 
+    hsl(340, 15%, 4.5%) 80%, 
+    hsl(240, 15%, 5%) 100%);
+} */
 
 /* ===== Header ===== */
 .docs-header {
@@ -16,7 +33,7 @@
   height: 64px;
   padding: 0 24px;
   border-bottom: 1px solid hsl(var(--border));
-  background: hsl(var(--background));
+  background: transparent;
   position: sticky;
   top: 0;
   z-index: 100;

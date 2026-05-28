@@ -223,8 +223,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
   const handleFolderCreated = () => {
     setCurrentView('workspace')
     setSelectedSlot(null)
-    navigate('/slotboard')
-    // 여기에 Slot 목록 새로고침 로직을 추가할 수 있습니다
+    navigate('/slot/SLT001', { state: { slotData: { title: '새 Slot', advertiser: '', description: '' } } })
   }
 
   const handleFolderUpdated = () => {
