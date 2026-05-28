@@ -231,6 +231,9 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
     const elements: React.ReactNode[] = []
     let inList = false
     let listItems: React.ReactNode[] = []
+    let inTable = false
+    let tableHeaders: string[] = []
+    let tableRows: string[][] = []
 
     const flushList = () => {
       if (listItems.length > 0) {
@@ -240,7 +243,52 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
       }
     }
 
+    const flushTable = () => {
+      if (tableHeaders.length > 0) {
+        elements.push(
+          <div key={`table-${elements.length}`} className="docs-table-wrapper">
+            <table className="docs-table">
+              <thead>
+                <tr>
+                  {tableHeaders.map((h, hi) => <th key={hi} dangerouslySetInnerHTML={{ __html: inlineFormat(h.trim()) }} />)}
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => <td key={ci} dangerouslySetInnerHTML={{ __html: inlineFormat(cell.trim()) }} />)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+        tableHeaders = []
+        tableRows = []
+        inTable = false
+      }
+    }
+
     lines.forEach((line, i) => {
+      // 테이블 감지
+      if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+        flushList()
+        const cells = line.trim().slice(1, -1).split('|')
+        // 구분선 행 (|---|---|) 스킵
+        if (cells.every(c => c.trim().match(/^-+$/))) {
+          return
+        }
+        if (!inTable) {
+          inTable = true
+          tableHeaders = cells
+        } else {
+          tableRows.push(cells)
+        }
+        return
+      } else if (inTable) {
+        flushTable()
+      }
+
       if (line.startsWith('# ')) {
         flushList()
         elements.push(<h1 key={i} className="docs-h1">{line.slice(2)}</h1>)
@@ -275,6 +323,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
       }
     })
     flushList()
+    flushTable()
     return elements
   }
 
