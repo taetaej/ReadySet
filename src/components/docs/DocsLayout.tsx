@@ -125,17 +125,58 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
       .filter(section => section.pages.length > 0)
   }, [searchQuery])
 
-  // 예측 검색 결과 (드롭다운용)
+  // 예측 검색 결과 (드롭다운용) — 헤딩 단위 + 스니펫
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return []
     const q = searchQuery.toLowerCase()
-    const results: { page: DocPage; sectionTitle: string }[] = []
+    const results: { page: DocPage; sectionTitle: string; heading?: string; snippet: string }[] = []
+    
     for (const section of docsStructure) {
       if (section.disabled) continue
       for (const page of section.pages) {
         if (page.disabled) continue
-        if (page.title.toLowerCase().includes(q) || page.content.toLowerCase().includes(q)) {
-          results.push({ page, sectionTitle: section.title })
+        const lines = page.content.split('\n')
+        let currentHeading = ''
+        let matched = false
+        
+        // 제목 매칭
+        if (page.title.toLowerCase().includes(q)) {
+          const firstParagraph = lines.find(l => l.trim() && !l.startsWith('#')) || ''
+          results.push({
+            page,
+            sectionTitle: section.title,
+            snippet: firstParagraph.slice(0, 80)
+          })
+          matched = true
+        }
+        
+        // 본문 헤딩 단위 매칭
+        for (let i = 0; i < lines.length && results.length < 10; i++) {
+          const line = lines[i]
+          if (line.startsWith('## ')) currentHeading = line.slice(3)
+          else if (line.startsWith('### ')) currentHeading = line.slice(4)
+          
+          if (!line.startsWith('#') && line.toLowerCase().includes(q)) {
+            // 같은 페이지+헤딩 조합 중복 방지
+            const key = `${page.id}-${currentHeading}`
+            if (!matched || currentHeading) {
+              const idx = line.toLowerCase().indexOf(q)
+              const start = Math.max(0, idx - 20)
+              const end = Math.min(line.length, idx + q.length + 40)
+              const snippet = (start > 0 ? '...' : '') + line.slice(start, end) + (end < line.length ? '...' : '')
+              
+              // 중복 체크
+              if (!results.find(r => r.page.id === page.id && r.heading === currentHeading)) {
+                results.push({
+                  page,
+                  sectionTitle: section.title,
+                  heading: currentHeading || undefined,
+                  snippet
+                })
+              }
+            }
+            matched = true
+          }
         }
       }
     }
@@ -284,17 +325,33 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
             {searchFocused && searchQuery.trim() && (
               <div className="docs-search-dropdown">
                 {searchResults.length > 0 ? (
-                  searchResults.map((result) => (
+                  searchResults.map((result, idx) => (
                     <button
-                      key={result.page.id}
+                      key={`${result.page.id}-${result.heading || ''}-${idx}`}
                       className="docs-search-result"
                       onMouseDown={() => {
                         navigateToPage(result.page)
                         setSearchQuery('')
+                        // 헤딩이 있으면 해당 위치로 스크롤
+                        if (result.heading) {
+                          setTimeout(() => {
+                            const id = result.heading!.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, '')
+                            scrollToHeading(id)
+                          }, 100)
+                        }
                       }}
                     >
-                      <span className="docs-search-result-section">{result.sectionTitle}</span>
-                      <span className="docs-search-result-title">{result.page.title}</span>
+                      <span className="docs-search-result-path">
+                        {result.sectionTitle} › {result.page.title}{result.heading ? ` › ${result.heading}` : ''}
+                      </span>
+                      <span className="docs-search-result-snippet"
+                        dangerouslySetInnerHTML={{
+                          __html: result.snippet.replace(
+                            new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                            '<mark class="docs-search-highlight">$1</mark>'
+                          )
+                        }}
+                      />
                     </button>
                   ))
                 ) : (

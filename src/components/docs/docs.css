@@ -145,7 +145,7 @@
 .docs-search-result {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   width: 100%;
   padding: 10px 12px;
   background: transparent;
@@ -161,16 +161,30 @@
   background: hsl(var(--accent));
 }
 
-.docs-search-result-section {
+.docs-search-result-path {
   font-size: 11px;
   font-weight: 500;
   color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.docs-search-result-title {
-  font-size: 13px;
-  font-weight: 500;
+.docs-search-result-snippet {
+  font-size: 12px;
+  color: hsl(var(--foreground) / 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.docs-search-highlight {
+  background: hsl(var(--primary) / 0.2);
   color: hsl(var(--foreground));
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 0 1px;
 }
 
 .docs-search-empty {
