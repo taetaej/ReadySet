@@ -848,7 +848,7 @@
 /* A to Z Tiles */
 .docs-intro-tiles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -864,11 +864,22 @@
   text-align: left;
   font-family: 'Manrope', sans-serif;
   transition: all 0.15s;
+  position: relative;
 }
 
 .docs-intro-tile:hover {
   border-color: hsl(var(--foreground));
   background: hsl(var(--accent) / 0.3);
+}
+
+.docs-intro-tile--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.docs-intro-tile--disabled:hover {
+  border-color: hsl(var(--border));
+  background: transparent;
 }
 
 .docs-intro-tile-icon {
@@ -884,5 +895,17 @@
 
 .docs-intro-tile-desc {
   font-size: 11px;
+  color: hsl(var(--muted-foreground));
+}
+
+.docs-intro-tile-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
 }

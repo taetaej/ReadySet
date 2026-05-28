@@ -10,9 +10,11 @@ const solutions = [
 ]
 
 const sections = [
-  { name: 'SlotBoard', desc: '작업 공간 관리', slug: 'slotboard-overview', icon: LayoutGrid },
-  { name: 'DataShot', desc: '데이터셋 생성', slug: 'datashot-overview', icon: Database },
-  { name: 'Reach Caster', desc: '도달률 예측', slug: 'reach-caster-overview', icon: Target },
+  { name: 'ReadySet', desc: '플랫폼 소개 · SlotBoard', slug: 'slotboard-overview', icon: LayoutGrid },
+  { name: 'DataShot', desc: '데이터셋 생성 · 관리', slug: 'datashot-overview', icon: Database },
+  { name: 'Reach Caster', desc: '시나리오 생성 · 결과', slug: 'reach-caster-overview', icon: Target },
+  { name: 'Ad Curator', desc: '준비중', slug: 'ad-curator-overview', icon: Sparkles, disabled: true },
+  { name: 'Budget Optimizer', desc: '준비중', slug: 'budget-optimizer-overview', icon: DollarSign, disabled: true },
   { name: 'SpinX', desc: 'AI 어시스턴트', slug: 'spinx-overview', icon: Sparkles },
   { name: 'Resources', desc: 'FAQ · 용어 사전', slug: 'resources-faq', icon: HelpCircle },
   { name: 'Release Notes', desc: '업데이트 내역', slug: 'release-notes-latest', icon: FileText },
@@ -23,9 +25,9 @@ export function DocsIntroPage() {
 
   return (
     <div className="docs-intro">
-      <h1 className="docs-intro-title">ReadySet Docs</h1>
+      <h1 className="docs-intro-title">ReadySet</h1>
       <p className="docs-intro-desc">
-        광고 캠페인 예측 분석 플랫폼 ReadySet의 사용자 가이드입니다.
+        ReadySet은 광고 캠페인의 예측 분석을 위한 통합 플랫폼입니다. 업종별 특화 모델을 기반으로 도달률 예측, 매체 배분 최적화, 성과 벤치마크 분석을 지원합니다.
       </p>
 
       {/* 솔루션 카드 4개 */}
@@ -60,14 +62,16 @@ export function DocsIntroPage() {
             return (
               <button
                 key={sec.name}
-                className="docs-intro-tile"
-                onClick={() => navigate(`/docs/${sec.slug}`)}
+                className={`docs-intro-tile ${sec.disabled ? 'docs-intro-tile--disabled' : ''}`}
+                onClick={() => !sec.disabled && navigate(`/docs/${sec.slug}`)}
+                disabled={sec.disabled}
               >
                 <Icon size={18} className="docs-intro-tile-icon" />
                 <div>
                   <div className="docs-intro-tile-name">{sec.name}</div>
                   <div className="docs-intro-tile-desc">{sec.desc}</div>
                 </div>
+                {sec.disabled && <span className="docs-intro-tile-badge">준비중</span>}
               </button>
             )
           })}
