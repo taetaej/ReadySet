@@ -124,7 +124,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return []
     const q = searchQuery.toLowerCase()
-    const results: { page: DocPage; sectionTitle: string; heading?: string; snippet: string }[] = []
+    const results: { page: DocPage; sectionTitle: string; heading?: string; snippet: string; priority: number }[] = []
     
     for (const section of docsStructure) {
       if (section.disabled) continue
@@ -134,25 +134,42 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         let currentHeading = ''
         let matched = false
         
-        // 제목 매칭
+        // 페이지 제목 매칭 (최우선)
         if (page.title.toLowerCase().includes(q)) {
           const firstParagraph = lines.find(l => l.trim() && !l.startsWith('#')) || ''
           results.push({
             page,
             sectionTitle: section.title,
-            snippet: firstParagraph.slice(0, 80)
+            snippet: firstParagraph.slice(0, 80),
+            priority: 0
           })
           matched = true
         }
         
         // 본문 헤딩 단위 매칭
-        for (let i = 0; i < lines.length && results.length < 10; i++) {
+        for (let i = 0; i < lines.length && results.length < 12; i++) {
           const line = lines[i]
           if (line.startsWith('## ')) currentHeading = line.slice(3)
           else if (line.startsWith('### ')) currentHeading = line.slice(4)
           
+          // h2/h3 헤딩 자체가 매칭 (높은 우선순위)
+          if ((line.startsWith('## ') || line.startsWith('### ')) && line.toLowerCase().includes(q)) {
+            const headingText = line.replace(/^#{2,3}\s+/, '')
+            const nextLine = lines.slice(i + 1).find(l => l.trim() && !l.startsWith('#')) || ''
+            if (!results.find(r => r.page.id === page.id && r.heading === headingText)) {
+              results.push({
+                page,
+                sectionTitle: section.title,
+                heading: headingText,
+                snippet: nextLine.slice(0, 80),
+                priority: 1
+              })
+            }
+            continue
+          }
+          
+          // 본문 매칭 (낮은 우선순위)
           if (!line.startsWith('#') && line.toLowerCase().includes(q)) {
-            // 같은 페이지+헤딩 조합 중복 방지
             const key = `${page.id}-${currentHeading}`
             if (!matched || currentHeading) {
               const idx = line.toLowerCase().indexOf(q)
@@ -160,13 +177,13 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
               const end = Math.min(line.length, idx + q.length + 40)
               const snippet = (start > 0 ? '...' : '') + line.slice(start, end) + (end < line.length ? '...' : '')
               
-              // 중복 체크
               if (!results.find(r => r.page.id === page.id && r.heading === currentHeading)) {
                 results.push({
                   page,
                   sectionTitle: section.title,
                   heading: currentHeading || undefined,
-                  snippet
+                  snippet,
+                  priority: 2
                 })
               }
             }
@@ -175,7 +192,8 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         }
       }
     }
-    return results.slice(0, 8)
+    // 우선순위 정렬: 제목 > 헤딩 > 본문
+    return results.sort((a, b) => a.priority - b.priority).slice(0, 8)
   }, [searchQuery])
 
   const toggleSection = (sectionId: string) => {
