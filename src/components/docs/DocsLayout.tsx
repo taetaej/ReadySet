@@ -578,12 +578,9 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
                 onClick={copyMarkdown}
               >
                 {copied === 'md' ? <Check size={14} /> : (
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="1" y="2" width="14" height="12" rx="2" />
-                    <path d="M4 7V6l2 2.5L4 11v-1" />
-                    <path d="M12 7V6l-2 2.5L12 11v-1" />
-                    <path d="M8 9.5V12" />
-                    <path d="M6.5 12h3" />
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="1.5" y="3" width="13" height="10" rx="1.5" />
+                    <text x="8" y="10.5" textAnchor="middle" fontSize="7" fontWeight="700" fill="currentColor" stroke="none">M↓</text>
                   </svg>
                 )}
                 <span>{copied === 'md' ? 'Copied' : 'Copy as Markdown'}</span>
