@@ -474,7 +474,7 @@ export function Sidebar({
             }}
           >
             <BookOpen size={15} className="text-muted-foreground" />
-            <span style={{ flex: 1, textAlign: 'left' }}>User Guide</span>
+            <span style={{ flex: 1, textAlign: 'left' }}>ReadySet Docs</span>
           </button>
         </div>
       )}
