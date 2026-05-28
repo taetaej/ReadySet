@@ -626,7 +626,9 @@
 }
 
 .docs-mini-toc-copy-wrapper {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin-bottom: 20px;
 }
 
@@ -649,41 +651,6 @@
 .docs-mini-toc-copy-btn:hover {
   color: hsl(var(--foreground));
   background: hsl(var(--accent) / 0.5);
-}
-
-.docs-mini-toc-copy-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  padding: 4px;
-  min-width: 160px;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-  z-index: 10;
-}
-
-.docs-mini-toc-copy-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 400;
-  font-family: 'Manrope', sans-serif;
-  color: hsl(var(--foreground));
-  background: transparent;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.12s;
-}
-
-.docs-mini-toc-copy-menu-item:hover {
-  background: hsl(var(--accent));
 }
 
 .docs-mini-toc-header {

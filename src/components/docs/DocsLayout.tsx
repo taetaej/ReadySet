@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronRight, ChevronLeft, Search, ArrowLeft, Sun, Moon, LogOut, ChevronDown, ArrowUp, Share2, Link, FileText, Check } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Search, ArrowLeft, Sun, Moon, LogOut, ArrowUp, Link, FileText, Check } from 'lucide-react'
 import { docsStructure, DocPage } from './docsData'
 import { Avatar } from '../common/Avatar'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
@@ -31,7 +31,6 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const [searchFocused, setSearchFocused] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [copied, setCopied] = useState<'url' | 'md' | null>(null)
-  const [showCopyMenu, setShowCopyMenu] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -226,7 +225,6 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const copyPageLink = () => {
     navigator.clipboard.writeText(window.location.href)
     setCopied('url')
-    setShowCopyMenu(false)
     setTimeout(() => setCopied(null), 2000)
   }
 
@@ -234,7 +232,6 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const copyMarkdown = () => {
     navigator.clipboard.writeText(currentPage.content)
     setCopied('md')
-    setShowCopyMenu(false)
     setTimeout(() => setCopied(null), 2000)
   }
 
@@ -567,32 +564,26 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         {/* 우측 미니 TOC (On this page) */}
         {headings.length > 0 && (
           <aside className="docs-mini-toc">
-            {/* Share 드롭다운 */}
+            {/* Copy 버튼들 (드롭다운 없이 직접 노출) */}
             <div className="docs-mini-toc-copy-wrapper">
               <button
                 className="docs-mini-toc-copy-btn"
-                onClick={() => setShowCopyMenu(!showCopyMenu)}
+                onClick={copyPageLink}
               >
-                {copied ? <Check size={14} /> : <Share2 size={14} />}
-                <span>{copied ? 'Copied' : 'Share'}</span>
-                <ChevronDown size={12} />
+                {copied === 'url' ? <Check size={14} /> : <Link size={14} />}
+                <span>{copied === 'url' ? 'Copied' : 'Copy Link'}</span>
               </button>
-              {showCopyMenu && (
-                <div className="docs-mini-toc-copy-menu">
-                  <button className="docs-mini-toc-copy-menu-item" onMouseDown={copyPageLink}>
-                    <Link size={13} />
-                    <span>Copy Link</span>
-                  </button>
-                  <button className="docs-mini-toc-copy-menu-item" onMouseDown={copyMarkdown}>
-                    <FileText size={13} />
-                    <span>Copy as Markdown</span>
-                  </button>
-                </div>
-              )}
+              <button
+                className="docs-mini-toc-copy-btn"
+                onClick={copyMarkdown}
+              >
+                {copied === 'md' ? <Check size={14} /> : <FileText size={14} />}
+                <span>{copied === 'md' ? 'Copied' : 'Copy as Markdown'}</span>
+              </button>
             </div>
 
             <div className="docs-mini-toc-header">
-              <div className="docs-mini-toc-title">Table of contents</div>
+              <div className="docs-mini-toc-title">On this page</div>
             </div>
             <nav className="docs-mini-toc-nav">
               {headings.map((heading, idx) => (
