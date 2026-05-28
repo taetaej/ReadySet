@@ -39,7 +39,7 @@ TVC(TV 광고)와 Digital 매체 간 최적 예산 배분 비율을 탐색합니
 
 ## 지원 매체
 
-### DIGITAL
+### DIGITAL — 44개 매체, 219개 상품
 
 - Google Ads (31개 상품)
 - Meta (58개 상품)
@@ -48,7 +48,7 @@ TVC(TV 광고)와 Digital 매체 간 최적 예산 배분 비율을 탐색합니
 - TikTok (44개 상품)
 - 도달 미연동 매체 — NAVER 보장형 DA, NAVER 성과형 DA, SMR, 쿠팡, 토스, 티빙, 배달의민족, 당근 등 39개 (Reach Predictor 전용)
 
-### TV
+### TV — 3개 매체, 18개 채널
 
 - CJ ENM (11개 채널)
 - 지상파 (3개 채널)

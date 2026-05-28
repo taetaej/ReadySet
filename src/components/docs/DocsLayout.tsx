@@ -4,6 +4,7 @@ import { ChevronRight, ChevronLeft, Search, ArrowLeft, Sun, Moon, LogOut, ArrowU
 import { docsStructure, DocPage } from './docsData'
 import { Avatar } from '../common/Avatar'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
+import { DocsIntroPage } from './DocsIntroPage'
 
 interface DocsLayoutProps {
   isDarkMode?: boolean
@@ -521,9 +522,13 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
 
         {/* 메인 콘텐츠 */}
         <main className="docs-content" ref={contentRef}>
-          <article className="docs-article">
-            {renderMarkdown(currentPage.content)}
-          </article>
+          {currentPage.slug === 'intro' ? (
+            <DocsIntroPage />
+          ) : (
+            <article className="docs-article">
+              {renderMarkdown(currentPage.content)}
+            </article>
+          )}
 
           {/* 업데이트 날짜 */}
           {currentPage.updatedAt && (
