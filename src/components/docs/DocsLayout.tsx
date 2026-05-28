@@ -577,7 +577,15 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
                 className="docs-mini-toc-copy-btn"
                 onClick={copyMarkdown}
               >
-                {copied === 'md' ? <Check size={14} /> : <FileText size={14} />}
+                {copied === 'md' ? <Check size={14} /> : (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="1" y="2" width="14" height="12" rx="2" />
+                    <path d="M4 7V6l2 2.5L4 11v-1" />
+                    <path d="M12 7V6l-2 2.5L12 11v-1" />
+                    <path d="M8 9.5V12" />
+                    <path d="M6.5 12h3" />
+                  </svg>
+                )}
                 <span>{copied === 'md' ? 'Copied' : 'Copy as Markdown'}</span>
               </button>
             </div>
