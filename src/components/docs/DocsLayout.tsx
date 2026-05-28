@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronRight, ChevronLeft, Search, ArrowLeft, Sun, Moon, LogOut, ArrowUp, Link, FileText, Check } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Search, ArrowLeft, Sun, Moon, LogOut, ArrowUp, Link, FileText, Check, ChevronDown } from 'lucide-react'
 import { docsStructure, DocPage } from './docsData'
 import { Avatar } from '../common/Avatar'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
