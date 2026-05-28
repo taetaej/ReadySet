@@ -6,7 +6,7 @@ export const datashotSection: DocSection = {
   pages: [
     {
       id: 'datashot-overview',
-      title: '데이터셋 개요',
+      title: 'DataShot 개요',
       slug: 'datashot-overview',
       updatedAt: '2026-05-28',
       content: `# 데이터셋 개요

@@ -500,6 +500,29 @@
   color: hsl(var(--foreground));
 }
 
+.docs-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.docs-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid hsl(var(--primary) / 0.3);
+  transition: all 0.15s;
+}
+
+.docs-link:hover {
+  border-bottom-color: hsl(var(--primary));
+}
+
 /* Table */
 .docs-table-wrapper {
   margin: 16px 0;

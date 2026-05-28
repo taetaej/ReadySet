@@ -6,7 +6,7 @@ export const spinxSection: DocSection = {
   pages: [
     {
       id: 'spinx-overview',
-      title: '개요',
+      title: 'SpinX 개요',
       slug: 'spinx-overview',
       updatedAt: '2026-05-28',
       content: `# SpinX

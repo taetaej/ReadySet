@@ -24,13 +24,8 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   })
 
   const [expandedSections, setExpandedSections] = useState<string[]>(() => {
-    // 현재 slug가 속한 섹션 자동 열기
-    for (const section of docsStructure) {
-      for (const page of section.pages) {
-        if (page.slug === slug) return [section.id]
-      }
-    }
-    return ['getting-started']
+    // 모든 섹션 펼침 (disabled 제외)
+    return docsStructure.filter(s => !s.disabled).map(s => s.id)
   })
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
@@ -330,7 +325,17 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const inlineFormat = (text: string): string => {
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(NEW|IMPROVED|FIXED|DEPRECATED)`/g, (_, tag) => {
+        const colors: Record<string, string> = {
+          'NEW': 'background:hsl(var(--primary));color:hsl(var(--primary-foreground))',
+          'IMPROVED': 'background:hsl(var(--foreground)/0.1);color:hsl(var(--foreground))',
+          'FIXED': 'background:hsl(142 76% 36%/0.15);color:hsl(142 76% 36%)',
+          'DEPRECATED': 'background:hsl(var(--muted));color:hsl(var(--muted-foreground))'
+        }
+        return `<span class="docs-chip" style="${colors[tag]}">${tag}</span>`
+      })
       .replace(/`(.+?)`/g, '<code class="docs-inline-code">$1</code>')
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="docs-link" target="_blank" rel="noopener noreferrer">$1</a>')
   }
 
   return (
