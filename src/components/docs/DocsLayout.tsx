@@ -413,9 +413,14 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
                         }
                       }}
                     >
-                      <span className="docs-search-result-path">
-                        {result.sectionTitle} › {result.page.title}{result.heading ? ` › ${result.heading}` : ''}
-                      </span>
+                      <span className="docs-search-result-path"
+                        dangerouslySetInnerHTML={{
+                          __html: `${result.sectionTitle} › ${result.page.title}${result.heading ? ` › ${result.heading}` : ''}`.replace(
+                            new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                            '<mark class="docs-search-highlight">$1</mark>'
+                          )
+                        }}
+                      />
                       <span className="docs-search-result-snippet"
                         dangerouslySetInnerHTML={{
                           __html: result.snippet.replace(
