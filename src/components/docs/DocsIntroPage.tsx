@@ -1,13 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Database, Target, Sparkles, DollarSign, LayoutGrid, BookOpen, HelpCircle, FileText } from 'lucide-react'
-
-const solutions = [
-  { name: 'DataShot', desc: '업종별 광고 성과 벤치마크 데이터 추출', slug: 'datashot-overview', icon: Database },
-  { name: 'Reach Caster', desc: '도달률 예측 및 최적 매체 배분 탐색', slug: 'reach-caster-overview', icon: Target },
-  { name: 'Ad Curator', desc: '광고 소재 최적화', slug: 'ad-curator-overview', icon: Sparkles, disabled: true },
-  { name: 'Budget Optimizer', desc: '예산 최적화', slug: 'budget-optimizer-overview', icon: DollarSign, disabled: true },
-]
+import { Database, Target, Sparkles, DollarSign, LayoutGrid, HelpCircle, FileText } from 'lucide-react'
 
 const sections = [
   { name: 'ReadySet', desc: '플랫폼 소개 · SlotBoard', slug: 'slotboard-overview', icon: LayoutGrid },
@@ -25,31 +18,22 @@ export function DocsIntroPage() {
 
   return (
     <div className="docs-intro">
-      <h1 className="docs-intro-title">ReadySet</h1>
+      <h1 className="docs-intro-title">ReadySet Docs</h1>
       <p className="docs-intro-desc">
-        ReadySet은 광고 캠페인의 예측 분석을 위한 통합 플랫폼입니다. 업종별 특화 모델을 기반으로 도달률 예측, 매체 배분 최적화, 성과 벤치마크 분석을 지원합니다.
+        ReadySet 플랫폼의 사용자 가이드입니다. 각 솔루션의 사용 방법, 주요 기능, 워크플로우를 안내합니다.
       </p>
 
-      {/* 솔루션 카드 4개 */}
+      {/* Docs 소개 */}
       <section className="docs-intro-section">
-        <h2 className="docs-intro-section-title">솔루션</h2>
-        <div className="docs-intro-solutions">
-          {solutions.map((sol) => {
-            const Icon = sol.icon
-            return (
-              <button
-                key={sol.name}
-                className={`docs-intro-solution-card ${sol.disabled ? 'docs-intro-solution-card--disabled' : ''}`}
-                onClick={() => !sol.disabled && navigate(`/docs/${sol.slug}`)}
-                disabled={sol.disabled}
-              >
-                <Icon size={20} className="docs-intro-solution-icon" />
-                <div className="docs-intro-solution-name">{sol.name}</div>
-                <div className="docs-intro-solution-desc">{sol.desc}</div>
-                {sol.disabled && <span className="docs-intro-badge">준비중</span>}
-              </button>
-            )
-          })}
+        <div className="docs-intro-about">
+          <p>이 문서에서는 다음 내용을 확인할 수 있습니다:</p>
+          <ul>
+            <li>SlotBoard를 통한 작업 공간 생성 및 관리</li>
+            <li>DataShot으로 업종별 광고 성과 벤치마크 데이터 추출</li>
+            <li>Reach Caster로 도달률 예측 및 최적 매체 배분 탐색</li>
+            <li>SpinX AI 어시스턴트를 활용한 인사이트 분석</li>
+          </ul>
+          <p>좌측 메뉴 또는 아래 타일에서 원하는 가이드로 바로 이동할 수 있습니다.</p>
         </div>
       </section>
 
