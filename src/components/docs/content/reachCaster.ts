@@ -395,9 +395,9 @@ Digital과 TVC는 Reach 지표 제공 범위가 다릅니다.
 ---
 
 ## Reach Predictor 결과
-![|100%](/docs/images/reach-caster/004.png)
+![Key Metrics & Reach Curve |100%](/docs/images/reach-caster/004.png)
 
-### Key Metrics 스코어카드5
+### Key Metrics 스코어카드
 4개의 핵심 지표를 카드 형태로 요약합니다.
 
 | 지표 | 설명 |
