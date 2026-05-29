@@ -356,7 +356,7 @@ TVC와 Digital의 예산 비중 조합별 통합 도달률을 시각화합니다
 
 | 지표 | 설명 |
 |---|---|
-| 모집단 | 분석 대상 인구 수 (코리안클릭 기준) |
+| 모집단 | 분석 대상 인구 수 |
 | 구분 > 매체 > 상품/채널 | 카테고리별 매체 및 상품 트리 구조 |
 | Budget | 매체별 배분 예산 |
 | Impression | 예상 노출 수 |
@@ -397,7 +397,7 @@ Digital과 TVC는 Reach 지표 제공 범위가 다릅니다.
 ## Reach Predictor 결과
 ![Key Metrics & Reach Curve |100%](/docs/images/reach-caster/004.png)
 
-### Key Metrics 스코어카드
+### Key Metrics Summary 스코어카드
 4개의 핵심 지표를 카드 형태로 요약합니다.
 
 | 지표 | 설명 |
@@ -407,7 +407,7 @@ Digital과 TVC는 Reach 지표 제공 범위가 다릅니다.
 | 예상 GRP | Gross Rating Point 합산 |
 | 평균 CPM | 전체 매체 평균 1,000회 노출 비용 |
 
-### 리치커브 차트
+### Reach Curve Analysis 차트
 
 예산 구간별 예상 도달률을 시각화합니다.
 

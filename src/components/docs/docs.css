@@ -548,6 +548,31 @@
   text-align: center;
 }
 
+/* Image Lightbox */
+.docs-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: docs-lightbox-fade 0.15s ease;
+}
+
+.docs-lightbox-img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes docs-lightbox-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Table */
 .docs-table-wrapper {
   margin: 16px 0;

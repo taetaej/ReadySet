@@ -32,6 +32,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
   const [searchFocused, setSearchFocused] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [copied, setCopied] = useState<'url' | 'md' | null>(null)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const profileRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -332,15 +333,24 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         if (match) {
           let alt = match[1]
           let size = '60%'
-          // ![alt|80%](src) 형태로 크기 지정 가능
+          let zoomable = true
+          // ![alt|80%](src) 또는 ![alt|80%|nozoom](src)
           if (alt.includes('|')) {
             const parts = alt.split('|')
             alt = parts[0]
             size = parts[1].trim()
+            if (parts[2]?.trim() === 'nozoom') zoomable = false
           }
+          const imgSrc = match[2]
           elements.push(
             <figure key={i} className="docs-image-figure">
-              <img src={match[2]} alt={alt} className="docs-image" style={{ maxWidth: size }} />
+              <img
+                src={imgSrc}
+                alt={alt}
+                className="docs-image"
+                style={{ maxWidth: size, cursor: zoomable ? 'zoom-in' : 'default' }}
+                onClick={zoomable ? () => setLightboxSrc(imgSrc) : undefined}
+              />
               {alt && <figcaption className="docs-image-caption">{alt}</figcaption>}
             </figure>
           )
@@ -637,6 +647,13 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
           </aside>
         )}
       </div>
+
+      {/* Image Lightbox */}
+      {lightboxSrc && (
+        <div className="docs-lightbox" onClick={() => setLightboxSrc(null)}>
+          <img src={lightboxSrc} alt="" className="docs-lightbox-img" />
+        </div>
+      )}
     </div>
   )
 }
