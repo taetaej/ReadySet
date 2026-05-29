@@ -23,8 +23,7 @@ export function SpinXPanel({
   const prevOpenRef = React.useRef(false)
   React.useEffect(() => {
     if (isOpen && !prevOpenRef.current && initialMessage) {
-      chat.setMessage(initialMessage)
-      setTimeout(() => chat.handleSend(), 100)
+      chat.handleSend(initialMessage)
     }
     prevOpenRef.current = isOpen
   }, [isOpen, initialMessage])

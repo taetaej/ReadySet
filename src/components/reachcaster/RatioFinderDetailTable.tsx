@@ -295,10 +295,10 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
             }}>
               <span>Effective Impression</span>
               <div
-                onClick={() => onSpinXAsk?.('Effective Impression이 뭔가요?')}
-                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                onClick={() => onSpinXAsk?.('Effective Impression이 무엇인가요?')}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#09090b' }}
               >
-                <SpinXSymbol size={14} motion="idle" title="SpinX에게 물어보기" />
+                <SpinXSymbol size={12} motion="idle" title="SpinX에게 물어보기" style={{ transform: 'rotate(45deg)' }} />
               </div>
             </div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach (Count)</div>
