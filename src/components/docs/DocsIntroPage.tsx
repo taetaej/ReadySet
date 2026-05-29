@@ -4,10 +4,10 @@ import { ChevronRight, BookOpen, HelpCircle, FileText, Plus, Database, Zap } fro
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
 
 const solutions = [
-  { name: 'DataShot', desc: '업종별 광고 성과 벤치마크 데이터 분석으로\n미디어 플래닝의 근거를 마련합니다.', slug: 'datashot-overview' },
-  { name: 'Ad Curator', desc: '벤치마크 데이터를 기반으로\n캠페인에 적합한 광고 상품을 추천합니다.', slug: 'ad-curator-overview', disabled: true },
-  { name: 'Budget Optimizer', desc: '목표 성과에 맞춰\n매체별 예산을 최적 배분합니다.', slug: 'budget-optimizer-overview', disabled: true },
-  { name: 'Reach Caster', desc: '크로스미디어 예산 배분을 탐색하고,\n매체 믹스의 예상 도달률을 예측합니다.', slug: 'reach-caster-overview' },
+  { name: 'DataShot', desc: '업종별 벤치마크 기반으로\n광고 효율을 분석합니다.', slug: 'datashot-overview' },
+  { name: 'Ad Curator', desc: '캠페인 성과 데이터를 기반으로\n맞춤형 광고 상품을 큐레이션합니다.', slug: 'ad-curator-overview', disabled: true },
+  { name: 'Budget Optimizer', desc: 'KPI 목표에 맞춰\n미디어믹스 예산을 최적 배분합니다.', slug: 'budget-optimizer-overview', disabled: true },
+  { name: 'Reach Caster', desc: '크로스미디어 통합 도달을 예측하고\n최적 예산 배분을 시뮬레이션합니다.', slug: 'reach-caster-overview' },
 ]
 
 const workflow = [
@@ -34,11 +34,11 @@ export function DocsIntroPage() {
       <section className="docs-intro-hero">
         <p className="docs-intro-hero-label">ReadySet — Ready to Slot, Set to Win</p>
         <h1 className="docs-intro-hero-title">
-          광고 캠페인 전략 수립의<br />모든 과정을 하나로 연결합니다.
+          광고 캠페인 예측·분석부터<br />전략 완성까지, 하나로 연결합니다.
         </h1>
         <p className="docs-intro-hero-sub">
           ReadySet은 벤치마크 데이터 분석부터 광고 상품 추천, 예산 최적화, 도달률 예측까지<br />
-          — 캠페인의 전 과정을 하나의 Slot 안에서 관리하는 통합 플랫폼입니다.
+          — 캠페인의 전 과정을 하나의 Slot 안에서 관리하는 통합 광고 인텔리전스 플랫폼입니다.
         </p>
       </section>
 

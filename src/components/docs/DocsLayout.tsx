@@ -326,6 +326,25 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
             <span dangerouslySetInnerHTML={{ __html: inlineFormat(text) }} />
           </div>
         )
+      } else if (line.match(/^!\[.*\]\(.*\)$/)) {
+        flushList()
+        const match = line.match(/^!\[(.*?)\]\((.+?)\)$/)
+        if (match) {
+          let alt = match[1]
+          let size = '60%'
+          // ![alt|80%](src) 형태로 크기 지정 가능
+          if (alt.includes('|')) {
+            const parts = alt.split('|')
+            alt = parts[0]
+            size = parts[1].trim()
+          }
+          elements.push(
+            <figure key={i} className="docs-image-figure">
+              <img src={match[2]} alt={alt} className="docs-image" style={{ maxWidth: size }} />
+              {alt && <figcaption className="docs-image-caption">{alt}</figcaption>}
+            </figure>
+          )
+        }
       } else if (line.trim() === '') {
         flushList()
       } else {
