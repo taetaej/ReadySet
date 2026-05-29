@@ -1,16 +1,28 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Database, Target, Sparkles, DollarSign, LayoutGrid, HelpCircle, FileText } from 'lucide-react'
+import { ChevronRight, BookOpen, HelpCircle, FileText, Plus, Database, Zap } from 'lucide-react'
+import { SpinXSymbol } from '../spinx/SpinXSymbol'
 
-const sections = [
-  { name: 'ReadySet', desc: '플랫폼 소개 · SlotBoard', slug: 'slotboard-overview', icon: LayoutGrid },
-  { name: 'DataShot', desc: '데이터셋 생성 · 관리', slug: 'datashot-overview', icon: Database },
-  { name: 'Reach Caster', desc: '시나리오 생성 · 결과', slug: 'reach-caster-overview', icon: Target },
-  { name: 'Ad Curator', desc: '준비중', slug: 'ad-curator-overview', icon: Sparkles, disabled: true },
-  { name: 'Budget Optimizer', desc: '준비중', slug: 'budget-optimizer-overview', icon: DollarSign, disabled: true },
-  { name: 'SpinX', desc: 'AI 어시스턴트', slug: 'spinx-overview', icon: Sparkles },
-  { name: 'Resources', desc: 'FAQ · 용어 사전', slug: 'resources-faq', icon: HelpCircle },
-  { name: 'Release Notes', desc: '업데이트 내역', slug: 'release-notes-latest', icon: FileText },
+const solutions = [
+  { name: 'DataShot', desc: '업종별 광고 성과 벤치마크 데이터 분석으로\n미디어 플래닝의 근거를 마련합니다.', slug: 'datashot-overview' },
+  { name: 'Ad Curator', desc: '벤치마크 데이터를 기반으로\n캠페인에 적합한 광고 상품을 추천합니다.', slug: 'ad-curator-overview', disabled: true },
+  { name: 'Budget Optimizer', desc: '목표 성과에 맞춰\n매체별 예산을 최적 배분합니다.', slug: 'budget-optimizer-overview', disabled: true },
+  { name: 'Reach Caster', desc: '크로스미디어 예산 배분을 탐색하고,\n매체 믹스의 예상 도달률을 예측합니다.', slug: 'reach-caster-overview' },
+]
+
+const workflow = [
+  { step: '01', label: '데이터 분석', solution: 'DataShot' },
+  { step: '02', label: '상품 추천', solution: 'Ad Curator' },
+  { step: '03', label: '예산 최적화', solution: 'Budget Optimizer' },
+  { step: '04', label: '도달 예측', solution: 'Reach Caster' },
+]
+
+const quickRefs = [
+  { name: '시나리오 생성하기', slug: 'reach-caster-create', icon: Plus },
+  { name: '데이터셋 생성하기', slug: 'datashot-create', icon: Database },
+  { name: 'Slot 생성 및 관리', slug: 'slotboard-create', icon: BookOpen },
+  { name: 'SpinX 사용 방법', slug: 'spinx-reach-caster', icon: Zap },
+  { name: 'FAQ', slug: 'resources-faq', icon: HelpCircle },
 ]
 
 export function DocsIntroPage() {
@@ -18,44 +30,92 @@ export function DocsIntroPage() {
 
   return (
     <div className="docs-intro">
-      <h1 className="docs-intro-title">ReadySet Docs</h1>
-      <p className="docs-intro-desc">
-        ReadySet 플랫폼의 사용자 가이드입니다. 각 솔루션의 사용 방법, 주요 기능, 워크플로우를 안내합니다.
-      </p>
+      {/* Hero */}
+      <section className="docs-intro-hero">
+        <p className="docs-intro-hero-label">ReadySet — Ready to Slot, Set to Win</p>
+        <h1 className="docs-intro-hero-title">
+          광고 캠페인 전략 수립의<br />모든 과정을 하나로 연결합니다.
+        </h1>
+        <p className="docs-intro-hero-sub">
+          ReadySet은 벤치마크 데이터 분석부터 광고 상품 추천, 예산 최적화, 도달률 예측까지<br />
+          — 캠페인의 전 과정을 하나의 Slot 안에서 관리하는 통합 플랫폼입니다.
+        </p>
+      </section>
 
-      {/* Docs 소개 */}
+      {/* Solutions Grid */}
       <section className="docs-intro-section">
-        <div className="docs-intro-about">
-          <p>이 문서에서는 다음 내용을 확인할 수 있습니다:</p>
-          <ul>
-            <li>SlotBoard를 통한 작업 공간 생성 및 관리</li>
-            <li>DataShot으로 업종별 광고 성과 벤치마크 데이터 추출</li>
-            <li>Reach Caster로 도달률 예측 및 최적 매체 배분 탐색</li>
-            <li>SpinX AI 어시스턴트를 활용한 인사이트 분석</li>
-          </ul>
-          <p>좌측 메뉴 또는 아래 타일에서 원하는 가이드로 바로 이동할 수 있습니다.</p>
+        <div className="docs-intro-grid">
+          {solutions.map((sol) => (
+            <button
+              key={sol.name}
+              className={`docs-intro-card ${sol.disabled ? 'docs-intro-card--disabled' : ''}`}
+              onClick={() => !sol.disabled && navigate(`/docs/${sol.slug}`)}
+              disabled={sol.disabled}
+            >
+              {sol.disabled && <span className="docs-intro-card-badge">Coming Soon</span>}
+              <div className="docs-intro-card-name">{sol.name}</div>
+              <div className="docs-intro-card-desc">{sol.desc}</div>
+              {!sol.disabled && (
+                <span className="docs-intro-card-link">
+                  자세히 보기 <ChevronRight size={12} />
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* A to Z 타일 */}
+      {/* Workflow Timeline */}
       <section className="docs-intro-section">
-        <h2 className="docs-intro-section-title">ReadySet A to Z</h2>
-        <div className="docs-intro-tiles">
-          {sections.map((sec) => {
-            const Icon = sec.icon
+        <h2 className="docs-intro-section-title">Workflow</h2>
+        <div className="docs-intro-workflow">
+          {workflow.map((item, idx) => (
+            <React.Fragment key={item.step}>
+              <div className="docs-intro-workflow-step">
+                <span className="docs-intro-workflow-num">{item.step}</span>
+                <span className="docs-intro-workflow-label">{item.label}</span>
+                <span className="docs-intro-workflow-solution">{item.solution}</span>
+              </div>
+              {idx < workflow.length - 1 && <div className="docs-intro-workflow-line" />}
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
+      {/* SpinX Banner */}
+      <section className="docs-intro-section">
+        <button
+          className="docs-intro-spinx-banner"
+          onClick={() => navigate('/docs/spinx-overview')}
+        >
+          <div className="docs-intro-spinx-left">
+            <div className="docs-intro-spinx-symbol">
+              <SpinXSymbol size={32} motion="active" title="" style={{ transform: 'rotate(45deg)' }} />
+            </div>
+            <div>
+              <div className="docs-intro-spinx-title">SpinX</div>
+              <div className="docs-intro-spinx-desc">AI 어시스턴트로 분석 결과를 더 스마트하게 해석하세요.</div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="docs-intro-spinx-arrow" />
+        </button>
+      </section>
+
+      {/* Quick References */}
+      <section className="docs-intro-section">
+        <h2 className="docs-intro-section-title">Quick references</h2>
+        <div className="docs-intro-quick-refs">
+          {quickRefs.map((ref) => {
+            const Icon = ref.icon
             return (
               <button
-                key={sec.name}
-                className={`docs-intro-tile ${sec.disabled ? 'docs-intro-tile--disabled' : ''}`}
-                onClick={() => !sec.disabled && navigate(`/docs/${sec.slug}`)}
-                disabled={sec.disabled}
+                key={ref.slug}
+                className="docs-intro-quick-ref"
+                onClick={() => navigate(`/docs/${ref.slug}`)}
               >
-                <Icon size={18} className="docs-intro-tile-icon" />
-                <div>
-                  <div className="docs-intro-tile-name">{sec.name}</div>
-                  <div className="docs-intro-tile-desc">{sec.desc}</div>
-                </div>
-                {sec.disabled && <span className="docs-intro-tile-badge">준비중</span>}
+                <Icon size={15} className="docs-intro-quick-ref-icon" />
+                <span className="docs-intro-quick-ref-name">{ref.name}</span>
+                <ChevronRight size={14} className="docs-intro-quick-ref-arrow" />
               </button>
             )
           })}
