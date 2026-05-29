@@ -1,5 +1,6 @@
 // SpinXPanel.tsx — 메인 셸 (레이아웃 조합, 리셋 다이얼로그, URL 다이얼로그)
 
+import React from 'react'
 import type { SpinXPanelProps } from './spinxTypes'
 import { useSpinXChat } from './useSpinXChat'
 import { SpinXHeader } from './SpinXHeader'
@@ -13,9 +14,20 @@ export function SpinXPanel({
   isDarkMode = false,
   scenarioName = '25-34세 여성 타겟 집중 공략 디지털+TV 최적 비중 분석',
   analysisType = 'ratioFinder',
-  positioning = 'fixed'
+  positioning = 'fixed',
+  initialMessage
 }: SpinXPanelProps) {
   const chat = useSpinXChat()
+
+  // initialMessage가 있고 패널이 열릴 때 자동 전송
+  const prevOpenRef = React.useRef(false)
+  React.useEffect(() => {
+    if (isOpen && !prevOpenRef.current && initialMessage) {
+      chat.setMessage(initialMessage)
+      setTimeout(() => chat.handleSend(), 100)
+    }
+    prevOpenRef.current = isOpen
+  }, [isOpen, initialMessage])
 
   return (
     <div

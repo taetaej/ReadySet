@@ -169,6 +169,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
   const [spinXOpen, setSpinXOpen] = useState(false)
+  const [spinXInitialMessage, setSpinXInitialMessage] = useState<string | undefined>(undefined)
   const [comparisonPanelOpen, setComparisonPanelOpen] = useState(false)
   const [comparisonResultOpen, setComparisonResultOpen] = useState(false)
   const [comparisonScenarios, setComparisonScenarios] = useState<any[]>([])
@@ -798,6 +799,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           <ReachPredictorDetailTable 
             selectedData={scenarioData}
             isDarkMode={isDarkMode}
+            onSpinXAsk={(q) => { setSpinXInitialMessage(q); setSpinXOpen(true) }}
           />
         </div>
 
@@ -1433,10 +1435,11 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
       {/* SpinX 패널 */}
       <SpinXPanel 
         isOpen={spinXOpen} 
-        onClose={() => setSpinXOpen(false)} 
+        onClose={() => { setSpinXOpen(false); setSpinXInitialMessage(undefined) }} 
         isDarkMode={isDarkMode}
         scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
         analysisType="reachPredictor"
+        initialMessage={spinXInitialMessage}
       />
 
       {/* 시나리오 비교 패널 */}

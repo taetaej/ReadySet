@@ -11,10 +11,10 @@ const solutions = [
 ]
 
 const workflow = [
-  { step: '01', label: '데이터 분석', solution: 'DataShot' },
-  { step: '02', label: '상품 추천', solution: 'Ad Curator' },
-  { step: '03', label: '예산 최적화', solution: 'Budget Optimizer' },
-  { step: '04', label: '도달 예측', solution: 'Reach Caster' },
+  { step: '01', label: '벤치마크 데이터 추출', solution: 'DataShot' },
+  { step: '02', label: '광고 상품 큐레이션', solution: 'Ad Curator' },
+  { step: '03', label: '미디어믹스 최적화', solution: 'Budget Optimizer' },
+  { step: '04', label: '도달 예측 시뮬레이션', solution: 'Reach Caster' },
 ]
 
 const quickRefs = [
@@ -34,7 +34,7 @@ export function DocsIntroPage() {
       <section className="docs-intro-hero">
         <p className="docs-intro-hero-label">ReadySet — Ready to Slot, Set to Win</p>
         <h1 className="docs-intro-hero-title">
-          광고 캠페인 예측·분석부터<br />전략 완성까지, 하나로 연결합니다.
+          광고 캠페인 예측·분석부터 전략 완성까지,<br />하나의 Slot에서.
         </h1>
         <p className="docs-intro-hero-sub">
           ReadySet은 벤치마크 데이터 분석부터 광고 상품 추천, 예산 최적화, 도달률 예측까지<br />

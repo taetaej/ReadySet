@@ -7,6 +7,7 @@ export interface SpinXPanelProps {
   scenarioName?: string
   analysisType?: 'ratioFinder' | 'reachPredictor'
   positioning?: 'fixed' | 'absolute'
+  initialMessage?: string
 }
 
 export type LLMModel = {

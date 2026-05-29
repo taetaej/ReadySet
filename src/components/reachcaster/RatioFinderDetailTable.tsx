@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react'
-import { ChevronRight, Info } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import { SpinXSymbol } from '../spinx/SpinXSymbol'
 import { mediaData } from '../scenario/constants'
 
 interface DetailedDataTableProps {
   selectedData: any
   isDarkMode: boolean
+  onSpinXAsk?: (question: string) => void
 }
 
-export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTableProps) {
+export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: DetailedDataTableProps) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['DIGITAL', 'TVC'])
   const [effectiveImpressionTooltipOpen, setEffectiveImpressionTooltipOpen] = useState(false)
   
@@ -293,41 +295,10 @@ export function DetailedDataTable({ selectedData, isDarkMode }: DetailedDataTabl
             }}>
               <span>Effective Impression</span>
               <div
-                onMouseEnter={() => setEffectiveImpressionTooltipOpen(true)}
-                onMouseLeave={() => setEffectiveImpressionTooltipOpen(false)}
-                style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
+                onClick={() => onSpinXAsk?.('Effective Impression이 뭔가요?')}
+                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
               >
-                <Info size={14} style={{ cursor: 'help', opacity: 0.6 }} />
-                {effectiveImpressionTooltipOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: '0',
-                    marginTop: '8px',
-                    padding: '10px 14px',
-                    backgroundColor: 'hsl(var(--popover))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                    zIndex: 100,
-                    minWidth: '320px',
-                    maxWidth: '380px',
-                    fontSize: '11px',
-                    color: 'hsl(var(--foreground))',
-                    whiteSpace: 'normal',
-                    lineHeight: '1.6',
-                    pointerEvents: 'none',
-                    textAlign: 'left'
-                  }}>
-                    <div style={{ fontWeight: '500', marginBottom: '6px' }}>Effective Impression</div>
-                    <div style={{ fontWeight: '400' }}>
-                      설정하신 유효 타겟에게 물리적으로 인지 가능한(Viewable) 노출 수치를 의미합니다.
-                    </div>
-                    <div style={{ marginTop: '8px', fontWeight: '400' }}>
-                      Reach Caster의 예측 결과값은 해당 데이터를 기반으로 제공됩니다.
-                    </div>
-                  </div>
-                )}
+                <SpinXSymbol size={14} motion="idle" title="SpinX에게 물어보기" />
               </div>
             </div>
             <div style={{ padding: '12px 8px', textAlign: 'right' }}>Reach (Count)</div>

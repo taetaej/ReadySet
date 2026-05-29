@@ -68,6 +68,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [spinxOpen, setSpinxOpen] = useState(false)
+  const [spinxInitialMessage, setSpinxInitialMessage] = useState<string | undefined>(undefined)
   
   const chartRef = useRef<any>(null)
   
@@ -960,7 +961,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </div>
           
           {selectedData ? (
-            <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} />
+            <DetailedDataTable selectedData={selectedData} isDarkMode={isDarkMode} onSpinXAsk={(q) => { setSpinxInitialMessage(q); setSpinxOpen(true) }} />
           ) : (
             <div style={{
               padding: '60px',
@@ -1247,9 +1248,10 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       {/* SpinX 채팅 패널 */}
       <SpinXPanel
         isOpen={spinxOpen}
-        onClose={() => setSpinxOpen(false)}
+        onClose={() => { setSpinxOpen(false); setSpinxInitialMessage(undefined) }}
         isDarkMode={isDarkMode}
         analysisType="ratioFinder"
+        initialMessage={spinxInitialMessage}
       />
     </AppLayout>
   )
