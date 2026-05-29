@@ -321,15 +321,15 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode, onSpinXAsk
               padding: '12px 8px', 
               textAlign: 'right',
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               justifyContent: 'flex-end',
               gap: '4px',
               position: 'relative'
             }}>
-              <span>Effective Impression</span>
+              <span>Effective<br />Impression</span>
               <div
                 onClick={() => onSpinXAsk?.('Effective Impression이 무엇인가요?')}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#09090b' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', minWidth: '20px', width: '20px', minHeight: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#09090b', flexShrink: 0 }}
               >
                 <SpinXSymbol size={12} motion="idle" title="SpinX에게 물어보기" style={{ transform: 'rotate(45deg)' }} />
               </div>
