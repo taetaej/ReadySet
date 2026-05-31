@@ -113,7 +113,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       console.log('데이터셋 생성:', formData)
-      setShowToast({ type: 'success', message: 'Dataset이 성공적으로 생성되었습니다.' })
+      setShowToast({ type: 'success', message: '데이터셋 생성 요청이 완료되었습니다.' })
       setTimeout(() => navigate('/datashot'), 2000)
     } catch {
       setShowToast({ type: 'error', message: '데이터셋 생성 요청에 실패했습니다. 다시 시도해주세요.' })
