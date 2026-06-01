@@ -246,7 +246,7 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
           {/* 테이블 헤더 */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+            gridTemplateColumns: '80px 1fr 140px 120px 170px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
             backgroundColor: 'hsl(var(--muted))',
             borderBottom: '1px solid hsl(var(--border))',
             fontSize: '12px',
@@ -288,15 +288,15 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
               padding: '12px 8px', 
               textAlign: 'right',
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               justifyContent: 'flex-end',
               gap: '4px',
               position: 'relative'
             }}>
-              <span>Effective Impression</span>
+              <span>Effective<br />Impression</span>
               <div
                 onClick={() => onSpinXAsk?.('Effective Impression이 무엇인가요?')}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#09090b' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', minWidth: '20px', width: '20px', minHeight: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#09090b', flexShrink: 0 }}
               >
                 <SpinXSymbol size={12} motion="idle" title="SpinX에게 물어보기" style={{ transform: 'rotate(45deg)' }} />
               </div>
@@ -329,7 +329,7 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
                 onClick={() => hasData && toggleCategory(category)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                  gridTemplateColumns: '80px 1fr 140px 120px 170px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                   backgroundColor: 'hsl(var(--muted) / 0.5)',
                   borderBottom: '2px solid hsl(var(--border))',
                   cursor: hasData ? 'pointer' : 'default',
@@ -379,7 +379,7 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
                       onClick={() => toggleMedia(mediaKey)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                        gridTemplateColumns: '80px 1fr 140px 120px 170px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                         backgroundColor: 'hsl(var(--muted) / 0.35)',
                         borderBottom: '1px solid hsl(var(--border))',
                         cursor: 'pointer',
@@ -420,7 +420,7 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
                         key={idx}
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                          gridTemplateColumns: '80px 1fr 140px 120px 170px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                           backgroundColor: 'hsl(var(--background))',
                           borderBottom: '1px solid hsl(var(--border))',
                           fontSize: '11px',
@@ -459,7 +459,7 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '80px 1fr 140px 120px 140px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
+                gridTemplateColumns: '80px 1fr 140px 120px 170px 120px 100px 100px 120px 100px 100px 100px 100px 100px',
                 backgroundColor: 'hsl(var(--primary) / 0.15)',
                 borderTop: '3px solid hsl(var(--primary))',
                 fontSize: '14px',
