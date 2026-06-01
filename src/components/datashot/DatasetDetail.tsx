@@ -1356,28 +1356,28 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                           {row.targetingOption || '—'}
                         </td>
                       )}
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', borderLeft: '1px solid hsl(var(--border))', color: 'hsl(var(--foreground))' }}>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', borderLeft: '1px solid hsl(var(--border))', color: '#0A0A0A' }}>
                         {row.cost.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>
                         {row.impressions.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>
                         {row.clicks.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>회</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>
                         {row.cpc.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>
                         {row.cpm.toLocaleString()}
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>{row.ctr.toFixed(2)}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>{(row as any).vtr?.toFixed(1) ?? '—'}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>{row.ctr.toFixed(2)}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: '#0A0A0A' }}>{(row as any).vtr?.toFixed(1) ?? '—'}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
                     </tr>
                   ))}
                 </tbody>
