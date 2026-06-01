@@ -1,6 +1,7 @@
 // SpinXPanel.tsx — 메인 셸 (레이아웃 조합, 리셋 다이얼로그, URL 다이얼로그)
 
 import React from 'react'
+import { BarChart3 } from 'lucide-react'
 import type { SpinXPanelProps } from './spinxTypes'
 import { useSpinXChat } from './useSpinXChat'
 import { SpinXHeader } from './SpinXHeader'
@@ -85,62 +86,187 @@ export function SpinXPanel({
           flexShrink: 0
         }}
       >
-        {/* 역질문 선택 UI 또는 일반 입력 */}
-        {chat.clarifyingQuestion ? (
-          <SpinXClarifying
-            clarifyingQuestion={chat.clarifyingQuestion}
-            clarifyingSelected={chat.clarifyingSelected}
-            setClarifyingSelected={chat.setClarifyingSelected}
-            clarifyingMultiSelected={chat.clarifyingMultiSelected}
-            setClarifyingMultiSelected={chat.setClarifyingMultiSelected}
-            clarifyingCustom={chat.clarifyingCustom}
-            setClarifyingCustom={chat.setClarifyingCustom}
-            clarifyingCustomMode={chat.clarifyingCustomMode}
-            setClarifyingCustomMode={chat.setClarifyingCustomMode}
-            onSubmit={chat.handleClarifyingSubmit}
-            onSkip={chat.handleClarifyingSkip}
-          />
+        {/* 한도 초과 시: 입력창 비활성화 + placeholder 메시지 */}
+        {(chat.isLimitReached || chat.sessionLimitReached) ? (
+          <>
+            {/* 모델 표시 + 대화 유지 기간 (비활성 상태에서도 표시) */}
+            <div
+              style={{
+                fontSize: '10px',
+                color: 'hsl(var(--muted-foreground))',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                opacity: 0.5
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px' }}>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#00ff9d' }} />
+                <span style={{ fontSize: '10px' }}>{chat.selectedModel.displayName}</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%' }}>
+              <div style={{ flex: 1, position: 'relative', minWidth: 0, maxWidth: '100%' }}>
+                <textarea
+                  disabled
+                  placeholder={
+                    chat.isLimitReached
+                      ? '이번 달 SpinX 질문 한도(100회)에 도달했습니다. 다음 달에 다시 이용해 주세요.'
+                      : '세션 질문 한도(10개) 도달. 계속하시려면 대화 초기화 후 이용해 주세요.'
+                  }
+                  style={{
+                    width: '100%',
+                    minHeight: '44px',
+                    maxHeight: '120px',
+                    padding: '12px 60px 12px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid hsl(var(--border))',
+                    backgroundColor: 'hsl(var(--background))',
+                    color: 'hsl(var(--muted-foreground))',
+                    fontSize: '14px',
+                    fontFamily: 'Paperlogy, sans-serif',
+                    resize: 'none',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    cursor: 'not-allowed'
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    bottom: '8px',
+                    display: 'flex',
+                    gap: '4px'
+                  }}
+                >
+                  <button
+                    disabled
+                    style={{
+                      padding: '6px',
+                      opacity: 0.5,
+                      cursor: 'not-allowed',
+                      backgroundColor: 'hsl(var(--muted))',
+                      color: 'hsl(var(--muted-foreground))',
+                      border: 'none',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
-          <SpinXInput
-            message={chat.message}
-            setMessage={chat.setMessage}
-            isLoading={chat.isLoading}
-            selectedModel={chat.selectedModel}
-            modelMenuOpen={chat.modelMenuOpen}
-            setModelMenuOpen={chat.setModelMenuOpen}
-            sessionTooltipOpen={chat.sessionTooltipOpen}
-            setSessionTooltipOpen={chat.setSessionTooltipOpen}
-            attachMenuOpen={chat.attachMenuOpen}
-            attachedFile={chat.attachedFile}
-            attachedUrl={chat.attachedUrl}
-            fileInputRef={chat.fileInputRef}
-            daysRemaining={chat.daysRemaining}
-            hoursRemaining={chat.hoursRemaining}
-            minutesRemaining={chat.minutesRemaining}
-            onSend={() => chat.handleSend()}
-            onStop={chat.handleStop}
-            onKeyDown={chat.handleKeyDown}
-            onAttachClick={chat.handleAttachClick}
-            onImageAdd={chat.handleImageAdd}
-            onPdfAdd={chat.handlePdfAdd}
-            onUrlAdd={chat.handleUrlAdd}
-            onFileSelect={chat.handleFileSelect}
-            removeAttachment={chat.removeAttachment}
-            onModelSelect={chat.handleModelSelect}
-          />
+          <>
+            {/* 역질문 선택 UI 또는 일반 입력 */}
+            {chat.clarifyingQuestion ? (
+              <SpinXClarifying
+                clarifyingQuestion={chat.clarifyingQuestion}
+                clarifyingSelected={chat.clarifyingSelected}
+                setClarifyingSelected={chat.setClarifyingSelected}
+                clarifyingMultiSelected={chat.clarifyingMultiSelected}
+                setClarifyingMultiSelected={chat.setClarifyingMultiSelected}
+                clarifyingCustom={chat.clarifyingCustom}
+                setClarifyingCustom={chat.setClarifyingCustom}
+                clarifyingCustomMode={chat.clarifyingCustomMode}
+                setClarifyingCustomMode={chat.setClarifyingCustomMode}
+                onSubmit={chat.handleClarifyingSubmit}
+                onSkip={chat.handleClarifyingSkip}
+              />
+            ) : (
+              <SpinXInput
+                message={chat.message}
+                setMessage={chat.setMessage}
+                isLoading={chat.isLoading}
+                selectedModel={chat.selectedModel}
+                modelMenuOpen={chat.modelMenuOpen}
+                setModelMenuOpen={chat.setModelMenuOpen}
+                sessionTooltipOpen={chat.sessionTooltipOpen}
+                setSessionTooltipOpen={chat.setSessionTooltipOpen}
+                attachMenuOpen={chat.attachMenuOpen}
+                attachedFile={chat.attachedFile}
+                attachedUrl={chat.attachedUrl}
+                fileInputRef={chat.fileInputRef}
+                daysRemaining={chat.daysRemaining}
+                hoursRemaining={chat.hoursRemaining}
+                minutesRemaining={chat.minutesRemaining}
+                onSend={() => chat.handleSend()}
+                onStop={chat.handleStop}
+                onKeyDown={chat.handleKeyDown}
+                onAttachClick={chat.handleAttachClick}
+                onImageAdd={chat.handleImageAdd}
+                onPdfAdd={chat.handlePdfAdd}
+                onUrlAdd={chat.handleUrlAdd}
+                onFileSelect={chat.handleFileSelect}
+                removeAttachment={chat.removeAttachment}
+                onModelSelect={chat.handleModelSelect}
+              />
+            )}
+          </>
         )}
 
-        {/* AI 면책 문구 */}
+        {/* 면책 문구 + Usage 한 줄 */}
         <div style={{
-          textAlign: 'center',
-          fontSize: '11px',
-          color: 'hsl(var(--muted-foreground))',
-          opacity: 0.6,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           marginTop: '8px',
+          fontSize: '11px',
           fontFamily: 'Paperlogy, sans-serif',
-          lineHeight: '1.4'
+          color: 'hsl(var(--muted-foreground))'
         }}>
-          AI의 답변은 부정확할 수 있습니다. 중요한 정보는 반드시 확인하세요.
+          <span>AI 답변은 부정확할 수 있습니다.</span>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'help',
+              position: 'relative',
+              color: chat.isLimitReached ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'
+            }}
+            onMouseEnter={(e) => {
+              const tooltip = e.currentTarget.querySelector('[data-usage-tooltip]') as HTMLElement
+              if (tooltip) tooltip.style.display = 'block'
+            }}
+            onMouseLeave={(e) => {
+              const tooltip = e.currentTarget.querySelector('[data-usage-tooltip]') as HTMLElement
+              if (tooltip) tooltip.style.display = 'none'
+            }}
+          >
+            <BarChart3 size={11} />
+            <span>Usage {chat.monthlyChatCount} / {chat.monthlyChatLimit}</span>
+            <div
+              data-usage-tooltip=""
+              style={{
+                display: 'none',
+                position: 'absolute',
+                bottom: '100%',
+                right: 0,
+                marginBottom: '8px',
+                width: '200px',
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                zIndex: 1000,
+                fontFamily: 'Paperlogy, sans-serif',
+                fontSize: '12px'
+              }}
+            >
+              <div style={{ fontWeight: '600', marginBottom: '4px' }}>월간 질문 한도</div>
+              <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                매월 이용 가능한 SpinX 질문 횟수입니다. 매월 1일에 자동으로 초기화됩니다.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
