@@ -30,6 +30,8 @@ interface SpinXInputProps {
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
   removeAttachment: () => void
   onModelSelect: (model: LLMModel) => void
+  isDisabled?: boolean
+  disabledPlaceholder?: string
 }
 
 export function SpinXInput({
@@ -57,7 +59,9 @@ export function SpinXInput({
   onUrlAdd,
   onFileSelect,
   removeAttachment,
-  onModelSelect
+  onModelSelect,
+  isDisabled = false,
+  disabledPlaceholder
 }: SpinXInputProps) {
   return (
     <>
@@ -267,7 +271,8 @@ export function SpinXInput({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="SpinX에게 무엇이든 물어보세요!"
+            placeholder={isDisabled ? disabledPlaceholder : "SpinX에게 무엇이든 물어보세요!"}
+            disabled={isDisabled}
             style={{
               width: '100%',
               minHeight: '44px',
@@ -282,7 +287,8 @@ export function SpinXInput({
               resize: 'none',
               outline: 'none',
               transition: 'border-color 0.2s',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              cursor: isDisabled ? 'not-allowed' : 'text'
             }}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = 'hsl(var(--ring))'
@@ -426,13 +432,13 @@ export function SpinXInput({
             ) : (
               <button
                 onClick={onSend}
-                disabled={!message.trim() || isLoading}
+                disabled={isDisabled || !message.trim() || isLoading}
                 style={{
                   padding: '6px',
-                  opacity: message.trim() && !isLoading ? 1 : 0.5,
-                  cursor: message.trim() && !isLoading ? 'pointer' : 'not-allowed',
-                  backgroundColor: message.trim() && !isLoading ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
-                  color: message.trim() && !isLoading ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
+                  opacity: !isDisabled && message.trim() && !isLoading ? 1 : 0.5,
+                  cursor: !isDisabled && message.trim() && !isLoading ? 'pointer' : 'not-allowed',
+                  backgroundColor: !isDisabled && message.trim() && !isLoading ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
+                  color: !isDisabled && message.trim() && !isLoading ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
                   border: 'none',
                   borderRadius: '6px',
                   display: 'flex',

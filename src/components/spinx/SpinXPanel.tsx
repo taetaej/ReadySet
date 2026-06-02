@@ -89,78 +89,40 @@ export function SpinXPanel({
         {/* 한도 초과 시: 입력창 비활성화 + placeholder 메시지 */}
         {(chat.isLimitReached || chat.sessionLimitReached) ? (
           <>
-            {/* 모델 표시 + 대화 유지 기간 (비활성 상태에서도 표시) */}
-            <div
-              style={{
-                fontSize: '10px',
-                color: 'hsl(var(--muted-foreground))',
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                opacity: 0.5
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px' }}>
-                <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#00ff9d' }} />
-                <span style={{ fontSize: '10px' }}>{chat.selectedModel.displayName}</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%' }}>
-              <div style={{ flex: 1, position: 'relative', minWidth: 0, maxWidth: '100%' }}>
-                <textarea
-                  disabled
-                  placeholder={
-                    chat.isLimitReached
-                      ? '이번 달 SpinX 질문 한도(100회)에 도달했습니다. 다음 달에 다시 이용해 주세요.'
-                      : '세션 질문 한도(10개) 도달. 계속하시려면 대화 초기화 후 이용해 주세요.'
-                  }
-                  style={{
-                    width: '100%',
-                    minHeight: '44px',
-                    maxHeight: '120px',
-                    padding: '12px 60px 12px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid hsl(var(--border))',
-                    backgroundColor: 'hsl(var(--background))',
-                    color: 'hsl(var(--muted-foreground))',
-                    fontSize: '14px',
-                    fontFamily: 'Paperlogy, sans-serif',
-                    resize: 'none',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    cursor: 'not-allowed'
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: '8px',
-                    bottom: '8px',
-                    display: 'flex',
-                    gap: '4px'
-                  }}
-                >
-                  <button
-                    disabled
-                    style={{
-                      padding: '6px',
-                      opacity: 0.5,
-                      cursor: 'not-allowed',
-                      backgroundColor: 'hsl(var(--muted))',
-                      color: 'hsl(var(--muted-foreground))',
-                      border: 'none',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
+            {/* 모델 표시 + 대화 유지 기간 (정상 상태 그대로 유지) */}
+            <SpinXInput
+                message=""
+                setMessage={() => {}}
+                isLoading={false}
+                selectedModel={chat.selectedModel}
+                modelMenuOpen={chat.modelMenuOpen}
+                setModelMenuOpen={chat.setModelMenuOpen}
+                sessionTooltipOpen={chat.sessionTooltipOpen}
+                setSessionTooltipOpen={chat.setSessionTooltipOpen}
+                attachMenuOpen={false}
+                attachedFile={null}
+                attachedUrl=""
+                fileInputRef={chat.fileInputRef}
+                daysRemaining={chat.daysRemaining}
+                hoursRemaining={chat.hoursRemaining}
+                minutesRemaining={chat.minutesRemaining}
+                onSend={() => {}}
+                onStop={() => {}}
+                onKeyDown={() => {}}
+                onAttachClick={() => {}}
+                onImageAdd={() => {}}
+                onPdfAdd={() => {}}
+                onUrlAdd={() => {}}
+                onFileSelect={() => {}}
+                removeAttachment={() => {}}
+                onModelSelect={chat.handleModelSelect}
+                isDisabled
+                disabledPlaceholder={
+                  chat.isLimitReached
+                    ? '월간 질문 한도(100회)에 도달했습니다. 다음 달에 다시 이용해 주세요.'
+                    : '세션 질문 한도(10개)에 도달했습니다. 대화 초기화 후 이용해 주세요.'
+                }
+              />
           </>
         ) : (
           <>

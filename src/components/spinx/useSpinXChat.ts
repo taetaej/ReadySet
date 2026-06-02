@@ -35,7 +35,7 @@ export function useSpinXChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [currentQuestion, setCurrentQuestion] = useState<string>('')
   const timeoutRef = useRef<TimerId | null>(null)
-  const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[3]) // Gemini 3pro
+  const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[0]) // Claude Sonnet 4.6
   const [modelMenuOpen, setModelMenuOpen] = useState(false)
   const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
   const [expandedRagSources, setExpandedRagSources] = useState<Set<number>>(new Set())

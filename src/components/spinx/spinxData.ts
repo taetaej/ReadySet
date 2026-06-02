@@ -3,10 +3,9 @@
 import type { LLMModel, MessageContent, ClarifyingQuestion } from './spinxTypes'
 
 export const availableModels: LLMModel[] = [
-  { provider: 'Anthropic', name: 'claude-sonnet-4.5', displayName: 'Claude Sonnet 4.5', description: '데이터 해석 · 전략 수립' },
-  { provider: 'Anthropic', name: 'claude-haiku-4.5', displayName: 'Claude Haiku 4.5', description: '빠르고 명확한 답변' },
-  { provider: 'OpenAI', name: 'gpt-4o', displayName: 'Chat GPT 4o', description: '창의적 기획 · 아이디어' },
-  { provider: 'Google', name: 'gemini-3pro', displayName: 'Gemini 3pro', description: '대량 컨텍스트 · 시장 탐색' }
+  { provider: 'Anthropic', name: 'claude-sonnet-4.6', displayName: 'Claude Sonnet 4.6', description: '데이터 해석 · 전략 수립' },
+  { provider: 'OpenAI', name: 'gpt-5-4', displayName: 'GPT 5-4', description: '복잡한 추론 · 심층 분석' },
+  { provider: 'OpenAI', name: 'gpt-5-4-mini', displayName: 'GPT 5-4 mini', description: '빠른 질의응답 · 콤팩트 분석' }
 ]
 
 export const suggestedQuestions = [
