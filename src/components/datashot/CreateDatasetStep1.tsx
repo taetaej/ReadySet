@@ -115,7 +115,7 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
         </div>
         {validationActive && !formData.purpose && (
           <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
-            데이터셋 용도를 선택해주세요.
+            지표 구성을 선택해주세요.
           </div>
         )}
       </div>

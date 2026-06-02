@@ -16,6 +16,7 @@ export interface Dataset {
   created: string
   creator: string
   creatorId: string
+  purpose?: 'internal' | 'external' | '' // 지표 구성 (종합/성과)
 }
 
 // 샘플 데이터
@@ -23,8 +24,8 @@ export const sampleDatasets: Dataset[] = [
   { id: 1,  name: '2024년 1월 Google Ads 캠페인 데이터', media: 'Google Ads',       industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-01', endDate: '2024-01', periodType: 'month',   status: 'Completed',  created: '2024-02-01 14:30', creator: '김철수', creatorId: 'kimcheolsu@gmail.com' },
   { id: 2,  name: 'Meta 광고 성과 분석 데이터',          media: 'Meta',              industry: '3개 업종', industryLevel: 'major', industryCount: 3,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Processing', created: '2024-02-10 09:15', creator: '이영희', creatorId: 'leeyounghee@naver.com' },
   { id: 3,  name: '카카오 모먼트 캠페인 추출',            media: 'kakao모먼트',       industry: '식품',    industryLevel: 'mid',   industryCount: 1,         startDate: '2024-02', endDate: '2024-02', periodType: 'month',   status: 'Pending',    created: '2024-02-20 11:20', creator: '박민수', creatorId: 'parkminsu@kakao.com' },
-  { id: 4,  name: '네이버 성과형 DA 광고 데이터',         media: '네이버 성과형 DA',  industry: '5개 업종', industryLevel: 'mid',   industryCount: 5,         startDate: '2024-1',  endDate: '2024-1',  periodType: 'quarter', status: 'Error',      created: '2024-02-15 15:40', creator: '최지은', creatorId: 'choijieun@naver.com' },
-  { id: 5,  name: 'TikTok 광고 성과 데이터',             media: 'TikTok',            industry: '패션',    industryLevel: 'minor', industryCount: 2,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Completed',  created: '2024-03-01 10:00', creator: '정현우', creatorId: 'junghyunwoo@gmail.com' },
+  { id: 4,  name: '네이버 성과형 DA 광고 데이터',         media: '네이버 성과형 DA',  industry: '5개 업종', industryLevel: 'mid',   industryCount: 5,         startDate: '2024-1',  endDate: '2024-1',  periodType: 'quarter', status: 'Completed',  created: '2024-02-15 15:40', creator: '최지은', creatorId: 'choijieun@naver.com', purpose: 'internal' },
+  { id: 5,  name: 'TikTok 광고 성과 데이터',             media: 'TikTok',            industry: '패션',    industryLevel: 'minor', industryCount: 2,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Completed',  created: '2024-03-01 10:00', creator: '정현우', creatorId: 'junghyunwoo@gmail.com', purpose: 'internal' },
   { id: 6,  name: '네이버 보장형 DA 캠페인 분석',         media: '네이버 보장형 DA',  industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-02', endDate: '2024-03', periodType: 'month',   status: 'Processing', created: '2024-02-05 13:25', creator: '강민지', creatorId: 'kangminji@naver.com' },
   { id: 7,  name: 'Google Ads 디스플레이 캠페인',        media: 'Google Ads',       industry: '2개 업종', industryLevel: 'major', industryCount: 2,         startDate: '2024-1',  endDate: '2024-2',  periodType: 'quarter', status: 'Expired',    created: '2024-01-22 16:10', creator: '윤서준', creatorId: 'yoonseojun@gmail.com' },
   { id: 8,  name: 'Meta 신제품 런칭 캠페인',              media: 'Meta',              industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-03', endDate: '2024-03', periodType: 'month',   status: 'Pending',    created: '2024-02-20 10:45', creator: '조은비', creatorId: 'joeunbi@naver.com' },

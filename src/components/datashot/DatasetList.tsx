@@ -41,6 +41,12 @@ export function DatasetList() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deletingDatasets, setDeletingDatasets] = useState<number[]>([])
 
+  // 토스트 상태
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', title: string, message: string } | null>(null)
+
+  // 이동 불가 안내 다이얼로그 상태
+  const [showMoveBlockDialog, setShowMoveBlockDialog] = useState(false)
+  const [blockedDatasets, setBlockedDatasets] = useState<string[]>([])
   // 체크박스 전체 선택/해제
   const handleSelectAll = () => {
     if (selectAll) {
@@ -568,6 +574,15 @@ export function DatasetList() {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     onClick={() => {
                       if (isClickable) {
+                        if (dataset.purpose === 'internal') {
+                          setShowToast({
+                            type: 'error',
+                            title: '조회 제한',
+                            message: '종합 지표 데이터셋은 External Slot에서 조회가 불가능합니다. 데이터셋을 Private 또는 Internal Slot으로 이동하거나 관리자에게 문의해 주세요.'
+                          })
+                          setTimeout(() => setShowToast(null), 5000)
+                          return
+                        }
                         navigate(`/datashot/${dataset.id}`, {
                           state: {
                             datasetData: dataset,
@@ -874,6 +889,15 @@ export function DatasetList() {
               </button>
               <button
                 onClick={() => {
+                  // 종합 지표 데이터셋 체크
+                  const internalDatasets = sampleDatasets.filter(
+                    d => selectedDatasets.includes(d.id) && d.purpose === 'internal'
+                  )
+                  if (internalDatasets.length > 0) {
+                    setBlockedDatasets(internalDatasets.map(d => d.name))
+                    setShowMoveBlockDialog(true)
+                    return
+                  }
                   console.log('이동:', selectedDatasets)
                   setShowMoveDialog(false)
                   setSelectedDatasets([])
@@ -882,6 +906,29 @@ export function DatasetList() {
                 className="btn btn-primary btn-sm"
               >
                 이동
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 이동 불가 안내 다이얼로그 */}
+      {showMoveBlockDialog && (
+        <div className="dialog-overlay" style={{ zIndex: 1100 }}>
+          <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">이동 불가 안내</h3>
+              <p className="dialog-description">
+                선택한 데이터셋 중 External Slot으로 이동할 수 없는 종합 지표 데이터셋이 포함되어 있습니다.
+                해당 데이터셋을 제외한 후 다시 시도해 주세요.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowMoveBlockDialog(false)}
+                className="btn btn-primary btn-sm"
+              >
+                확인
               </button>
             </div>
           </div>
@@ -929,6 +976,22 @@ export function DatasetList() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 토스트 메시지 */}
+      {showToast && (
+        <div className={`toast toast--${showToast.type}`}>
+          <div className="toast__content">
+            <p className="toast__title">{showToast.title}</p>
+            <p className="toast__description">{showToast.message}</p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            ×
+          </button>
         </div>
       )}
     </AppLayout>
