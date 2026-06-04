@@ -46,7 +46,7 @@ export function DatasetList() {
 
   // 이동 불가 안내 다이얼로그 상태
   const [showMoveBlockDialog, setShowMoveBlockDialog] = useState(false)
-  const [blockedDatasets, setBlockedDatasets] = useState<string[]>([])
+  const [blockedDatasets, setBlockedDatasets] = useState<{ id: string; name: string }[]>([])
   // 체크박스 전체 선택/해제
   const handleSelectAll = () => {
     if (selectAll) {
@@ -894,7 +894,7 @@ export function DatasetList() {
                     d => selectedDatasets.includes(d.id) && d.purpose === 'internal'
                   )
                   if (internalDatasets.length > 0) {
-                    setBlockedDatasets(internalDatasets.map(d => d.name))
+                    setBlockedDatasets(internalDatasets.map(d => ({ id: d.id, name: d.name })))
                     setShowMoveBlockDialog(true)
                     return
                   }
@@ -919,9 +919,30 @@ export function DatasetList() {
             <div className="dialog-header">
               <h3 className="dialog-title">이동 불가 안내</h3>
               <p className="dialog-description">
-                선택한 데이터셋 중 External Slot으로 이동할 수 없는 종합 지표 데이터셋이 포함되어 있습니다.
+                아래 {blockedDatasets.length}건의 종합 지표 데이터셋은 External Slot으로 이동할 수 없습니다.
+                <br />
                 해당 데이터셋을 제외한 후 다시 시도해 주세요.
               </p>
+            </div>
+            <div style={{ padding: '0 24px 16px', maxHeight: '160px', overflowY: 'auto' }}>
+              <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+                <table className="data-table" style={{ width: '100%', fontSize: '13px' }}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>데이터셋명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {blockedDatasets.map((dataset) => (
+                      <tr key={dataset.id}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{dataset.id}</td>
+                        <td>{dataset.name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div className="dialog-footer">
               <button
