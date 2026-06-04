@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Layers, TrendingUp } from 'lucide-react'
 import { MonthRangePicker } from './MonthRangePicker'
 import { IndustryDialog } from './IndustryDialog'
 import { FormData, validateDateRange } from './createDatasetTypes'
@@ -61,6 +61,63 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
         <div style={{ textAlign: 'right', fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '4px' }}>
           {(formData.description || '').length}/200
         </div>
+      </div>
+
+      {/* 데이터셋 용도 */}
+      <div style={{ marginBottom: '24px' }}>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+          지표 구성 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+        </label>
+        <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
+          종합 지표는 Private 또는 Internal Slot에서만 선택할 수 있습니다.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <button
+            onClick={() => setFormData({ ...formData, purpose: 'internal' })}
+            style={{
+              padding: '16px',
+              border: `1px solid ${formData.purpose === 'internal' ? 'hsl(var(--primary))' : validationActive && !formData.purpose ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
+              borderRadius: '8px',
+              backgroundColor: formData.purpose === 'internal' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'all 0.2s'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '16px', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+              <Layers size={18} style={{ color: 'hsl(var(--foreground))' }} />
+              종합 지표
+            </div>
+            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              전체 성과 흐름을 통합적으로 확인할 수 있도록 모든 효율 및 비용 지표를 제공
+            </div>
+          </button>
+          <button
+            onClick={() => setFormData({ ...formData, purpose: 'external' })}
+            style={{
+              padding: '16px',
+              border: `1px solid ${formData.purpose === 'external' ? 'hsl(var(--primary))' : validationActive && !formData.purpose ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
+              borderRadius: '8px',
+              backgroundColor: formData.purpose === 'external' ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'all 0.2s'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '16px', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+              <TrendingUp size={18} style={{ color: 'hsl(var(--foreground))' }} />
+              성과 지표
+            </div>
+            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              CTR, CPC 등 순수 효율과 성과 트렌드 분석에 최적화된 데이터셋
+            </div>
+          </button>
+        </div>
+        {validationActive && !formData.purpose && (
+          <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
+            지표 구성을 선택해주세요.
+          </div>
+        )}
       </div>
 
       <hr style={{ border: 'none', borderTop: '1px solid hsl(var(--border))', margin: '32px 0' }} />
