@@ -1,6 +1,7 @@
 // SpinXPanel.tsx — 메인 셸 (레이아웃 조합, 리셋 다이얼로그, URL 다이얼로그)
 
 import React from 'react'
+import { BarChart3 } from 'lucide-react'
 import type { SpinXPanelProps } from './spinxTypes'
 import { useSpinXChat } from './useSpinXChat'
 import { SpinXHeader } from './SpinXHeader'
@@ -85,62 +86,149 @@ export function SpinXPanel({
           flexShrink: 0
         }}
       >
-        {/* 역질문 선택 UI 또는 일반 입력 */}
-        {chat.clarifyingQuestion ? (
-          <SpinXClarifying
-            clarifyingQuestion={chat.clarifyingQuestion}
-            clarifyingSelected={chat.clarifyingSelected}
-            setClarifyingSelected={chat.setClarifyingSelected}
-            clarifyingMultiSelected={chat.clarifyingMultiSelected}
-            setClarifyingMultiSelected={chat.setClarifyingMultiSelected}
-            clarifyingCustom={chat.clarifyingCustom}
-            setClarifyingCustom={chat.setClarifyingCustom}
-            clarifyingCustomMode={chat.clarifyingCustomMode}
-            setClarifyingCustomMode={chat.setClarifyingCustomMode}
-            onSubmit={chat.handleClarifyingSubmit}
-            onSkip={chat.handleClarifyingSkip}
-          />
+        {/* 한도 초과 시: 입력창 비활성화 + placeholder 메시지 */}
+        {(chat.isLimitReached || chat.sessionLimitReached) ? (
+          <>
+            {/* 모델 표시 + 대화 유지 기간 (정상 상태 그대로 유지) */}
+            <SpinXInput
+                message=""
+                setMessage={() => {}}
+                isLoading={false}
+                selectedModel={chat.selectedModel}
+                modelMenuOpen={chat.modelMenuOpen}
+                setModelMenuOpen={chat.setModelMenuOpen}
+                sessionTooltipOpen={chat.sessionTooltipOpen}
+                setSessionTooltipOpen={chat.setSessionTooltipOpen}
+                attachMenuOpen={false}
+                attachedFile={null}
+                attachedUrl=""
+                fileInputRef={chat.fileInputRef}
+                daysRemaining={chat.daysRemaining}
+                hoursRemaining={chat.hoursRemaining}
+                minutesRemaining={chat.minutesRemaining}
+                onSend={() => {}}
+                onStop={() => {}}
+                onKeyDown={() => {}}
+                onAttachClick={() => {}}
+                onImageAdd={() => {}}
+                onPdfAdd={() => {}}
+                onUrlAdd={() => {}}
+                onFileSelect={() => {}}
+                removeAttachment={() => {}}
+                onModelSelect={chat.handleModelSelect}
+                isDisabled
+                disabledPlaceholder={
+                  chat.isLimitReached
+                    ? '월간 질문 한도(100회)에 도달했습니다. 다음 달에 다시 이용해 주세요.'
+                    : '세션 질문 한도(10개)에 도달했습니다. 대화 초기화 후 이용해 주세요.'
+                }
+              />
+          </>
         ) : (
-          <SpinXInput
-            message={chat.message}
-            setMessage={chat.setMessage}
-            isLoading={chat.isLoading}
-            selectedModel={chat.selectedModel}
-            modelMenuOpen={chat.modelMenuOpen}
-            setModelMenuOpen={chat.setModelMenuOpen}
-            sessionTooltipOpen={chat.sessionTooltipOpen}
-            setSessionTooltipOpen={chat.setSessionTooltipOpen}
-            attachMenuOpen={chat.attachMenuOpen}
-            attachedFile={chat.attachedFile}
-            attachedUrl={chat.attachedUrl}
-            fileInputRef={chat.fileInputRef}
-            daysRemaining={chat.daysRemaining}
-            hoursRemaining={chat.hoursRemaining}
-            minutesRemaining={chat.minutesRemaining}
-            onSend={() => chat.handleSend()}
-            onStop={chat.handleStop}
-            onKeyDown={chat.handleKeyDown}
-            onAttachClick={chat.handleAttachClick}
-            onImageAdd={chat.handleImageAdd}
-            onPdfAdd={chat.handlePdfAdd}
-            onUrlAdd={chat.handleUrlAdd}
-            onFileSelect={chat.handleFileSelect}
-            removeAttachment={chat.removeAttachment}
-            onModelSelect={chat.handleModelSelect}
-          />
+          <>
+            {/* 역질문 선택 UI 또는 일반 입력 */}
+            {chat.clarifyingQuestion ? (
+              <SpinXClarifying
+                clarifyingQuestion={chat.clarifyingQuestion}
+                clarifyingSelected={chat.clarifyingSelected}
+                setClarifyingSelected={chat.setClarifyingSelected}
+                clarifyingMultiSelected={chat.clarifyingMultiSelected}
+                setClarifyingMultiSelected={chat.setClarifyingMultiSelected}
+                clarifyingCustom={chat.clarifyingCustom}
+                setClarifyingCustom={chat.setClarifyingCustom}
+                clarifyingCustomMode={chat.clarifyingCustomMode}
+                setClarifyingCustomMode={chat.setClarifyingCustomMode}
+                onSubmit={chat.handleClarifyingSubmit}
+                onSkip={chat.handleClarifyingSkip}
+              />
+            ) : (
+              <SpinXInput
+                message={chat.message}
+                setMessage={chat.setMessage}
+                isLoading={chat.isLoading}
+                selectedModel={chat.selectedModel}
+                modelMenuOpen={chat.modelMenuOpen}
+                setModelMenuOpen={chat.setModelMenuOpen}
+                sessionTooltipOpen={chat.sessionTooltipOpen}
+                setSessionTooltipOpen={chat.setSessionTooltipOpen}
+                attachMenuOpen={chat.attachMenuOpen}
+                attachedFile={chat.attachedFile}
+                attachedUrl={chat.attachedUrl}
+                fileInputRef={chat.fileInputRef}
+                daysRemaining={chat.daysRemaining}
+                hoursRemaining={chat.hoursRemaining}
+                minutesRemaining={chat.minutesRemaining}
+                onSend={() => chat.handleSend()}
+                onStop={chat.handleStop}
+                onKeyDown={chat.handleKeyDown}
+                onAttachClick={chat.handleAttachClick}
+                onImageAdd={chat.handleImageAdd}
+                onPdfAdd={chat.handlePdfAdd}
+                onUrlAdd={chat.handleUrlAdd}
+                onFileSelect={chat.handleFileSelect}
+                removeAttachment={chat.removeAttachment}
+                onModelSelect={chat.handleModelSelect}
+              />
+            )}
+          </>
         )}
 
-        {/* AI 면책 문구 */}
+        {/* 면책 문구 + Usage 한 줄 */}
         <div style={{
-          textAlign: 'center',
-          fontSize: '11px',
-          color: 'hsl(var(--muted-foreground))',
-          opacity: 0.6,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           marginTop: '8px',
+          fontSize: '11px',
           fontFamily: 'Paperlogy, sans-serif',
-          lineHeight: '1.4'
+          color: 'hsl(var(--muted-foreground))'
         }}>
-          AI의 답변은 부정확할 수 있습니다. 중요한 정보는 반드시 확인하세요.
+          <span>AI 답변은 부정확할 수 있습니다.</span>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'help',
+              position: 'relative',
+              color: chat.isLimitReached ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'
+            }}
+            onMouseEnter={(e) => {
+              const tooltip = e.currentTarget.querySelector('[data-usage-tooltip]') as HTMLElement
+              if (tooltip) tooltip.style.display = 'block'
+            }}
+            onMouseLeave={(e) => {
+              const tooltip = e.currentTarget.querySelector('[data-usage-tooltip]') as HTMLElement
+              if (tooltip) tooltip.style.display = 'none'
+            }}
+          >
+            <BarChart3 size={11} />
+            <span>Usage {chat.monthlyChatCount} / {chat.monthlyChatLimit}</span>
+            <div
+              data-usage-tooltip=""
+              style={{
+                display: 'none',
+                position: 'absolute',
+                bottom: '100%',
+                right: 0,
+                marginBottom: '8px',
+                width: '200px',
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                zIndex: 1000,
+                fontFamily: 'Paperlogy, sans-serif',
+                fontSize: '12px'
+              }}
+            >
+              <div style={{ fontWeight: '600', marginBottom: '4px' }}>월간 질문 한도</div>
+              <div className="text-muted-foreground" style={{ lineHeight: '1.5' }}>
+                매월 이용 가능한 SpinX 질문 횟수입니다. 매월 1일에 자동으로 초기화됩니다.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

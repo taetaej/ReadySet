@@ -207,12 +207,14 @@ Slot Home 헤더의 더보기(⋮) 메뉴에서 "수정"을 선택합니다.
 ## 화면 구성
 
 Slot Home은 크게 3개 영역으로 구성됩니다.
+![Slot Home 화면 구성|100%](/docs/images/slotboard/01001.png)
 
 | 영역 | 위치 | 설명 |
 |---|---|---|
 | Ready to Final Set | 상단 전체 | 4개 솔루션의 최종 결과물을 플로우 형태로 전시 |
 | Activity Log | 하단 좌측 (2/3) | Slot 내 최근 활동 이력 타임라인 |
 | Resources | 하단 우측 (1/3) | 참고 문서 파일 관리 |
+
 
 ---
 

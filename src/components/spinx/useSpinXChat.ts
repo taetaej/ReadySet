@@ -18,6 +18,8 @@ const formatTimestamp = () => {
 
 export function useSpinXChat() {
   const [message, setMessage] = useState('')
+  const [monthlyChatCount, setMonthlyChatCount] = useState(23)
+  const [monthlyChatLimit] = useState(100)
   const [copied, setCopied] = useState(false)
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null)
   const [showResetDialog, setShowResetDialog] = useState(false)
@@ -33,7 +35,7 @@ export function useSpinXChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [currentQuestion, setCurrentQuestion] = useState<string>('')
   const timeoutRef = useRef<TimerId | null>(null)
-  const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[3]) // Gemini 3pro
+  const [selectedModel, setSelectedModel] = useState<LLMModel>(availableModels[0]) // Claude Sonnet 4.6
   const [modelMenuOpen, setModelMenuOpen] = useState(false)
   const [expandedWebSources, setExpandedWebSources] = useState<Set<number>>(new Set())
   const [expandedRagSources, setExpandedRagSources] = useState<Set<number>>(new Set())
@@ -148,9 +150,28 @@ export function useSpinXChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading])
 
+  const isLimitReached = monthlyChatCount >= monthlyChatLimit
+  const [sessionLimitReached, setSessionLimitReached] = useState(false)
+
   const handleSend = (questionText?: string) => {
     const textToSend = questionText || message.trim()
-    if (textToSend && !isLoading) {
+
+    // "100" 입력 시 한도 초과 데모 모드 활성화
+    if (textToSend === '100') {
+      setMonthlyChatCount(100)
+      setMessage('')
+      return
+    }
+
+    // "10" 입력 시 세션 질문 한도 도달 데모
+    if (textToSend === '10') {
+      setSessionLimitReached(true)
+      setMessage('')
+      return
+    }
+
+    if (textToSend && !isLoading && !isLimitReached) {
+      setMonthlyChatCount(prev => Math.min(prev + 1, monthlyChatLimit))
       const userMessage: Message = {
         role: 'user',
         content: textToSend,
@@ -503,6 +524,7 @@ export function useSpinXChat() {
   return {
     // 상태
     message, setMessage,
+    monthlyChatCount, monthlyChatLimit, isLimitReached, sessionLimitReached,
     copied,
     copiedMessageIndex,
     showResetDialog, setShowResetDialog,

@@ -9,16 +9,16 @@ interface SpinXHeaderProps {
 
 export function SpinXHeader({ onReset, onClose }: SpinXHeaderProps) {
   return (
-    <div
-      style={{
-        padding: '20px 24px',
-        borderBottom: '1px solid hsl(var(--border))',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexShrink: 0
-      }}
-    >
+    <div style={{ flexShrink: 0 }}>
+      <div
+        style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid hsl(var(--border))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
       {/* 좌측: 타이틀 */}
       <div>
         <h3
@@ -61,6 +61,7 @@ export function SpinXHeader({ onReset, onClose }: SpinXHeaderProps) {
           <X size={16} />
         </button>
       </div>
+    </div>
     </div>
   )
 }
