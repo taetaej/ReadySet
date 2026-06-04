@@ -1,6 +1,7 @@
 export interface FormData {
   datasetName: string
   description: string
+  purpose: 'internal' | 'external' | ''
   media: string
   industries: string[]
   industryLevel: 'major' | 'mid' | 'minor' | null
@@ -20,6 +21,7 @@ export interface FormData {
 export const initialFormData: FormData = {
   datasetName: '',
   description: '',
+  purpose: '',
   media: '',
   industries: [],
   industryLevel: null,

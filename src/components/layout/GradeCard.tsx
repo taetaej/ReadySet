@@ -65,7 +65,7 @@ export function GradeCard() {
       }}
       onClick={() => setShowGradeTooltip(!showGradeTooltip)}
     >
-      <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))' }}>
+      <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--primary-foreground))', whiteSpace: 'nowrap' }}>
         {currentGrade.name}
       </span>
 
