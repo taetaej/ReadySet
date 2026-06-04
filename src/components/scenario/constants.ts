@@ -1,4 +1,5 @@
 // Scenario 관련 상수 정의
+// Last updated: 2026-06-04
 
 export const mediaData = {
   DIGITAL: {
