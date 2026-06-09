@@ -45,6 +45,14 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <SummaryItem label="데이터셋명" value={formData.datasetName || '—'} />
               <SummaryItem
+                label="지표 구성"
+                value={
+                  formData.purpose === 'internal' ? '종합 지표'
+                    : formData.purpose === 'external' ? '성과 지표'
+                    : '—'
+                }
+              />
+              <SummaryItem
                 label="조회기간"
                 value={
                   formData.period.startYear && formData.period.startMonth
