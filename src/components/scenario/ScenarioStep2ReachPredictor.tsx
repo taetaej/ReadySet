@@ -95,7 +95,7 @@ export function ScenarioStep2ReachPredictor({
     const b = parseInt(budget) || 0
     const i = parseInt(impressions) || 0
     if (b > 0 && i > 0) {
-      return Math.round((b / i) * 1000).toString()
+      return Math.round((b / i) * 1000).toLocaleString('ko-KR')
     }
     return '-'
   }
