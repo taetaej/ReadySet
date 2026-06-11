@@ -69,7 +69,7 @@ export function ScenarioStep2ReachPredictor({
   // 예산 변경
   const handleBudgetChange = (id: string, value: string) => {
     const numValue = value.replace(/,/g, '')
-    if (numValue === '' || /^\d+$/.test(numValue)) {
+    if (numValue === '' || (/^\d+$/.test(numValue) && parseInt(numValue) <= 10000000000)) {
       setReachPredictorMedia(
         reachPredictorMedia.map(m =>
           m.id === id ? { ...m, budget: numValue } : m
@@ -441,7 +441,7 @@ export function ScenarioStep2ReachPredictor({
                         textAlign: 'right',
                         padding: '6px 8px',
                         fontSize: '13px',
-                        borderColor: validationActive && !media.budget ? 'hsl(var(--destructive))' : undefined
+                        borderColor: validationActive && (!media.budget || parseInt(media.budget) === 0) ? 'hsl(var(--destructive))' : undefined
                       }}
                     />
                   </div>
@@ -742,7 +742,8 @@ export function ScenarioStep2ReachPredictor({
               style={{ 
                 width: '140px', 
                 fontSize: '13px',
-                borderColor: validationActive && !reachCurve.detailSettings?.rangeMin ? 'hsl(var(--destructive))' : undefined
+                borderColor: validationActive && !reachCurve.detailSettings?.rangeMin ? 'hsl(var(--destructive))' : 
+                  validationActive && reachCurve.detailSettings?.rangeMin && reachCurve.detailSettings?.rangeMax && reachCurve.detailSettings.rangeMin >= reachCurve.detailSettings.rangeMax ? 'hsl(var(--destructive))' : undefined
               }}
             />
             <span style={{ 
@@ -777,7 +778,8 @@ export function ScenarioStep2ReachPredictor({
               style={{ 
                 width: '140px', 
                 fontSize: '13px',
-                borderColor: validationActive && !reachCurve.detailSettings?.rangeMax ? 'hsl(var(--destructive))' : undefined
+                borderColor: validationActive && !reachCurve.detailSettings?.rangeMax ? 'hsl(var(--destructive))' :
+                  validationActive && reachCurve.detailSettings?.rangeMin && reachCurve.detailSettings?.rangeMax && reachCurve.detailSettings.rangeMin >= reachCurve.detailSettings.rangeMax ? 'hsl(var(--destructive))' : undefined
               }}
             />
             <span style={{ 
@@ -795,6 +797,15 @@ export function ScenarioStep2ReachPredictor({
               marginTop: '4px'
             }}>
               구간 최소값과 최대값을 입력해주세요.
+            </div>
+          )}
+          {validationActive && reachCurve.detailSettings?.rangeMin && reachCurve.detailSettings?.rangeMax && reachCurve.detailSettings.rangeMin >= reachCurve.detailSettings.rangeMax && (
+            <div style={{
+              fontSize: '11px',
+              color: 'hsl(var(--destructive))',
+              marginTop: '4px'
+            }}>
+              시작값은 종료값보다 작아야 합니다.
             </div>
           )}
         </div>
