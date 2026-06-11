@@ -116,6 +116,10 @@ function CollapsibleFieldRow({
             <div style={{ padding: '14px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
               {guideText}
             </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              검색 결과가 없습니다.
+            </div>
           ) : (
           <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
