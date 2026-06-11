@@ -69,7 +69,7 @@ export function ScenarioStep2ReachPredictor({
   // 예산 변경
   const handleBudgetChange = (id: string, value: string) => {
     const numValue = value.replace(/,/g, '')
-    if (numValue === '' || /^\d+$/.test(numValue)) {
+    if (numValue === '' || (/^\d+$/.test(numValue) && parseInt(numValue) <= 10000000000)) {
       setReachPredictorMedia(
         reachPredictorMedia.map(m =>
           m.id === id ? { ...m, budget: numValue } : m
@@ -441,7 +441,7 @@ export function ScenarioStep2ReachPredictor({
                         textAlign: 'right',
                         padding: '6px 8px',
                         fontSize: '13px',
-                        borderColor: validationActive && !media.budget ? 'hsl(var(--destructive))' : undefined
+                        borderColor: validationActive && (!media.budget || parseInt(media.budget) === 0) ? 'hsl(var(--destructive))' : undefined
                       }}
                     />
                   </div>

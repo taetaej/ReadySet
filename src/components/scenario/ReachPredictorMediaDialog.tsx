@@ -94,7 +94,13 @@ export function ReachPredictorMediaDialog({ open, onClose, onConfirm, currentMed
     setSearchQuery('')
   }
 
-  const totalSelected = Object.values(selectedProducts).flat().filter(p => p !== 'default').length
+  // 선택된 총 수: 상품이 있는 매체는 상품 수, 미연동 매체(default)는 매체 1개로 카운트
+  const totalSelected = Object.entries(selectedProducts).reduce((count, [, products]) => {
+    if (products.length === 1 && products[0] === 'default') {
+      return count + 1 // 미연동 매체 1개
+    }
+    return count + products.filter(p => p !== 'default').length
+  }, 0)
 
   // 검색 필터링
   const filterMediaBySearch = (category: 'DIGITAL' | 'TV') => {

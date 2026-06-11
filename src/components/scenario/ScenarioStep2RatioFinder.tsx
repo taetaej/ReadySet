@@ -731,26 +731,28 @@ export function ScenarioStep2RatioFinder(props: ScenarioStep2RatioFinderProps) {
             >
               <div className="dialog-header">
                 <h3 className="dialog-title">
-                  {productSelectionDialog.mediaName.split('_')[1]} 상품 선택
+                  {productSelectionDialog.mediaName.split('_')[1]} {selectedMediaCategory === 'TV' ? '채널 선택' : '상품 선택'}
                 </h3>
                 <p className="dialog-description">
-                  분석에 포함할 상품을 선택하세요
+                  분석에 포함할 {selectedMediaCategory === 'TV' ? '채널을' : '상품을'} 선택하세요
                 </p>
-                <div style={{
-                  marginTop: '12px',
-                  padding: '12px',
-                  backgroundColor: 'hsl(var(--muted) / 0.5)',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  color: 'hsl(var(--muted-foreground))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Info size={14} />
-                  <span>Step1에서 선택한 업종의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
-                </div>
+                {selectedMediaCategory !== 'TV' && (
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '12px',
+                    backgroundColor: 'hsl(var(--muted) / 0.5)',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    color: 'hsl(var(--muted-foreground))',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <Info size={14} />
+                    <span>Step1에서 선택한 업종의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
+                  </div>
+                )}
               </div>
               
               <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
