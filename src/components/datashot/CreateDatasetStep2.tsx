@@ -286,6 +286,12 @@ function MetricGroupList({ groups, selected, onChange, searchQuery }: { groups: 
       해당 매체의 지표 정보가 없습니다.
     </div>
   )
+  const hasAnyMatch = searchQuery ? groups.some(g => g.metrics.some(m => m.label.toLowerCase().includes(searchQuery.toLowerCase()))) : true
+  if (!hasAnyMatch) return (
+    <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', padding: '16px 0', textAlign: 'center' }}>
+      검색 결과가 없습니다.
+    </div>
+  )
   return (
     <div>
       {groups.map((group, i) => (
@@ -488,6 +494,11 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
 
           {/* 일반 체크박스 모드 */}
           {category && !isKeywordMode && (
+            filtered.length === 0 ? (
+              <div style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                검색 결과가 없습니다.
+              </div>
+            ) : (
             <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                   {filtered.map(opt => {
@@ -500,14 +511,14 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
                         transition: 'background 0.1s'
                       }} onClick={e => e.stopPropagation()}>
                         <input type="checkbox" checked={isSelected} onChange={() => toggle(opt)} className="checkbox-custom" style={{ flexShrink: 0 }} />
-                        <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {opt}
+                        <span style={{ color: 'hsl(var(--foreground))', fontWeight: isSelected ? '500' : '400', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt}
                         </span>
                       </label>
                     )
                   })}
                 </div>
             </div>
+            )
           )}
         </>
       )}
