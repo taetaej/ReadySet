@@ -1862,8 +1862,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
               </span>
 
               {/* 페이지 네비게이션 */}
-              {totalPages > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   {/* 첫 페이지로 */}
                   <button
                     onClick={() => setCurrentPage(1)}
@@ -1965,7 +1964,6 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                     <ChevronRight size={14} style={{ marginLeft: '-8px' }} />
                   </button>
                 </div>
-              )}
             </div>
           </div>
         )}

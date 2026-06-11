@@ -328,8 +328,6 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
 
   // 페이지네이션 컴포넌트 (Shadcn 스타일)
   const renderPagination = () => {
-    if (totalPages <= 1) return null
-
     const startItem = (currentPage - 1) * itemsPerPage + 1
     const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 

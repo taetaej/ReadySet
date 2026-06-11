@@ -534,6 +534,9 @@ export function DatasetList() {
                     조회 기간 {renderSortIcon('startDate')}
                   </button>
                 </th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '110px', color: 'hsl(var(--foreground))' }}>
+                  지표 구성
+                </th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
                   <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     상태 {renderSortIcon('status')}
@@ -578,7 +581,7 @@ export function DatasetList() {
                           setShowToast({
                             type: 'error',
                             title: '조회 제한',
-                            message: '종합 지표 데이터셋은 External Slot에서 조회가 불가능합니다. 데이터셋을 Private 또는 Internal Slot으로 이동하거나 관리자에게 문의해 주세요.'
+                            message: '종합 지표 데이터셋은 Shared Slot에서 조회가 불가능합니다. 데이터셋을 Private 또는 Internal Slot으로 이동하거나 관리자에게 문의해 주세요.'
                           })
                           setTimeout(() => setShowToast(null), 5000)
                           return
@@ -617,6 +620,9 @@ export function DatasetList() {
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {formatPeriod(dataset.startDate, dataset.endDate, dataset.periodType)}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
+                      {dataset.purpose === 'internal' ? '종합 지표' : '성과 지표'}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
@@ -747,8 +753,7 @@ export function DatasetList() {
             </span>
 
             {/* 페이지 네비게이션 */}
-            {totalPages > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {/* 첫 페이지로 */}
                 <button
                   onClick={() => setCurrentPage(1)}
@@ -850,7 +855,6 @@ export function DatasetList() {
                   <ChevronRight size={14} style={{ marginLeft: '-8px' }} />
                 </button>
               </div>
-            )}
           </div>
         </div>
       </div>
@@ -919,7 +923,7 @@ export function DatasetList() {
             <div className="dialog-header">
               <h3 className="dialog-title">이동 불가 안내</h3>
               <p className="dialog-description">
-                아래 {blockedDatasets.length}건의 종합 지표 데이터셋은 External Slot으로 이동할 수 없습니다.
+                아래 {blockedDatasets.length}건의 종합 지표 데이터셋은 Shared Slot으로 이동할 수 없습니다.
                 <br />
                 해당 데이터셋을 제외한 후 다시 시도해 주세요.
               </p>
