@@ -124,10 +124,24 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
       <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>검토 및 추출</h2>
 
       {/* 안내 */}
-      <div style={{ padding: '16px 20px', backgroundColor: 'hsl(var(--muted) / 0.3)', border: '1px solid hsl(var(--border))', borderRadius: '8px', marginBottom: '24px' }}>
-        <div style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{
+        padding: '16px 20px',
+        backgroundColor: 'hsl(var(--muted) / 0.3)',
+        border: '1px solid hsl(var(--border))',
+        borderRadius: '8px',
+        marginBottom: '24px'
+      }}>
+        <div style={{
+          fontSize: '13px',
+          fontWeight: '500',
+          color: 'hsl(var(--foreground))',
+          lineHeight: '1.5',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
           <Check size={16} />
-          우측 Configuration Summary에서 설정 내용을 확인하세요.
+          우측 Configuration Summary에서 설정 내용을 확인하세요!
         </div>
       </div>
 
@@ -135,7 +149,7 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
       <div>
         <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>데이터 미리보기</h3>
         <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '16px' }}>
-          샘플 데이터를 통해 데이터 구조를 확인하세요.
+          샘플 데이터를 통해 데이터 구조를 확인하세요. 조건이 세분화될수록 데이터가 적어질 수 있으니, 결과 해석 시 유의하시기 바랍니다.
         </p>
 
         {totalRows === 0 ? (
