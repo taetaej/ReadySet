@@ -36,6 +36,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
   const [updateTooltipOpen, setUpdateTooltipOpen] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDuplicateBlockDialog, setShowDuplicateBlockDialog] = useState(false)
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
@@ -977,7 +978,12 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                   <button
                     onClick={() => {
                       setContextMenuOpen(false)
-                      console.log('복제:', datasetData?.id)
+                      // ID 10: 종합 지표 데이터셋 → Shared Slot에서 복제 불가
+                      if (datasetData?.id === 10) {
+                        setShowDuplicateBlockDialog(true)
+                      } else {
+                        console.log('복제:', datasetData?.id)
+                      }
                     }}
                     className="dropdown-item"
                   >
@@ -1489,6 +1495,34 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                 }}
               >
                 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 복제 불가 안내 다이얼로그 */}
+      {showDuplicateBlockDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">복제 불가 안내</h3>
+              <p className="dialog-description">
+                Shared Slot에서는 종합 지표 데이터셋을 복제할 수 없습니다.
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 24px' }}>
+              <p style={{ fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+                종합 지표 데이터셋 복제를 원하실 경우,<br />
+                Private 또는 Internal Slot으로 이동시킨 후 다시 시도해 주세요.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowDuplicateBlockDialog(false)}
+                className="btn btn-primary btn-sm"
+              >
+                확인
               </button>
             </div>
           </div>

@@ -47,7 +47,9 @@ export function DatasetList() {
   // 이동 불가 안내 다이얼로그 상태
   const [showMoveBlockDialog, setShowMoveBlockDialog] = useState(false)
   const [blockedDatasets, setBlockedDatasets] = useState<{ id: string; name: string }[]>([])
-  // 체크박스 전체 선택/해제
+
+  // 복제 불가 안내 다이얼로그 상태
+  const [showDuplicateBlockDialog, setShowDuplicateBlockDialog] = useState(false)  // 체크박스 전체 선택/해제
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedDatasets([])
@@ -493,7 +495,7 @@ export function DatasetList() {
           backgroundColor: 'hsl(var(--card))',
           border: '1px solid hsl(var(--border))',
           borderRadius: '8px',
-          overflow: 'hidden'
+          overflow: 'visible'
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -670,7 +672,11 @@ export function DatasetList() {
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setContextMenuOpen(null)
-                                // TODO: 복제 기능 구현
+                                if (dataset.id === 10) {
+                                  setShowDuplicateBlockDialog(true)
+                                } else {
+                                  // TODO: 복제 기능 구현
+                                }
                               }}
                               className="dropdown-item"
                             >
@@ -951,6 +957,34 @@ export function DatasetList() {
             <div className="dialog-footer">
               <button
                 onClick={() => setShowMoveBlockDialog(false)}
+                className="btn btn-primary btn-sm"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 복제 불가 안내 다이얼로그 */}
+      {showDuplicateBlockDialog && (
+        <div className="dialog-overlay" style={{ zIndex: 1100 }}>
+          <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">복제 불가 안내</h3>
+              <p className="dialog-description">
+                Shared Slot에서는 종합 지표 데이터셋을 복제할 수 없습니다.
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 24px' }}>
+              <p style={{ fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+                종합 지표 데이터셋 복제를 원하실 경우,<br />
+                Private 또는 Internal Slot으로 이동시킨 후 다시 시도해 주세요.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowDuplicateBlockDialog(false)}
                 className="btn btn-primary btn-sm"
               >
                 확인
