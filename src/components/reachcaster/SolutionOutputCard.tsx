@@ -10,7 +10,7 @@ interface SolutionOutputCardProps {
   }
 }
 
-const DEFAULT_DATA = { datashot: 23, adCurator: 31, budgetOptimizer: 17, reachCaster: 77 }
+const DEFAULT_DATA = { datashot: 633, adCurator: 0, budgetOptimizer: 0, reachCaster: 2200 }
 
 // 네온 컬러 4개 (Avatar.tsx NEON_COLORS 참조)
 const BLOBS = [
@@ -60,7 +60,8 @@ export function SolutionOutputCard({ data = DEFAULT_DATA }: SolutionOutputCardPr
       paths.forEach((path, i) => {
         const blob = BLOBS[i]
         const count = data[blob.key as keyof typeof data]
-        const baseR = 24 + (count / 100) * 12 // 24~36 — 개수에 비례
+        const clampedCount = Math.min(count, 100)
+        const baseR = 24 + (clampedCount / 100) * 12 // 24~36 — 최대 100 기준
         const t = timeRef.current + i * 1.5
         const scale = 1 + Math.sin(t * 0.8) * 0.08
         const tx = Math.sin(t * 0.6 + i) * 2
@@ -104,7 +105,7 @@ export function SolutionOutputCard({ data = DEFAULT_DATA }: SolutionOutputCardPr
             <path
               key={blob.key}
               data-blob={blob.key}
-              d={blobPath(blob.cx, blob.cy, 24 + (data[blob.key as keyof typeof data] / 100) * 12, i * 1.5)}
+              d={blobPath(blob.cx, blob.cy, 24 + (Math.min(data[blob.key as keyof typeof data], 100) / 100) * 12, i * 1.5)}
               fill={blob.color}
               fillOpacity={0.35}
               stroke="none"
