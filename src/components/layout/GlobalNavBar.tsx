@@ -82,7 +82,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     {
       id: 2,
       solution: 'DataShot',
-      scenarioName: '2026년 3월 데이터',
+      scenarioName: '업데이트 완료일 2026-06-13',
       message: '최신 데이터가 업데이트되었습니다.',
       completedMinutesAgo: 5,
       isNew: true,
