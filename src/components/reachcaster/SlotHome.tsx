@@ -537,18 +537,31 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                         </span>
                       </div>
                     ) : (
-                      /* Empty */
-                      <div style={{
-                        display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', justifyContent: 'center',
-                        height: '100%', gap: '8px',
-                      }}>
+                      /* Empty — 클릭 시 해당 솔루션 탭으로 설정 다이얼로그 오픈 */
+                      <div
+                        onClick={() => {
+                          setDialogActiveTab(slot.key)
+                          setOutputDialogOpen(true)
+                        }}
+                        style={{
+                          display: 'flex', flexDirection: 'column',
+                          alignItems: 'center', justifyContent: 'center',
+                          height: '100%', gap: '8px',
+                          cursor: 'pointer',
+                          borderRadius: '8px',
+                          transition: 'background-color 0.2s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
                         <Inbox size={16} style={{ color: colors.textDim }} />
                         <span style={{
                           fontSize: '11px', color: colors.textDim,
                           fontFamily: 'Paperlogy, sans-serif',
+                          textAlign: 'center',
+                          lineHeight: '1.5',
                         }}>
-                          No Outputs Yet
+                          여기를 눌러 Final Set을 설정하세요
                         </span>
                       </div>
                     )}
