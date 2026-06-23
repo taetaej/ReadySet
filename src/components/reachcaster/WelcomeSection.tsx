@@ -27,7 +27,7 @@ export function WelcomeSection({ userName = 'Jia Shin' }: WelcomeSectionProps) {
             style={{ color: 'hsl(var(--primary))' }}
             delay={210}
           />
-          <SplitText text="!" delay={390} />
+          <SplitText text=" 님!" delay={390} />
         </h1>
         <p style={{
           fontSize: '14px',
