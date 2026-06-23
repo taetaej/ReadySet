@@ -8,7 +8,7 @@ export const resourcesSection: DocSection = {
       id: 'resources-faq',
       title: 'FAQ',
       slug: 'resources-faq',
-      updatedAt: '2026-06-18',
+      updatedAt: '2026-06-29',
       content: `# FAQ
 
 준비중입니다.`
@@ -17,7 +17,7 @@ export const resourcesSection: DocSection = {
       id: 'resources-glossary',
       title: '용어 사전',
       slug: 'resources-glossary',
-      updatedAt: '2026-05-28',
+      updatedAt: '2026-06-29',
       content: `# 용어 사전
 
 ## 플랫폼 용어
@@ -77,7 +77,7 @@ export const resourcesSection: DocSection = {
       id: 'resources-download',
       title: '소개서 다운로드',
       slug: 'resources-download',
-      updatedAt: '2026-05-28',
+      updatedAt: '2026-06-29',
       content: `# 소개서 다운로드
 
 ReadySet 플랫폼 관련 자료를 다운로드할 수 있습니다.

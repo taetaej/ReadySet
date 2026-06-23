@@ -8,10 +8,10 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-06-25',
+      updatedAt: '2026-06-29',
       content: `# Release Notes
 
-## v1.0.0 (2026-06-25)
+## v1.0.0 (2026-06-29)
 
 ReadySet 플랫폼 정식 오픈
 
@@ -21,12 +21,12 @@ ReadySet 플랫폼 정식 오픈
 
 - \`NEW\` 목적별 작업 공간(Slot) 생성 · 관리
 - \`NEW\` 광고주 매핑, 공개 범위 설정
-- \`NEW\` Slot Home (Feed, Documents)
+- \`NEW\` Slot Home
 
 ### DataShot
 
 - \`NEW\` 업종별 광고 성과 벤치마크 데이터셋 생성
-- \`NEW\` 6개 매체 지원 (Google Ads, Meta, kakao모먼트, 네이버 DA, TikTok)
+- \`NEW\` 6개 매체 지원 (Google Ads, Meta, kakao모먼트, 네이버 성과형 DA, 네이버 보장형 DA, TikTok)
 - \`NEW\` 데이터셋 목록 관리 및 CSV 내보내기
 
 ### Reach Caster
@@ -35,7 +35,7 @@ ReadySet 플랫폼 정식 오픈
 - \`NEW\` Reach Predictor: 매체 믹스 기반 도달률 예측
 - \`NEW\` 시나리오 목록 (리스트 뷰 + 타임라인 뷰)
 - \`NEW\` 결과 시각화 + 상세 데이터 테이블
-- \`NEW\` 시나리오 비교, 복제, 공유 (Link / Excel)
+- \`NEW\` 시나리오 복제, 공유 (Link / Excel)
 
 ### SpinX
 
