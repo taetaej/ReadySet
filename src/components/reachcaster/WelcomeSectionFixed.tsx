@@ -69,7 +69,7 @@ export function WelcomeSectionFixed({ userName = 'Jia Shin' }: WelcomeSectionPro
             style={{ color: 'hsl(var(--primary))' }}
             delay={210}
           />
-          <SplitText text="!" delay={390} />
+          <SplitText text=" 님!" delay={390} />
         </h1>
         <p style={{
           fontSize: '14px',
