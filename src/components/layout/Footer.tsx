@@ -14,7 +14,7 @@ export function Footer() {
         © 2026 CJ Mezzomedia. All rights reserved.
       </div>
       <div style={{ fontSize: '11px' }} className="text-muted-foreground">
-        ReadySet Platform v1.0
+        ReadySet Platform v1.0.0
       </div>
     </footer>
   )

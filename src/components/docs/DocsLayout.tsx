@@ -651,7 +651,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
       {/* Footer */}
       <footer className="docs-footer">
         <span>© 2026 CJ Mezzomedia. All rights reserved.</span>
-        <span>ReadySet Platform v1.0</span>
+        <span>ReadySet Platform v1.0.0</span>
       </footer>
 
       {/* Image Lightbox */}

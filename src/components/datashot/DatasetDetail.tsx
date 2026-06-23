@@ -1348,7 +1348,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.period}</td>
-                      <td style={{ padding: '8px', fontSize: '11px' }}>{row.media}</td>
+                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.media}</td>
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryLarge}</td>
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryMedium}</td>
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industrySmall}</td>
@@ -1387,6 +1387,67 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  {(() => {
+                    // 필터링된 전체 데이터 기준 집계
+                    const data = filteredData
+                    const totalCost = data.reduce((sum: number, r: any) => sum + (r.cost || 0), 0)
+                    const totalImpressions = data.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0)
+                    const totalClicks = data.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0)
+                    const weightedCpc = totalClicks > 0 ? totalCost / totalClicks : 0
+                    const weightedCpm = totalImpressions > 0 ? (totalCost / totalImpressions) * 1000 : 0
+                    const weightedCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
+                    const totalVtrViews = data.reduce((sum: number, r: any) => sum + ((r.vtr ?? 0) / 100 * (r.impressions || 0)), 0)
+                    const weightedVtr = totalImpressions > 0 ? (totalVtrViews / totalImpressions) * 100 : 0
+
+                    // Meta 컬럼 수 계산 (period + media + 업종3 + 광고상품 + 타겟팅)
+                    const metaColCount = 5 + adProductColumns.length + (configData.targetingCategory ? 1 : 0)
+
+                    return (
+                      <tr style={{
+                        backgroundColor: 'hsl(var(--primary) / 0.15)',
+                        borderTop: '3px solid hsl(var(--primary))',
+                        fontWeight: '800',
+                        fontSize: '12px'
+                      }}>
+                        <td
+                          colSpan={metaColCount}
+                          style={{ padding: '14px 8px', letterSpacing: '0.02em' }}
+                        >
+                          Summary
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right', borderLeft: '1px solid hsl(var(--border))' }}>
+                          {totalCost.toLocaleString()}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {totalImpressions.toLocaleString()}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>회</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {totalClicks.toLocaleString()}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>회</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {Math.round(weightedCpc).toLocaleString()}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {Math.round(weightedCpm).toLocaleString()}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {weightedCtr.toFixed(2)}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '2px', fontWeight: '400' }}>%</span>
+                        </td>
+                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                          {weightedVtr.toFixed(1)}
+                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '2px', fontWeight: '400' }}>%</span>
+                        </td>
+                      </tr>
+                    )
+                  })()}
+                </tfoot>
               </table>
             </div>
           </div>
