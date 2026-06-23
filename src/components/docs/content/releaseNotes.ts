@@ -26,7 +26,7 @@ ReadySet 플랫폼 정식 오픈
 ### DataShot
 
 - \`NEW\` 업종별 광고 성과 벤치마크 데이터셋 생성
-- \`NEW\` 6개 매체 지원 (Google Ads, Meta, kakao모먼트, 네이버 성과형 DA, 네이버 보장형 DA, TikTok)
+- \`NEW\` 5개 매체 지원 (Google Ads, Meta, kakao모먼트, 네이버 성과형 DA, 네이버 보장형 DA, TikTok)
 - \`NEW\` 데이터셋 목록 관리 및 CSV 내보내기
 
 ### Reach Caster
