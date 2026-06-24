@@ -272,7 +272,9 @@ export function ReachPredictorDetailTable({ selectedData, isDarkMode, onSpinXAsk
       maxWidth: '100%',
       overflowX: 'auto',
       overflowY: 'visible'
-    }}>
+    }}
+    className="custom-scrollbar"
+    >
       <div style={{
         minWidth: '1600px'
       }}>

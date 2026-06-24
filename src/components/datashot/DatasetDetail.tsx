@@ -1143,7 +1143,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
             marginBottom: '16px',
             position: 'relative'
           }}>
-            <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto' }} className="custom-scrollbar">
               <table style={{ 
                 width: '100%', 
                 borderCollapse: 'collapse'
