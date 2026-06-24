@@ -527,6 +527,30 @@ export const naverNospMetrics: MetricGroup[] = [
     ]
   },
 ]
+// TVING 지표
+export const tvingMetrics: MetricGroup[] = [
+  {
+    group: '기본',
+    metrics: [
+      { id: 'total_spend', label: '총 집행 금액', selected: false },
+      { id: 'impressions', label: '노출수', selected: false },
+      { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'video_view_25', label: '영상 25% 시청', selected: false },
+      { id: 'video_view_50', label: '영상 50% 시청', selected: false },
+      { id: 'video_view_75', label: '영상 75% 시청', selected: false },
+      { id: 'video_view_complete', label: '영상 시청 완료', selected: false },
+      { id: 'vtr', label: 'VTR', selected: false },
+      { id: 'cost_per_view', label: '집행 금액 기준 조회수', selected: false },
+      { id: 'companion_image_impressions', label: '컴패니언 이미지 노출수', selected: false },
+      { id: 'companion_image_clicks', label: '컴패니언 이미지 클릭수', selected: false },
+      { id: 'skip', label: '건너뛰기', selected: false },
+      { id: 'ecpc', label: 'eCPC', selected: false },
+      { id: 'ecpv', label: 'eCPV', selected: false },
+    ]
+  }
+]
+
 // TikTok 지표
 export const tiktokMetrics: MetricGroup[] = [
   {
@@ -652,6 +676,20 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
     {
       category: '국가',
       options: ['한국', '일본', '미국', '영국', '독일', '프랑스', '이탈리아', '스페인', '캐나다', '포르투갈', '아르헨티나', '볼리비아', '콜롬비아', '우루과이', '에콰도르', '싱가포르', '홍콩', '대만', '베트남', '태국', '필리핀', '인도네시아', '말레이시아', '파키스탄', 'UAE', '사우디아라비아', '카타르', '쿠웨이트', '오만', '레바논', '이집트', '터키', '오스트리아', '폴란드', '브라질', '칠레', '페루', '코스타리카', '남아프리카공화국', '멕시코', '알 수 없음']
+    }
+  ],
+  'TVING': [
+    {
+      category: '성별',
+      options: ['남성', '여성', '알 수 없음']
+    },
+    {
+      category: '나이',
+      options: ['15~19', '20~24', '25~29', '30~34', '35~39', '40~44', '45~49', '50~54', '55~59', '60+']
+    },
+    {
+      category: '디바이스',
+      options: ['모바일', 'PC/웹', '스마트TV', '셋톱박스']
     }
   ]
 }

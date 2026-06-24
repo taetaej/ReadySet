@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ListPlus, Plus, Minus, Search, ChevronDown, X, Info, Undo2 } from 'lucide-react'
-import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, tvingMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
 import { adProductStructureByMedia } from './sampleData'
@@ -13,6 +13,7 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   '네이버 성과형 DA': naverGfaMetrics,
   '네이버 보장형 DA': naverNospMetrics,
   'TikTok': tiktokMetrics,
+  'TVING': tvingMetrics,
 }
 
 interface Props {
@@ -25,6 +26,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
   const [metricsSearch, setMetricsSearch] = useState('')
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
+  const mediaList2 = ['TVING']
 
   return (
     <>
@@ -39,6 +41,29 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         </label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
           {mediaList.map(media => (
+            <button
+              key={media}
+              onClick={() => {
+                setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })
+              }}
+              className="btn btn-ghost"
+              style={{
+                height: '36px', padding: '0 16px', fontSize: '13px',
+                whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px',
+                border: `1px solid ${formData.media === media ? 'hsl(var(--primary))' : validationActive && !formData.media ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
+                backgroundColor: formData.media === media ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                fontWeight: formData.media === media ? '600' : '400',
+                color: formData.media === media ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
+                transition: 'all 0.15s'
+              }}
+            >
+              {(() => { const Icon = mediaIconMap[media]; return Icon ? <Icon size={14} /> : null })()}
+              {media}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginTop: '8px' }}>
+          {mediaList2.map(media => (
             <button
               key={media}
               onClick={() => {

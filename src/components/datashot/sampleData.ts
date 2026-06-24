@@ -536,6 +536,85 @@ export const tiktokAdProductStructure: MediaAdProductStructure = {
   ]
 }
 
+// TVING 광고상품 구조
+export const tvingAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '캠페인 템플릿',
+      key: 'campaignTemplate',
+      required: true,
+      options: [
+        '(T only)시청데모 PKG_2549_스킵',
+        '(T only)오늘의 티빙 TOP20_스킵',
+        '(ex보너스)[TONLY]베이직인스트림_관심사_오피니언리더_스킵',
+        '(보너스 최종)[통합] 베이직 인스트림_스킵',
+        '(보너스) [맥락형] 맥락형광고_파파존스_스킵_15s_061026',
+        '(보너스)[T only]베이직인스트림_논스킵_15초_DR4P',
+        '(보너스)[T only]베이직인스트림_논스킵_15초_DR4P_2',
+        '(보너스)[통합] 베이직 인스트림_스킵',
+        '(서비스) 논스킵 CPM_15초',
+        '(서비스) 논스킵 CPM_30초',
+        '(서비스)[T only] 이미지 배너',
+        '(서비스)일시정지 DA_CTV',
+        '(서비스)일시정지 DA_PCMO',
+        '2025_KBO_DA_정규시즌_보너스',
+        '[3분기 프로모션]오늘의 티빙 TOP20_30초',
+        '[KBO최종]_Impression 보장PKG_15초',
+        '[KBO] 포스트시즌 PKG_15초',
+        '[T ONLY] KBO_1주 집중 PKG_15초',
+        '[T ONLY] KBO_구단 타겟팅_키움_15초',
+        '[T ONLY] KBO_노출 보장 PKG_15초',
+        '[T ONLY] WBC_풀커버리지 PKG_15초',
+        '[T ONLY] 이미지배너_KBO',
+        '[T ONLY] 일시정지_CTV',
+        '[T ONLY] 일시정지_CTV_MF2035',
+        '[T ONLY] 일시정지_PCMO',
+        '[T ONLY] 일시정지_PCMO_MF2035',
+        '[T ONLY_JBP] KBO_노출 보장 PKG_15초',
+        '[아웃스트림] 홈메인',
+        '[최종 2025_KBO_DA]_정규시즌_보너스',
+        '[통합] Prime Time_논스킵_15초',
+        '[통합] TOP20_논스킵_15초',
+        '[통합] TOP20_논스킵_15초_2',
+        '[통합] TOP20_스킵',
+        '[통합] 베이직 인스트림_논스킵_15초',
+        '[통합] 베이직 인스트림_논스킵_30초',
+        '[통합] 베이직 인스트림_스킵',
+        '[통합] 베이직 인스트림_스킵_2',
+        '[통합] 시청데모_1029_논스킵_15초',
+        '[통합] 시청데모_F2049_논스킵_15초',
+        '[통합] 시청데모_F2049_논스킵_30초',
+        '[통합] 시청데모_F2049_스킵',
+        '[통합] 시청데모_F2049_스킵_2',
+        '[통합] 시청데모_F3049_논스킵_15초',
+        '[통합] 시청데모_F3059_논스킵_15초',
+        '[통합]CTVPremier_MF2539_논스킵_15초',
+        '[통합]CTVPremier_MF2539_논스킵_15초_2',
+        '[통합]CTVPremier_MF2539_스킵',
+        '[통합]CTVPremier_MF2539_스킵_2',
+        '[통합]TOP20_MF2554_논스킵_15초',
+        '[통합]베이직인스트림_MF2029_논스킵_15초',
+        '[통합]베이직인스트림_MF2049_논스킵_15초',
+        '[통합]베이직인스트림_Mnet채널타겟팅_논스킵_15초',
+        '[통합]시청데모_F2059_스킵',
+        '[통합]시청데모_F2059_스킵_2',
+        'KBO_Impression 보장PKG_15초',
+        'TSM_일반용(이닝사이, 투수교체, 프리뷰쇼 중CM용)',
+        'TSM_일반용(이닝사이, 투수교체, 프리뷰쇼 중CM용)_2',
+        'TW_TOP20_논스킵_15초',
+        '논스킵 CPM_15초_정단가',
+        '논스킵 CPM_30초_정단가',
+        '논스킵_CPM_2039_30초',
+        '논스킵_CPM_3049_15초',
+        '시청데모 PKG(new)_여성2049_15초',
+        '시청데모 PKG_1529_15초',
+        '오늘의 티빙 TOP20_15초',
+        '오늘의 티빙 TOP20_30초',
+      ]
+    }
+  ]
+}
+
 // 매체별 광고상품 구조 매핑
 export const adProductStructureByMedia: { [media: string]: MediaAdProductStructure } = {
   'Meta': metaAdProductStructure,
@@ -543,7 +622,8 @@ export const adProductStructureByMedia: { [media: string]: MediaAdProductStructu
   'kakao모먼트': kakaoAdProductStructure,
   '네이버 성과형 DA': naverGfaAdProductStructure,
   '네이버 보장형 DA': naverNospAdProductStructure,
-  'TikTok': tiktokAdProductStructure
+  'TikTok': tiktokAdProductStructure,
+  'TVING': tvingAdProductStructure
 }
 
 // 하위 호환성을 위한 기존 데이터 유지
