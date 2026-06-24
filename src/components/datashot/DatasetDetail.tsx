@@ -1367,7 +1367,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     const summaryRowStyle = {
                       backgroundColor: 'hsl(var(--muted) / 0.5)',
                       borderBottom: '1px solid hsl(var(--border) / 0.6)',
-                      fontWeight: '600' as const,
+                      fontWeight: '400' as const,
                       fontSize: '11px'
                     }
                     const labelStyle = { padding: '10px 12px', textAlign: 'center' as const, color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' as const }
@@ -1385,7 +1385,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       <>
                         {/* 전체 합계 */}
                         <tr style={summaryRowStyle}>
-                          <td style={labelStyle}>전체 합계 ({aData.length}개)</td>
+                          <td style={labelStyle}>전체 데이터 ({aData.length}개)</td>
                           {renderDashes(dashColCount)}
                           <td style={valStyle}>
                             {aCost.toLocaleString()}<span style={unitSpan}>원</span>
@@ -1411,7 +1411,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         </tr>
                         {/* 필터 대상 합계 */}
                         <tr style={{ ...summaryRowStyle, borderBottom: '2px solid hsl(var(--border) / 0.8)' }}>
-                          <td style={labelStyle}>필터 대상 합계 ({fData.length}개)</td>
+                          <td style={labelStyle}>필터 조회 결과 ({fData.length}개)</td>
                           {renderDashes(dashColCount)}
                           <td style={valStyle}>
                             {fCost.toLocaleString()}<span style={unitSpan}>원</span>
