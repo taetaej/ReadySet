@@ -238,7 +238,9 @@ export function DetailedDataTable({ selectedData, isDarkMode, onSpinXAsk }: Deta
       maxWidth: '100%',
       overflowX: 'auto',
       overflowY: 'visible'
-    }}>
+    }}
+    className="custom-scrollbar"
+    >
       {/* 가로 스크롤 컨테이너 */}
       <div style={{
         minWidth: '1600px' // 최소 폭 설정
