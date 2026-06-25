@@ -50,5 +50,18 @@ export const metaMetrics: MetricGroup[] = [
       { id: 'install', label: '설치수', selected: false },
       { id: 'cost_per_install', label: '설치당 비용', selected: false },
     ]
+  },
+  {
+    group: '협력 광고',
+    metrics: [
+      { id: 'collab_web_purchase', label: '협력광고 웹 구매 수', selected: false },
+      { id: 'collab_app_purchase', label: '협력광고 앱 구매 수', selected: false },
+      { id: 'collab_web_cart', label: '협력광고 웹 장바구니 수', selected: false },
+      { id: 'collab_app_cart', label: '협력광고 앱 장바구니 수', selected: false },
+      { id: 'collab_web_purchase_amount', label: '협력광고 웹 구매 금액', selected: false },
+      { id: 'collab_app_purchase_amount', label: '협력광고 앱 구매 금액', selected: false },
+      { id: 'collab_web_cart_amount', label: '협력광고 웹 장바구니 금액', selected: false },
+      { id: 'collab_app_cart_amount', label: '협력광고 앱 장바구니 금액', selected: false },
+    ]
   }
 ]

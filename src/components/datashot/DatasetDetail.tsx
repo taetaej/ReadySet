@@ -1336,6 +1336,109 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     {renderMetricFilter('vtr')}
                   </tr>
                 </thead>
+                {/* 집계 행 - 상단 */}
+                <tbody>
+                  {(() => {
+                    // 메타 컬럼 수 (첫번째 라벨 제외한 나머지 대시 컬럼)
+                    const dashColCount = 4 + adProductColumns.length + (configData.targetingCategory ? 1 : 0)
+
+                    // 필터 대상 합계
+                    const fData = filteredData
+                    const fCost = fData.reduce((sum: number, r: any) => sum + (r.cost || 0), 0)
+                    const fImpressions = fData.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0)
+                    const fClicks = fData.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0)
+                    const fCpc = fClicks > 0 ? fCost / fClicks : 0
+                    const fCpm = fImpressions > 0 ? (fCost / fImpressions) * 1000 : 0
+                    const fCtr = fImpressions > 0 ? (fClicks / fImpressions) * 100 : 0
+                    const fVtrViews = fData.reduce((sum: number, r: any) => sum + ((r.vtr ?? 0) / 100 * (r.impressions || 0)), 0)
+                    const fVtr = fImpressions > 0 ? (fVtrViews / fImpressions) * 100 : 0
+
+                    // 전체 합계
+                    const aData = sampleData
+                    const aCost = aData.reduce((sum: number, r: any) => sum + (r.cost || 0), 0)
+                    const aImpressions = aData.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0)
+                    const aClicks = aData.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0)
+                    const aCpc = aClicks > 0 ? aCost / aClicks : 0
+                    const aCpm = aImpressions > 0 ? (aCost / aImpressions) * 1000 : 0
+                    const aCtr = aImpressions > 0 ? (aClicks / aImpressions) * 100 : 0
+                    const aVtrViews = aData.reduce((sum: number, r: any) => sum + ((r.vtr ?? 0) / 100 * (r.impressions || 0)), 0)
+                    const aVtr = aImpressions > 0 ? (aVtrViews / aImpressions) * 100 : 0
+
+                    const summaryRowStyle = {
+                      backgroundColor: 'hsl(var(--muted) / 0.5)',
+                      borderBottom: '1px solid hsl(var(--border) / 0.6)',
+                      fontWeight: '400' as const,
+                      fontSize: '11px'
+                    }
+                    const labelStyle = { padding: '10px 12px', textAlign: 'center' as const, color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' as const }
+                    const dashStyle = { padding: '10px 8px', textAlign: 'center' as const, color: 'hsl(var(--muted-foreground) / 0.4)', fontSize: '11px' }
+                    const valStyle = { padding: '10px 8px', textAlign: 'right' as const, color: 'hsl(var(--foreground) / 0.9)' }
+                    const unitSpan = { fontSize: '10px', opacity: 0.5, marginLeft: '3px', fontWeight: '400' as const }
+                    const pctSpan = { fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' as const }
+
+                    const renderDashes = (count: number) =>
+                      Array.from({ length: count }, (_, i) => (
+                        <td key={`dash-${i}`} style={dashStyle}>-</td>
+                      ))
+
+                    return (
+                      <>
+                        {/* 전체 합계 */}
+                        <tr style={summaryRowStyle}>
+                          <td style={labelStyle}>전체 데이터 ({aData.length}개)</td>
+                          {renderDashes(dashColCount)}
+                          <td style={valStyle}>
+                            {aCost.toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {aImpressions.toLocaleString()}<span style={unitSpan}>회</span>
+                          </td>
+                          <td style={valStyle}>
+                            {aClicks.toLocaleString()}<span style={unitSpan}>회</span>
+                          </td>
+                          <td style={valStyle}>
+                            {Math.round(aCpc).toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {Math.round(aCpm).toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {aCtr.toFixed(2)}<span style={pctSpan}>%</span>
+                          </td>
+                          <td style={valStyle}>
+                            {aVtr.toFixed(1)}<span style={pctSpan}>%</span>
+                          </td>
+                        </tr>
+                        {/* 필터 대상 합계 */}
+                        <tr style={{ ...summaryRowStyle, borderBottom: '2px solid hsl(var(--border) / 0.8)' }}>
+                          <td style={labelStyle}>필터 조회 결과 ({fData.length}개)</td>
+                          {renderDashes(dashColCount)}
+                          <td style={valStyle}>
+                            {fCost.toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {fImpressions.toLocaleString()}<span style={unitSpan}>회</span>
+                          </td>
+                          <td style={valStyle}>
+                            {fClicks.toLocaleString()}<span style={unitSpan}>회</span>
+                          </td>
+                          <td style={valStyle}>
+                            {Math.round(fCpc).toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {Math.round(fCpm).toLocaleString()}<span style={unitSpan}>원</span>
+                          </td>
+                          <td style={valStyle}>
+                            {fCtr.toFixed(2)}<span style={pctSpan}>%</span>
+                          </td>
+                          <td style={valStyle}>
+                            {fVtr.toFixed(1)}<span style={pctSpan}>%</span>
+                          </td>
+                        </tr>
+                      </>
+                    )
+                  })()}
+                </tbody>
                 <tbody>
                   {currentPageData.map((row, index) => (
                     <tr 
@@ -1387,67 +1490,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  {(() => {
-                    // 필터링된 전체 데이터 기준 집계
-                    const data = filteredData
-                    const totalCost = data.reduce((sum: number, r: any) => sum + (r.cost || 0), 0)
-                    const totalImpressions = data.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0)
-                    const totalClicks = data.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0)
-                    const weightedCpc = totalClicks > 0 ? totalCost / totalClicks : 0
-                    const weightedCpm = totalImpressions > 0 ? (totalCost / totalImpressions) * 1000 : 0
-                    const weightedCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
-                    const totalVtrViews = data.reduce((sum: number, r: any) => sum + ((r.vtr ?? 0) / 100 * (r.impressions || 0)), 0)
-                    const weightedVtr = totalImpressions > 0 ? (totalVtrViews / totalImpressions) * 100 : 0
-
-                    // Meta 컬럼 수 계산 (period + media + 업종3 + 광고상품 + 타겟팅)
-                    const metaColCount = 5 + adProductColumns.length + (configData.targetingCategory ? 1 : 0)
-
-                    return (
-                      <tr style={{
-                        backgroundColor: 'hsl(var(--primary) / 0.15)',
-                        borderTop: '3px solid hsl(var(--primary))',
-                        fontWeight: '800',
-                        fontSize: '12px'
-                      }}>
-                        <td
-                          colSpan={metaColCount}
-                          style={{ padding: '14px 8px', letterSpacing: '0.02em' }}
-                        >
-                          Summary
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right', borderLeft: '1px solid hsl(var(--border))' }}>
-                          {totalCost.toLocaleString()}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {totalImpressions.toLocaleString()}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>회</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {totalClicks.toLocaleString()}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>회</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {Math.round(weightedCpc).toLocaleString()}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {Math.round(weightedCpm).toLocaleString()}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px', fontWeight: '400' }}>원</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {weightedCtr.toFixed(2)}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '2px', fontWeight: '400' }}>%</span>
-                        </td>
-                        <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                          {weightedVtr.toFixed(1)}
-                          <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '2px', fontWeight: '400' }}>%</span>
-                        </td>
-                      </tr>
-                    )
-                  })()}
-                </tfoot>
               </table>
             </div>
           </div>
