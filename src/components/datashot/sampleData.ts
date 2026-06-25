@@ -252,6 +252,12 @@ export const metaAdProductStructure: MediaAdProductStructure = {
       key: 'platform',
       required: false,
       options: [...metaPlatforms]
+    },
+    {
+      label: '협력광고 파트너사',
+      key: 'collaborativePartner',
+      required: false,
+      options: ['올리브영', '무신사', '네이버', '컬리']
     }
   ]
 }
