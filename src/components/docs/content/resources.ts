@@ -88,7 +88,7 @@ ReadySet 플랫폼 관련 자료를 다운로드할 수 있습니다.
 
 플랫폼 전체 기능과 솔루션을 소개하는 종합 자료입니다. 내부 공유 및 클라이언트 프레젠테이션에 활용할 수 있습니다.
 
-- [ReadySet 플랫폼 소개서 다운로드 (PDF)](/docs/downloads/readyset-platform-intro.pdf)`
+- [ReadySet 플랫폼 소개서 다운로드 (PDF)](https://lib.cjmezzomedia.com/homepage/solutions/cjmezzomedia_adly_20260624.pdf)`
     }
   ]
 }
