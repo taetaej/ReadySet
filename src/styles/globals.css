@@ -232,6 +232,26 @@
     flex: 1;
     padding: 0.5rem 1rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
+  }
+
+  .workspace-sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .workspace-sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .workspace-sidebar-nav::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 4px;
+    min-height: 80px;
+  }
+
+  .workspace-sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
   }
 
   .workspace-sidebar-footer {
