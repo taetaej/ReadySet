@@ -626,8 +626,8 @@ export const adProductStructureByMedia: { [media: string]: MediaAdProductStructu
   'Meta': metaAdProductStructure,
   'Google Ads': googleAdProductStructure,
   'kakao모먼트': kakaoAdProductStructure,
-  '네이버 성과형 DA': naverGfaAdProductStructure,
-  '네이버 보장형 DA': naverNospAdProductStructure,
+  'NAVER 성과형 DA': naverGfaAdProductStructure,
+  'NAVER 보장형 DA': naverNospAdProductStructure,
   'TikTok': tiktokAdProductStructure,
   'TVING': tvingAdProductStructure
 }
