@@ -47,15 +47,8 @@ export function TikTokIcon({ size = 16 }: { size?: number }) {
 
 export function TvingIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="currentColor" style={s}>
-      {/* T: 상단 가로획 */}
-      <rect x="0" y="0" width="45" height="22"/>
-      {/* T: 세로획 */}
-      <rect x="0" y="22" width="22" height="78"/>
-      {/* V: 왼쪽 대각 */}
-      <polygon points="22,22 45,22 38,100 22,100"/>
-      {/* V: 오른쪽 대각 + 세로 기둥 */}
-      <polygon points="45,0 100,0 100,100 78,100 78,22 60,22 45,0"/>
+    <svg width={size} height={size} viewBox="0 20 180 160" fill="currentColor" style={s}>
+      <path d="M10 30H90V100L130 30H170L90 170H50V70H10Z"/>
     </svg>
   )
 }
@@ -64,8 +57,8 @@ export const mediaIconMap: Record<string, React.FC<{ size?: number }>> = {
   'Google Ads': GoogleAdsIcon,
   'Meta': MetaIcon,
   'kakao모먼트': KakaoIcon,
-  '네이버 성과형 DA': NaverIcon,
-  '네이버 보장형 DA': NaverIcon,
+  'NAVER 성과형 DA': NaverIcon,
+  'NAVER 보장형 DA': NaverIcon,
   'TikTok': TikTokIcon,
   'TVING': TvingIcon,
 }
