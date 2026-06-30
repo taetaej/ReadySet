@@ -10,8 +10,8 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'Meta': metaMetrics,
   'Google Ads': googleMetrics,
   'kakao모먼트': kakaoMetrics,
-  '네이버 성과형 DA': naverGfaMetrics,
-  '네이버 보장형 DA': naverNospMetrics,
+  'NAVER 성과형 DA': naverGfaMetrics,
+  'NAVER 보장형 DA': naverNospMetrics,
   'TikTok': tiktokMetrics,
   'TVING': tvingMetrics,
 }
@@ -25,7 +25,7 @@ interface Props {
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
 
-  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', '네이버 성과형 DA', '네이버 보장형 DA', 'TikTok']
+  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
   const mediaList2 = ['TVING']
 
   return (
@@ -210,7 +210,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
                   const excluded = ['conversions', 'message_send', 'message_open', 'message_click', 'message_open_rate', 'message_click_rate', 'channel_add_cpa', 'channel_add_cvr']
                   return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
                 }
-                if (formData.media === '네이버 보장형 DA' && formData.targetingCategory === '노출영역') {
+                if (formData.media === 'NAVER 보장형 DA' && formData.targetingCategory === '노출영역') {
                   const excluded = ['cost', 'cost_guaranteed', 'cpc', 'cpm', 'cpv']
                   return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
                 }
@@ -342,7 +342,7 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   const [keywordResults, setKeywordResults] = useState<string[]>([])
   const [hasSearchedKeyword, setHasSearchedKeyword] = useState(false)
   const categories = targetingOptionsByMedia[media] ?? []
-  const isKeywordMode = category === '키워드' && media === '네이버 보장형 DA'
+  const isKeywordMode = category === '키워드' && media === 'NAVER 보장형 DA'
   const opts = categories.find(t => t.category === category)?.options ?? []
   const filtered = opts.filter(o => o.toLowerCase().includes(search.toLowerCase()))
   const allSelected = filtered.length > 0 && filtered.every(o => selected.includes(o))

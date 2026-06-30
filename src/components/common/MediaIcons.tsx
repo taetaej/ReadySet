@@ -57,8 +57,8 @@ export const mediaIconMap: Record<string, React.FC<{ size?: number }>> = {
   'Google Ads': GoogleAdsIcon,
   'Meta': MetaIcon,
   'kakao모먼트': KakaoIcon,
-  '네이버 성과형 DA': NaverIcon,
-  '네이버 보장형 DA': NaverIcon,
+  'NAVER 성과형 DA': NaverIcon,
+  'NAVER 보장형 DA': NaverIcon,
   'TikTok': TikTokIcon,
   'TVING': TvingIcon,
 }

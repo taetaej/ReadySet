@@ -6,8 +6,8 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'Meta': metaMetrics,
   'Google Ads': googleMetrics,
   'kakao모먼트': kakaoMetrics,
-  '네이버 성과형 DA': naverGfaMetrics,
-  '네이버 보장형 DA': naverNospMetrics,
+  'NAVER 성과형 DA': naverGfaMetrics,
+  'NAVER 보장형 DA': naverNospMetrics,
 }
 
 interface ConfigurationSummaryProps {
