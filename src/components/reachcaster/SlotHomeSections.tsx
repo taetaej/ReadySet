@@ -91,6 +91,17 @@ export function SlotFeedSection() {
                   <span style={{ color: colors.textDim, margin: '0 5px', opacity: 0.4 }}>›</span>
                   <span style={{ color: colors.textDim, flexShrink: 0 }}>{item.action}</span>
                   <span style={{ color: colors.textDim, margin: '0 5px', opacity: 0.4 }}>›</span>
+                  {item.type && item.type !== 'file' && (
+                    <span style={{
+                      fontSize: '9px', fontWeight: 600,
+                      padding: '1px 5px', borderRadius: '3px', marginRight: '6px',
+                      backgroundColor: item.type === 'scenario' ? 'hsl(var(--foreground) / 0.08)' : 'hsl(270 60% 50% / 0.08)',
+                      color: item.type === 'scenario' ? 'hsl(var(--foreground) / 0.7)' : 'hsl(270 60% 50%)',
+                      flexShrink: 0,
+                    }}>
+                      {item.type === 'scenario' ? '시나리오' : '데이터셋'}
+                    </span>
+                  )}
                   <span style={{
                     fontWeight: 500, color: colors.text,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
