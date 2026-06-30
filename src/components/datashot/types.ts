@@ -24,14 +24,14 @@ export const sampleDatasets: Dataset[] = [
   { id: 1,  name: '2024년 1월 Google Ads 캠페인 데이터', media: 'Google Ads',       industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-01', endDate: '2024-01', periodType: 'month',   status: 'Completed',  created: '2024-02-01 14:30', creator: '김철수', creatorId: 'kimcheolsu@gmail.com' },
   { id: 2,  name: 'Meta 광고 성과 분석 데이터',          media: 'Meta',              industry: '3개 업종', industryLevel: 'major', industryCount: 3,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Processing', created: '2024-02-10 09:15', creator: '이영희', creatorId: 'leeyounghee@naver.com' },
   { id: 3,  name: '카카오 모먼트 캠페인 추출',            media: 'kakao모먼트',       industry: '식품',    industryLevel: 'mid',   industryCount: 1,         startDate: '2024-02', endDate: '2024-02', periodType: 'month',   status: 'Pending',    created: '2024-02-20 11:20', creator: '박민수', creatorId: 'parkminsu@kakao.com' },
-  { id: 4,  name: '네이버 성과형 DA 광고 데이터',         media: '네이버 성과형 DA',  industry: '5개 업종', industryLevel: 'mid',   industryCount: 5,         startDate: '2024-1',  endDate: '2024-1',  periodType: 'quarter', status: 'Completed',  created: '2024-02-15 15:40', creator: '최지은', creatorId: 'choijieun@naver.com', purpose: 'internal' },
+  { id: 4,  name: 'NAVER 성과형 DA 광고 데이터',         media: 'NAVER 성과형 DA',  industry: '5개 업종', industryLevel: 'mid',   industryCount: 5,         startDate: '2024-1',  endDate: '2024-1',  periodType: 'quarter', status: 'Completed',  created: '2024-02-15 15:40', creator: '최지은', creatorId: 'choijieun@naver.com', purpose: 'internal' },
   { id: 5,  name: 'TikTok 광고 성과 데이터',             media: 'TikTok',            industry: '패션',    industryLevel: 'minor', industryCount: 2,         startDate: '2024-01', endDate: '2024-02', periodType: 'month',   status: 'Completed',  created: '2024-03-01 10:00', creator: '정현우', creatorId: 'junghyunwoo@gmail.com' },
-  { id: 6,  name: '네이버 보장형 DA 캠페인 분석',         media: '네이버 보장형 DA',  industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-02', endDate: '2024-03', periodType: 'month',   status: 'Processing', created: '2024-02-05 13:25', creator: '강민지', creatorId: 'kangminji@naver.com' },
+  { id: 6,  name: 'NAVER 보장형 DA 캠페인 분석',         media: 'NAVER 보장형 DA',  industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-02', endDate: '2024-03', periodType: 'month',   status: 'Processing', created: '2024-02-05 13:25', creator: '강민지', creatorId: 'kangminji@naver.com' },
   { id: 7,  name: 'Google Ads 디스플레이 캠페인',        media: 'Google Ads',       industry: '2개 업종', industryLevel: 'major', industryCount: 2,         startDate: '2024-1',  endDate: '2024-2',  periodType: 'quarter', status: 'Expired',    created: '2024-01-22 16:10', creator: '윤서준', creatorId: 'yoonseojun@gmail.com', purpose: 'internal' },
   { id: 8,  name: 'Meta 신제품 런칭 캠페인',              media: 'Meta',              industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-03', endDate: '2024-03', periodType: 'month',   status: 'Pending',    created: '2024-02-20 10:45', creator: '조은비', creatorId: 'joeunbi@naver.com' },
   { id: 9,  name: 'kakao모먼트 여름 프로모션',            media: 'kakao모먼트',       industry: '7개 업종', industryLevel: 'minor', industryCount: 7,         startDate: '2024-2',  endDate: '2024-3',  periodType: 'quarter', status: 'Processing', created: '2024-04-25 14:00', creator: '한지우', creatorId: 'hanjiwoo@kakao.com' },
   { id: 10, name: 'TikTok 건강식품 타겟 마케팅',          media: 'TikTok',            industry: '건강식품', industryLevel: 'minor', industryCount: 3,         startDate: '2024-02', endDate: '2024-04', periodType: 'month',   status: 'Completed',  created: '2024-02-10 09:30', creator: '송하늘', creatorId: 'songhaneul@gmail.com', purpose: 'internal' },
-  { id: 11, name: '네이버 성과형 DA 봄 시즌 캠페인',      media: '네이버 성과형 DA',  industry: '2개 업종', industryLevel: 'mid',   industryCount: 2,         startDate: '2024-03', endDate: '2024-05', periodType: 'month',   status: 'Processing', created: '2024-03-05 11:15', creator: '김민준', creatorId: 'kimminjun@naver.com' },
+  { id: 11, name: 'NAVER 성과형 DA 봄 시즌 캠페인',      media: 'NAVER 성과형 DA',  industry: '2개 업종', industryLevel: 'mid',   industryCount: 2,         startDate: '2024-03', endDate: '2024-05', periodType: 'month',   status: 'Processing', created: '2024-03-05 11:15', creator: '김민준', creatorId: 'kimminjun@naver.com' },
   { id: 12, name: 'Google Ads 검색 광고 최적화',         media: 'Google Ads',       industry: '전체',    industryLevel: null,    industryCount: undefined, startDate: '2024-1',  endDate: '2024-2',  periodType: 'quarter', status: 'Completed',  created: '2024-01-18 14:20', creator: '이서연', creatorId: 'leeseoyeon@gmail.com' },
   { id: 13, name: 'Meta 리타겟팅 캠페인',                 media: 'Meta',              industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-04', endDate: '2024-06', periodType: 'month',   status: 'Pending',    created: '2024-04-01 09:00', creator: '박지훈', creatorId: 'parkjihun@naver.com' },
   { id: 14, name: 'kakao모먼트 브랜드 인지도 캠페인',     media: 'kakao모먼트',       industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-2',  endDate: '2024-2',  periodType: 'quarter', status: 'Error',      created: '2024-04-10 16:30', creator: '최수진', creatorId: 'choisujin@kakao.com' },
@@ -332,7 +332,7 @@ export const adProductsByMedia: { [media: string]: string[] } = {
     '카카오톡 메시지 광고',
     '브랜드 검색 광고'
   ],
-  '네이버 성과형 DA': [
+  'NAVER 성과형 DA': [
     '파워링크',
     '쇼핑검색',
     '브랜드검색',
@@ -340,7 +340,7 @@ export const adProductsByMedia: { [media: string]: string[] } = {
     '동영상 광고',
     '네이티브 광고'
   ],
-  '네이버 보장형 DA': [
+  'NAVER 보장형 DA': [
     '프리미엄 배너',
     '메인 롤링보드',
     '브랜드 배너',
@@ -632,8 +632,8 @@ export const targetingOptionsByMedia: { [media: string]: TargetingOption[] } = {
       options: ['카카오톡', '다음', '카카오서비스', '네트워크', '카카오스토리']
     }
   ],
-  '네이버 성과형 DA': [],
-  '네이버 보장형 DA': [
+  'NAVER 성과형 DA': [],
+  'NAVER 보장형 DA': [
     {
       category: '노출영역',
       options: [
@@ -719,7 +719,7 @@ export const metaAdProductCombinations: MetaAdProductCombination[] = [
   { campaignObjective: 'VIDEO_VIEWS', buyingType: 'RESERVED', performanceGoal: 'THRUPLAY', platform: 'facebook&instagram' }
 ]
 
-// 네이버 보장형 DA 키워드 목 데이터 (실제로는 API에서 24,666개 로드)
+// NAVER 보장형 DA 키워드 목 데이터 (실제로는 API에서 24,666개 로드)
 export const naverNospKeywords: string[] = [
   '삼성 갤럭시 S24', '삼성 갤럭시 Z플립6', '삼성 갤럭시 Z폴드6', '삼성전자', '삼성 비스포크',
   '아이폰16', '아이폰16 프로', '아이폰15', '애플 맥북', '애플 아이패드',
