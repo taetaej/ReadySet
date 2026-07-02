@@ -25,8 +25,7 @@ interface Props {
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
 
-  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
-  const mediaList2 = ['TVING']
+  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok', 'TVING', '당근비즈니스']
 
   return (
     <>
@@ -39,31 +38,8 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
           매체 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' }}>
           {mediaList.map(media => (
-            <button
-              key={media}
-              onClick={() => {
-                setFormData({ ...formData, media, products: [], metrics: [], targetingCategory: '', targetingOptions: [] })
-              }}
-              className="btn btn-ghost"
-              style={{
-                height: '36px', padding: '0 16px', fontSize: '13px',
-                whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px',
-                border: `1px solid ${formData.media === media ? 'hsl(var(--primary))' : validationActive && !formData.media ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
-                backgroundColor: formData.media === media ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                fontWeight: formData.media === media ? '600' : '400',
-                color: formData.media === media ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
-                transition: 'all 0.15s'
-              }}
-            >
-              {(() => { const Icon = mediaIconMap[media]; return Icon ? <Icon size={14} /> : null })()}
-              {media}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginTop: '8px' }}>
-          {mediaList2.map(media => (
             <button
               key={media}
               onClick={() => {
