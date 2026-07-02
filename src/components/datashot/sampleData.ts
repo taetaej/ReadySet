@@ -602,6 +602,56 @@ export const tvingAdProductStructure: MediaAdProductStructure = {
   ]
 }
 
+// 당근비즈니스 광고상품 구조
+export const daangnAdProductStructure: MediaAdProductStructure = {
+  fields: [
+    {
+      label: '캠페인 유형',
+      key: 'campaignType',
+      required: true,
+      options: [
+        '네이티브 광고',
+        '카탈로그 광고',
+      ]
+    },
+    {
+      label: '목적',
+      key: 'objective',
+      required: true,
+      options: [
+        '앱/웹사이트 방문 유도하기',
+        '비즈프로필 알리기',
+        '앱/웹사이트 전환 늘리기',
+        '리드폼으로 고객 확보하기',
+        '상품 판매 늘리기',
+      ]
+    },
+    {
+      label: '입찰 유형',
+      key: 'biddingType',
+      required: true,
+      options: [
+        '수동입찰',
+        'RISE 클릭수 최대화',
+        'RISE 전환수 최대화',
+        'RISE 클릭당 비용 목표',
+      ]
+    },
+    {
+      label: '소재 유형',
+      key: 'materialSourceType',
+      required: true,
+      options: [
+        '랜딩페이지_이미지',
+        '랜딩페이지_동영상',
+        '리드폼_이미지',
+        '리드폼_동영상',
+        '카탈로그',
+      ]
+    }
+  ]
+}
+
 // 매체별 광고상품 구조 매핑
 export const adProductStructureByMedia: { [media: string]: MediaAdProductStructure } = {
   'Meta': metaAdProductStructure,
@@ -610,7 +660,8 @@ export const adProductStructureByMedia: { [media: string]: MediaAdProductStructu
   'NAVER 성과형 DA': naverGfaAdProductStructure,
   'NAVER 보장형 DA': naverNospAdProductStructure,
   'TikTok': tiktokAdProductStructure,
-  'TVING': tvingAdProductStructure
+  'TVING': tvingAdProductStructure,
+  '당근비즈니스': daangnAdProductStructure
 }
 
 // 하위 호환성을 위한 기존 데이터 유지

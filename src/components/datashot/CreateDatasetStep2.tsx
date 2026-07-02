@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ListPlus, Plus, Minus, Search, ChevronDown, X, Info, Undo2 } from 'lucide-react'
-import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, tvingMetrics, naverNospKeywords, type MetricGroup } from './types'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, tvingMetrics, daangnMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
 import { adProductStructureByMedia } from './sampleData'
@@ -14,6 +14,7 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'NAVER 보장형 DA': naverNospMetrics,
   'TikTok': tiktokMetrics,
   'TVING': tvingMetrics,
+  '당근비즈니스': daangnMetrics,
 }
 
 interface Props {

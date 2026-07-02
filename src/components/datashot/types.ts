@@ -551,6 +551,36 @@ export const tvingMetrics: MetricGroup[] = [
   }
 ]
 
+// 당근비즈니스 지표
+export const daangnMetrics: MetricGroup[] = [
+  {
+    group: '기본 지표',
+    metrics: [
+      { id: 'cost', label: '비용', selected: false },
+      { id: 'impression', label: '노출 수', selected: false },
+      { id: 'reach', label: '도달 수', selected: false },
+      { id: 'click', label: '클릭 수', selected: false },
+      { id: 'ctr', label: '클릭률', selected: false },
+      { id: 'ecpc', label: '클릭당 비용(CPC)', selected: false },
+      { id: 'ecpm', label: '노출당 비용(CPM)', selected: false },
+    ]
+  },
+  {
+    group: '외부 전환 지표',
+    metrics: [
+      { id: 'purchase', label: '구매 수', selected: false },
+      { id: 'purchase_price', label: '구매 금액', selected: false },
+      { id: 'add_to_cart', label: '장바구니 담기 수', selected: false },
+      { id: 'view_content', label: '상세페이지 조회 수', selected: false },
+      { id: 'complete_registration', label: '회원가입 수', selected: false },
+      { id: 'login', label: '로그인 수', selected: false },
+      { id: 'install', label: '설치 수', selected: false },
+      { id: 'lead', label: '잠재고객 수집 수', selected: false },
+      { id: 'submit_application', label: '서비스 신청 수', selected: false },
+    ]
+  }
+]
+
 // TikTok 지표
 export const tiktokMetrics: MetricGroup[] = [
   {
