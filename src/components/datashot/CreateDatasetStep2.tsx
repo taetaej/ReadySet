@@ -181,7 +181,10 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
                 const base = metricsByMedia[formData.media] ?? []
                 if (formData.media === 'Meta' && formData.targetingCategory === '기기유형') {
                   const excluded = ['post_reaction', 'post_engagement', 'cost_per_post_engagement', 'link_click', 'cost_per_link_click', 'link_ctr', 'complete_registration', 'cost_per_registration']
-                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
+                  return base.map(g => {
+                    if (g.group === '협력 광고') return { ...g, metrics: [] }
+                    return { ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) }
+                  }).filter(g => g.metrics.length > 0)
                 }
                 if (formData.media === 'kakao모먼트' && formData.targetingCategory === '디바이스') {
                   const excluded = ['conversions', 'message_send', 'message_open', 'message_click', 'message_open_rate', 'message_click_rate', 'channel_add_cpa', 'channel_add_cvr']
