@@ -1019,9 +1019,9 @@ export function ScenarioComparisonResult({
                 )}
                 <div style={{ opacity: integrityLevel !== 'optimal' ? 0.35 : 1, pointerEvents: integrityLevel !== 'optimal' ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
                   <UnifiedReachCurve
-                    allData={[baseMetrics, ...scenarioMetrics]}
-                    labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
-                    conditionDiffs={allScenarios.map(s => s.diffs)}
+                    allData={integrityLevel !== 'optimal' ? [baseMetrics] : [baseMetrics, ...scenarioMetrics]}
+                    labels={integrityLevel !== 'optimal' ? [allScenarios[0].name] : allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                    conditionDiffs={integrityLevel !== 'optimal' ? [[]] : allScenarios.map(s => s.diffs)}
                   />
                 </div>
               </div>
