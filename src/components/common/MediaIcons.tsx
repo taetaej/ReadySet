@@ -53,6 +53,19 @@ export function TvingIcon({ size = 16 }: { size?: number }) {
   )
 }
 
+export function DaangnIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="4 -4 40 48" fill="currentColor" style={s}>
+      {/* 본체: 둥근 원 + 하단 살짝 뾰족 */}
+      <path d="M24 42C24 42 9 34 9 24C9 15.7 15.7 9 24 9C32.3 9 39 15.7 39 24C39 34 24 42 24 42ZM24 16.5C19.9 16.5 16.5 19.9 16.5 24C16.5 28.1 19.9 31.5 24 31.5C28.1 31.5 31.5 28.1 31.5 24C31.5 19.9 28.1 16.5 24 16.5Z" />
+      {/* 잎사귀: 왼쪽 아래 잎 (하단 접점 뾰족) */}
+      <path d="M22 11C19 12 14 11 14 6C14 1 19 0 22 1C25 2 26 5 26 6C26 8 25 10 22 11Z" />
+      {/* 잎사귀: 오른쪽 위 잎 (더 큼, 왼쪽 잎의 오른쪽 위에 붙음) */}
+      <ellipse cx="27" cy="4" rx="6.5" ry="6.5" />
+    </svg>
+  )
+}
+
 export const mediaIconMap: Record<string, React.FC<{ size?: number }>> = {
   'Google Ads': GoogleAdsIcon,
   'Meta': MetaIcon,
@@ -61,4 +74,5 @@ export const mediaIconMap: Record<string, React.FC<{ size?: number }>> = {
   'NAVER 보장형 DA': NaverIcon,
   'TikTok': TikTokIcon,
   'TVING': TvingIcon,
+  '당근비즈니스': DaangnIcon,
 }

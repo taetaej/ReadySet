@@ -54,14 +54,12 @@ export const metaMetrics: MetricGroup[] = [
   {
     group: '협력 광고',
     metrics: [
-      { id: 'collab_web_purchase', label: '협력광고 웹 구매 수', selected: false },
-      { id: 'collab_app_purchase', label: '협력광고 앱 구매 수', selected: false },
-      { id: 'collab_web_cart', label: '협력광고 웹 장바구니 수', selected: false },
-      { id: 'collab_app_cart', label: '협력광고 앱 장바구니 수', selected: false },
-      { id: 'collab_web_purchase_amount', label: '협력광고 웹 구매 금액', selected: false },
-      { id: 'collab_app_purchase_amount', label: '협력광고 앱 구매 금액', selected: false },
-      { id: 'collab_web_cart_amount', label: '협력광고 웹 장바구니 금액', selected: false },
-      { id: 'collab_app_cart_amount', label: '협력광고 앱 장바구니 금액', selected: false },
+      { id: 'collab_purchase_roas', label: '공유 항목의 구매 ROAS만', selected: false },
+      { id: 'collab_purchase_included', label: '공유 항목이 포함된 구매', selected: false },
+      { id: 'collab_purchase_conversion', label: '공유 항목의 구매 전환값', selected: false },
+      { id: 'collab_add_to_cart_included', label: '공유 항목이 포함된 장바구니에 담기', selected: false },
+      { id: 'collab_add_to_cart_conversion', label: '공유 항목의 장바구니에 담기 전환값', selected: false },
+      { id: 'collab_content_view_included', label: '공유 항목이 포함된 콘텐츠 조회', selected: false },
     ]
   }
 ]
