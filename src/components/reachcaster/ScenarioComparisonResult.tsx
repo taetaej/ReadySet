@@ -536,8 +536,6 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
     return Math.round(minBudget + (maxBudget - minBudget) * peakN)
   }
 
-  const lineColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
-
   const rows = allData.map((m, i) => {
     const hasDiffs = conditionDiffs[i].length > 0
     const curveMetrics = hasDiffs ? m : allData[0]
@@ -573,7 +571,6 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
             <tr key={i} style={{ borderTop: '1px solid hsl(var(--border))', backgroundColor: r.isBase ? 'hsl(var(--muted) / 0.15)' : 'transparent' }}>
               <td style={{ ...cellStyle }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: lineColors[r.idx], flexShrink: 0 }} />
                   <div>
                     <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>{r.label}</div>
                     {r.diffs.length > 0 && <div style={{ fontSize: '10px', color: 'hsl(38 92% 50%)', marginTop: '2px' }}>{r.diffs.join(', ')} 상이</div>}
@@ -613,7 +610,12 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
                   </div>
                 ) : (
                   <div>
-                    <div style={{ fontSize: '12px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>최적</div>
+                    <span style={{
+                      fontSize: '11px', fontWeight: '600',
+                      padding: '3px 10px', borderRadius: '4px',
+                      backgroundColor: 'hsl(var(--foreground))',
+                      color: 'hsl(var(--background))',
+                    }}>최적 예산</span>
                   </div>
                 )}
               </td>
@@ -994,12 +996,34 @@ export function ScenarioComparisonResult({
             {/* 콘텐츠 행 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
               {/* 왼쪽: 통합 리치커브 */}
-              <div style={{ minWidth: 0 }}>
-                <UnifiedReachCurve
-                  allData={[baseMetrics, ...scenarioMetrics]}
-                  labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
-                  conditionDiffs={allScenarios.map(s => s.diffs)}
-                />
+              <div style={{ minWidth: 0, position: 'relative' }}>
+                {integrityLevel !== 'optimal' && (
+                  <>
+                    {/* 딤 오버레이 + 메시지 */}
+                    <div style={{
+                      position: 'absolute', inset: 0, zIndex: 2,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: 'hsl(var(--background) / 0.45)',
+                      borderRadius: '8px',
+                      backdropFilter: 'blur(1px)',
+                    }}>
+                      <AlertTriangle size={20} style={{ color: 'hsl(38 92% 50%)', marginBottom: '8px' }} />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: '4px', textAlign: 'center' }}>
+                        통합 리치 커브를 제공할 수 없습니다
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', textAlign: 'center', lineHeight: 1.5, whiteSpace: 'nowrap' }}>
+                        비교 시나리오 간 조건이 상이하여 통합 리치 커브를 생성할 수 없습니다.
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div style={{ opacity: integrityLevel !== 'optimal' ? 0.35 : 1, pointerEvents: integrityLevel !== 'optimal' ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
+                  <UnifiedReachCurve
+                    allData={[baseMetrics, ...scenarioMetrics]}
+                    labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                    conditionDiffs={allScenarios.map(s => s.diffs)}
+                  />
+                </div>
               </div>
               {/* 오른쪽: 버짓 효율 요약 */}
               <div style={{ minWidth: 0 }}>
