@@ -530,23 +530,26 @@ export const naverNospMetrics: MetricGroup[] = [
 // TVING 지표
 export const tvingMetrics: MetricGroup[] = [
   {
-    group: '기본',
+    group: '주요',
     metrics: [
-      { id: 'total_spend', label: '총 집행 금액', selected: false },
+      { id: 'total_spend', label: '총 집행금액', selected: false },
       { id: 'impressions', label: '노출수', selected: false },
       { id: 'clicks', label: '클릭수', selected: false },
+      { id: 'video_view_complete', label: '영상 시청 완료', selected: false },
+      { id: 'ecpc', label: 'eCPC', selected: false },
+      { id: 'ecpm', label: 'eCPM', selected: false },
+      { id: 'ecpv', label: 'eCPV', selected: false },
       { id: 'ctr', label: 'CTR', selected: false },
+      { id: 'vtr', label: 'VTR', selected: false },
+    ]
+  },
+  {
+    group: '영상 상세',
+    metrics: [
       { id: 'video_view_25', label: '영상 25% 시청', selected: false },
       { id: 'video_view_50', label: '영상 50% 시청', selected: false },
       { id: 'video_view_75', label: '영상 75% 시청', selected: false },
-      { id: 'video_view_complete', label: '영상 시청 완료', selected: false },
-      { id: 'vtr', label: 'VTR', selected: false },
-      { id: 'cost_per_view', label: '집행 금액 기준 조회수', selected: false },
-      { id: 'companion_image_impressions', label: '컴패니언 이미지 노출수', selected: false },
-      { id: 'companion_image_clicks', label: '컴패니언 이미지 클릭수', selected: false },
       { id: 'skip', label: '건너뛰기', selected: false },
-      { id: 'ecpc', label: 'eCPC', selected: false },
-      { id: 'ecpv', label: 'eCPV', selected: false },
     ]
   }
 ]

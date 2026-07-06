@@ -606,7 +606,7 @@ export const tvingAdProductStructure: MediaAdProductStructure = {
 export const daangnAdProductStructure: MediaAdProductStructure = {
   fields: [
     {
-      label: '캠페인 유형',
+      label: '캠페인 타입',
       key: 'campaignType',
       required: true,
       options: [
