@@ -212,3 +212,31 @@ export const naverGfaMapping = {
     "N_INSTREAM": "네이버 > 인스트림 영역"
   }
 }
+
+// 당근비즈니스 API 매핑
+export const daangnMapping = {
+  campaign_type: {
+    "Display": "네이티브 광고",
+    "CatalogProduct": "카탈로그 광고"
+  },
+  objective: {
+    "VISIT_WEB_SITE": "앱/웹사이트 방문 유도하기",
+    "INCREASE_CONVERSIONS": "앱/웹사이트 전환 늘리기",
+    "INCREASE_LEADS": "리드폼으로 고객 확보하기",
+    "INFORM_BUSINESS_PROFILE": "비즈프로필 알리기",
+    "INCREASE_PRODUCT_SALES": "상품 판매 늘리기"
+  },
+  bidding_type: {
+    "CUSTOM": "수동입찰",
+    "MAXIMIZE_CLICKS": "RISE 클릭수 최대화",
+    "MAXIMIZE_CONVERSIONS": "RISE 전환수 최대화",
+    "TARGET_CPC": "RISE 클릭당 비용 목표"
+  },
+  material_source_type: {
+    "OUTLINK": "랜딩페이지_이미지",
+    "OUT_LINK_VIDEO": "랜딩페이지_동영상",
+    "LEADFORM": "리드폼_이미지",
+    "LEADFORM_VIDEO": "리드폼_동영상",
+    "CATALOG_PRODUCT_SET": "카탈로그"
+  }
+}

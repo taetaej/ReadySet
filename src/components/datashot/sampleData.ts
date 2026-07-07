@@ -615,20 +615,20 @@ export const daangnAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '목적',
-      key: 'objective',
+      label: '캠페인 목표',
+      key: 'campaignObjective',
       required: true,
       options: [
         '앱/웹사이트 방문 유도하기',
-        '비즈프로필 알리기',
         '앱/웹사이트 전환 늘리기',
         '리드폼으로 고객 확보하기',
+        '비즈프로필 알리기',
         '상품 판매 늘리기',
       ]
     },
     {
-      label: '입찰 유형',
-      key: 'biddingType',
+      label: '입찰 전략',
+      key: 'biddingStrategy',
       required: true,
       options: [
         '수동입찰',
@@ -638,8 +638,8 @@ export const daangnAdProductStructure: MediaAdProductStructure = {
       ]
     },
     {
-      label: '소재 유형',
-      key: 'materialSourceType',
+      label: '소재 에셋 유형',
+      key: 'creativeAssetType',
       required: true,
       options: [
         '랜딩페이지_이미지',
