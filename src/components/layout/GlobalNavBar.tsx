@@ -710,7 +710,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                     2026.07.13 09:42
                   </div>
                   <div style={{ fontSize: '11px', marginTop: '2px' }} className="text-muted-foreground">
-                    IP 192.168.1.***
+                    IP 192.168.1.105
                   </div>
                 </div>
 
