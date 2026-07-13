@@ -54,12 +54,14 @@ export const metaMetrics: MetricGroup[] = [
   {
     group: '협력 광고',
     metrics: [
-      { id: 'collab_purchase_roas', label: '공유 항목의 구매 ROAS만', selected: false },
-      { id: 'collab_purchase_included', label: '공유 항목이 포함된 구매', selected: false },
-      { id: 'collab_purchase_conversion', label: '공유 항목의 구매 전환값', selected: false },
-      { id: 'collab_add_to_cart_included', label: '공유 항목이 포함된 장바구니에 담기', selected: false },
-      { id: 'collab_add_to_cart_conversion', label: '공유 항목의 장바구니에 담기 전환값', selected: false },
-      { id: 'collab_content_view_included', label: '공유 항목이 포함된 콘텐츠 조회', selected: false },
+      { id: 'collab_web_purchase', label: '공유 항목이 포함된 웹사이트 구매', selected: false },
+      { id: 'collab_app_purchase', label: '공유 항목이 포함된 앱 내 구매', selected: false },
+      { id: 'collab_web_purchase_value', label: '공유 항목의 웹사이트 구매 전환값', selected: false },
+      { id: 'collab_app_purchase_roas', label: '공유 항목의 앱 내 구매 전환값만', selected: false },
+      { id: 'collab_web_add_to_cart', label: '공유 항목이 포함된 웹사이트 장바구니에 담기', selected: false },
+      { id: 'collab_app_add_to_cart', label: '공유 항목이 포함된 앱 내 장바구니에 담기', selected: false },
+      { id: 'collab_web_cart_value', label: '공유 항목의 웹사이트 장바구니에 담기 전환값', selected: false },
+      { id: 'collab_app_cart_roas', label: '공유 항목의 앱 내 장바구니에 담기 전환값만', selected: false },
     ]
   }
 ]
