@@ -318,36 +318,42 @@ z-index: 999
 
 **차트 타입**: Recharts ComposedChart (Area + Line + ReferenceLine)
 
-**핵심 로직 — 조건 동일/상이에 따른 커브 분기**:
-- **조건 동일 시나리오**: 동일한 S-curve 위의 서로 다른 포인트로 표시
-  - 하나의 Area + Line으로 S-curve 렌더링
-  - 각 시나리오의 예산 위치에 dot 마커 표시
-- **조건 상이 시나리오**: 별도의 S-curve 라인으로 표시
-  - 독립적인 Line 시리즈 추가
-  - 점선(strokeDasharray) 스타일로 구분
+**표시 정책 (integrityLevel 기반)**:
+
+1. **조건 동일 (integrityLevel = 'optimal')**: 통합 리치커브 정상 표시
+   - 예산 외 모든 조건이 동일한 경우에만 통합 리치커브를 표시한다.
+   - 리치커브 최소-최대 구간 설정이 동일한 경우: 예산이 가장 큰 시나리오의 리치커브를 표시한다.
+   - 리치커브 최소-최대 구간 설정이 상이한 경우: 리치커브 최대값이 가장 큰 리치커브를 표시한다.
+   - 각 시나리오의 예산 위치에 dot 마커로 포인트 표시.
+
+2. **조건 상이 (integrityLevel = 'caution' 또는 'risk')**: 차트 비활성화
+   - 차트 영역을 딤처리한다 (opacity: 0.35, pointerEvents: none).
+   - 차트 위에 반투명 오버레이 (background: `hsl(var(--background) / 0.45)`, backdropFilter: `blur(1px)`)를 표시한다.
+   - 오버레이 중앙에 AlertTriangle 아이콘 + 메시지를 표시한다:
+     - 타이틀: "통합 리치 커브를 제공할 수 없습니다" (13px, fontWeight 600)
+     - 설명: "비교 시나리오 간 조건이 상이하여 통합 리치 커브를 생성할 수 없습니다." (11px, whiteSpace: nowrap, 한 줄 표시)
+   - 딤처리된 배경 차트는 기준 시나리오 1개의 싱글 라인(+신뢰구간)만 표시하여 시각적 복잡도를 낮춘다.
 
 **S-curve 생성 로직**:
 ```
-f(x) = maxReach × (1 - e^(-k × x))
-- maxReach: 시나리오의 최대 도달률 (약 95%)
-- k: 곡률 계수 (시나리오 조건에 따라 다름)
-- x: 예산 (억 단위)
+calcReach(metrics, budget):
+  n = (budget - minBudget) / (maxBudget - minBudget)
+  base = metrics.reach1 × 0.75
+  max = min(95, metrics.reach1 × 1.15)
+  reach = base + (max - base) × (log(1 + n × 9) / log(10))
 ```
 
-**차트 구성**:
-- X축: 예산 (억 단위), 0 ~ maxBudget × 1.5
-- Y축: Reach 1+ (%), 0 ~ 100%
-- Area: S-curve 아래 영역, `hsl(var(--foreground) / 0.08)` 채움
-- Line: S-curve, `hsl(var(--foreground))`, 2px
-- Dot 마커: 각 시나리오 위치, 8px, 시나리오별 색상
-- ReferenceLine: 각 시나리오 예산 위치에 수직 점선
+**차트 구성 (정상 표시 시)**:
+- X축: 예산 (억 단위), minBudget(3억) ~ maxBudget(18억), 1.5억 간격
+- Y축: Reach 1+ (%)
+- 싱글 모드 (조건 동일): Area(신뢰구간) + Line(#00ff9d, 3px) + Dot 마커
+- 멀티 모드 (조건 상이 시나리오 존재): 기준=실선(#00ff9d, 3px), 상이=점선(strokeDasharray 6 3, 2px)
 
 **Efficiency Peak 마커**:
-- S-curve의 변곡점 (2차 미분 = 0)에 표시
-- 스타일: 삼각형 마커 + "Efficiency Peak" 라벨
-- 색상: `hsl(var(--muted-foreground))`
+- 피크 예산 위치에 foreground 색상 dot (r=5) 표시
+- 기준 basePeakN = 0.3, reach1 비율에 따라 동적 계산
 
-**범례**: 하단, 시나리오별 색상 dot + 이름
+**범례**: 차트 하단, 시나리오별 색상 dot + 이름 + 조건 차이 표시
 
 #### 5.2.2 Budget Summary Table (우측)
 
@@ -362,19 +368,18 @@ f(x) = maxReach × (1 - e^(-k × x))
 
 | 컬럼 | 설명 | 스타일 |
 |------|------|--------|
-| 시나리오 | 시나리오명 + 조건 상이 뱃지 | 12px, fontWeight 500 |
-| Planned Budget | 설정 예산 | 12px, 우측 정렬 |
-| Efficiency Peak | S-curve 변곡점 예산 | 12px, 우측 정렬 |
-| Reach 1+ | 해당 예산의 도달률 | 12px, 우측 정렬 |
-| Budget Room | 증액/최적/초과 상태 | 12px, 상태별 색상 |
+| 시나리오 | 시나리오명 + 조건 상이 뱃지 (컬러칩 없음) | 12px, fontWeight 600 |
+| Planned Budget | 설정 예산 + Reach 1+ | 13px, 우측 정렬 |
+| Efficiency Peak | 피크 예산 + Reach 1+ | 13px, 우측 정렬 |
+| Budget Room | 증액/최적/초과 상태 | 상태별 스타일 |
 
 **Budget Room 값 표현**:
 
-| 상태 | 조건 | 표시 | 색상 |
-|------|------|------|------|
-| 증액 추천 | Planned < Peak | "+N억 증액 추천" | `hsl(142 71% 45%)` (초록) |
-| 최적 | Planned ≈ Peak (±5%) | "최적" | `hsl(var(--muted-foreground))` |
-| 효율 저하 | Planned > Peak | "−N억 효율 저하" | `hsl(var(--destructive))` (빨강) |
+| 상태 | 조건 | 표시 | 스타일 |
+|------|------|------|--------|
+| 증액 추천 | Planned < Peak (±5% 초과) | "+N.NN억" + "증액 추천" | `hsl(142.1 76.2% 36.3%)` (초록), 13px fontWeight 600 |
+| 최적 예산 | Planned ≈ Peak (±5% 이내) | "최적 예산" 뱃지 | 뱃지: foreground 배경 + background 텍스트, 11px fontWeight 600, padding 3px 10px, borderRadius 4px |
+| 효율 저하 | Planned > Peak (±5% 초과) | "−N.NN억" + "효율 저하" | `hsl(var(--destructive))` (빨강), 13px fontWeight 600 |
 
 ### 5.3 기간 비교 시각화
 
