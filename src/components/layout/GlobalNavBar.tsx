@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles, AlertCircle, X } from 'lucide-react'
+import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles, AlertCircle, X, History } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
@@ -697,11 +697,63 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* 최근 접속 정보 */}
+                <div style={{
+                  padding: '10px 12px',
+                  borderBottom: '1px solid hsl(var(--border))',
+                  marginBottom: '4px'
+                }}>
+                  <div style={{ fontSize: '11px', marginBottom: '4px' }} className="text-muted-foreground">
+                    최근 접속
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: '500' }} className="text-foreground">
+                    2026.07.13 09:42
+                  </div>
+                  <div style={{ fontSize: '11px', marginTop: '2px' }} className="text-muted-foreground">
+                    IP 192.168.1.***
+                  </div>
+                </div>
+
+                {/* 접속 이력 보기 */}
+                <button
+                  onClick={() => {
+                    navigate('/access-log')
+                    setShowProfileMenu(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                  className="text-foreground"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <History size={16} />
+                  <span>접속 이력</span>
+                </button>
+
+                {/* 구분선 */}
+                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
+
+                {/* 로그아웃 */}
                 <button
                   onClick={() => {
                     console.log('로그아웃')
                     setShowProfileMenu(false)
-                    // 실제 로그아웃 로직 추가
                   }}
                   style={{
                     width: '100%',
