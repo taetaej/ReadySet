@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadySet Platform AX</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* 페이퍼로지(Paperlogy) 공식 웹폰트 로드 */
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-1Thin.woff2') format('woff2');
+            font-weight: 100;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-3Light.woff2') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-9Black.woff2') format('woff2');
+            font-weight: 900;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent-color: #00ff9d; /* 네온 그린 공식 코드 */
+            --border-color: #222222;
+            --font-family: 'Paperlogy', -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 반응형 스케일러 래퍼 (어느 화면에서나 16:9 비율 유지 및 중앙 정렬) */
+        .presentation-wrapper {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            transform-origin: center center;
+            flex-shrink: 0;
+        }
+
+        /* 16:9 정비율 슬라이드 캔버스 */
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            padding: 60px 80px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slide-container.active {
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1.main-title {
+            font-size: 108px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
+            margin-bottom: 30px;
+        }
+
+        h2.slide-title {
+            font-size: 40px;
+            font-weight: 600;
+            letter-spacing: -1.5px;
+            margin-bottom: 60px;
+            color: var(--text-primary);
+        }
+
+        p.subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: -0.5px;
+        }
+
+        .accent {
+            color: var(--accent-color);
+        }
+
+        .meta-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        /* Layout Elements */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 4px;
+            background: #050505;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 4px 12px;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Lists */
+        ul {
+            list-style: none;
+        }
+
+        li {
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        li::before {
+            content: "";
+            width: 6px;
+            height: 1px;
+            background-color: var(--accent-color);
+        }
+
+        li b {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Special Event Styles (Trailblazers) */
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        .event-item {
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 4px;
+            background-color: #050505;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .event-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        .event-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .event-name {
+            font-size: 24px;
+            font-weight: 700;
+            opacity: 0;
+            transform: scale(0.5) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .event-item.revealed {
+            border-color: var(--accent-color);
+            background-color: #0a1a12;
+            transform: scale(1.03);
+        }
+
+        .event-item.revealed .event-label {
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .event-item.revealed .event-name {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            color: var(--accent-color);
+            font-size: 28px;
+        }
+
+        /* Roadmap Layout */
+        .roadmap-item {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .roadmap-date {
+            font-family: monospace;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        /* Bottom Controls & Info */
+        .controls-container {
+            position: absolute;
+            bottom: 40px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            pointer-events: auto;
+        }
+
+        .nav-btn {
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .nav-info {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 가상 프레젠테이션 뷰포트 스케일러 -->
+    <div class="presentation-wrapper" id="presentationWrapper">
+
+        <!-- Slide 1: Cover -->
+        <div class="slide-container active" id="slide-1">
+            <div class="content-area">
+                <h1 class="main-title"><span class="accent">ReadySet</span><br>Walkthrough Session</h1>
+                <div>
+                    <p class="subtitle">2026-07-09 (Thu) / AX Team</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Opening -->
+        <div class="slide-container" id="slide-2">
+            <h2 class="slide-title">Opening</h2>
+            <div class="content-area">
+                <div class="grid-2">
+                    <div>
+                        <p class="meta-text">Background</p>
+                        <p class="subtitle" style="color: white; font-size: 24px; line-height: 1.45;">
+                            단순한 수치 나열을 넘어,<br>TVC와 디지털을 아우르는<br>
+                            <span class="accent">통합 의사결정 플랫폼</span>으로 진화합니다.
+                        </p>
+                    </div>
+                    <div>
+                        <p class="meta-text">Key Objectives</p>
+                        <ul style="margin-top: 8px;">
+                            <li><b>End-to-End 플래닝 워크플로우</b> — 벤치마크 → 예산 최적화 → 도달 예측을 하나의 Slot에서 연결</li>
+                            <li><b>크로스미디어 통합 도달 예측</b> — Digital+TVC 매체 확장, 예측 모델 고도화</li>
+                            <li><b>SaaS 솔루션 거버넌스 체계 구축</b> — 역할·권한 기반 접근 제어, 데이터 격리</li>
+                            <li><b>AI 기반 의사결정</b> — 실무 유즈케이스 연계 심리스 분석</li>
+                            <li><b>도달 예측 모듈 세분화</b> — 목적별 독립 모듈 (Ratio Finder / Reach Predictor)</li>
+                            <li><b>벤치마크 탐색 구조 개선</b> — 동적 필터링으로 유효 데이터만 단계별 노출</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: ReadySet 소개 -->
+        <div class="slide-container" id="slide-3">
+            <h2 class="slide-title">ReadySet <span style="font-size: 0.5em; color: #888;">Platform Overview</span></h2>
+            <div class="content-area">
+                <div style="margin-bottom: 40px;">
+                    <p class="meta-text">Ready to Slot, Set to Win</p>
+                    <p style="font-size: 22px; color: #fff; line-height: 1.5; font-weight: 400;">
+                        벤치마크 데이터 분석부터<br>
+                        광고 상품 추천,<br>
+                        예산 최적화,<br>
+                        도달률 예측까지<br>
+                        캠페인의 전 과정을 <span class="accent">하나의 Slot</span> 안에서 관리하는 통합 광고 인텔리전스 플랫폼
+                    </p>
+                </div>
+                <!-- Workflow -->
+                <div style="display: flex; align-items: center; gap: 0; margin-top: 20px;">
+                    <div style="flex: 1; text-align: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <p style="font-size: 11px; color: var(--accent-color); font-weight: 700; margin-bottom: 6px;">STEP 01</p>
+                        <p style="font-size: 16px; font-weight: 600; color: #fff;">DataShot</p>
+                        <p style="font-size: 12px; color: #888; margin-top: 4px;">벤치마크 데이터 추출</p>
+                    </div>
+                    <span style="color: #333; font-size: 18px; padding: 0 8px;">→</span>
+                    <div style="flex: 1; text-align: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 4px; opacity: 0.4;">
+                        <p style="font-size: 11px; color: #555; font-weight: 700; margin-bottom: 6px;">STEP 02</p>
+                        <p style="font-size: 16px; font-weight: 600; color: #fff;">Ad Curator</p>
+                        <p style="font-size: 12px; color: #888; margin-top: 4px;">광고 상품 큐레이션</p>
+                    </div>
+                    <span style="color: #333; font-size: 18px; padding: 0 8px;">→</span>
+                    <div style="flex: 1; text-align: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 4px; opacity: 0.4;">
+                        <p style="font-size: 11px; color: #555; font-weight: 700; margin-bottom: 6px;">STEP 03</p>
+                        <p style="font-size: 16px; font-weight: 600; color: #fff;">Budget Optimizer</p>
+                        <p style="font-size: 12px; color: #888; margin-top: 4px;">미디어믹스 예산 최적화</p>
+                    </div>
+                    <span style="color: #333; font-size: 18px; padding: 0 8px;">→</span>
+                    <div style="flex: 1; text-align: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <p style="font-size: 11px; color: var(--accent-color); font-weight: 700; margin-bottom: 6px;">STEP 04</p>
+                        <p style="font-size: 16px; font-weight: 600; color: #fff;">Reach Caster</p>
+                        <p style="font-size: 12px; color: #888; margin-top: 4px;">도달 예측 시뮬레이션</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Reach Caster -->
+        <div class="slide-container" id="slide-4">
+            <h2 class="slide-title">Reach Caster <span style="font-size: 0.5em; color: #888;">AS-IS vs TO-BE</span></h2>
+            <div class="content-area" style="gap: 0;">
+                <!-- 항목 1: 매체 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">Digital 매체만 지원</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">TVC 매체 추가</span> — Digital + TVC 크로스미디어 통합 예측</p>
+                        <p style="font-size: 13px; color: #888; margin-top: 4px;">Digital 44매체 219상품 · TV 3매체 18채널</p>
+                    </div>
+                </div>
+                <!-- 항목 2: 모듈 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">도달 예측 단일 모듈</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">모델 고도화 + 분석 모듈 분리</span> — Ratio Finder / Reach Predictor</p>
+                    </div>
+                </div>
+                <!-- 항목 3: 리치커브 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">리치커브 상세 설정 불가</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;">리치커브 <span class="accent">구간·범위 상세 설정</span> 가능</p>
+                    </div>
+                </div>
+                <!-- 항목 4: SpinX -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0;">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">결과 해석은 사용자가 직접 수행</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">SpinX AI</span> 결과 해석 기능 탑재</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: DataShot -->
+        <div class="slide-container" id="slide-5">
+            <h2 class="slide-title">DataShot <span style="font-size: 0.5em; color: #888;">AS-IS vs TO-BE</span></h2>
+            <div class="content-area" style="gap: 0;">
+                <!-- 항목 1 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">4대 매체 (Google, Meta, NAVER, kakao)</p>
+                        <p style="font-size: 13px; color: #555; margin-top: 4px;">업종 대분류 기준 추출만 가능</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">TikTok 추가</span> → 5대 매체 커버리지 확보</p>
+                        <p style="font-size: 13px; color: #888; margin-top: 4px;">업종 <span class="accent">대분류 + 중분류</span> 단위 추출 가능 (대분류 33개, 중분류 102개)</p>
+                    </div>
+                </div>
+                <!-- 항목 2 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">분기 선택 시 월별 데이터로 분할 노출</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;">선택 분기 기준 <span class="accent">통합 합산 집계값</span> 제공</p>
+                    </div>
+                </div>
+                <!-- 항목 3 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">모든 조건 나열 → 추출 시 '데이터 없음' 빈번</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">단계별 동적 필터링</span> — 유효 데이터만 노출</p>
+                    </div>
+                </div>
+                <!-- 항목 4 -->
+                <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; padding: 20px 0;">
+                    <div>
+                        <p style="font-size: 13px; color: #555; margin-bottom: 6px;">AS-IS</p>
+                        <p style="font-size: 16px; color: #888;">영문 컬럼명 + 필터/정렬 기능 없음</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="color: var(--accent-color); font-size: 16px;">→</span>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 6px; font-weight: 600;">TO-BE</p>
+                        <p style="font-size: 16px; color: #fff; font-weight: 500;"><span class="accent">한글 컬럼명</span> + 결과 내 필터·정렬 지원</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: SpinX -->
+        <div class="slide-container" id="slide-6">
+            <h2 class="slide-title">SpinX <span style="font-size: 0.5em; color: #888;">for Reach Caster</span></h2>
+            <div class="content-area">
+                <div class="grid-2">
+                    <div>
+                        <p class="meta-text">AI Insight Assistant</p>
+                        <p style="font-size: 22px; color: #fff; line-height: 1.5; margin-bottom: 30px;">
+                            솔루션별 컨텍스트를 이해하고<br>분석 결과를 <span class="accent">자동 요약</span> +<br><span class="accent">대화형</span>으로 해석합니다.
+                        </p>
+                        <p style="font-size: 14px; color: #888; line-height: 1.6;">
+                            AnXer의 Spin-off AI Agent.<br>
+                            현재 Reach Caster에 적용, 향후 다른 솔루션에도 순차 확장 예정.
+                        </p>
+                    </div>
+                    <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <p style="font-size: 12px; color: var(--accent-color); font-weight: 600; margin-bottom: 6px;">호출 가능 화면</p>
+                            <p style="font-size: 14px; color: #888;">Ratio Finder 결과 · Reach Predictor 결과 · 시나리오 비교 결과</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: var(--accent-color); font-weight: 600; margin-bottom: 6px;">핵심 기능</p>
+                            <ul style="margin: 0;">
+                                <li>컨텍스트 인식 <b>자동 요약</b></li>
+                                <li><b>추천 질문</b> 4개 + 자유 질문</li>
+                                <li>목적별 자유로운 <b>모델 선택</b> (Claude · GPT · Gemini)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: var(--accent-color); font-weight: 600; margin-bottom: 6px;">질문 예시</p>
+                            <ul style="margin: 0;">
+                                <li>"이 결과를 광고주한테 어떻게 설명하면 좋을까?"</li>
+                                <li>"Digital 60%가 최적인 이유를 근거와 함께 설명해줘"</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p style="font-size: 12px; color: var(--accent-color); font-weight: 600; margin-bottom: 6px;">세션 & 한도</p>
+                            <ul style="margin: 0;">
+                                <li>대화 세션 <b>14일간 유지</b> · 월간 <b>100회</b> 질문 (매월 초기화)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Live Demo -->
+        <div class="slide-container" id="slide-7">
+            <div class="content-area" style="align-items: center; text-align: center;">
+                <p class="meta-text">Live Demo</p>
+                <h1 style="font-size: 56px; font-weight: 700; letter-spacing: -1px;">라이브 시연</h1>
+            </div>
+        </div>
+
+        <!-- Slide 8: User Roles -->
+        <div class="slide-container" id="slide-8">
+            <h2 class="slide-title">User Roles <span style="font-size: 0.5em; color: #888;">역할 및 권한</span></h2>
+            <div class="content-area">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div class="card" style="padding: 24px;">
+                        <p style="font-size: 14px; color: var(--accent-color); font-weight: 700; margin-bottom: 8px;">Marketer</p>
+                        <p style="font-size: 13px; color: #888; line-height: 1.5;">할당 광고주 접근<br>Slot·시나리오·데이터셋 CRUD</p>
+                    </div>
+                    <div class="card" style="padding: 24px;">
+                        <p style="font-size: 14px; color: #888; font-weight: 700; margin-bottom: 8px;">Agency</p>
+                        <p style="font-size: 13px; color: #555; line-height: 1.5;">할당 광고주 접근<br>조회 · Export · SpinX</p>
+                    </div>
+                    <div class="card" style="padding: 24px;">
+                        <p style="font-size: 14px; color: #888; font-weight: 700; margin-bottom: 8px;">Client</p>
+                        <p style="font-size: 13px; color: #555; line-height: 1.5;">본인 광고주 접근<br>조회 · Export · SpinX</p>
+                    </div>
+                </div>
+                <div style="margin-top: 32px; padding: 20px; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <p style="font-size: 14px; color: #888; line-height: 1.8;">
+                        <span style="color: #fff; font-weight: 500;">데이터 격리</span> — 광고주별 완전 분리, Slot 가시성 설정 (Private / Internal / Shared)<br>
+                        <span style="color: #fff; font-weight: 500;">권한 상속</span> — 시나리오·데이터셋은 Slot 권한을 자동 상속
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Roadmap -->
+        <!-- Slide 9: Trailblazers -->
+        <div class="slide-container" id="slide-9">
+            <h2 class="slide-title">ReadySet <span class="accent">Trailblazers</span></h2>
+            <div class="content-area">
+                <p class="meta-text" style="margin-bottom: 40px;">Since 06.29 Launch — ReadySet의 첫 발자국을 남긴 개척자들</p>
+                <div class="event-grid">
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First Slot</span>
+                        <span class="event-name">임찬 님</span>
+                    </div>
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First Scenario (Reach Predictor)</span>
+                        <span class="event-name">임찬 님</span>
+                    </div>
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First Scenario (Ratio Finder)</span>
+                        <span class="event-name">— 아직 비어있습니다</span>
+                    </div>
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First SpinX</span>
+                        <span class="event-name">임지원 님</span>
+                    </div>
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First Dataset</span>
+                        <span class="event-name">고도연 님</span>
+                    </div>
+                    <div class="event-item" onclick="reveal(this)">
+                        <span class="event-label">First Tier-Up</span>
+                        <span class="event-name">나이키</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Roadmap -->
+        <div class="slide-container" id="slide-10">
+            <h2 class="slide-title">Roadmap</h2>
+            <div class="content-area">
+                <div class="roadmap-item" style="border: 1px solid #ff4444; border-radius: 4px; padding: 20px; margin-bottom: 8px;">
+                    <div>
+                        <p style="font-size: 20px; font-weight: 600; color: #ff4444;">⚠ Legacy Sunset</p>
+                        <p style="font-size: 14px; color: #ff4444; opacity: 0.7;">MTS Reach Caster 생성 종료 · AnXer Benchmark 메뉴 종료</p>
+                    </div>
+                    <span class="roadmap-date" style="color: #ff4444;">2026. 07</span>
+                </div>
+                <div class="roadmap-item">
+                    <div>
+                        <p style="font-size: 20px; font-weight: 600;">Reach Caster 고도화</p>
+                        <p style="font-size: 14px; color: #888;">Scenario Comparison — 예산·타겟·기간 3축 비교 기능</p>
+                    </div>
+                    <span class="roadmap-date">2026. 08</span>
+                </div>
+                <div class="roadmap-item">
+                    <div>
+                        <p style="font-size: 20px; font-weight: 600;">DataShot 고도화</p>
+                        <p style="font-size: 14px; color: #888;">매체 추가 (티빙, Meta 협력광고) · 결과 화면 집계 기능</p>
+                    </div>
+                    <span class="roadmap-date">2026. 08</span>
+                </div>
+                <div class="roadmap-item" style="border-bottom: none;">
+                    <div>
+                        <p style="font-size: 20px; font-weight: 600;">ReadySet Phase 2: Ad Curator &amp; Budget Optimizer 솔루션 출시</p>
+                        <p style="font-size: 14px; color: #888;">맞춤형 상품 추천 및 KPI 기반 예산 최적화 엔진</p>
+                    </div>
+                    <span class="roadmap-date">2026. 4Q~</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Validation -->
+        <div class="slide-container" id="slide-11">
+            <h2 class="slide-title">Validation <span style="font-size: 0.5em; color: #888;">신뢰도 검증</span></h2>
+            <div class="content-area" style="justify-content: center;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px;">
+                    <div class="card" style="padding: 28px; display: flex; flex-direction: column; gap: 12px;">
+                        <p class="meta-text" style="margin: 0;">01</p>
+                        <p style="font-size: 18px; color: #fff; font-weight: 600;">모델 예측력 검증</p>
+                        <p style="font-size: 13px; color: #888; line-height: 1.5;">실측치 대비 예측값 부합도 (1−SMAPE 기반)<br>예측 오차를 제외한 실제 일치 비율</p>
+                        <p style="font-size: 28px; color: var(--accent-color); font-weight: 700; margin-top: 4px;">89%</p>
+                    </div>
+                    <div class="card" style="padding: 28px; display: flex; flex-direction: column; gap: 12px;">
+                        <p class="meta-text" style="margin: 0;">02</p>
+                        <p style="font-size: 18px; color: #fff; font-weight: 600;">모델 결과 설문</p>
+                        <p style="font-size: 13px; color: #888; line-height: 1.5;">기존 MTS R/C 헤비 유저 대상<br>이전 모델 vs 개선 모델 비교 피드백</p>
+                        <p style="font-size: 24px; color: var(--accent-color); font-weight: 700; margin-top: 4px;">70% "기존 대비 개선 체감"</p>
+                    </div>
+                    <div class="card" style="padding: 28px; display: flex; flex-direction: column; gap: 12px;">
+                        <p class="meta-text" style="margin: 0;">03</p>
+                        <p style="font-size: 18px; color: #fff; font-weight: 600;">유저 테스트</p>
+                        <p style="font-size: 13px; color: #888; line-height: 1.5;">주요 사용자 대상 사용성 UT 진행<br>탐색 직관성 · 입력 흐름 · SpinX · 활용 의향 등</p>
+                        <p style="font-size: 13px; color: var(--accent-color); margin-top: 4px;">SpinX 만점(5.0) · 활용 의향 4.75</p>
+                        <p style="font-size: 24px; color: var(--accent-color); font-weight: 700; margin-top: 4px;">평균 4.5 / 5.0</p>
+                    </div>
+                </div>
+                <!-- 피드백 요청 메시지 -->
+                <div style="padding: 16px 24px; border: 1px solid var(--accent-color); border-radius: 4px; background: rgba(0, 255, 157, 0.03);">
+                    <p style="font-size: 14px; color: #fff; line-height: 1.6; text-align: center;">
+                        사전 검증에 최선을 다했지만, <span class="accent">실사용자의 진솔한 의견</span>이 가장 중요합니다.<br>
+                        사용 중 느끼신 점을 공유해 주시면 적극 반영하겠습니다.
+                    </p>
+                </div>
+                <p style="font-size: 11px; color: #444; text-align: center; margin-top: 16px;">Special thanks to — 모델 검증 설문 및 유저 테스트에 참여해 주신 20여 분께 감사드립니다.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Support & Feedback -->
+        <div class="slide-container" id="slide-12">
+            <h2 class="slide-title">Support &amp; Feedback</h2>
+            <div class="content-area" style="justify-content: center;">
+                <div style="display: grid; grid-template-columns: 1fr 1px 1fr; gap: 48px; align-items: start;">
+                    <!-- 좌측: 문의 채널 -->
+                    <div>
+                        <p class="meta-text" style="margin-bottom: 20px;">문의 채널</p>
+                        <p style="font-size: 20px; color: #fff; font-weight: 600; margin-bottom: 8px;">ReadySet 플랫폼 문의</p>
+                        <p style="font-size: 14px; color: #888; margin-bottom: 16px;">Reach Caster · DataShot · SpinX 관련</p>
+                        <p style="font-size: 16px; color: var(--accent-color); font-weight: 500;">→ MTS 게시판 또는 AX팀 신지아, 최은서</p>
+                    </div>
+                    <!-- 구분선 -->
+                    <div style="width: 1px; height: 100%; background: var(--border-color);"></div>
+                    <!-- 우측: 사용 가이드 -->
+                    <div>
+                        <p class="meta-text" style="margin-bottom: 20px;">사용 가이드</p>
+                        <p style="font-size: 20px; color: #fff; font-weight: 600; margin-bottom: 8px;">ReadySet Docs</p>
+                        <p style="font-size: 14px; color: #888; margin-bottom: 16px;">솔루션별 온보딩 가이드 및 기능 상세 문서</p>
+                        <p style="font-size: 16px; color: var(--accent-color); font-weight: 500;">→ ADLY → ReadySet → Docs 메뉴</p>
+                        <p style="font-size: 13px; color: #555; margin-top: 6px;">readyset.adly.co.kr/docs/intro</p>
+                        <p style="font-size: 13px; color: #888; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-color);">광고주 커뮤니케이션 가이드 (데이터 출처, 예측 근거 대응 등) 별도 배포 예정</p>
+                    </div>
+                </div>
+                <!-- AD플랫폼팀 안내 — 상단에 여백 두고 분리 -->
+                <div style="margin-top: 48px; padding: 12px 16px; border-radius: 4px; background: #0a0a0a;">
+                    <p style="font-size: 12px; color: #444;">※ ADLY 메인 접속 · 로그인 · 이용설정 문의 → AD플랫폼팀</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Q&A -->
+        <div class="slide-container" id="slide-13">
+            <div class="content-area" style="align-items: center; text-align: center;">
+                <p class="meta-text">Q&A</p>
+                <h1 style="font-size: 56px; font-weight: 700; letter-spacing: -1px;">질의응답</h1>
+            </div>
+        </div>
+
+        <!-- Slide 14: End -->
+        <div class="slide-container" id="slide-14">
+            <div class="content-area" style="align-items: center; text-align: center;">
+                <h1 class="main-title" style="font-size: 72px;"><span class="accent">Thank You</span></h1>
+                <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                    <img src="이미지 (4).png" alt="QR Code" style="width: 200px; height: 200px; border-radius: 8px;" />
+                    <p style="font-size: 14px; color: #888;">솔루션 개선을 위한 설문 참여 (1분 이내)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 글로벌 컨트롤 바 -->
+        <div class="controls-container">
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="prevSlide()" title="이전 슬라이드">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="nav-btn" onclick="nextSlide()" title="다음 슬라이드">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="nav-info" id="slideIndicator">01 / 08</div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 14;
+        const wrapper = document.getElementById('presentationWrapper');
+
+        // 브라우저 뷰포트 크기에 맞춰 1280x720 캔버스를 비율 유지하며 크기조절(Scale)하는 함수
+        function resizePresentation() {
+            const targetWidth = 1280;
+            const targetHeight = 720;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            const scaleX = windowWidth / targetWidth;
+            const scaleY = windowHeight / targetHeight;
+            const scale = Math.min(scaleX, scaleY);
+
+            wrapper.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', resizePresentation);
+        window.addEventListener('load', resizePresentation);
+        resizePresentation();
+
+        // 슬라이드 전환 핵심 로직
+        function showSlide(slideIndex) {
+            if (slideIndex < 1 || slideIndex > totalSlides) return;
+            
+            document.querySelectorAll('.slide-container').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            document.getElementById(`slide-${slideIndex}`).classList.add('active');
+            currentSlide = slideIndex;
+
+            // 인디케이터 업데이트
+            document.getElementById('slideIndicator').innerText = `${String(currentSlide).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // 키보드 네비게이션 연동
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // 전체 화면 토글 (F키)
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 모바일 스와이프 터치 이벤트 연동
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        function handleGesture() {
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            }
+            if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        }
+
+        // Trailblazers 시상 명단 클릭 토글 + 폭죽 효과 + Decrypted Text
+        function reveal(element) {
+            if (element.classList.contains('revealed')) return;
+            element.classList.add('revealed');
+            confetti(element);
+            decryptText(element.querySelector('.event-name'));
+        }
+
+        function decryptText(el) {
+            const original = el.dataset.text || el.textContent;
+            el.dataset.text = original;
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
+            const len = original.length;
+            let iteration = -8;
+            const interval = setInterval(() => {
+                el.textContent = original.split('').map((char, idx) => {
+                    if (idx < iteration) return original[idx];
+                    if (char === ' ') return ' ';
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('');
+                iteration += 0.3;
+                if (iteration >= len) {
+                    el.textContent = original;
+                    clearInterval(interval);
+                }
+            }, 50);
+        }
+
+        function confetti(container) {
+            const rect = container.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const colors = ['#00ff9d', '#28eaff', '#ffffff', '#a6fbff', '#46efff'];
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                const size = Math.random() * 6 + 3;
+                const angle = (Math.PI * 2 * i) / 30 + Math.random() * 0.5;
+                const velocity = Math.random() * 80 + 40;
+                const dx = Math.cos(angle) * velocity;
+                const dy = Math.sin(angle) * velocity - 20;
+                
+                particle.style.cssText = `
+                    position: fixed;
+                    left: ${cx}px;
+                    top: ${cy}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: ${Math.random() > 0.5 ? '50%' : '1px'};
+                    pointer-events: none;
+                    z-index: 99999;
+                    opacity: 1;
+                    transition: none;
+                `;
+                document.body.appendChild(particle);
+                
+                requestAnimationFrame(() => {
+                    particle.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    particle.style.transform = `translate(${dx}px, ${dy + 60}px) rotate(${Math.random() * 360}deg)`;
+                    particle.style.opacity = '0';
+                });
+                
+                setTimeout(() => particle.remove(), 900);
+            }
+        }
+
+        // 슬라이드 쇼 초기 가동
+        showSlide(currentSlide);
+    </script>
+
+</body>
+</html>
