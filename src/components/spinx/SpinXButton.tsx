@@ -13,6 +13,7 @@ interface SpinXButtonProps {
 export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false, isOpen = false, style }: SpinXButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [motion, setMotion] = useState<SpinXMotion>('idle')
+  const [showTooltip] = useState(true)
 
   // 패널 open/close에 따른 모션 전환
   useEffect(() => {
@@ -46,7 +47,7 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
         width: '64px',
         height: '64px',
         borderRadius: '50%',
-        border: 'none',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
         backgroundColor: '#09090b',
         cursor: 'pointer',
         display: 'flex',
@@ -78,6 +79,41 @@ export function SpinXButton({ onClick, hasNewMessage = false, isDarkMode = false
           border: '2px solid #0d1117',
           animation: 'spinx-badge-pulse 1.5s ease-in-out infinite'
         }} />
+      )}
+
+      {/* Ask SpinX 말풍선 */}
+      {showTooltip && !isOpen && (
+        <div style={{
+          position: 'absolute',
+          bottom: '72px',
+          right: '0',
+          backgroundColor: 'hsl(var(--foreground))',
+          color: 'hsl(var(--background))',
+          padding: '6px 14px',
+          borderRadius: '12px',
+          fontSize: '12px',
+          fontWeight: '600',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+          pointerEvents: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          animation: 'spinx-tooltip-bounce 2s ease-in-out infinite'
+        }}>
+          Ask SpinX
+          {/* 말풍선 꼬리 */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-6px',
+            right: '24px',
+            width: '0',
+            height: '0',
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid hsl(var(--foreground))'
+          }} />
+        </div>
       )}
     </button>
   )
