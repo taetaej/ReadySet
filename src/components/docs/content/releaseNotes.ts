@@ -8,8 +8,28 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-07-24',
       content: `# Release Notes
+
+## v1.0.1 (2026-07-24)
+
+ReadySet 플랫폼 보안 강화 및 개선
+
+---
+
+### GNB · 공통
+
+- \`NEW\` 접속 이력 조회 기능 
+
+### SpinX
+
+- \`IMPROVED\` SpinX 버튼 UI 개선 — Ask SpinX 말풍선 추가, 다크모드 가시성 강화
+
+### Reach Caster
+
+- \`NEW\` 다운로드 파일 내 Reach Curve 데이터 추가
+
+
 
 ## v1.0.0 (2026-06-29)
 
