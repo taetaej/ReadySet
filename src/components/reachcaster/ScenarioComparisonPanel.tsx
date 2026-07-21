@@ -48,6 +48,7 @@ export function ScenarioComparisonPanel({
   const [comparisonScenarios, setComparisonScenarios] = useState<ComparisonScenario[]>([])
   const [showScenarioSelector, setShowScenarioSelector] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
 
   // 비교 유형 3가지
   const comparisonPurposes: ComparisonPurpose[] = [
@@ -521,16 +522,27 @@ export function ScenarioComparisonPanel({
             취소
           </button>
           <button
-            onClick={() => onCompare(selectedPurpose, comparisonScenarios)}
-            disabled={!canCompare}
+            onClick={() => {
+              setIsGenerating(true)
+              setTimeout(() => {
+                setIsGenerating(false)
+                onCompare(selectedPurpose, comparisonScenarios)
+              }, 4000)
+            }}
+            disabled={!canCompare || isGenerating}
             className="btn btn-primary btn-md"
             style={{
-              opacity: canCompare ? 1 : 0.5,
-              cursor: canCompare ? 'pointer' : 'not-allowed',
-              backgroundColor: hasRisk && canCompare ? 'hsl(var(--destructive))' : undefined
+              opacity: (canCompare && !isGenerating) ? 1 : 0.5,
+              cursor: (canCompare && !isGenerating) ? 'pointer' : 'not-allowed',
+              backgroundColor: hasRisk && canCompare && !isGenerating ? 'hsl(var(--destructive))' : undefined
             }}
           >
-            {hasRisk ? '그래도 비교하기' : '비교 결과 보기'}
+            {isGenerating ? (
+              <>
+                <span className="loader-spin" style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid hsl(var(--primary-foreground))', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                결과 생성 중
+              </>
+            ) : hasRisk ? '그래도 비교하기' : '비교 결과 보기'}
           </button>
         </div>
       </div>
