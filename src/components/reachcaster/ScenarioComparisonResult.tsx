@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet, Sparkles } from 'lucide-react'
+import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet, Sparkles, Info } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell, Area, CartesianGrid } from 'recharts'
 import { SpinXButton } from '../spinx/SpinXButton'
@@ -384,12 +384,11 @@ function UnifiedReachCurve({ allData, labels, conditionDiffs }: { allData: Scena
     }
   })
 
-  // 멀티 커브 데이터: 기준 커브 + 조건 상이 시나리오만 별도 라인
-  // 조건 동일 시나리오는 기준 커브와 겹치므로 별도 라인 불필요
+  // 멀티 커브 데이터: 조건 상이 시 모든 시나리오를 개별 라인으로 표시
   const diffCurves = hasMultipleCurves
     ? allData
-        .map((m, i) => ({ idx: i, label: labels[i], hasDiffs: conditionDiffs[i].length > 0, metrics: m }))
-        .filter(c => c.hasDiffs)
+        .slice(1) // 기준 제외한 나머지 전체
+        .map((m, i) => ({ idx: i + 1, label: labels[i + 1], hasDiffs: conditionDiffs[i + 1].length > 0, metrics: m }))
         .map(c => ({
           ...c,
           data: budgetPoints.map(budget => ({
@@ -536,6 +535,8 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
     return Math.round(minBudget + (maxBudget - minBudget) * peakN)
   }
 
+  const multiLineColors = ['#00ff9d', 'hsl(var(--foreground))', 'hsl(var(--muted-foreground))', 'hsl(var(--muted-foreground) / 0.5)']
+
   const rows = allData.map((m, i) => {
     const hasDiffs = conditionDiffs[i].length > 0
     const curveMetrics = hasDiffs ? m : allData[0]
@@ -571,6 +572,7 @@ function BudgetSummaryTable({ allData, labels, conditionDiffs }: { allData: Scen
             <tr key={i} style={{ borderTop: '1px solid hsl(var(--border))', backgroundColor: r.isBase ? 'hsl(var(--muted) / 0.15)' : 'transparent' }}>
               <td style={{ ...cellStyle }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '12px', height: '3px', borderRadius: '2px', backgroundColor: multiLineColors[i] || multiLineColors[multiLineColors.length - 1], flexShrink: 0 }} />
                   <div>
                     <div style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>{r.label}</div>
                     {r.diffs.length > 0 && <div style={{ fontSize: '10px', color: 'hsl(38 92% 50%)', marginTop: '2px' }}>{r.diffs.join(', ')} 상이</div>}
@@ -990,38 +992,47 @@ export function ScenarioComparisonResult({
           <div style={{ marginBottom: '48px' }}>
             {/* 타이틀 행 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-              <h3 style={sectionTitle}>Unified Reach Curve</h3>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <h3 style={sectionTitle}>Unified Reach Curve</h3>
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }} className="reach-curve-info-trigger">
+                  <Info size={16} style={{ color: 'hsl(var(--muted-foreground))', cursor: 'pointer', marginBottom: '2px' }} />
+                  <div className="reach-curve-info-tooltip" style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
+                    marginTop: '8px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    fontSize: '12px',
+                    lineHeight: '1.6',
+                    color: 'hsl(var(--foreground))',
+                    width: '320px',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                    zIndex: 100,
+                    display: 'none',
+                    pointerEvents: 'none'
+                  }}>
+                    예산 외 조건이 동일한 시나리오는 1개의 통합 리치커브로 표시되며, 예산 외 조건 중 하나라도 상이한 시나리오가 포함된 경우 각 시나리오별 개별 라인으로 표시됩니다.
+                    <br /><br />
+                    우측 표의 수치는 각 시나리오의 개별 산출 결과를 기반으로 하므로, 차트상 통합 리치커브의 추정값과 차이가 있을 수 있습니다.
+                    <br /><br />
+                    유사한 결과를 가진 시나리오의 경우 라인이 겹쳐 보일 수 있으나, 각각 별도의 개별 라인입니다.
+                  </div>
+                </div>
+              </div>
               <div />
             </div>
             {/* 콘텐츠 행 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
               {/* 왼쪽: 통합 리치커브 */}
               <div style={{ minWidth: 0, position: 'relative' }}>
-                {integrityLevel !== 'optimal' && (
-                  <>
-                    {/* 딤 오버레이 + 메시지 */}
-                    <div style={{
-                      position: 'absolute', inset: 0, zIndex: 2,
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      backgroundColor: 'hsl(var(--background) / 0.45)',
-                      borderRadius: '8px',
-                      backdropFilter: 'blur(1px)',
-                    }}>
-                      <AlertTriangle size={20} style={{ color: 'hsl(38 92% 50%)', marginBottom: '8px' }} />
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: '4px', textAlign: 'center' }}>
-                        통합 리치 커브를 제공할 수 없습니다
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', textAlign: 'center', lineHeight: 1.5, whiteSpace: 'nowrap' }}>
-                        비교 시나리오 간 조건이 상이하여 통합 리치 커브를 생성할 수 없습니다.
-                      </span>
-                    </div>
-                  </>
-                )}
-                <div style={{ opacity: integrityLevel !== 'optimal' ? 0.35 : 1, pointerEvents: integrityLevel !== 'optimal' ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
+                <div>
                   <UnifiedReachCurve
-                    allData={integrityLevel !== 'optimal' ? [baseMetrics] : [baseMetrics, ...scenarioMetrics]}
-                    labels={integrityLevel !== 'optimal' ? [allScenarios[0].name] : allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
-                    conditionDiffs={integrityLevel !== 'optimal' ? [[]] : allScenarios.map(s => s.diffs)}
+                    allData={[baseMetrics, ...scenarioMetrics]}
+                    labels={allScenarios.map(s => s.isBase ? `기준: ${s.name}` : s.name)}
+                    conditionDiffs={allScenarios.map(s => s.diffs)}
                   />
                 </div>
               </div>

@@ -1244,3 +1244,8 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+/* Reach Curve 정보 아이콘 호버 툴팁 */
+.reach-curve-info-trigger:hover .reach-curve-info-tooltip {
+  display: block !important;
+}
