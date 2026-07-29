@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CJ Mezzomedia — 한국언론진흥재단 제안</title>
+<style>
+@font-face { font-family: 'Paperlogy'; src: url('../public/fonts/PaperlogyRegular.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Paperlogy'; src: url('../public/fonts/PaperlogyMedium.woff2') format('woff2'); font-weight: 500; }
+@font-face { font-family: 'Paperlogy'; src: url('../public/fonts/PaperlogyBold.woff2') format('woff2'); font-weight: 700; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Paperlogy', -apple-system, sans-serif; background: #fff; color: #111; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+.page { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+
+/* ═══ 타이틀 영역 ═══ */
+.header { text-align: center; margin-bottom: 24px; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.header-main { font-size: 15px; font-weight: 500; color: #aaa; letter-spacing: 2px; text-transform: uppercase; transition: opacity 0.4s; }
+.header-proposal { opacity: 0; transition: all 0.4s; position: absolute; top: calc(50% - 360px); left: 0; right: 0; text-align: center; pointer-events: none; z-index: 10; }
+.header-proposal.show { opacity: 1; }
+.header-proposal-tag { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+.header-proposal-desc { font-size: 22px; font-weight: 700; line-height: 1.6; }
+
+/* ═══ 파이프라인 박스 ═══ */
+.pipeline-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 48px 56px;
+  border-radius: 20px;
+  background: #f8f9fa;
+  border: 1.5px solid #e9ecef;
+  position: relative;
+  transition: all 0.4s;
+}
+
+.pipeline-box.hl-a { border-color: #93c5fd; background: #f0f7ff; }
+.pipeline-box.hl-b { border-color: #e9ecef; background: #f8f9fa; }
+
+/* 파이프라인 라벨 */
+.pipeline-label {
+  position: absolute;
+  top: -14px;
+  left: 32px;
+  background: #fff;
+  padding: 4px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  letter-spacing: 1px;
+  border-radius: 4px;
+}
+
+/* Step */
+.step { display: flex; flex-direction: column; align-items: center; min-width: 180px; }
+.step-name { font-size: 42px; font-weight: 700; margin-bottom: 12px; transition: color 0.4s; }
+.step-sub { font-size: 15px; color: #888; text-align: center; line-height: 1.6; }
+.chips { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.chip { font-size: 15px; color: #444; padding: 9px 22px; border-radius: 8px; border: 1px solid #e0e0e0; text-align: center; background: #fff; }
+
+/* 화살표 */
+.arr { display: flex; align-items: center; padding: 0 20px; margin-top: 10px; }
+.arr svg { width: 32px; height: 32px; color: #ccc; transition: color 0.4s; }
+.pipeline-box.hl-a .arr svg { color: #60a5fa; }
+
+/* SpinX: Solution 아래 연결 */
+.spinx-conn { display: flex; flex-direction: column; align-items: center; margin-top: 18px; }
+.vline { width: 2px; height: 18px; background: #ddd; }
+.spinx-name { font-size: 32px; font-weight: 700; margin-top: 10px; transition: color 0.4s; }
+.spinx-sub { font-size: 14px; color: #888; margin-top: 6px; }
+
+/* ═══ 방안 A: 왼쪽에서 인입 ═══ */
+.prop-a {
+  position: absolute;
+  right: calc(100% + 20px);
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.prop-a.show { opacity: 1; pointer-events: auto; }
+
+.prop-a-pill {
+  padding: 16px 32px;
+  border-radius: 14px;
+  background: #eff6ff;
+  border: 2.5px solid #3b82f6;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1d4ed8;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.12);
+}
+
+/* 방안 A 화살표: 긴 점선 + 삼각형 */
+.prop-a-arrow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.prop-a-arrow-line {
+  width: 48px;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, #3b82f6 0px, #3b82f6 8px, transparent 8px, transparent 14px);
+}
+
+.prop-a-arrow-head {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid #3b82f6;
+}
+
+/* ═══ 방안 B: SpinX 아래 GOAD ═══ */
+.prop-b {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s;
+  transition-delay: 0.1s;
+}
+.prop-b.show { opacity: 1; pointer-events: auto; }
+
+.prop-b-vline { width: 2px; height: 18px; background: #10b981; }
+.prop-b-vhead { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #10b981; }
+.prop-b-goad {
+  margin-top: 12px;
+  padding: 16px 32px;
+  border-radius: 14px;
+  background: #ecfdf5;
+  border: 2.5px solid #10b981;
+  font-size: 20px;
+  font-weight: 700;
+  color: #064e3b;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.12);
+}
+
+/* 하이라이트 */
+.pipeline-box.hl-a .step-name { color: #2563eb; }
+.pipeline-box.hl-a .spinx-name { color: #2563eb; }
+.pipeline-box.hl-b .spinx-name { color: #059669; }
+.pipeline-box.hl-b .spinx-conn { padding: 12px; border-radius: 12px; background: #ecfdf5; border: 1.5px solid #a7f3d0; margin-left: -12px; margin-right: -12px; }
+
+/* ═══ 버튼 ═══ */
+.btns { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 100; }
+.btn {
+  padding: 14px 32px;
+  border-radius: 24px;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  font-family: 'Paperlogy', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:hover { background: #f5f5f5; color: #111; }
+.btn.active-a { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+.btn.active-b { background: #ecfdf5; border-color: #10b981; color: #059669; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- 헤더: 기본 타이틀 OR 방안 설명 -->
+  <div class="header">
+    <div class="header-main" id="headerMain">CJ Mezzomedia Data Pipeline</div>
+  </div>
+
+  <!-- 방안 A 헤더 -->
+  <div class="header-proposal" id="headerA">
+    <div class="header-proposal-tag" style="color:#2563eb;">적용 방안 A</div>
+    <div class="header-proposal-desc" style="color:#1d4ed8;">재단 데이터를 Data에 넣으면, Processing → Model → Solution(SpinX 포함)<br>기존 파이프라인 전체를 즉시 활용할 수 있습니다.</div>
+  </div>
+
+  <!-- 방안 B 헤더 -->
+  <div class="header-proposal" id="headerB">
+    <div class="header-proposal-tag" style="color:#059669;">적용 방안 B</div>
+    <div class="header-proposal-desc" style="color:#047857;">SpinX AI Agent를 GOAD에 적용하여<br>데이터 인사이트 해석 기능을 추가합니다.</div>
+  </div>
+
+  <!-- 파이프라인 박스 -->
+  <div class="pipeline-box" id="pipeline">
+    <span class="pipeline-label">CJ Mezzomedia</span>
+
+    <!-- Data -->
+    <div class="step" style="position:relative;">
+      <!-- 방안 A: Data 바로 왼쪽에 인입 -->
+      <div class="prop-a" id="propA">
+        <span class="prop-a-pill">한국언론진흥재단 데이터</span>
+        <div class="prop-a-arrow">
+          <div class="prop-a-arrow-line"></div>
+          <div class="prop-a-arrow-head"></div>
+        </div>
+      </div>
+
+      <span class="step-name">Data</span>
+      <span class="step-sub">AX-BRIDGE<br>매체 데이터 수집 · 적재</span>
+    </div>
+
+    <div class="arr">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+
+    <!-- Processing -->
+    <div class="step">
+      <span class="step-name">Processing</span>
+      <span class="step-sub">정제 · 매핑 · 집계</span>
+    </div>
+
+    <div class="arr">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+
+    <!-- Model -->
+    <div class="step">
+      <span class="step-name">Model</span>
+      <div class="chips">
+        <span class="chip">통합 도달 예측</span>
+        <span class="chip">미디어믹스 최적화</span>
+      </div>
+    </div>
+
+    <div class="arr">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+
+    <!-- Solution + SpinX -->
+    <div class="step">
+      <span class="step-name">Solution</span>
+      <div class="chips">
+        <span class="chip">DataShot</span>
+        <span class="chip">Reach Caster</span>
+        <span class="chip">Budget Optimizer</span>
+      </div>
+      <div class="spinx-conn">
+        <div class="vline"></div>
+        <span class="spinx-name">SpinX</span>
+        <span class="spinx-sub">AI Agent</span>
+
+        <!-- 방안 B: SpinX ↓ GOAD -->
+        <div class="prop-b" id="propB">
+          <div class="prop-b-vline"></div>
+          <div class="prop-b-vhead"></div>
+          <span class="prop-b-goad">GOAD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 버튼 -->
+<div class="btns">
+  <button class="btn" id="btnA" onclick="toggleA()">적용 방안 A</button>
+  <button class="btn" id="btnB" onclick="toggleB()">적용 방안 B</button>
+</div>
+
+<script>
+let a = false, b = false;
+
+function toggleA() {
+  a = !a;
+  if (a) { b = false; offB(); }
+  document.getElementById('propA').classList.toggle('show', a);
+  document.getElementById('headerA').classList.toggle('show', a);
+  document.getElementById('headerMain').style.opacity = a ? '0' : '1';
+  document.getElementById('pipeline').classList.toggle('hl-a', a);
+  document.getElementById('btnA').classList.toggle('active-a', a);
+}
+
+function toggleB() {
+  b = !b;
+  if (b) { a = false; offA(); }
+  document.getElementById('propB').classList.toggle('show', b);
+  document.getElementById('headerB').classList.toggle('show', b);
+  document.getElementById('headerMain').style.opacity = b ? '0' : '1';
+  document.getElementById('pipeline').classList.toggle('hl-b', b);
+  document.getElementById('btnB').classList.toggle('active-b', b);
+}
+
+function offA() {
+  document.getElementById('propA').classList.remove('show');
+  document.getElementById('headerA').classList.remove('show');
+  document.getElementById('pipeline').classList.remove('hl-a');
+  document.getElementById('btnA').classList.remove('active-a');
+}
+
+function offB() {
+  document.getElementById('propB').classList.remove('show');
+  document.getElementById('headerB').classList.remove('show');
+  document.getElementById('pipeline').classList.remove('hl-b');
+  document.getElementById('btnB').classList.remove('active-b');
+}
+
+// F키: 전체화면 토글
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+});
+</script>
+
+</body>
+</html>
