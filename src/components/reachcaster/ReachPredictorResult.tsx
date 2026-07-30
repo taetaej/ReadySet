@@ -578,7 +578,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   
                   <div style={{ marginBottom: '12px' }}>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
-                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.created || '2024-01-10 14:30'}</div>
+                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.created || '2024-01-10 14:30:12'}</div>
                     <div className="text-muted-foreground" style={{ fontSize: '12px' }}>
                       {scenarioData?.creator || '김철수'} ({maskEmail(scenarioData?.creatorId || 'kimcheolsu@gmail.com')})
                     </div>
@@ -588,7 +588,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   
                   <div>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>완료일시</div>
-                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.completedAt || '2024-01-20 16:45'}</div>
+                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.completedAt || '2024-01-20 16:45:07'}</div>
                   </div>
                 </div>
               )}
