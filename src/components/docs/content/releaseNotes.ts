@@ -8,8 +8,30 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-07-24',
+      updatedAt: '2026-08-06',
       content: `# Release Notes
+
+## v1.1.0 (2026-08-06)
+
+ReadySet 플랫폼 기능 확장 및 개선
+
+---
+
+### SlotBoard
+
+- \`NEW\` Slot Home — Activity Log 기능 추가 (슬롯 내 활동 이력 조회)
+- \`NEW\` Slot Home — Resource 기능 추가 (슬롯별 참고 자료 관리)
+
+### Reach Caster
+
+- \`NEW\` 시나리오 비교 기능 — 동일 슬롯 내 시나리오 간 결과 비교 분석
+
+### DataShot
+
+- \`IMPROVED\` 데이터셋 결과 화면 — 집계행(Summary Row) 추가
+- \`NEW\` 지원 매체 추가 — Meta 협력 광고
+
+
 
 ## v1.0.1 (2026-07-24)
 

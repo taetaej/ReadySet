@@ -204,13 +204,13 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                     <div style={{ height: '1px', backgroundColor: colors.border, margin: '12px 0' }} />
                     <div style={{ marginBottom: '12px' }}>
                       <div style={{ fontSize: '11px', color: colors.textDim, marginBottom: '4px' }}>생성일시</div>
-                      <div style={{ fontSize: '13px', fontWeight: 500, color: colors.text }}>2024-01-15 14:30</div>
+                      <div style={{ fontSize: '13px', fontWeight: 500, color: colors.text }}>2024-01-15 14:30:12</div>
                       <div style={{ fontSize: '12px', color: colors.textDim }}>{slotData.owner} ({maskEmail('kimminsu@readyset.com')})</div>
                     </div>
                     <div style={{ height: '1px', backgroundColor: colors.border, margin: '12px 0' }} />
                     <div>
                       <div style={{ fontSize: '11px', color: colors.textDim, marginBottom: '4px' }}>최근 수정일시</div>
-                      <div style={{ fontSize: '13px', fontWeight: 500, color: colors.text }}>2024-01-20 16:45</div>
+                      <div style={{ fontSize: '13px', fontWeight: 500, color: colors.text }}>2024-01-20 16:45:38</div>
                       <div style={{ fontSize: '12px', color: colors.textDim }}>이지은 ({maskEmail('leejieun@readyset.com')})</div>
                     </div>
                   </div>
