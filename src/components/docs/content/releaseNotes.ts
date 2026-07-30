@@ -13,23 +13,23 @@ export const releaseNotesSection: DocSection = {
 
 ## v1.1.0 (2026-08-06)
 
-ReadySet 플랫폼 기능 확장 및 개선
+ReadySet 플랫폼 기능 확장 및 데이터 고도화
 
 ---
 
-### SlotBoard
+### Slot Home
 
-- \`NEW\` Slot Home — Activity Log 기능 추가 (슬롯 내 활동 이력 조회)
-- \`NEW\` Slot Home — Resource 기능 추가 (슬롯별 참고 자료 관리)
+- \`NEW\` 활동 로그 — Slot 내 주요 활동 이력 조회
+- \`NEW\` 리소스 파일 첨부 — Slot에 참고 자료 업로드 및 관리
 
 ### Reach Caster
 
-- \`NEW\` 시나리오 비교 기능 — 동일 슬롯 내 시나리오 간 결과 비교 분석
+- \`NEW\` 시나리오 비교 — 예산·타겟·기간 3가지 비교 유형으로 시나리오 간 도달 비교 분석
 
 ### DataShot
 
-- \`IMPROVED\` 데이터셋 결과 화면 — 집계행(Summary Row) 추가
-- \`NEW\` 지원 매체 추가 — Meta 협력 광고
+- \`NEW\` 집계 행 — 데이터셋 결과 테이블 상단에 전체/필터 기준 합산·평균 집계 표시
+- \`NEW\` Meta 협력 광고 데이터 — 협력 광고 파트너사 조회조건 옵션 및 협력 광고 지표 추가
 
 
 
