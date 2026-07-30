@@ -8,8 +8,30 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-07-24',
+      updatedAt: '2026-08-06',
       content: `# Release Notes
+
+## v1.1.0 (2026-08-06)
+
+ReadySet 플랫폼 기능 확장 및 데이터 고도화
+
+---
+
+### Slot Home
+
+- \`NEW\` 활동 로그 — Slot 내 주요 활동 이력 조회
+- \`NEW\` 리소스 파일 첨부 — Slot에 참고 자료 업로드 및 관리
+
+### Reach Caster
+
+- \`NEW\` 시나리오 비교 — 예산·타겟·기간 3가지 비교 유형으로 시나리오 간 도달 비교 분석
+
+### DataShot
+
+- \`NEW\` 집계 행 — 데이터셋 결과 테이블 상단에 전체/필터 기준 합산·평균 집계 표시
+- \`NEW\` Meta 협력 광고 데이터 — 협력 광고 파트너사 조회조건 옵션 및 협력 광고 지표 추가
+
+
 
 ## v1.0.1 (2026-07-24)
 
