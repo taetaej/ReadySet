@@ -187,7 +187,7 @@ Slot Home 헤더의 더보기(⋮) 메뉴에서 "수정"을 선택합니다.
       id: 'slotboard-slot-home',
       title: 'Slot Home',
       slug: 'slotboard-slot-home',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-08-06',
       content: `# Slot Home
 
 개별 Slot에 진입하면 표시되는 홈 화면입니다. 각 솔루션의 최종 결과물을 한눈에 확인하고, Final Set을 구성하며, 활동 이력과 참고 자료를 관리합니다.
