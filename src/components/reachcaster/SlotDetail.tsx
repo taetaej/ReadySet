@@ -34,10 +34,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-01-10 14:30',
+    created: '2024-01-10 14:30:45',
     creator: '김철수',
     creatorId: 'kimcheolsu@gmail.com',
-    completedAt: '2024-01-20 16:45',
+    completedAt: '2024-01-20 16:45:12',
     errorMessage: null
   },
   { 
@@ -52,10 +52,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-01-18 09:15',
+    created: '2024-01-18 09:15:33',
     creator: '이영희',
     creatorId: 'leeyounghee@gmail.com',
-    completedAt: '2024-01-20 14:30',
+    completedAt: '2024-01-20 14:30:07',
     errorMessage: null
   },
   { 
@@ -70,7 +70,7 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    created: '2024-01-25 11:20',
+    created: '2024-01-25 11:20:18',
     creator: '박민수',
     creatorId: 'parkminsoo@gmail.com',
     completedAt: null,
@@ -88,10 +88,10 @@ const sampleScenarios = [
     status: 'Error',
     processStep: 2,
     totalSteps: 5,
-    created: '2024-01-03 15:40',
+    created: '2024-01-03 15:40:52',
     creator: '최지은',
     creatorId: 'choijieun@gmail.com',
-    completedAt: '2024-01-06 10:23',
+    completedAt: '2024-01-06 10:23:41',
     errorMessage: '입력 데이터 형식 오류: 예산 정보가 누락되었습니다.'
   },
   { 
@@ -106,10 +106,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-01-12 10:00',
+    created: '2024-01-12 10:00:29',
     creator: '정현우',
     creatorId: 'junghyunwoo@gmail.com',
-    completedAt: '2024-01-15 14:20',
+    completedAt: '2024-01-15 14:20:55',
     errorMessage: null
   },
   { 
@@ -124,10 +124,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-02-05 13:25',
+    created: '2024-02-05 13:25:14',
     creator: '강민지',
     creatorId: 'kangminji@gmail.com',
-    completedAt: '2024-02-12 16:45',
+    completedAt: '2024-02-12 16:45:33',
     errorMessage: null
   },
   { 
@@ -142,10 +142,10 @@ const sampleScenarios = [
     status: 'Error',
     processStep: 3,
     totalSteps: 5,
-    created: '2024-01-22 16:10',
+    created: '2024-01-22 16:10:27',
     creator: '윤서준',
     creatorId: 'yoonseojun@gmail.com',
-    completedAt: '2024-01-29 09:15',
+    completedAt: '2024-01-29 09:15:08',
     errorMessage: '서버 연결 오류: 외부 API 응답 시간 초과'
   },
   { 
@@ -160,7 +160,7 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    created: '2024-02-20 10:45',
+    created: '2024-02-20 10:45:39',
     creator: '조은비',
     creatorId: 'joeunbi@gmail.com',
     completedAt: null,
@@ -178,10 +178,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-04-25 14:00',
+    created: '2024-04-25 14:00:22',
     creator: '한지우',
     creatorId: 'hanjiwoo@gmail.com',
-    completedAt: '2024-05-03 11:20',
+    completedAt: '2024-05-03 11:20:47',
     errorMessage: null
   },
   { 
@@ -196,10 +196,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-02-10 09:30',
+    created: '2024-02-10 09:30:15',
     creator: '송하늘',
     creatorId: 'songhaneul@gmail.com',
-    completedAt: '2024-04-16 11:20',
+    completedAt: '2024-04-16 11:20:33',
     errorMessage: null,
     reachPredictorMedia: [
       {
@@ -302,10 +302,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-01-28 11:15',
+    created: '2024-01-28 11:15:42',
     creator: '임도현',
     creatorId: 'limdohyun@gmail.com',
-    completedAt: '2024-02-13 15:20',
+    completedAt: '2024-02-13 15:20:09',
     errorMessage: null
   },
   { 
@@ -320,10 +320,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-03-05 13:40',
+    created: '2024-03-05 13:40:51',
     creator: '배서연',
     creatorId: 'baeseoyeon@gmail.com',
-    completedAt: '2024-03-12 10:15',
+    completedAt: '2024-03-12 10:15:28',
     errorMessage: null
   },
   { 
@@ -338,10 +338,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-01-15 10:20',
+    created: '2024-01-15 10:20:36',
     creator: '오준혁',
     creatorId: 'ojunhyuk@gmail.com',
-    completedAt: '2024-03-22 09:45',
+    completedAt: '2024-03-22 09:45:19',
     errorMessage: null
   },
   { 
@@ -356,7 +356,7 @@ const sampleScenarios = [
     status: 'Pending',
     processStep: 0,
     totalSteps: 5,
-    created: '2024-02-15 15:55',
+    created: '2024-02-15 15:55:04',
     creator: '신예린',
     creatorId: 'shinyerin@gmail.com',
     completedAt: null,
@@ -374,10 +374,10 @@ const sampleScenarios = [
     status: 'Completed',
     processStep: 5,
     totalSteps: 5,
-    created: '2024-02-25 11:30',
+    created: '2024-02-25 11:30:57',
     creator: '홍재민',
     creatorId: 'hongjaemin@gmail.com',
-    completedAt: '2024-03-03 15:50',
+    completedAt: '2024-03-03 15:50:23',
     errorMessage: null
   },
   { 
@@ -392,7 +392,7 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 3,
     totalSteps: 5,
-    created: '2024-03-10 09:00',
+    created: '2024-03-10 09:00:11',
     creator: '김철수',
     creatorId: 'kimcheolsu@gmail.com',
     completedAt: null,
@@ -410,7 +410,7 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 1,
     totalSteps: 5,
-    created: '2024-03-28 14:20',
+    created: '2024-03-28 14:20:44',
     creator: '이영희',
     creatorId: 'leeyounghee@gmail.com',
     completedAt: null,
@@ -428,7 +428,7 @@ const sampleScenarios = [
     status: 'Processing',
     processStep: 4,
     totalSteps: 5,
-    created: '2024-04-05 11:45',
+    created: '2024-04-05 11:45:31',
     creator: '박민수',
     creatorId: 'parkminsoo@gmail.com',
     completedAt: null,
