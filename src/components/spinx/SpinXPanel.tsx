@@ -15,10 +15,16 @@ export function SpinXPanel({
   isDarkMode = false,
   scenarioName = '25-34세 여성 타겟 집중 공략 디지털+TV 최적 비중 분석',
   analysisType = 'ratioFinder',
-  positioning = 'fixed',
+  positioning: _positioning = 'fixed',
   initialMessage
 }: SpinXPanelProps) {
   const chat = useSpinXChat()
+  const [expanded, setExpanded] = React.useState(false)
+
+  // 패널 닫힐 때 expanded 초기화
+  React.useEffect(() => {
+    if (!isOpen) setExpanded(false)
+  }, [isOpen])
 
   // initialMessage가 있고 패널이 열릴 때 자동 전송
   const prevOpenRef = React.useRef(false)
@@ -32,24 +38,29 @@ export function SpinXPanel({
   return (
     <div
       style={{
-        position: positioning,
+        position: 'fixed',
         top: 0,
-        right: isOpen ? 0 : '-400px',
-        width: '400px',
-        height: positioning === 'fixed' ? '100vh' : '100%',
+        right: isOpen ? 0 : (expanded ? '-50vw' : '-400px'),
+        width: expanded ? '50vw' : '400px',
+        height: '100vh',
         backgroundColor: isDarkMode ? 'hsl(var(--card))' : 'hsl(var(--card))',
         borderLeft: '1px solid hsl(var(--border))',
         boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.15)',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s ease',
         overflow: 'hidden',
-        maxHeight: positioning === 'fixed' ? '100vh' : '100%'
+        maxHeight: '100vh'
       }}
     >
       {/* 헤더 */}
-      <SpinXHeader onReset={chat.handleReset} onClose={onClose} />
+      <SpinXHeader
+        onReset={chat.handleReset}
+        onClose={onClose}
+        expanded={expanded}
+        onToggleExpand={() => setExpanded(prev => !prev)}
+      />
 
       {/* 메시지 영역 */}
       <SpinXMessages
