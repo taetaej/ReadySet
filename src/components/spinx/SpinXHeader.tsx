@@ -1,13 +1,15 @@
 // SpinXHeader.tsx — 헤더 컴포넌트 (타이틀, 초기화 버튼, 닫기 버튼)
 
-import { X, RotateCcw } from 'lucide-react'
+import { X, RotateCcw, Maximize2, Minimize2 } from 'lucide-react'
 
 interface SpinXHeaderProps {
   onReset: () => void
   onClose: () => void
+  expanded?: boolean
+  onToggleExpand?: () => void
 }
 
-export function SpinXHeader({ onReset, onClose }: SpinXHeaderProps) {
+export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand }: SpinXHeaderProps) {
   return (
     <div style={{ flexShrink: 0 }}>
       <div
@@ -43,8 +45,18 @@ export function SpinXHeader({ onReset, onClose }: SpinXHeaderProps) {
         </p>
       </div>
 
-      {/* 우측: 초기화 + 닫기 버튼 */}
+      {/* 우측: 넓게 보기 + 초기화 + 닫기 버튼 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {onToggleExpand && (
+          <button
+            onClick={onToggleExpand}
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '6px' }}
+            title={expanded ? '기본 보기' : '넓게 보기'}
+          >
+            {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        )}
         <button
           onClick={onReset}
           className="btn btn-ghost btn-sm"
