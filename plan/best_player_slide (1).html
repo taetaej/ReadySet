@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEST PLAYER - SpinX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cj: '#0F8A7E',
+                        surface: '#F6F7F9',
+                        subtle: '#EBEDF2',
+                        ink: '#1A1D26',
+                        secondary: '#5A6070'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: 'CJ ONLYONE';
+            src: url('./fonts/CJ_ONLYONE_REGULAR.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'CJ ONLYONE';
+            src: url('./fonts/CJ_ONLYONE_BOLD.woff2') format('woff2');
+            font-weight: 700;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'CJ ONLYONE', 'Pretendard', -apple-system, sans-serif;
+            background: white;
+            color: #1A1D26;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 16px;
+        }
+        @media print {
+            @page { size: A4 landscape; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="slide flex flex-col p-2 gap-1">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between">
+        <div class="flex items-baseline gap-2">
+            <span class="text-xs font-bold text-white bg-ink px-2 py-0.5 rounded tracking-wide">BEST PLAYER</span>
+            <h1 class="text-lg font-bold text-ink tracking-tight">SpinX</h1>
+            <span class="text-xs text-secondary">전사 공통 AI Agent 엔진 · 1호 연동 Reach Caster</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-ink font-bold">AX팀</span>
+        </div>
+    </header>
+
+    <!-- Section 1: 프로젝트 정의 -->
+    <section class="flex flex-col gap-1.5">
+        <div class="flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center">1</span>
+            <h2 class="text-base font-bold text-ink">프로젝트 정의</h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+            <!-- 사용자 관점 -->
+            <div class="bg-surface rounded-lg p-2">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-bold text-ink">사용자 관점</span>
+                    <span class="text-xs text-cj font-bold bg-cj/5 border border-cj/20 rounded px-1.5 py-0.5">결과 해석 자동화</span>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <!-- Before: 사람이 데이터 정리해서 외부 AI로 전송 -->
+                    <div class="flex-1 bg-white rounded-lg p-2 min-h-[120px] flex flex-col">
+                        <div class="text-xs font-bold text-secondary mb-1.5 text-center">Before</div>
+                        <div class="flex items-center justify-center gap-1">
+                            <!-- 사람 + 문서들 -->
+                            <div class="flex flex-col items-center gap-1">
+                                <svg class="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/>
+                                </svg>
+                                <div class="flex gap-0.5">
+                                    <div class="w-3 h-4 rounded-sm bg-subtle border border-secondary/20"></div>
+                                    <div class="w-3 h-4 rounded-sm bg-subtle border border-secondary/20"></div>
+                                    <div class="w-3 h-4 rounded-sm bg-subtle border border-secondary/20"></div>
+                                </div>
+                                <span class="text-xs text-secondary leading-none">데이터·도메인·솔루션 맥락을<br>직접 프롬프팅</span>
+                            </div>
+                            <!-- 화살표: 전송 -->
+                            <div class="flex flex-col items-center gap-0.5 px-1">
+                                <svg class="w-5 h-5 text-secondary/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+                                </svg>
+                                <span class="text-[9px] text-secondary/60">직접 전달</span>
+                            </div>
+                            <!-- 외부 AI -->
+                            <div class="flex flex-col items-center gap-1">
+                                <svg class="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"/>
+                                </svg>
+                                <span class="text-xs text-secondary leading-none text-center">AnXer<br>외부 LLM</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-secondary text-center mt-1.5 leading-snug">맥락·데이터를 직접 프롬프팅해 AnXer/외부 LLM에 질의</p>
+                    </div>
+
+                    <!-- 화살표 구분 -->
+                    <div class="flex items-center shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-cj/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-cj" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- After: 솔루션 안에서 바로 질의 -->
+                    <div class="flex-1 bg-white rounded-lg p-2 border border-cj/15 min-h-[120px] flex flex-col">
+                        <div class="text-xs font-bold text-cj mb-1.5 text-center">After</div>
+                        <div class="flex items-center justify-center gap-1">
+                            <!-- 솔루션 화면 + 내장 AI -->
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="relative">
+                                    <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25Z"/>
+                                    </svg>
+                                    <div class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full overflow-hidden shadow-sm bg-black p-0.5">
+                                        <img src="../public/spinx-static.png" alt="SpinX" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <span class="text-xs text-ink font-bold leading-none text-center">Reach Caster<br>+ SpinX 내장</span>
+                            </div>
+                            <!-- 양방향 대화 -->
+                            <div class="flex flex-col items-center gap-0.5 px-1">
+                                <svg class="w-4 h-4 text-cj/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
+                                </svg>
+                                <span class="text-[9px] text-cj/70">바로 질의</span>
+                            </div>
+                            <!-- 사람들 -->
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="flex items-end gap-0.5">
+                                    <svg class="w-5 h-5 text-cj" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/>
+                                    </svg>
+                                    <svg class="w-5 h-5 text-cj" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/>
+                                    </svg>
+                                    <svg class="w-5 h-5 text-cj" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/>
+                                    </svg>
+                                </div>
+                                <span class="text-[9px] text-ink leading-none text-center">마케터 · 대행사 · 광고주</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-cj font-bold text-center mt-1.5 leading-snug">시나리오 컨텍스트를 자동 파악<BR>'요약→상세→제언' 3단 답변 즉시 제공</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 솔루션 적용 관점 -->
+            <div class="bg-surface rounded-lg p-2">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-bold text-ink">개발·구축 관점</span>
+                    <span class="text-xs text-ink font-bold bg-subtle rounded px-1.5 py-0.5">전사 AI Agent 표준화</span>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <!-- Before: 솔루션마다 개별 구현 -->
+                    <div class="flex-1 bg-white rounded-lg p-2 min-h-[120px] flex flex-col">
+                        <div class="text-xs font-bold text-secondary mb-1.5 text-center">Before</div>
+                        <div class="flex items-center justify-center gap-1.5">
+                            <!-- 솔루션 A + AI 개별 -->
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="w-7 h-9 rounded border border-secondary/30 bg-subtle flex flex-col items-center justify-center gap-0.5 relative">
+                                    <svg class="w-3.5 h-3.5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                                    </svg>
+                                    <div class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-secondary/40 flex items-center justify-center">
+                                        <span class="text-[7px] text-white font-bold">AI</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-secondary">솔루션 A</span>
+                            </div>
+                            <!-- 솔루션 B + AI 개별 -->
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="w-7 h-9 rounded border border-secondary/30 bg-subtle flex flex-col items-center justify-center gap-0.5 relative">
+                                    <svg class="w-3.5 h-3.5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                                    </svg>
+                                    <div class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-secondary/40 flex items-center justify-center">
+                                        <span class="text-[7px] text-white font-bold">AI</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-secondary">솔루션 B</span>
+                            </div>
+                            <!-- 솔루션 C + AI 개별 -->
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="w-7 h-9 rounded border border-secondary/30 bg-subtle flex flex-col items-center justify-center gap-0.5 relative">
+                                    <svg class="w-3.5 h-3.5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                                    </svg>
+                                    <div class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-secondary/40 flex items-center justify-center">
+                                        <span class="text-[7px] text-white font-bold">AI</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-secondary">솔루션 C</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-secondary text-center mt-1.5 leading-snug">솔루션마다 AI를 각각 구현해야 함 → 공수 낭비·기술 파편화</p>
+                    </div>
+
+                    <!-- 화살표 구분 -->
+                    <div class="flex items-center shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-ink/5 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- After: 공통 엔진에서 필요 기능만 가져다 쓰기 -->
+                    <div class="flex-1 bg-ink rounded-lg p-2 min-h-[120px] flex flex-col">
+                        <div class="text-xs font-bold text-cj mb-1.5 text-center">After</div>
+                        <div class="flex items-center justify-center gap-1.5">
+                            <!-- 공통 엔진 -->
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-black p-1">
+                                    <img src="../public/spinx-static.png" alt="SpinX" class="w-full h-full object-cover">
+                                </div>
+                                <span class="text-xs text-white/80 font-bold leading-none text-center">SpinX</span>
+                            </div>
+                            <!-- 연결선: 모듈 꽂기 -->
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="flex gap-0.5">
+                                    <div class="w-0.5 h-3 bg-cj/60 rounded-full"></div>
+                                    <div class="w-0.5 h-3 bg-cj/40 rounded-full"></div>
+                                    <div class="w-0.5 h-3 bg-cj/20 rounded-full"></div>
+                                </div>
+                                <svg class="w-3 h-3 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+                                </svg>
+                                <span class="text-[9px] text-white/40">필요 모듈<br>선택 적용</span>
+                            </div>
+                            <!-- 솔루션들 -->
+                            <div class="grid grid-cols-2 gap-1">
+                                <div class="flex items-center gap-1 bg-white/10 rounded px-1.5 py-0.5">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-cj"></div>
+                                    <span class="text-[9px] text-white/80">Reach Caster</span>
+                                </div>
+                                <div class="flex items-center gap-1 bg-white/5 rounded px-1.5 py-0.5 border border-dashed border-white/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                                    <span class="text-[9px] text-white/50">DataShot</span>
+                                </div>
+                                <div class="flex items-center gap-1 bg-white/5 rounded px-1.5 py-0.5 border border-dashed border-white/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                                    <span class="text-[9px] text-white/50">Ad Curator</span>
+                                </div>
+                                <div class="flex items-center gap-1 bg-white/5 rounded px-1.5 py-0.5 border border-dashed border-white/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                                    <span class="text-[9px] text-white/50">Opera</span>
+                                </div>
+                                <div class="flex items-center gap-1 bg-white/5 rounded px-1.5 py-0.5 border border-dashed border-white/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                                    <span class="text-[9px] text-white/50">Intalla</span>
+                                </div>
+                                <div class="flex items-center gap-1 rounded px-1.5 py-0.5">
+                                    <span class="text-[9px] text-white/40 italic">More...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-white/70 font-bold text-center mt-1.5 leading-snug">표준 기능 7+α 일원화로 <BR>타 솔루션 AI Agent 이식 공수 혁신 단축</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: 주요 성과 -->
+    <section class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-cj text-white text-xs font-bold flex items-center justify-center">2</span>
+                <h2 class="text-base font-bold text-ink">주요 성과</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+            <!-- 왼쪽: 사용자 관점 -->
+            <div class="bg-surface rounded-lg p-2 flex flex-col gap-1.5">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-ink font-bold">사용자 관점</span>
+                </div>
+                <!-- 정량 KPI 강조 -->
+                <div class="bg-white rounded-lg p-2 flex items-center gap-1.5">
+                    <div class="flex-1 text-center border-r border-subtle pr-2">
+                        <div class="text-3xl font-bold text-cj leading-none">25%</div>
+                        <div class="text-xs text-cj font-bold mt-1">시나리오 활용률</div>
+                        <div class="text-xs text-secondary mt-0.5">4건 중 1건 SpinX 사용</div>
+                    </div>
+                    <div class="flex-1 text-center border-r border-subtle pr-2">
+                        <div class="text-3xl font-bold text-cj leading-none">6회+</div>
+                        <div class="text-xs text-cj font-bold mt-1">평균 대화 깊이</div>
+                        <div class="text-xs text-secondary mt-0.5">단순 질문이 아닌 심층 활용 검증</div>
+                    </div>
+                    <div class="flex-1 text-center">
+                        <div class="text-3xl font-bold text-cj leading-none">95%</div>
+                        <div class="text-xs text-cj font-bold mt-1">해석 및 문의 대응 시간 단축</div>
+                        <div class="text-xs text-secondary mt-0.5">2~3시간 → 10분 이내 해소</div>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">문의 대응 감소</span>
+                        <p class="text-xs text-secondary leading-snug">기존 팀 문의 대응 리소스를 SpinX가 대체 — 마케터가 직접 해석·인사이트를 도출해 광고주에게 즉시 전달</p>
+                    </div>
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">보안 강화</span>
+                        <p class="text-xs text-secondary leading-snug">결과 데이터·도메인 지식을 외부 LLM에 전송하지 않음 — 솔루션 내부에서 완결되는 안전한 AI 활용 구조</p>
+                    </div>
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">대외 검증</span>
+                        <p class="text-xs text-secondary leading-snug">한국광고진흥재단 등 외부 대상 자사 솔루션 시연 시 실시간 AI Agent 활용 기능에 높은 호응 확보</p>
+                    </div>
+                </div>
+                <!-- 사용자 인터뷰는 아래 별도 행으로 이동 -->
+            </div>
+
+            <!-- 오른쪽: 개발·구축 관점 -->
+            <div class="bg-surface rounded-lg p-2 flex flex-col gap-1.5">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-ink font-bold">개발·구축 관점</span>
+                </div>
+                <!-- 정량 KPI 강조 -->
+                <div class="bg-white rounded-lg p-2 flex items-center gap-2">
+                    <div class="flex-1 text-center border-r border-subtle pr-3">
+                        <div class="text-3xl font-bold text-cj leading-none">60~70%</div>
+                        <div class="text-xs text-cj font-bold mt-1">구축 공수 절감</div>
+                        <div class="text-xs text-secondary mt-0.5">공통 엔진 재사용 · 러닝커브 해소</div>
+                    </div>
+                    <div class="flex-1 text-center">
+                        <div class="text-3xl font-bold text-cj leading-none">7+α</div>
+                        <div class="text-xs text-cj font-bold mt-1">표준 기능 구축</div>
+                        <div class="text-xs text-secondary mt-0.5">인증 · Session · Multi LLM · Function Calling · RAG · Web Search · UIUX 가이드</div>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">표준화 범위</span>
+                        <p class="text-xs text-secondary leading-snug">인증 · Session · Multi LLM · Function Calling · RAG · Web Search · 가드레일 · UIUX 가이드까지 일원화</p>
+                    </div>
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">전사 확산 준비</span>
+                        <p class="text-xs text-secondary leading-snug">개발 구현 가이드 · 답변 3단 구조 · UI/UX 표준 정비 완료 → 타 솔루션 즉시 이식 가능 상태</p>
+                    </div>
+                    <div class="flex items-start gap-1">
+                        <span class="text-xs font-bold text-ink bg-subtle rounded px-1 py-0.5 shrink-0">AI 기술력 내재화</span>
+                        <p class="text-xs text-secondary leading-snug">LLM 연동·RAG·프롬프트 엔지니어링 등 핵심 AI 역량을 팀 내부에 축적 — 외부 의존 없이 자체 발전 가능한 기술 기반 확보</p>
+                    </div>
+                </div>
+                <!-- 개발 인터뷰는 아래 별도 행으로 이동 -->
+            </div>
+        </div>
+
+        <!-- 인터뷰 행: 양쪽 동일 높이 -->
+        <div class="grid grid-cols-2 gap-2">
+            <div class="bg-ink rounded-lg p-2">
+                <p class="text-[11px] text-white/90 italic leading-snug">"대행사에 전달할 인사이트와 수치 변동 원인을 정리할 때 SpinX를 씁니다. 미처 생각 못한 원인까지 짚어주고, 이미 알고 있던 사유도 논리정연하게 가다듬어 주어 리포팅 생산성이 확 올라갔습니다."</p>
+                <div class="text-[10px] text-white/50 mt-1 text-right">— 디지털광고2팀 구연수 님</div>
+                <p class="text-[11px] text-white/90 italic leading-snug mt-1.5">"기존에는 결과값이 예상과 다르면 오류인지 추출 실수인지 판단 못한 채 해석을 중단하는 경우가 많았는데, 지금은 데이터가 어떤 로직으로 산출됐는지 단계적으로 점검할 수 있습니다. 무엇보다 단순 수치 비교를 넘어, 내 캠페인의 특성이 결과에 어떤 영향을 미쳤는지 교차 검증하면서 실제 캠페인에 바로 적용할 수 있는 인사이트를 도출할 수 있어 정말 도움이 됩니다."</p>
+                <div class="text-[10px] text-white/50 mt-1 text-right">— 디지털광고6팀 김소중 님</div>
+            </div>
+            <div class="bg-ink rounded-lg p-2">
+                <p class="text-[11px] text-white/90 italic leading-snug">"외부 AI 업체와 개별 계약하거나 인증 키를 따로 관리할 필요 없이, 사내 인증만으로 용도에 따라 모델을 골라 쓸 수 있었습니다. 단순 작업에는 빠르고 저렴한 모델을, 결과 해석 대화에는 고성능 모델을 배정해 품질과 비용을 함께 잡을 수 있었고요. 스트리밍·대화 맥락 유지·역질문 같은 챗봇 기본기를 엔진이 이미 갖추고 있어서, 저희는 'AI가 리치 예측 결과를 얼마나 잘 해석하느냐'라는 본질에만 집중할 수 있었습니다. 덕분에 기획부터 오픈까지 체감 개발 기간이 확연히 단축됐습니다."</p>
+                <div class="text-[10px] text-white/50 mt-1 text-right">— SpinX for Reach Caster 개발자 조이레 님</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: 우리가 왜 BEST PLAYER인가 -->
+    <section class="flex flex-col gap-1.5">
+        <div class="flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center">3</span>
+            <h2 class="text-base font-bold text-ink">우리가 왜 BEST PLAYER인가?</h2>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+            <div class="border-t-2 border-t-cj pt-2 px-1">
+                <div class="text-xs font-bold text-cj mb-0.5">TREND-DRIVEN</div>
+                <div class="text-xs font-bold text-ink mb-1">고객과 시장의 변화에 한 발짝 앞선다</div>
+                <p class="text-xs text-secondary leading-relaxed">광고 도메인 컨텍스트에 특화된 프롬프트 최적화로<BR> <strong class="text-ink">'우리 도메인 최적의 AI 활용법'</strong>을 정립·제품화</p>
+            </div>
+            <div class="border-t-2 border-t-cj pt-2 px-1">
+                <div class="text-xs font-bold text-cj mb-0.5">다양한 시도</div>
+                <div class="text-xs font-bold text-ink mb-1">목적 없이 하던 대로만 하지 않는다</div>
+                <p class="text-xs text-secondary leading-relaxed">멀티 LLM · RAG · 가드레일 · 펑션콜링 등 엔지니어링 요소를 조립해 <BR> <strong class="text-ink">'솔루션 내장형 AI 에이전트'</strong> 카테고리를 빠르게 검증</p>
+            </div>
+            <div class="border-t-2 border-t-cj pt-2 px-1">
+                <div class="text-xs font-bold text-cj mb-0.5">책임감 있는 실행</div>
+                <div class="text-xs font-bold text-ink mb-1">역할과 방향, 명확히 정하고 달린다</div>
+                <p class="text-xs text-secondary leading-relaxed">공통 엔진 구현 & 1호 연동 완주를 넘어 <strong class="text-ink">개발 가이드 · UI/UX 표준</strong>까지 정비해<BR></BRF> 전사 확산 기반 마련</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

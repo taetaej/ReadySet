@@ -10,7 +10,7 @@ import { SplashCursor } from './components/common/SplashCursor'
 // DataShot 컴포넌트
 import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot'
 // Component Library
-import { ComponentLibrary } from './components/ComponentLibrary'
+import { ComponentLibrary } from './components/component-library'
 // Error Page
 import { ErrorPage } from './components/ErrorPage'
 // Access Log
