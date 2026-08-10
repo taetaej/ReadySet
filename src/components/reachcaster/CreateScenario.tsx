@@ -4,6 +4,7 @@ import { Check, ChevronLeft, ChevronRight, X, Clock, CheckCircle, AlertCircle } 
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
+import { useExitGuard } from '../../hooks/useExitGuard'
 import { 
   ScenarioStep1,
   ScenarioStep2RatioFinder,
@@ -67,6 +68,29 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
   // Reach Predictor 매체 설정 관련 state
   const [reachPredictorMedia, setReachPredictorMedia] = useState<ReachPredictorMedia[]>([])
   const [rpMediaSelectionDialog, setRpMediaSelectionDialog] = useState(false)
+  
+  // 제출 완료 상태
+  const [isSubmitted, setIsSubmitted] = useState(false)
+
+  // 이탈 방지: 입력값 존재 여부 판단
+  const isDirty = !!(
+    formData.scenarioName ||
+    formData.description ||
+    formData.moduleType ||
+    formData.brand ||
+    formData.period.start ||
+    formData.period.end ||
+    (formData.targetGrp.length > 0 && formData.targetGrp.length !== 24) ||
+    formData.totalBudget ||
+    formData.simulationUnit ||
+    selectedMedia.length > 0 ||
+    reachPredictorMedia.length > 0
+  )
+
+  const { showExitDialog, cancelExit, confirmExit, handleCancel } = useExitGuard({
+    isDirty,
+    isSubmitted
+  })
 
   // 다크모드 적용
   useEffect(() => {
@@ -243,6 +267,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
       console.log('시나리오 생성:', formData)
       
       // 성공 시
+      setIsSubmitted(true)
       setShowToast({ 
         type: 'success', 
         message: '시나리오 생성 요청이 완료되었습니다. 완료 시 알림 센터에서 알려드립니다.' 
@@ -570,7 +595,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
               marginTop: '24px'
             }}>
               <button
-                onClick={() => navigate('/reachcaster')}
+                onClick={() => handleCancel('/reachcaster')}
                 className="btn btn-ghost btn-lg"
               >
                 취소
@@ -1290,6 +1315,34 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
           >
             <X size={16} />
           </button>
+        </div>
+      )}
+
+      {/* 이탈 확인 다이얼로그 */}
+      {showExitDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">페이지를 떠나시겠습니까?</h3>
+              <p className="dialog-description">
+                작성 중인 내용은 저장되지 않습니다.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={cancelExit}
+                className="btn btn-primary btn-sm"
+              >
+                계속 작성
+              </button>
+              <button
+                onClick={confirmExit}
+                className="btn btn-secondary btn-sm"
+              >
+                나가기
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </AppLayout>

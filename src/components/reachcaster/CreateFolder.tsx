@@ -66,6 +66,34 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
     setHasUnsavedChanges(hasChanges)
   }, [formData])
 
+  // 브라우저 새로고침/닫기 방지 (beforeunload)
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
+
+  // 브라우저 뒤로가기 방지 (popstate)
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+
+    window.history.pushState(null, '', window.location.href)
+
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href)
+      setShowConfirmDialog(true)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [hasUnsavedChanges])
+
   // 유효성 검사
   const validateForm = () => {
     const newErrors: ValidationErrors = {}
@@ -531,25 +559,21 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                 페이지를 떠나시겠습니까?
               </h3>
               <p className="dialog-description">
-                입력한 내용이 저장되지 않습니다. 정말로 페이지를 떠나시겠습니까?
+                작성 중인 내용은 저장되지 않습니다.
               </p>
             </div>
             <div className="dialog-footer">
               <button
                 onClick={() => setShowConfirmDialog(false)}
-                className="btn btn-secondary btn-sm"
+                className="btn btn-primary btn-sm"
               >
-                취소
+                계속 작성
               </button>
               <button
                 onClick={confirmLeave}
-                className="btn btn-sm"
-                style={{
-                  backgroundColor: 'hsl(var(--destructive))',
-                  color: 'hsl(var(--destructive-foreground))'
-                }}
+                className="btn btn-secondary btn-sm"
               >
-                떠나기
+                나가기
               </button>
             </div>
           </div>
