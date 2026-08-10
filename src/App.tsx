@@ -13,6 +13,8 @@ import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot
 import { ComponentLibrary } from './components/component-library'
 // Error Page
 import { ErrorPage } from './components/ErrorPage'
+// Maintenance Page
+import { MaintenancePage } from './components/MaintenancePage'
 // Access Log
 import { AccessLog } from './components/layout/AccessLog'
 // Docs
@@ -40,6 +42,7 @@ function App() {
         <Route path="/component" element={<ComponentLibrary />} />
         <Route path="/access-log" element={<AccessLog />} />
         <Route path="/error" element={<ErrorPage />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
