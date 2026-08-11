@@ -60,6 +60,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [isPdfExporting, setIsPdfExporting] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
@@ -423,10 +424,34 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
     setExportMenuOpen(false)
   }
 
-  const handleExportPDF = () => {
-    // TODO: PDF export 구현
-    console.log('Export to PDF')
+  const handleExportPDF = async () => {
     setExportMenuOpen(false)
+    setIsPdfExporting(true)
+
+    try {
+      // TODO: 백엔드 API 연결 시 아래 주석 해제
+      // const response = await fetch(`/api/scenarios/${scenarioId}/export/pdf`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ type: 'ratio-finder' }),
+      // })
+      // if (!response.ok) throw new Error('PDF 생성 실패')
+      // const blob = await response.blob()
+      // const url = URL.createObjectURL(blob)
+      // const a = document.createElement('a')
+      // a.href = url
+      // a.download = `RF_${scenarioData.name}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pdf`
+      // a.click()
+      // URL.revokeObjectURL(url)
+
+      // Mock: API 연결 전 임시 딜레이
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      setShowToast({ type: 'success', message: 'PDF 다운로드가 완료되었습니다.' })
+    } catch (error) {
+      setShowToast({ type: 'error', message: 'PDF 생성에 실패했습니다. 다시 시도해 주세요.' })
+    } finally {
+      setIsPdfExporting(false)
+    }
   }
 
   const selectedData = selectedBarIndex !== null ? simulationData[selectedBarIndex] : null
@@ -636,25 +661,27 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   </button>
                   <button
                     onClick={handleExportPDF}
+                    disabled={isPdfExporting}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
                       border: 'none',
                       backgroundColor: 'transparent',
                       textAlign: 'left',
-                      cursor: 'pointer',
+                      cursor: isPdfExporting ? 'not-allowed' : 'pointer',
                       fontSize: '13px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
                       transition: 'background-color 0.2s',
-                      color: 'hsl(var(--popover-foreground))'
+                      color: 'hsl(var(--popover-foreground))',
+                      opacity: isPdfExporting ? 0.5 : 1,
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
+                    onMouseEnter={(e) => !isPdfExporting && (e.currentTarget.style.backgroundColor = 'hsl(var(--muted))')}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <FileText size={16} />
-                    <span>Export to PDF</span>
+                    <span>{isPdfExporting ? 'PDF 생성 중...' : 'Export to PDF'}</span>
                   </button>
                 </div>
               )}
