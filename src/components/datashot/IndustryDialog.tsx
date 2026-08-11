@@ -428,14 +428,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             {([
               { value: 'major' as IndustryLevel, label: '대분류' },
               { value: 'mid'   as IndustryLevel, label: '중분류' },
-              { value: 'minor' as IndustryLevel, label: '소분류' },
             ]).map(({ value, label }, i, arr) => {
               const isActive = localLevel === value
-              const isDisabled = value === 'minor'
               return (
                 <button key={value}
                   onClick={() => {
-                    if (isDisabled) return
                     if (localLevel !== value) {
                       if (selectedIndustries.length > 0) {
                         setPendingLevel(value)
@@ -457,11 +454,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                     borderRadius: 0, border: 'none',
                     borderRight: i < arr.length - 1 ? '1px solid hsl(var(--border))' : 'none',
                     backgroundColor: isActive ? 'hsl(var(--muted))' : 'transparent',
-                    color: isDisabled ? 'hsl(var(--muted-foreground))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                    color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                     padding: '6px 16px', fontSize: '13px',
                     fontWeight: isActive ? '500' : '400',
-                    cursor: isDisabled ? 'not-allowed' : 'pointer',
-                    opacity: isDisabled ? 0.4 : 1,
+                    cursor: 'pointer',
                   }}
                 >
                   {label}
@@ -573,7 +569,7 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
             </div>
           )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1.4fr', gap: '12px', flex: 1, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.4fr', gap: '12px', flex: 1, overflow: 'hidden' }}>
 
               <div style={colStyle}>
                 <div style={colHeaderStyle}>
@@ -618,15 +614,6 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                           'mid'
                         ))
                   }
-                </div>
-              </div>
-
-              <div style={{ ...colStyle, opacity: 0.3, pointerEvents: 'none' }}>
-                <div style={colHeaderStyle}>
-                  <span>업종(소)</span>
-                </div>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-                  <div style={emptyStyle}>소분류는 추후 제공 예정입니다</div>
                 </div>
               </div>
 
