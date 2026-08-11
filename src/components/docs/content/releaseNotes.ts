@@ -8,8 +8,24 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-08-06',
+      updatedAt: '2026-08-27',
       content: `# Release Notes
+
+## v1.1.1 (2026-08-27)
+
+ReadySet 플랫폼 안정성 강화 및 사용성 개선
+
+---
+
+### 시스템
+
+- \`IMPROVED\` 서비스 안정성을 위한 데이터베이스 구조 최적화
+
+### GNB · 공통
+
+- \`NEW\` 작성 내용 유실 방지 (데이터셋 생성, 시나리오 생성)
+
+
 
 ## v1.1.0 (2026-08-06)
 
