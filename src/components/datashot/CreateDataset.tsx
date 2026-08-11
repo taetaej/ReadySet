@@ -59,6 +59,34 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false)
+
+  // 입력값 존재 여부 (이탈 방지 조건)
+  const hasAnyInput = !!(
+    formData.datasetName ||
+    formData.description ||
+    formData.period.startYear ||
+    formData.period.startMonth ||
+    formData.industries.length > 0 ||
+    formData.media ||
+    formData.products.length > 0 ||
+    formData.metrics.length > 0 ||
+    formData.targetingCategory ||
+    formData.targetingOptions.length > 0
+  )
+
+  const handleCancel = () => {
+    if (currentStep > 1 || hasAnyInput) {
+      setShowLeaveDialog(true)
+    } else {
+      navigate('/datashot')
+    }
+  }
+
+  const confirmLeave = () => {
+    setShowLeaveDialog(false)
+    navigate('/datashot')
+  }
 
   useEffect(() => { setDarkModeUtil(isDarkMode) }, [isDarkMode])
 
@@ -242,7 +270,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button
-                  onClick={() => navigate('/datashot')}
+                  onClick={handleCancel}
                   className="btn btn-ghost btn-lg"
                 >
                   취소
@@ -300,6 +328,36 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         onClose={() => setShowSampleDataModal(false)}
         formData={formData}
       />
+
+      {/* 이탈 방지 다이얼로그 */}
+      {showLeaveDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                페이지를 떠나시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                작성 중인 내용은 저장되지 않습니다.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowLeaveDialog(false)}
+                className="btn btn-primary btn-sm"
+              >
+                계속 작성
+              </button>
+              <button
+                onClick={confirmLeave}
+                className="btn btn-secondary btn-sm"
+              >
+                나가기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 토스트 */}
       {showToast && (
