@@ -756,17 +756,18 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   onMouseEnter={() => setDataSourceTooltipOpen(true)}
                   onMouseLeave={() => setDataSourceTooltipOpen(false)}
                   style={{
-                    background: 'none',
+                    background: 'hsl(var(--muted))',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: '0',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'
                   }}
                 >
-                  <Database size={13} style={{ color: 'hsl(var(--primary))' }} />
-                  <span style={{ fontSize: '12px', fontWeight: '400', color: 'hsl(var(--primary))', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+                  <Database size={12} className="text-muted-foreground" />
+                  <span style={{ fontSize: '11px', fontWeight: '500' }} className="text-muted-foreground">
                     데이터 소스 안내
                   </span>
                 </button>
