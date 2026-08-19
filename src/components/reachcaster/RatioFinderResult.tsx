@@ -947,17 +947,18 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   onMouseEnter={() => setDataSourceTooltipOpen(true)}
                   onMouseLeave={() => setDataSourceTooltipOpen(false)}
                   style={{
-                    background: 'none',
-                    border: 'none',
+                    background: 'hsl(var(--muted))',
+                    border: '1px solid hsl(var(--border))',
                     cursor: 'pointer',
-                    padding: '0',
+                    padding: '3px 10px',
+                    borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '5px'
                   }}
                 >
-                  <Database size={14} className="text-muted-foreground" />
-                  <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                  <Database size={12} style={{ color: 'hsl(var(--primary))' }} />
+                  <span style={{ fontSize: '11px', fontWeight: '500' }} className="text-muted-foreground">
                     데이터 소스 안내
                   </span>
                 </button>
@@ -994,7 +995,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                     <div style={{ marginBottom: '10px' }}>
                       <div style={{ fontWeight: '600', marginBottom: '4px' }}>TVC</div>
                       <div className="text-muted-foreground">
-                        방송통계포털(시청률), 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
+                        방송통계포털(시청점유율), 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
                       </div>
                     </div>
                     
