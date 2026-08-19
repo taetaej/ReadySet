@@ -948,16 +948,16 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                   onMouseLeave={() => setDataSourceTooltipOpen(false)}
                   style={{
                     background: 'hsl(var(--muted))',
-                    border: 'none',
+                    border: '1px solid hsl(var(--border))',
                     cursor: 'pointer',
-                    padding: '2px 8px',
+                    padding: '3px 10px',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '5px'
                   }}
                 >
-                  <Database size={12} className="text-muted-foreground" />
+                  <Database size={12} style={{ color: 'hsl(var(--primary))' }} />
                   <span style={{ fontSize: '11px', fontWeight: '500' }} className="text-muted-foreground">
                     데이터 소스 안내
                   </span>
