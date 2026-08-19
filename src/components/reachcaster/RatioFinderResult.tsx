@@ -63,6 +63,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [isPdfExporting, setIsPdfExporting] = useState(false)
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
+  const [dataSourceTooltipOpen, setDataSourceTooltipOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [bestRatioPosition, setBestRatioPosition] = useState<{ x: number; y: number } | null>(null)
   const [showBestRatio, setShowBestRatio] = useState(false)
@@ -933,13 +934,89 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
               )}
             </h3>
             
-            {/* 모집단 정보 */}
+            {/* 데이터 소스 안내 + 모집단 정보 */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '12px',
               fontFamily: 'Paperlogy, sans-serif'
             }}>
+              {/* 데이터 소스 안내 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
+                <button
+                  onMouseEnter={() => setDataSourceTooltipOpen(true)}
+                  onMouseLeave={() => setDataSourceTooltipOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Database size={14} className="text-muted-foreground" />
+                  <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                    데이터 소스 안내
+                  </span>
+                </button>
+                
+                {dataSourceTooltipOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    width: '360px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                    zIndex: 1000,
+                    fontFamily: 'Paperlogy, sans-serif',
+                    fontSize: '12px',
+                    lineHeight: '1.6'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '13px' }}>데이터 소스 안내</div>
+                    
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '4px' }}>Digital</div>
+                      <div className="text-muted-foreground">
+                        내부 캠페인 집행 데이터, 코리안클릭(매체 간 중복 이용), 센서타워(리텐션·세션)를 기반으로 GBRT 모델이 도달률을 예측합니다.
+                      </div>
+                      <div className="text-muted-foreground" style={{ marginTop: '4px', fontSize: '11px', opacity: 0.8 }}>
+                        ※ 분석 범위: 모바일 앱(App) 환경에 한정
+                      </div>
+                    </div>
+                    
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '4px' }}>TVC</div>
+                      <div className="text-muted-foreground">
+                        방송통계포털(시청률), 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
+                      </div>
+                    </div>
+                    
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '4px' }}>통합 도달률</div>
+                      <div className="text-muted-foreground">
+                        Digital과 TVC 간 중복 시청자를 자체 확률 모델로 보정하여 순 도달(Net Reach)을 산출합니다.
+                      </div>
+                    </div>
+                    
+                    <div style={{ borderTop: '1px solid hsl(var(--border))', paddingTop: '8px', marginTop: '8px' }}>
+                      <div className="text-muted-foreground" style={{ fontSize: '11px' }}>
+                        데이터 정기 업데이트: 매월 15일 (코리안클릭·센서타워 반영 및 모델 재학습)
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <span className="text-muted-foreground" style={{ fontSize: '12px' }}>|</span>
+
+              {/* 모집단 */}
               <Users size={16} className="text-muted-foreground" />
               <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
                 모집단: 46,039,423명
