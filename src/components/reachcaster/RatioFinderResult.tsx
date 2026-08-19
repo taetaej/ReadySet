@@ -956,8 +956,8 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                     gap: '4px'
                   }}
                 >
-                  <Database size={14} className="text-muted-foreground" />
-                  <span style={{ fontSize: '12px', fontWeight: '400' }} className="text-muted-foreground">
+                  <Database size={13} style={{ color: 'hsl(var(--primary))' }} />
+                  <span style={{ fontSize: '12px', fontWeight: '400', color: 'hsl(var(--primary))', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
                     데이터 소스 안내
                   </span>
                 </button>
@@ -994,7 +994,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
                     <div style={{ marginBottom: '10px' }}>
                       <div style={{ fontWeight: '600', marginBottom: '4px' }}>TVC</div>
                       <div className="text-muted-foreground">
-                        방송통계포털(시청률), 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
+                        방송통계포털(시청점유율), 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
                       </div>
                     </div>
                     

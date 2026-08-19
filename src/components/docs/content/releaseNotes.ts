@@ -26,6 +26,10 @@ ReadySet 플랫폼 안정성 강화 및 사용성 개선
 - \`NEW\` 시나리오 결과 PDF 다운로드 — 결과 화면에서 PDF 형식으로 내보내기 지원
 - \`NEW\` 모델 데이터 출처 안내 — Estimated Performance 테이블에 데이터 소스 상세 정보 툴팁 추가
 
+### SpinX
+
+- \`IMPROVED\` AI 모델 업그레이드 — Claude Sonnet 5 적용
+
 ### GNB · 공통
 
 - \`NEW\` 작성 내용 유실 방지 (데이터셋 생성, 시나리오 생성)

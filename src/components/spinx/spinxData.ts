@@ -3,7 +3,7 @@
 import type { LLMModel, MessageContent, ClarifyingQuestion } from './spinxTypes'
 
 export const availableModels: LLMModel[] = [
-  { provider: 'Anthropic', name: 'claude-sonnet-4.6', displayName: 'Claude Sonnet 4.6', description: '데이터 해석 · 전략 수립' },
+  { provider: 'Anthropic', name: 'claude-sonnet-5', displayName: 'Claude Sonnet 5', description: '데이터 해석 · 전략 수립' },
   { provider: 'OpenAI', name: 'gpt-5-4', displayName: 'GPT 5-4', description: '복잡한 추론 · 심층 분석' },
   { provider: 'OpenAI', name: 'gpt-5-4-mini', displayName: 'GPT 5-4 mini', description: '빠른 질의응답 · 콤팩트 분석' }
 ]

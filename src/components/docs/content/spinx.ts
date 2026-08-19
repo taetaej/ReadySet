@@ -8,7 +8,7 @@ export const spinxSection: DocSection = {
       id: 'spinx-overview',
       title: 'SpinX 개요',
       slug: 'spinx-overview',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-08-27',
       content: `# SpinX
 
 ## SpinX란?
@@ -113,7 +113,7 @@ AI 답변 위에 마우스를 올리면 복사 버튼이 표시됩니다. 클릭
 
 | 모델 | 특징 |
 |---|---|
-| Claude Sonnet 4.6 | 데이터 해석 · 전략 수립 (기본) |
+| Claude Sonnet 5 | 데이터 해석 · 전략 수립 (기본) |
 | GPT 5-4 | 복잡한 추론 · 심층 분석 |
 | GPT 5-4 mini | 빠른 질의응답 · 콤팩트 분석 |
 
