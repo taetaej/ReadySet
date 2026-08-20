@@ -794,7 +794,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     <div style={{ marginBottom: '10px' }}>
                       <div style={{ fontWeight: '600', marginBottom: '4px' }}>Digital</div>
                       <div className="text-muted-foreground">
-                        내부 캠페인 집행 데이터, 코리안클릭(매체 간 중복 이용), 센서타워(리텐션·세션)를 기반으로 GBRT 모델이 도달률을 예측합니다.
+                        내부 캠페인 집행 데이터를 기반으로 매체 간 중복 이용률, 매체 리텐션 데이터를 적용한 GBRT 모델이 도달률을 예측합니다.
                       </div>
                       <div className="text-muted-foreground" style={{ marginTop: '4px', fontSize: '11px', opacity: 0.8 }}>
                         ※ 분석 범위: 모바일 앱(App) 환경에 한정
@@ -817,7 +817,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                     
                     <div style={{ borderTop: '1px solid hsl(var(--border))', paddingTop: '8px', marginTop: '8px' }}>
                       <div className="text-muted-foreground" style={{ fontSize: '11px' }}>
-                        데이터 정기 업데이트: 매월 15일 (코리안클릭·센서타워 반영 및 모델 재학습)
+                        데이터 정기 업데이트: 매월 15일 (최신 데이터 반영 및 모델 재학습)
                       </div>
                     </div>
                   </div>
