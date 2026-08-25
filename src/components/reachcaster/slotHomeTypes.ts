@@ -90,12 +90,19 @@ export const AVAILABLE_OUTPUTS: Record<string, SelectedOutput[]> = {
     { id: 'RC011', title: '신규 타겟 확장 시나리오', module: 'Ratio Finder', period: '2024.04.15 → 2024.05.31', keyMetric: 'Digital 75% : TVC 25%', reach: '63.4%' },
     { id: 'RC012', title: '예산 효율화 시나리오', module: 'Reach Predictor', period: '2024.03.01 → 2024.03.31', reach: '55.8%' },
   ],
+  budgetOptimizer: [
+    { id: 'BO001', title: '25년 3분기 디지털 예산 최적화', media: '5개 매체 · 노출 KPI' },
+    { id: 'BO002', title: '여름 시즌 클릭 극대화', media: '4개 매체 · 클릭 KPI' },
+    { id: 'BO003', title: '이커머스 전환 캠페인', media: '7개 매체 · 클릭 KPI' },
+    { id: 'BO004', title: '식품 브랜드 인지도 확산', media: '5개 매체 · 노출 KPI' },
+    { id: 'BO005', title: '여행 성수기 도달 시뮬레이션', media: '6개 매체 · 도달 KPI' },
+  ],
 }
 
 export const INITIAL_FLOW: SolutionSlot[] = [
   { key: 'datashot', name: 'DataShot', desc: '업종별 벤치마크 기반 광고 효율 분석', path: '/datashot', status: 'empty' },
   { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/ad-curator', status: 'coming-soon' },
-  { key: 'budgetOptimizer', name: 'Budget Optimizer', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budget-optimizer', status: 'coming-soon' },
+  { key: 'budgetOptimizer', name: 'Budget Optimizer', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budgetoptimizer', status: 'empty' },
   { key: 'reachCaster', name: 'Reach Caster', desc: '크로스미디어 통합 도달 예측 시뮬레이션', path: '/reachcaster', status: 'empty' },
 ]
 
