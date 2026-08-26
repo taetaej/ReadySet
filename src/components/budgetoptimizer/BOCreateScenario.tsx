@@ -4,6 +4,7 @@ import { Check, Clock, CheckCircle, AlertCircle, X, Lock, ChevronLeft, ChevronRi
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
+import { useExitGuard } from '../../hooks/useExitGuard'
 import { BOStep1 } from './BOStep1'
 import { BOStep2 } from './BOStep2'
 import { KPI_LABELS } from './types'
@@ -40,6 +41,7 @@ export function BOCreateScenario() {
   const [isDarkMode, setIsDarkModeState] = useState(() => getDarkMode())
   const [validationActive, setValidationActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
@@ -55,6 +57,24 @@ export function BOCreateScenario() {
     totalBudget: 0,
     products: [],
     mediaFixed: []
+  })
+
+  // 이탈 방지: 입력값 존재 여부 판단 (industryMode='brand'는 디폴트라 제외)
+  const isDirty = !!(
+    formData.scenarioName ||
+    formData.description ||
+    formData.brand ||
+    formData.industry ||
+    formData.period.start ||
+    formData.period.end ||
+    formData.kpi ||
+    formData.totalBudget ||
+    formData.products.length > 0
+  )
+
+  const { showExitDialog, cancelExit, confirmExit, handleCancel } = useExitGuard({
+    isDirty,
+    isSubmitted
   })
 
   useEffect(() => { setDarkMode(isDarkMode) }, [isDarkMode])
@@ -166,6 +186,7 @@ export function BOCreateScenario() {
     setIsSubmitting(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
+      setIsSubmitted(true)
       setShowToast({ type: 'success', message: '시나리오 생성 요청이 완료되었습니다. 완료 시 알림 센터에서 알려드립니다.' })
       setTimeout(() => navigate('/budgetoptimizer'), 2000)
     } catch {
@@ -200,7 +221,7 @@ export function BOCreateScenario() {
         expandedFolders,
         onToggleSidebar: toggleSidebar,
         onToggleFolder: toggleFolder,
-        onNavigateToWorkspace: () => navigate('/slotboard')
+        onNavigateToWorkspace: () => handleCancel('/slotboard')
       }}
     >
       <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -306,7 +327,7 @@ export function BOCreateScenario() {
 
             {/* Navigation Buttons */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
-              <button onClick={() => navigate('/budgetoptimizer')} className="btn btn-ghost btn-lg">취소</button>
+              <button onClick={() => handleCancel('/budgetoptimizer')} className="btn btn-ghost btn-lg">취소</button>
               <div style={{ display: 'flex', gap: '12px' }}>
                 {currentStep > 1 && (
                   <button onClick={handlePrev} className="btn btn-secondary btn-lg">
@@ -495,6 +516,28 @@ export function BOCreateScenario() {
           </div>
         </div>
       </div>
+
+      {/* 이탈 확인 다이얼로그 */}
+      {showExitDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">페이지를 떠나시겠습니까?</h3>
+              <p className="dialog-description">
+                작성 중인 내용은 저장되지 않습니다.
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button onClick={cancelExit} className="btn btn-primary btn-sm">
+                계속 작성
+              </button>
+              <button onClick={confirmExit} className="btn btn-secondary btn-sm">
+                나가기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {showToast && (

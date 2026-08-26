@@ -243,13 +243,17 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
         <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
           총 예산 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{ position: 'relative', width: '400px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ position: 'relative', width: '400px' }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ position: 'relative', width: '260px' }}>
             <input
               type="text"
               value={formData.totalBudget > 0 ? formatNumber(formData.totalBudget) : ''}
               onChange={(e) => {
-                const val = parseInt(e.target.value.replace(/,/g, '')) || 0
+                const digits = e.target.value.replace(/,/g, '')
+                // 숫자만, 최대 11자리(999억 단위)까지 허용
+                if (digits !== '' && !/^\d+$/.test(digits)) return
+                if (digits.length > 11) return
+                const val = parseInt(digits) || 0
                 setFormData({ ...formData, totalBudget: val })
               }}
               placeholder="총 예산을 입력하세요"
@@ -375,8 +379,10 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                             type="text"
                             value={mediaFixed?.fixedAmount ? formatNumber(mediaFixed.fixedAmount) : ''}
                             onChange={(e) => {
-                              const val = parseInt(e.target.value.replace(/,/g, '')) || 0
-                              updateMediaFixedAmount(mediaId, val)
+                              const digits = e.target.value.replace(/,/g, '')
+                              if (digits !== '' && !/^\d+$/.test(digits)) return
+                              if (digits.length > 11) return
+                              updateMediaFixedAmount(mediaId, parseInt(digits) || 0)
                             }}
                             placeholder="매체 잠금 금액"
                             className="input"
@@ -440,8 +446,10 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                                 type="text"
                                 value={product.fixedAmount ? formatNumber(product.fixedAmount) : ''}
                                 onChange={(e) => {
-                                  const val = parseInt(e.target.value.replace(/,/g, '')) || 0
-                                  updateFixedAmount(mediaId, product.productName, val)
+                                  const digits = e.target.value.replace(/,/g, '')
+                                  if (digits !== '' && !/^\d+$/.test(digits)) return
+                                  if (digits.length > 11) return
+                                  updateFixedAmount(mediaId, product.productName, parseInt(digits) || 0)
                                 }}
                                 placeholder="금액 입력"
                                 className="input"

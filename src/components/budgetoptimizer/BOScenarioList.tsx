@@ -29,7 +29,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
     industry: [] as string[]
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const [itemsPerPage, setItemsPerPage] = useState(10)
 
   const contextMenuRef = useRef<HTMLDivElement>(null)
 
@@ -107,10 +107,6 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
     if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억`
     if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만`
     return amount.toLocaleString()
-  }
-
-  const formatDate = (dateStr: string) => {
-    return dateStr.split(' ')[0]
   }
 
   const activeFilterCount = filters.status.length + filters.kpi.length + filters.industry.length
@@ -584,23 +580,119 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        {/* 페이지네이션 (Reach Caster 동일) */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '24px'
+        }}>
+          {/* 좌측: 페이지 크기 선택 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '14px' }} className="text-muted-foreground">
-              {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, sortedScenarios.length)} / {sortedScenarios.length}개
+              페이지당 표시:
             </span>
-            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 8px' }}>
-                <ChevronLeft size={16} />
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="input"
+              style={{
+                width: '80px',
+                height: '32px',
+                minHeight: '32px',
+                padding: '4px 8px',
+                fontSize: '14px'
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          {/* 우측: 페이지 정보 및 네비게이션 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* 페이지 정보 */}
+            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+              {sortedScenarios.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, sortedScenarios.length)} / {sortedScenarios.length}개
+            </span>
+
+            {/* 페이지 네비게이션 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {/* 첫 페이지로 */}
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="btn btn-ghost btn-sm"
+                style={{ width: '32px', height: '32px', padding: '0', opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+              >
+                <ChevronLeft size={14} />
+                <ChevronLeft size={14} style={{ marginLeft: '-8px' }} />
               </button>
-              <span style={{ fontSize: '14px', padding: '0 8px' }} className="text-foreground">{currentPage} / {totalPages}</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 8px' }}>
-                <ChevronRight size={16} />
+
+              {/* 이전 페이지 */}
+              <button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="btn btn-ghost btn-sm"
+                style={{ width: '32px', height: '32px', padding: '0', opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+
+              {/* 페이지 번호들 */}
+              {(() => {
+                const pages = []
+                const maxVisible = 5
+                let start = Math.max(1, currentPage - Math.floor(maxVisible / 2))
+                let end = Math.min(totalPages, start + maxVisible - 1)
+
+                if (end - start + 1 < maxVisible) {
+                  start = Math.max(1, end - maxVisible + 1)
+                }
+
+                for (let i = start; i <= end; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`btn btn-sm ${currentPage === i ? 'btn-primary' : 'btn-ghost'}`}
+                      style={{ width: '32px', height: '32px', padding: '0', fontSize: '14px', fontWeight: currentPage === i ? '600' : '400' }}
+                    >
+                      {i}
+                    </button>
+                  )
+                }
+
+                return pages
+              })()}
+
+              {/* 다음 페이지 */}
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="btn btn-ghost btn-sm"
+                style={{ width: '32px', height: '32px', padding: '0', opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
+              >
+                <ChevronRight size={14} />
+              </button>
+
+              {/* 마지막 페이지로 */}
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="btn btn-ghost btn-sm"
+                style={{ width: '32px', height: '32px', padding: '0', opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
+              >
+                <ChevronRight size={14} />
+                <ChevronRight size={14} style={{ marginLeft: '-8px' }} />
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
