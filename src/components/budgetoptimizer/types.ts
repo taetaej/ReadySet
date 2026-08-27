@@ -33,11 +33,13 @@ export interface BOSlotData {
   description: string
 }
 
+// KPI 라벨 (한글 + 영문 혼용). 생성/목록/결과 헤더에서 공통 사용
+// 예외: 결과 화면 Allocation 테이블 컬럼명은 영문만 사용 (KPI_META.labelEn)
 export const KPI_LABELS: Record<string, string> = {
-  impression: '노출',
-  click: '클릭',
-  view: '조회',
-  reach: '도달'
+  impression: '노출 (Impression)',
+  click: '클릭 (Click)',
+  view: '조회 (View)',
+  reach: '도달 (Reach)'
 }
 
 export const STATUS_STYLES: Record<string, { bg: string; color: string }> = {

@@ -378,7 +378,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                 <th style={{ width: '100px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>업종</div>
                 </th>
-                <th style={{ width: '80px' }}>
+                <th style={{ width: '140px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>KPI</div>
                 </th>
                 <th onClick={() => handleSort('totalBudget')} style={{ cursor: 'pointer', width: '120px' }}>
@@ -464,7 +464,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                           fontSize: '12px',
                           fontWeight: '500',
                           backgroundColor: 'hsl(var(--primary) / 0.1)',
-                          color: 'hsl(var(--primary))'
+                          color: 'hsl(var(--primary))',
+                          whiteSpace: 'nowrap'
                         }}>
                           {KPI_LABELS[scenario.kpi]}
                         </span>
