@@ -9,6 +9,10 @@ import { ReachPredictorResult } from './components/reachcaster/ReachPredictorRes
 import { SplashCursor } from './components/common/SplashCursor'
 // DataShot 컴포넌트
 import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot'
+// Budget Optimizer 컴포넌트
+import { BOScenarioListPage } from './components/budgetoptimizer/BOScenarioListPage'
+import { BOCreateScenario } from './components/budgetoptimizer/BOCreateScenario'
+import { BOResult } from './components/budgetoptimizer/BOResult'
 // Component Library
 import { ComponentLibrary } from './components/component-library'
 // Error Page
@@ -37,6 +41,9 @@ function App() {
         <Route path="/datashot" element={<DatasetList />} />
         <Route path="/datashot/new" element={<CreateDataset />} />
         <Route path="/datashot/:id" element={<DatasetDetail />} />
+        <Route path="/budgetoptimizer" element={<BOScenarioListPage />} />
+        <Route path="/budgetoptimizer/scenario/new" element={<BOCreateScenario />} />
+        <Route path="/budgetoptimizer/scenario/:id/result" element={<BOResult />} />
         <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />
         <Route path="/docs/:slug" element={<DocsLayout />} />
         <Route path="/component" element={<ComponentLibrary />} />

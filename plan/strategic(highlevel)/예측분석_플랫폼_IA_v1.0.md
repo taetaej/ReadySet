@@ -12,6 +12,7 @@
 | 2026. 3. 05 | AI | 브레드크럼 네비게이션 구조 개선 | 솔루션 레이어 추가, 정책 문서화 | 1.5 |
 | 2026. 4. 16 | AI | 전체 구조 업데이트 | 실제 코드베이스 기반 기술스택·컴포넌트·프로젝트 구조 반영 | 1.6 |
 | 2026. 5. 27 | AI | DataShot + Reach Caster 전체 IA 재작성 | 실제 구현 코드 기반 완전 업데이트 | 2.0 |
+| 2026. 8. 25 | AI | Budget Optimizer 솔루션 IA 추가 | Section 5 신규 추가, 섹션 번호 재정리 | 2.1 |
 
 ---
 
@@ -438,9 +439,298 @@ Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
 
 ---
 
-## 5. DataShot 솔루션
+## 5. Budget Optimizer 솔루션
 
-### 5.1 데이터셋 목록
+### 5.1 Slot 상세 (시나리오 목록)
+
+```
+Slot 상세 — Budget Optimizer (URL: /budget-optimizer)
+├── 컴포넌트: WorkspaceLayout (initialView="slotDetail", solution="budget-optimizer")
+├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer
+├── Slot 헤더 (컴팩트, Reach Caster 동일 구조)
+│   ├── 좌측
+│   │   ├── 가시성 뱃지
+│   │   ├── Slot 타이틀 (24px, 굵게)
+│   │   └── 광고주 프로필 + 이름(ID) + 구분선 + 설명
+│   └── 우측
+│       ├── Info 아이콘 (호버 툴팁: Slot ID, 생성일시, 수정일시)
+│       └── 관리 메뉴 (수정/삭제)
+├── 시나리오 섹션
+│   ├── 타이틀: "Scenario" + New Scenario 버튼
+│   │   └── New Scenario 클릭 → 시나리오 생성 위자드 진입
+│   ├── 버튼 섹션
+│   │   ├── 시나리오 개수 (예: "8 Scenarios (2개 선택됨)")
+│   │   ├── 검색 (시나리오명, 작성자)
+│   │   ├── 필터
+│   │   │   ├── 상태 (Pending/Processing/Completed/Error)
+│   │   │   ├── 업종
+│   │   │   ├── KPI (노출/클릭/조회/도달)
+│   │   │   ├── 기간 범위
+│   │   │   └── 필터 초기화
+│   │   ├── 정렬 (시나리오명/생성일/수정일/상태)
+│   │   └── 일괄 작업 (삭제/이동)
+│   ├── List 뷰 (테이블)
+│   │   ├── 테이블 컬럼 (정렬 가능)
+│   │   │   ├── 체크박스 / 시나리오 ID / 시나리오명
+│   │   │   ├── 업종
+│   │   │   ├── KPI (뱃지)
+│   │   │   ├── 총 예산
+│   │   │   ├── 캠페인 기간
+│   │   │   ├── 상태 뱃지 (Completed: 검정, Processing: 회색, Error: 빨강)
+│   │   │   ├── 작성자(ID) / 작성일시
+│   │   │   └── 관리 메뉴 (복제/삭제/이동)
+│   │   └── 페이지네이션
+│   └── 빈 상태
+│       └── "아직 생성된 시나리오가 없습니다. 새 시나리오를 생성하여 최적 예산 배분을 탐색하세요."
+└── 플랫폼 공통: 정렬/필터 상태 URL 파라미터 보존
+```
+
+### 5.2 시나리오 생성 (위자드)
+
+```
+시나리오 생성 (URL: /budget-optimizer/scenario/new)
+├── 컴포넌트: CreateBOScenario.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer / 새 시나리오 생성
+├── 레이아웃 (Reach Caster 동일 구조)
+│   ├── 좌측: 스테퍼 + 입력 폼 (800px)
+│   ├── 중앙: 세로 구분선
+│   └── 우측: Configuration Summary (420px)
+├── 미니멀 스테퍼 (상단)
+│   ├── Step 1: 기본 정보
+│   ├── Step 2: 매체/예산 설정
+│   └── Step 3: 검토 및 실행
+├── Step 1: 기본 정보
+│   ├── 시나리오명 * (최대 100자)
+│   ├── 설명 (선택, 최대 500자)
+│   ├── 구분선 (hr)
+│   ├── 업종 식별 방식 * (라디오 택1)
+│   │   ├── ① 브랜드 선택
+│   │   │   ├── 브랜드 검색 가능 드롭다운
+│   │   │   └── 업종 자동 표시 (읽기 전용)
+│   │   └── ② 업종 직접 선택
+│   │       └── 22개 업종 목록 드롭다운
+│   ├── 캠페인 기간 * (DayPicker, "YYYY년 MM월 DD일")
+│   └── KPI * (라디오 카드, 택1)
+│       ├── 노출 (Impression): "총 예산 내 노출 극대화 배분"
+│       ├── 클릭 (Click): "총 예산 내 클릭 극대화 배분"
+│       ├── 조회 (View): "총 예산 내 영상 조회 극대화 배분"
+│       └── 도달 (Reach): "총 예산 내 도달 극대화 배분"
+├── Step 2: 매체/예산 설정
+│   ├── 매체/광고상품 선택 *
+│   │   ├── 매체 선택 다이얼로그 (Reach Caster 패턴 참조)
+│   │   │   ├── Google Ads / Meta / NAVER 보장형 DA(NOSP) / NAVER 성과형 DA(GFA) / kakao 모먼트 / TikTok / SMR / Targetpick 탭
+│   │   │   ├── 매체 > 광고상품 계층 구조
+│   │   │   ├── 검색 + 전체 선택
+│   │   │   └── 유효성: 최소 2개 매체/상품 선택
+│   │   └── 선택된 매체/상품 목록 표시
+│   ├── 총 예산 * (콤마 포맷팅, 한글 변환 표시)
+│   ├── 예산 고정 설정 (선택)
+│   │   ├── 매체/상품별 "고정" 토글
+│   │   ├── 고정 ON 시: 금액 입력 필드 활성화
+│   │   ├── 잔여 예산 실시간 표시
+│   │   │   └── "잔여 예산: {총 예산 - 고정 합계} 원 → 나머지 {N}개 매체에 최적 배분"
+│   │   ├── 유효성: 고정 예산 합계 < 총 예산
+│   │   └── 유효성: 최적화 대상 매체 최소 2개 이상
+│   └── 설정 요약
+│       ├── 선택 매체 수 / 고정 매체 수
+│       └── 최적화 대상 매체 목록
+├── Step 3: 검토 및 실행
+│   ├── 소요 시간 안내 (최대 20분, 알림 센터 알림)
+│   └── 확인 메시지: "우측 Configuration Summary에서 설정 내용을 확인하세요!"
+├── Configuration Summary (우측 패널)
+│   ├── Step 1: 시나리오명, 업종(식별 방식 표시), 캠페인 기간, KPI
+│   ├── Step 2: 매체/상품 목록, 총 예산, 고정 설정 요약
+│   └── Step 3: Review & Execute
+└── 네비게이션 버튼
+    ├── 취소 (ghost) / 이전 / 다음 / 시나리오 생성 요청
+    └── 유효성 검사 통과 시 활성화
+```
+
+### 5.3 시나리오 결과
+
+```
+시나리오 결과 (URL: /budget-optimizer/scenario/:id/result)
+├── 컴포넌트: BudgetOptimizerResult.tsx
+├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer / {시나리오명}
+├── 결과 헤더
+│   ├── 시나리오 정보
+│   │   ├── 시나리오명
+│   │   ├── 업종 (식별 방식 표시)
+│   │   ├── KPI 뱃지
+│   │   └── 캠페인 기간
+│   ├── 실행 상태/시간
+│   └── 액션
+│       ├── Export (CSV/PDF)
+│       ├── 복제
+│       └── Reach Caster로 분석하기 (Easy Create CTA)
+│           └── 완료 상태에서만 활성화
+├── 믹스안 비교 섹션 (P1: MVP 캐파 가용 시 포함)
+│   ├── 비교 대상
+│   │   ├── A: 최적화 결과 (모델 추천) — "추천" 뱃지
+│   │   ├── B: 균등 배분 (1/N)
+│   │   └── C: 고정 미적용 최적화 (고정 설정이 있는 경우에만 표시)
+│   ├── 스코어카드 (3안 나란히)
+│   │   ├── 핵심 KPI 값 비교
+│   │   ├── 효율 지표 비교 (CPM/CPC/CPV)
+│   │   └── 최적화 안 대비 개선율(%) 표시
+│   ├── Grouped Bar 차트
+│   │   ├── X축: 매체/상품
+│   │   ├── Y축: 배분 예산 (원)
+│   │   └── 3그룹(A/B/C) 색상 구분
+│   └── Radar 차트
+│       ├── 축: 노출/클릭/조회/도달/효율 등 다차원
+│       └── 3안 오버레이 비교
+├── 설정 정보 요약 (접기/펼치기)
+│   ├── 총 예산
+│   ├── 선택 매체/상품
+│   ├── 고정 설정 요약
+│   └── KPI / 캠페인 기간 / 업종
+├── 결과 테이블
+│   ├── 컬럼
+│   │   ├── 매체 / 광고상품
+│   │   ├── 배분 예산 (원)
+│   │   ├── 배분 비중 (%)
+│   │   ├── 보장 KPI 값
+│   │   ├── 노출 / 클릭 / 조회 / 도달
+│   │   ├── CPM / CPC / CPV
+│   │   └── 고정 여부 뱃지 (🔒 아이콘)
+│   ├── 합계 행
+│   └── 정렬 (배분 예산순, 비중순, KPI순)
+├── 차트 영역 (2×2 그리드)
+│   ├── 좌상: 예산 비중 파이차트 (Pie/Donut)
+│   │   ├── 매체별 배분율(%) + 금액 표시
+│   │   ├── 호버 시 상세 툴팁
+│   │   ├── 클릭 시 드릴다운 (세부 데이터 뎁스 이동)
+│   │   └── 하단: SpinX 해석 메시지 (1~2줄)
+│   ├── 우상: 반응곡선 (Response Curve, Line)
+│   │   ├── 매체별 예산 투입 대비 KPI 반응 곡선
+│   │   ├── 현재 배분 지점 마커 표시
+│   │   ├── 포화 구간 시각적 표시 (그라데이션 영역)
+│   │   ├── 클릭 시 드릴다운
+│   │   └── 하단: SpinX 해석 메시지
+│   ├── 좌하: 일자별 기여도 차트 (Stacked Area)
+│   │   ├── X축: 캠페인 기간 (일자)
+│   │   ├── Y축: KPI 기여량 (누적)
+│   │   ├── 매체별 색상 구분 (baseline 포함)
+│   │   ├── 호버 시 일자별 매체 기여 상세
+│   │   ├── 클릭 시 드릴다운
+│   │   └── 하단: SpinX 해석 메시지
+│   └── 우하: KPI 창출 차트 (Vertical Bar 양/음)
+│       ├── X축: 매체/상품
+│       ├── Y축: 예산 변동분 (원)
+│       ├── 증가 매체: 파랑 / 감소 매체: 빨강
+│       ├── 각 바 상단 데이터 레이블 표시
+│       ├── 클릭 시 드릴다운
+│       └── 하단: SpinX 해석 메시지
+└── SpinX 채팅 (플로팅, 공통 구조 재사용)
+    ├── 플로팅 버튼 (우측 하단)
+    ├── 채팅 UI
+    ├── 참조 데이터: 해당 시나리오 결과 전체
+    └── 질문 추천
+```
+
+### 5.4 Easy Create 레이어
+
+```
+Easy Create (모달/바텀시트)
+├── 진입: 시나리오 결과 화면 > "Reach Caster로 분석하기" CTA 클릭
+├── 진입 조건: 시나리오 상태 = Completed
+├── 모달 구성
+│   ├── 타이틀: "Reach Caster 간편 생성"
+│   ├── 안내 텍스트: "Budget Optimizer 결과를 기반으로 Reach Caster 시나리오를 생성합니다."
+│   ├── 자동 매핑 정보 표시
+│   │   ├── 업종: {자동 적용될 업종}
+│   │   ├── 매체/예산: 매핑될 항목 리스트
+│   │   └── 시나리오명: "(BO-{ID}) {원본명}" 미리보기
+│   ├── 타겟 GRP 선택 * (필수)
+│   │   └── 남성/여성 4열 그리드 (Reach Caster Step 1 동일 UI)
+│   ├── 매핑 불일치 안내 (조건부 표시)
+│   │   ├── ⚠️ 경고 박스
+│   │   ├── "다음 항목은 Reach Caster에서 지원하지 않아 제외됩니다:"
+│   │   ├── 제외 항목 리스트 (매체 > 상품명)
+│   │   └── 매핑 가능 항목 0개 시: 생성 불가 안내 + 버튼 비활성화
+│   └── 하단 버튼
+│       ├── 취소 (ghost)
+│       └── 생성 (primary) → Reach Caster Step 2로 진입
+├── 생성 후 동작
+│   ├── Reach Caster 시나리오 생성 (동일 Slot 내)
+│   ├── Step 2 화면 진입 (매체별 예산 프리필)
+│   └── 프리필된 값은 사용자 수정 가능
+└── 독립성: 생성 후 Budget Optimizer와 연결 관계 없음
+```
+
+### 5.5 Budget Optimizer 데이터 구조
+
+```typescript
+// 시나리오 생성 상태
+BOScenarioFormData {
+  scenarioName: string           // 최대 100자
+  description?: string           // 최대 500자
+  industryMode: 'brand' | 'direct'  // 업종 식별 방식
+  brand?: string                 // 모드 ①: 브랜드 선택
+  industry: string               // 최종 업종 (자동 or 직접)
+  period: { start: Date, end: Date }
+  kpi: 'impression' | 'click' | 'view' | 'reach'
+  selectedMedia: BOMedia[]       // 매체/상품 선택
+  totalBudget: number            // 총 예산 (원)
+  fixedBudgets: BOFixedBudget[]  // 고정 예산 설정
+}
+
+BOMedia {
+  id: string
+  mediaName: string              // Google Ads, Meta, NAVER 보장형 DA(NOSP), NAVER 성과형 DA(GFA), kakao 모먼트, TikTok, SMR, Targetpick
+  productName: string            // 광고상품명
+}
+
+BOFixedBudget {
+  mediaId: string
+  amount: number                 // 고정 금액
+  isFixed: boolean               // 고정 여부
+}
+
+// 시나리오 결과
+BOScenarioResult {
+  id: string
+  status: 'pending' | 'processing' | 'completed' | 'error'
+  input: BOScenarioFormData
+  output?: BOResultOutput
+}
+
+BOResultOutput {
+  allocations: BOAllocation[]    // 매체별 배분 결과
+  charts: {
+    responseCurve: ResponseCurveData[]
+    dailyAttribution: DailyAttributionData[]
+    kpiContribution: KPIContributionData[]
+  }
+}
+
+BOAllocation {
+  mediaId: string
+  mediaName: string
+  productName: string
+  budget: number                 // 배분 예산
+  ratio: number                  // 배분 비중 (%)
+  kpiValue: number               // 보장 KPI
+  impression: number
+  click: number
+  view: number
+  reach: number
+  cpm: number
+  cpc: number
+  cpv: number
+  isFixed: boolean               // 고정 여부
+}
+
+// UI 상태
+currentStep: 1 | 2 | 3
+validationActive: boolean
+isSubmitting: boolean
+```
+
+## 6. DataShot 솔루션
+
+### 6.1 데이터셋 목록
 
 ```
 데이터셋 목록 (URL: /datashot)
@@ -463,7 +753,7 @@ Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
 └── 페이지네이션
 ```
 
-### 5.2 데이터셋 생성 (3단계 위자드)
+### 6.2 데이터셋 생성 (3단계 위자드)
 
 ```
 데이터셋 생성 (URL: /datashot/new)
@@ -537,7 +827,7 @@ Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
     └── 유효성 검사 통과 시 활성화
 ```
 
-### 5.3 데이터셋 상세
+### 6.3 데이터셋 상세
 
 ```
 데이터셋 상세 (URL: /datashot/:id)
@@ -570,7 +860,7 @@ Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
     └── MetricsModal: 지표 그룹별 읽기 전용
 ```
 
-### 5.4 DataShot 데이터 구조
+### 6.4 DataShot 데이터 구조
 
 ```
 FormData (createDatasetTypes.ts)
@@ -612,7 +902,7 @@ Dataset (types.ts)
 
 ---
 
-## 6. SpinX AI 어시스턴트
+## 7. SpinX AI 어시스턴트
 
 ```
 SpinX (src/components/spinx/)
@@ -639,9 +929,9 @@ SpinX (src/components/spinx/)
 
 ---
 
-## 7. 공통 컴포넌트 및 레이아웃
+## 8. 공통 컴포넌트 및 레이아웃
 
-### 7.1 레이아웃 (src/components/layout/)
+### 8.1 레이아웃 (src/components/layout/)
 
 ```
 AppLayout
@@ -693,7 +983,7 @@ Footer
 └── 저작권, 링크
 ```
 
-### 7.2 공통 컴포넌트 (src/components/common/)
+### 8.2 공통 컴포넌트 (src/components/common/)
 
 ```
 Avatar: 프로필 아바타 (이니셜, 색상 자동 생성)
@@ -706,9 +996,9 @@ SplitText: 글자별 등장 애니메이션
 
 ---
 
-## 8. 상태 관리 및 데이터 흐름
+## 9. 상태 관리 및 데이터 흐름
 
-### 8.1 Reach Caster 상태
+### 9.1 Reach Caster 상태
 
 ```typescript
 // CreateScenario 상태
@@ -732,7 +1022,7 @@ validationActive: boolean
 isSubmitting: boolean
 ```
 
-### 8.2 DataShot 상태
+### 9.2 DataShot 상태
 
 ```typescript
 // CreateDataset 상태
@@ -749,7 +1039,7 @@ validationActive: boolean
 industryDialogOpen: boolean
 ```
 
-### 8.3 데이터 흐름
+### 9.3 데이터 흐름
 
 ```
 [사용자 입력]
@@ -773,9 +1063,9 @@ industryDialogOpen: boolean
 
 ---
 
-## 9. 권한 및 보안
+## 10. 권한 및 보안
 
-### 9.1 사용자 역할
+### 10.1 사용자 역할
 
 ```
 Admin: 모든 광고주 폴더 접근, 전체 CRUD
@@ -784,7 +1074,7 @@ Agency: 할당된 광고주 폴더 (읽기 전용)
 Client: 본인 광고주 폴더 (읽기 전용)
 ```
 
-### 9.2 기능별 권한 매트릭스
+### 10.2 기능별 권한 매트릭스
 
 ```
 Slot 관리: Create/Update/Delete → Admin, Marketer
@@ -795,7 +1085,7 @@ Export: All Users
 SpinX 챗봇: All Users
 ```
 
-### 9.3 데이터 격리
+### 10.3 데이터 격리
 
 ```
 광고주 레벨: 완전 분리, 교차 접근 차단
@@ -806,7 +1096,7 @@ Slot 레벨: 가시성 설정 기반 (Private/Internal/Shared)
 
 ---
 
-## 10. 시나리오 상태 플로우
+## 11. 시나리오 상태 플로우
 
 ```
 생성 요청 → Pending (취소 가능)
@@ -818,7 +1108,7 @@ Completed (결과 확인) / Error (재시도) / Cancelled (재생성)
 
 ---
 
-## 11. 문서 시스템
+## 12. 문서 시스템
 
 ```
 Docs (URL: /docs/:slug)
@@ -830,9 +1120,9 @@ Docs (URL: /docs/:slug)
 
 ---
 
-## 12. 기타
+## 13. 기타
 
-### 12.1 에러 페이지
+### 13.1 에러 페이지
 
 ```
 ErrorPage (URL: /error)
@@ -840,7 +1130,7 @@ ErrorPage (URL: /error)
 └── 404, 500 등 에러 상태 표시
 ```
 
-### 12.2 컴포넌트 라이브러리
+### 13.2 컴포넌트 라이브러리
 
 ```
 ComponentLibrary (URL: /component)
