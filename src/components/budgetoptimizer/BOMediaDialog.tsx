@@ -214,7 +214,7 @@ export function BOMediaDialog({ open, onClose, onConfirm, currentProducts = [] }
                         width: '24px', height: '24px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         border: '1px solid hsl(var(--border))', borderRadius: '4px',
-                        backgroundColor: 'hsl(var(--background))', cursor: 'pointer', flexShrink: 0
+                        backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', cursor: 'pointer', flexShrink: 0
                       }}
                       onClick={(e) => {
                         e.stopPropagation()

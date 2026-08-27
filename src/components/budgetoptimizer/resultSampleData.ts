@@ -76,7 +76,7 @@ export const sampleBOResult: BOResultData = {
   industryMode: 'brand',
   brand: '설화수',
   kpi: 'impression',
-  totalBudget: 500000000,
+  totalBudget: 400000000,
   period: { start: '2025-07-01', end: '2025-09-30' },
   status: 'Completed',
   completedAt: '2025-06-20 14:52:33',
@@ -84,18 +84,16 @@ export const sampleBOResult: BOResultData = {
   creator: '김미영',
   creatorId: 'kimmiyoung@mezzo.co.kr',
   allocations: [
-    // Google Ads (상품 2개, 1개 잠금)
-    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '반응형 디스플레이 광고_CPM', budget: 100000000, ratio: 20, kpiValue: 41500000, impression: 41500000, click: 208000, view: 0, reach: 28.5, cpm: 2410, cpc: 481, cpv: 0, isFixed: true },
-    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '트루뷰 인스트림_CPV', budget: 50000000, ratio: 10, kpiValue: 21000000, impression: 21000000, click: 104500, view: 700000, reach: 13.8, cpm: 2381, cpc: 478, cpv: 71, isFixed: false },
-    // Meta (상품 2개)
-    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_인지도_노출_facebook', budget: 70000000, ratio: 14, kpiValue: 28000000, impression: 28000000, click: 154000, view: 0, reach: 21.0, cpm: 2500, cpc: 455, cpv: 0, isFixed: false },
-    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_트래픽_링크 클릭수 극대화_instagram', budget: 50000000, ratio: 10, kpiValue: 20000000, impression: 20000000, click: 110000, view: 0, reach: 14.1, cpm: 2500, cpc: 455, cpv: 0, isFixed: false },
-    // NAVER 성과형 DA (상품 1개)
-    { mediaId: 'NAVER 성과형 DA', mediaName: 'NAVER 성과형 DA', productName: '인지도 및 트래픽_피드 영역_CPC', budget: 100000000, ratio: 20, kpiValue: 38000000, impression: 38000000, click: 228000, view: 0, reach: 28.7, cpm: 2632, cpc: 439, cpv: 0, isFixed: false },
-    // TikTok (상품 1개)
-    { mediaId: 'TikTok', mediaName: 'TikTok', productName: '도달_도달_TikTok_동영상', budget: 80000000, ratio: 16, kpiValue: 33600000, impression: 33600000, click: 168000, view: 1120000, reach: 24.5, cpm: 2381, cpc: 476, cpv: 71, isFixed: false },
-    // kakao 모먼트 (상품 1개)
-    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_도달_CPM', budget: 50000000, ratio: 10, kpiValue: 20000000, impression: 20000000, click: 90000, view: 0, reach: 15.2, cpm: 2500, cpc: 556, cpv: 0, isFixed: false }
+    // Google Ads
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 리치 캠페인 (VRC) 2.0_CPM', budget: 7857737, ratio: 1.96, kpiValue: 6756261, impression: 6756261, click: 21181, view: 60965, reach: 6091644, cpm: 1163.03, cpc: 370.98, cpv: 128.89, isFixed: false },
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 뷰 캠페인(VVC 2.0)_CPV', budget: 179479061, ratio: 44.87, kpiValue: 9116048, impression: 9116048, click: 2097, view: 2413274, reach: 5295202, cpm: 19688.25, cpc: 85573.34, cpv: 74.37, isFixed: false },
+    // Meta
+    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_잠재 고객_앱 이벤트 수 극대화_facebook&instagram', budget: 139493637, ratio: 34.87, kpiValue: 16287147, impression: 16287147, click: 73306, view: 647642, reach: 12193179, cpm: 8564.65, cpc: 1902.89, cpv: 215.39, isFixed: false },
+    // kakao 모먼트
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 13229648, ratio: 3.31, kpiValue: 20914224, impression: 20914224, click: 310596, view: 0, reach: 9861846, cpm: 632.57, cpc: 42.59, cpv: 0, isFixed: false },
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 29156256, ratio: 7.29, kpiValue: 29888148, impression: 29888148, click: 61066, view: 0, reach: 16323274, cpm: 975.51, cpc: 477.46, cpv: 0, isFixed: false },
+    // Targetpick
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false }
   ],
   responseCurve: [
     { budget: 0, 'Google Ads': 0, 'Meta': 0, 'NAVER 성과형 DA': 0, 'TikTok': 0, 'kakao 모먼트': 0 },
