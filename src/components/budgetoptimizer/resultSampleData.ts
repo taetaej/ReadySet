@@ -17,8 +17,17 @@ export interface BOAllocation {
   isFixed: boolean
 }
 
+export interface BOResponseCurveMedia {
+  name: string
+  currentSpend: number            // 현재 배분 예산 (Current spend 마커 위치)
+  maxSpend: number                // 곡선이 끝나는 X값 (이 이후는 그리지 않음)
+  satA: number                    // 포화 상한값 (y = satA * (1 - e^(-satB * x)))
+  satB: number                    // 포화 속도
+}
+
+// 하위 호환용 (사용하지 않으나 타입 유지)
 export interface BOResponseCurvePoint {
-  budget: number       // 투입 예산 (원)
+  budget: number
   [mediaName: string]: number
 }
 
@@ -48,7 +57,7 @@ export interface BOResultData {
   creator: string
   creatorId: string
   allocations: BOAllocation[]
-  responseCurve: BOResponseCurvePoint[]
+  responseCurve: BOResponseCurveMedia[]
   dailyAttribution: BODailyAttributionPoint[]
   kpiContribution: BOKpiContributionItem[]
   spinxInsights: {
@@ -96,14 +105,12 @@ export const sampleBOResult: BOResultData = {
     { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false }
   ],
   responseCurve: [
-    { budget: 0, 'Google Ads': 0, 'Meta': 0, 'NAVER 성과형 DA': 0, 'TikTok': 0, 'kakao 모먼트': 0 },
-    { budget: 50000000, 'Google Ads': 28000000, 'Meta': 24000000, 'NAVER 성과형 DA': 22000000, 'TikTok': 21000000, 'kakao 모먼트': 20000000 },
-    { budget: 100000000, 'Google Ads': 48000000, 'Meta': 42000000, 'NAVER 성과형 DA': 38000000, 'TikTok': 38000000, 'kakao 모먼트': 34000000 },
-    { budget: 150000000, 'Google Ads': 62500000, 'Meta': 55000000, 'NAVER 성과형 DA': 49000000, 'TikTok': 50000000, 'kakao 모먼트': 43000000 },
-    { budget: 200000000, 'Google Ads': 72000000, 'Meta': 64000000, 'NAVER 성과형 DA': 56000000, 'TikTok': 58000000, 'kakao 모먼트': 49000000 },
-    { budget: 250000000, 'Google Ads': 78000000, 'Meta': 70000000, 'NAVER 성과형 DA': 61000000, 'TikTok': 63000000, 'kakao 모먼트': 53000000 },
-    { budget: 300000000, 'Google Ads': 82000000, 'Meta': 74000000, 'NAVER 성과형 DA': 64000000, 'TikTok': 66000000, 'kakao 모먼트': 55000000 }
-  ],
+    // 각 매체: a * (1 - e^(-b*x)) 포화 함수 파라미터로 정의. 차트에서 수식으로 직접 생성.
+    { name: 'Google Ads', currentSpend: 187336798, maxSpend: 350000000, satA: 20500000, satB: 0.000000012 },
+    { name: 'Meta', currentSpend: 139493637, maxSpend: 300000000, satA: 18500000, satB: 0.000000015 },
+    { name: 'kakao 모먼트', currentSpend: 42385904, maxSpend: 100000000, satA: 60000000, satB: 0.000000035 },
+    { name: 'Targetpick', currentSpend: 30783661, maxSpend: 80000000, satA: 3000000, satB: 0.000000018 }
+  ] as BOResponseCurveMedia[],
   dailyAttribution: [
     { date: '07-01', 'Google Ads': 2100000, 'Meta': 1600000, 'NAVER 성과형 DA': 1300000, 'TikTok': 1100000, 'kakao 모먼트': 700000 },
     { date: '07-15', 'Google Ads': 2400000, 'Meta': 1850000, 'NAVER 성과형 DA': 1450000, 'TikTok': 1300000, 'kakao 모먼트': 780000 },
@@ -122,9 +129,9 @@ export const sampleBOResult: BOResultData = {
     { name: 'kakao 모먼트', delta: -50000000 }
   ],
   spinxInsights: {
-    pie: 'Google Ads에 30%가 배분되어 가장 높은 비중을 차지하며, kakao 모먼트는 10%로 최저입니다.',
-    responseCurve: 'Google Ads와 Meta는 추가 투입 시 노출 상승 여력이 있으나, kakao 모먼트는 포화 구간에 근접했습니다.',
-    dailyAttribution: '캠페인 2주차(08-01 전후)에 노출 기여가 가장 집중되었습니다.',
-    kpiContribution: '최적화 결과 Google Ads에 +5천만원 증액, kakao 모먼트에서 -5천만원 감액이 배분되었습니다.'
+    pie: '전체 예산 4억 중 Google Ads가 46.8%로 가장 큰 비중을 차지하며, 이는 비디오 캠페인의 높은 CPV 효율에 기인합니다. Meta(34.9%)는 도달 수 대비 효율이 우수하여 두 번째로 높은 배분을 받았습니다. kakao 모먼트와 Targetpick은 각각 10.6%, 7.7%로 보조 매체 역할을 수행합니다.',
+    responseCurve: 'Google Ads의 VVC 2.0은 1.8억원 투입 시점에서 반응 곡선 기울기가 급격히 완만해지며 포화 구간에 진입합니다. 반면 Meta는 현재 배분(1.4억) 대비 추가 투입 시 노출 상승 여력이 약 20% 남아있어, 예산 증액 시 가장 먼저 고려할 매체입니다. kakao 모먼트는 저예산 구간에서 효율이 높으나 5천만원 이상에서는 한계 효율이 급감합니다.',
+    dailyAttribution: '캠페인 초반 2주(7/1~7/15)에 전체 노출의 38%가 집중되며, 이후 점진적으로 감소하는 패턴을 보입니다. Google Ads는 기간 전반에 걸쳐 안정적 기여를 유지하는 반면, Meta는 초반 집중 후 중반부터 기여도가 하락합니다. 캠페인 후반(9월)에는 kakao 모먼트의 상대적 기여 비중이 증가하여 롱테일 효과를 제공합니다.',
+    kpiContribution: '균등 배분(매체당 1억) 대비, 최적화 결과 Google Ads에 +8,734만원, Meta에 +3,949만원이 증액되었고, kakao 모먼트에서 -5,761만원, Targetpick에서 -6,922만원이 감액되었습니다. 이 재배분으로 전체 보장 노출이 균등 대비 약 18% 증가하며, CPM 효율은 평균 12% 개선됩니다.'
   }
 }

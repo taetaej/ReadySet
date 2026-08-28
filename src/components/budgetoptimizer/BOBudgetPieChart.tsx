@@ -1,22 +1,16 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import { Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { Info } from 'lucide-react'
 import { BOAllocation } from './resultSampleData'
+import { getMediaColorByRank } from './constants'
+import { BOSpinXInsight } from './BOSpinXInsight'
 
 interface BOBudgetPieChartProps {
   allocations: BOAllocation[]
   insight: string
+  viewMode: 'media' | 'product'
 }
 
-const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(217 91% 60%)',
-  'hsl(142 71% 45%)',
-  'hsl(38 92% 50%)',
-  'hsl(280 65% 60%)',
-  'hsl(0 72% 60%)',
-  'hsl(190 90% 42%)',
-  'hsl(320 65% 55%)'
-]
+const MAX_ITEMS = 8
 
 const formatBudget = (v: number) => {
   if (v >= 100000000) return `${(v / 100000000).toFixed(1)}억`
@@ -24,46 +18,122 @@ const formatBudget = (v: number) => {
   return v.toLocaleString()
 }
 
-export function BOBudgetPieChart({ allocations, insight }: BOBudgetPieChartProps) {
-  const data = allocations.map(a => ({
-    name: a.mediaName,
-    value: a.budget,
-    ratio: a.ratio
-  }))
+export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPieChartProps) {
+  const [hovered, setHovered] = useState<number | null>(null)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
+  const totalBudget = allocations.reduce((s, a) => s + a.budget, 0)
+
+  // 매체별 그룹핑
+  const mediaData = (() => {
+    const map = new Map<string, number>()
+    for (const a of allocations) map.set(a.mediaId, (map.get(a.mediaId) || 0) + a.budget)
+    return Array.from(map.entries()).map(([name, value]) => ({
+      name,
+      value,
+      ratio: totalBudget > 0 ? (value / totalBudget) * 100 : 0
+    })).sort((a, b) => b.value - a.value)
+  })()
+
+  // 상품별 (flat) → 상위 8개 + 기타
+  const productDataRaw = allocations
+    .map(a => ({ name: a.productName, value: a.budget, ratio: totalBudget > 0 ? (a.budget / totalBudget) * 100 : 0 }))
+    .sort((a, b) => b.value - a.value)
+
+  const productData = (() => {
+    if (productDataRaw.length <= MAX_ITEMS) return productDataRaw
+    const top = productDataRaw.slice(0, MAX_ITEMS)
+    const rest = productDataRaw.slice(MAX_ITEMS)
+    const othersValue = rest.reduce((s, d) => s + d.value, 0)
+    const othersRatio = rest.reduce((s, d) => s + d.ratio, 0)
+    return [...top, { name: `기타 (Others) ${rest.length}개`, value: othersValue, ratio: othersRatio }]
+  })()
+
+  const data = viewMode === 'media' ? mediaData : productData
 
   return (
-    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '20px', backgroundColor: 'hsl(var(--card))' }}>
-      <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>예산 비중</h3>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ width: '180px', height: '180px', flexShrink: 0 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-              </Pie>
-              <Tooltip
-                formatter={((value: number, name: string) => [`${formatBudget(value)}원`, name]) as any}
-                contentStyle={{ fontSize: '12px', borderRadius: '6px', border: '1px solid hsl(var(--border))' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        {/* Legend */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <div style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+      {/* 타이틀 + Info 툴팁 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', flexShrink: 0, position: 'relative' }}>
+        <h4 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>Budget Share</h4>
+        <button
+          onMouseEnter={() => setTooltipOpen(true)}
+          onMouseLeave={() => setTooltipOpen(false)}
+          style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+        >
+          <Info size={14} />
+        </button>
+        {tooltipOpen && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '280px',
+            backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+            borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+            zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
+          }}>
+            <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Budget Share</div>
+            선택된 매체/상품별 예산 배분 비중을 시각화합니다. 상위 8개 항목까지 개별 표시되며, 나머지는 '기타(Others)'로 합산됩니다.
+          </div>
+        )}
+      </div>
+
+      {/* 차트 본체 */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        {/* 100% Stacked Bar */}
+        <div style={{ display: 'flex', width: '100%', height: '36px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
           {data.map((d, i) => (
-            <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: COLORS[i % COLORS.length], flexShrink: 0 }} />
+            <div
+              key={d.name}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                width: `${d.ratio}%`,
+                backgroundColor: getMediaColorByRank(i),
+                transition: 'opacity 0.2s',
+                opacity: hovered === null || hovered === i ? 1 : 0.4,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: d.ratio > 5 ? undefined : '2px'
+              }}
+            >
+              {d.ratio >= 8 && (
+                <span style={{ fontSize: '11px', fontWeight: '600', color: i === 0 ? '#000' : '#fff', whiteSpace: 'nowrap' }}>
+                  {d.ratio.toFixed(1)}%
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 범례 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {data.map((d, i) => (
+            <div
+              key={d.name}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px',
+                opacity: hovered === null || hovered === i ? 1 : 0.5,
+                transition: 'opacity 0.2s'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: getMediaColorByRank(i), flexShrink: 0 }} />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
               </div>
-              <span style={{ fontWeight: '500', flexShrink: 0, marginLeft: '8px' }}>{d.ratio}% · {formatBudget(d.value)}</span>
+              <span style={{ fontWeight: '500', flexShrink: 0, marginLeft: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                {d.ratio.toFixed(1)}% · {formatBudget(d.value)}원
+              </span>
             </div>
           ))}
         </div>
       </div>
-      <div style={{ marginTop: '16px', padding: '10px 12px', backgroundColor: 'hsl(var(--muted) / 0.4)', borderRadius: '6px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-        <Sparkles size={14} style={{ color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '2px' }} />
-        <span style={{ fontSize: '12px', lineHeight: '1.5', color: 'hsl(var(--muted-foreground))' }}>{insight}</span>
+
+      {/* SpinX Insight */}
+      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+        <BOSpinXInsight text={insight} />
       </div>
     </div>
   )

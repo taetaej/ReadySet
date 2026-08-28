@@ -25,6 +25,7 @@ export function BOResult() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [chartViewMode, setChartViewMode] = useState<'media' | 'product'>('media')
 
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
@@ -209,12 +210,52 @@ export function BOResult() {
           {/* 결과 테이블 */}
           <BOResultTable allocations={result.allocations} kpiLabel={KPI_META[result.kpi].labelEn} />
 
-          {/* 차트 2×2 그리드 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <BOBudgetPieChart allocations={result.allocations} insight={result.spinxInsights.pie} />
-            <BOResponseCurveChart data={result.responseCurve} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} />
-            <BODailyAttributionChart data={result.dailyAttribution} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
-            <BOKpiContributionChart data={result.kpiContribution} insight={result.spinxInsights.kpiContribution} />
+          {/* Media / Product 공통 토글 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid hsl(var(--border))', overflow: 'hidden' }}>
+              {(['media', 'product'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setChartViewMode(mode)}
+                  style={{
+                    padding: '6px 16px', fontSize: '12px', fontWeight: '500', border: 'none', cursor: 'pointer',
+                    backgroundColor: chartViewMode === mode ? 'hsl(var(--foreground))' : 'transparent',
+                    color: chartViewMode === mode ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {mode === 'media' ? 'Media' : 'Product'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Budget Input Analysis */}
+          <div>
+            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+              Budget Input Analysis
+            </h3>
+            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
+              예산이 어떻게 배분되었고, 효율 여유가 있는지
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <BOBudgetPieChart allocations={result.allocations} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
+              <BOResponseCurveChart data={result.responseCurve} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} />
+            </div>
+          </div>
+
+          {/* Performance Output Analysis */}
+          <div>
+            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+              Performance Output Analysis
+            </h3>
+            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
+              최적화로 어떤 성과 변화가 예상되는지
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <BODailyAttributionChart data={result.dailyAttribution} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
+              <BOKpiContributionChart data={result.kpiContribution} insight={result.spinxInsights.kpiContribution} />
+            </div>
           </div>
 
           {/* 완료 정보 */}
