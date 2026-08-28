@@ -3,7 +3,7 @@
 
 // 매체별 차트 컬러 — 모노톤(foreground opacity 단계) + 강조 1색
 // 매체 순서(예산 큰 순)에 따라 opacity가 내려감. 1위는 강조색.
-export const ACCENT_COLOR = '#00ff9d'  // 네온 그린 (브랜드 강조)
+export const ACCENT_COLOR = '#BF5AF2'  // Electric Violet (Budget Optimizer 브랜드 강조)
 
 // opacity 단계 (1위 제외, 2위부터 적용)
 const MONO_OPACITIES = [1, 0.7, 0.5, 0.35, 0.2, 0.12, 0.08]

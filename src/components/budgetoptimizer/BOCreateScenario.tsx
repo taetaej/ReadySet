@@ -141,34 +141,21 @@ export function BOCreateScenario() {
     }
     if (formData.totalBudget - lockedTotal < 0) return false
 
-    // R10: 매체 미잠금 + 하위 전부 잠금
+    // R6: 잔여 예산 수령처 부재 — 배분 가능 예산 > 0인데 받을 비잠금 매체가 없음
     const mediaGroups = new Map<string, BOProductEntry[]>()
     for (const p of formData.products) {
       if (!mediaGroups.has(p.mediaId)) mediaGroups.set(p.mediaId, [])
       mediaGroups.get(p.mediaId)!.push(p)
     }
-    const hasRule10Warning = Array.from(mediaGroups.entries()).some(([mediaId, children]) => {
-      const mf = formData.mediaFixed.find(m => m.mediaId === mediaId)
-      const isMediaLocked = mf?.isFixed || false
-      return !isMediaLocked && children.length > 0 && children.every(c => c.isFixed)
-    })
-    if (hasRule10Warning) return false
-
-    // R5: 비잠금 상품 ≥ 2 (매체 잠금 여부 무관)
-    let unlockedVarCount = 0
-    for (const [, children] of mediaGroups.entries()) {
-      unlockedVarCount += children.filter(c => !c.isFixed).length
-    }
-    if (unlockedVarCount < 2) return false
-
-    // R6: 잔여 예산 수령처 부재 — 배분 가능 예산 > 0인데 받을 비잠금 매체가 없음
     const remainingBudget = formData.totalBudget - lockedTotal
     if (remainingBudget > 0) {
       const hasUnlockedMedia = Array.from(mediaGroups.keys()).some(mediaId => {
         const mf = formData.mediaFixed.find(m => m.mediaId === mediaId)
         return !mf?.isFixed
       })
-      if (!hasUnlockedMedia) return false
+      // 비잠금 매체가 없더라도 비잠금 상품이 있으면 거기에 배분 가능
+      const hasUnlockedProduct = formData.products.some(p => !p.isFixed)
+      if (!hasUnlockedMedia && !hasUnlockedProduct) return false
     }
 
     return true
@@ -464,15 +451,15 @@ export function BOCreateScenario() {
                           return (
                             <div key={mediaId}>
                               <div style={{ fontSize: '10px', fontWeight: '600', color: 'hsl(var(--muted-foreground))', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                {isMediaLocked && <Lock size={8} style={{ color: 'hsl(var(--primary))' }} />}
+                                {isMediaLocked && <Lock size={8} style={{ color: '#BF5AF2' }} />}
                                 {mediaId}
                               </div>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
                                 {products.map(p => (
                                   <div key={`${p.mediaId}-${p.productName}`} style={{
                                     fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
-                                    backgroundColor: p.isFixed ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--muted))',
-                                    color: p.isFixed ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
+                                    backgroundColor: p.isFixed ? 'hsl(var(--muted))' : 'hsl(var(--muted))',
+                                    color: p.isFixed ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
                                     fontWeight: '500', whiteSpace: 'nowrap',
                                     display: 'flex', alignItems: 'center', gap: '3px'
                                   }}>

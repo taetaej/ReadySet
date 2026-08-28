@@ -63,8 +63,8 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiLabelEn }: BOR
         <div
           key={index}
           style={{
-            backgroundColor: card.highlighted ? 'hsl(240, 5%, 96%)' : 'hsl(var(--card))',
-            border: `1px solid ${card.highlighted ? 'hsl(240, 5%, 90%)' : 'hsl(var(--border))'}`,
+            backgroundColor: card.highlighted ? 'hsl(var(--muted))' : 'hsl(var(--card))',
+            border: `1px solid ${card.highlighted ? 'hsl(var(--border))' : 'hsl(var(--border))'}`,
             borderRadius: '12px',
             padding: '20px',
             display: 'flex',
@@ -102,7 +102,7 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiLabelEn }: BOR
             <span style={{
               fontSize: '28px', fontWeight: '700', color: 'hsl(var(--foreground))',
               fontFamily: 'Paperlogy, sans-serif',
-              borderBottom: '3px solid #00ff9d', paddingBottom: '2px'
+              borderBottom: '3px solid #BF5AF2', paddingBottom: '2px'
             }}>
               {card.value}
             </span>
