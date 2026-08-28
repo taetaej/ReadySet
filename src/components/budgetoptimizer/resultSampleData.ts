@@ -15,6 +15,9 @@ export interface BOAllocation {
   cpc: number
   cpv: number
   isFixed: boolean
+  // Response Curve 파라미터 (상품별)
+  satA: number         // 포화 상한값
+  satB: number         // 포화 속도
 }
 
 export interface BOResponseCurveMedia {
@@ -57,6 +60,10 @@ export interface BOResultData {
   creator: string
   creatorId: string
   allocations: BOAllocation[]
+  /** 순수 최적화(잠금 없음) 시 총 보장 KPI — 잠금 결과와 비교용 */
+  pureOptKpiTotal?: number
+  /** 순수 최적화(잠금 해제) allocations — 비교 테이블용 */
+  pureAllocations?: BOAllocation[]
   responseCurve: BOResponseCurveMedia[]
   dailyAttribution: BODailyAttributionPoint[]
   kpiContribution: BOKpiContributionItem[]
@@ -92,17 +99,27 @@ export const sampleBOResult: BOResultData = {
   created: '2025-06-20 14:30:00',
   creator: '김미영',
   creatorId: 'kimmiyoung@mezzo.co.kr',
+  pureOptKpiTotal: 92000000,  // 잠금 없이 최적화 시 보장 KPI 합 (현재 잠금 적용: ~84M → 순수: 92M)
+  // 순수 최적화(잠금 해제) 결과 allocations
+  pureAllocations: [
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 리치 캠페인 (VRC) 2.0_CPM', budget: 12000000, ratio: 3.00, kpiValue: 8200000, impression: 8200000, click: 25000, view: 72000, reach: 7100000, cpm: 1463, cpc: 480, cpv: 167, isFixed: false, satA: 8000000, satB: 0.00000006 },
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 뷰 캠페인(VVC 2.0)_CPV', budget: 155000000, ratio: 38.75, kpiValue: 8900000, impression: 8900000, click: 2050, view: 2350000, reach: 5150000, cpm: 17416, cpc: 75610, cpv: 65.96, isFixed: false, satA: 12000000, satB: 0.000000008 },
+    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_잠재 고객_앱 이벤트 수 극대화_facebook&instagram', budget: 148000000, ratio: 37.00, kpiValue: 16800000, impression: 16800000, click: 76000, view: 670000, reach: 12600000, cpm: 8810, cpc: 1947, cpv: 220.90, isFixed: false, satA: 18500000, satB: 0.000000015 },
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 18000000, ratio: 4.50, kpiValue: 24500000, impression: 24500000, click: 365000, view: 0, reach: 11200000, cpm: 735, cpc: 49.32, cpv: 0, isFixed: false, satA: 25000000, satB: 0.00000005 },
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 42000000, ratio: 10.50, kpiValue: 32000000, impression: 32000000, click: 68000, view: 0, reach: 17800000, cpm: 1313, cpc: 617.65, cpv: 0, isFixed: false, satA: 35000000, satB: 0.00000004 },
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 25000000, ratio: 6.25, kpiValue: 1400000, impression: 1400000, click: 1700, view: 2200000, reach: 390000, cpm: 17857, cpc: 14706, cpv: 11.36, isFixed: false, satA: 3000000, satB: 0.000000018 }
+  ] as BOAllocation[],
   allocations: [
     // Google Ads
-    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 리치 캠페인 (VRC) 2.0_CPM', budget: 7857737, ratio: 1.96, kpiValue: 6756261, impression: 6756261, click: 21181, view: 60965, reach: 6091644, cpm: 1163.03, cpc: 370.98, cpv: 128.89, isFixed: false },
-    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 뷰 캠페인(VVC 2.0)_CPV', budget: 179479061, ratio: 44.87, kpiValue: 9116048, impression: 9116048, click: 2097, view: 2413274, reach: 5295202, cpm: 19688.25, cpc: 85573.34, cpv: 74.37, isFixed: false },
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 리치 캠페인 (VRC) 2.0_CPM', budget: 7857737, ratio: 1.96, kpiValue: 6756261, impression: 6756261, click: 21181, view: 60965, reach: 6091644, cpm: 1163.03, cpc: 370.98, cpv: 128.89, isFixed: false, satA: 8000000, satB: 0.00000006 },
+    { mediaId: 'Google Ads', mediaName: 'Google Ads', productName: '비디오 뷰 캠페인(VVC 2.0)_CPV', budget: 179479061, ratio: 44.87, kpiValue: 9116048, impression: 9116048, click: 2097, view: 2413274, reach: 5295202, cpm: 19688.25, cpc: 85573.34, cpv: 74.37, isFixed: true, satA: 12000000, satB: 0.000000008 },
     // Meta
-    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_잠재 고객_앱 이벤트 수 극대화_facebook&instagram', budget: 139493637, ratio: 34.87, kpiValue: 16287147, impression: 16287147, click: 73306, view: 647642, reach: 12193179, cpm: 8564.65, cpc: 1902.89, cpv: 215.39, isFixed: false },
+    { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_잠재 고객_앱 이벤트 수 극대화_facebook&instagram', budget: 139493637, ratio: 34.87, kpiValue: 16287147, impression: 16287147, click: 73306, view: 647642, reach: 12193179, cpm: 8564.65, cpc: 1902.89, cpv: 215.39, isFixed: false, satA: 18500000, satB: 0.000000015 },
     // kakao 모먼트
-    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 13229648, ratio: 3.31, kpiValue: 20914224, impression: 20914224, click: 310596, view: 0, reach: 9861846, cpm: 632.57, cpc: 42.59, cpv: 0, isFixed: false },
-    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 29156256, ratio: 7.29, kpiValue: 29888148, impression: 29888148, click: 61066, view: 0, reach: 16323274, cpm: 975.51, cpc: 477.46, cpv: 0, isFixed: false },
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 13229648, ratio: 3.31, kpiValue: 20914224, impression: 20914224, click: 310596, view: 0, reach: 9861846, cpm: 632.57, cpc: 42.59, cpv: 0, isFixed: false, satA: 25000000, satB: 0.00000005 },
+    { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 29156256, ratio: 7.29, kpiValue: 29888148, impression: 29888148, click: 61066, view: 0, reach: 16323274, cpm: 975.51, cpc: 477.46, cpv: 0, isFixed: true, satA: 35000000, satB: 0.00000004 },
     // Targetpick
-    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false }
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false, satA: 3000000, satB: 0.000000018 }
   ],
   responseCurve: [
     // 각 매체: a * (1 - e^(-b*x)) 포화 함수 파라미터로 정의. 차트에서 수식으로 직접 생성.

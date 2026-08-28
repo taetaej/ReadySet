@@ -10,7 +10,7 @@ interface BOBudgetPieChartProps {
   viewMode: 'media' | 'product'
 }
 
-const MAX_ITEMS = 8
+const MAX_ITEMS = 5
 
 const formatBudget = (v: number) => {
   if (v >= 100000000) return `${(v / 100000000).toFixed(1)}억`
@@ -35,9 +35,9 @@ export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPie
     })).sort((a, b) => b.value - a.value)
   })()
 
-  // 상품별 (flat) → 상위 8개 + 기타
+  // 상품별 (flat) → 상위 8개 + 기타, 이름은 "매체명 > 상품명"
   const productDataRaw = allocations
-    .map(a => ({ name: a.productName, value: a.budget, ratio: totalBudget > 0 ? (a.budget / totalBudget) * 100 : 0 }))
+    .map(a => ({ name: `${a.mediaName} > ${a.productName}`, value: a.budget, ratio: totalBudget > 0 ? (a.budget / totalBudget) * 100 : 0 }))
     .sort((a, b) => b.value - a.value)
 
   const productData = (() => {
@@ -71,7 +71,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPie
             zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
           }}>
             <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Budget Share</div>
-            선택된 매체/상품별 예산 배분 비중을 시각화합니다. 상위 8개 항목까지 개별 표시되며, 나머지는 '기타(Others)'로 합산됩니다.
+            선택된 매체/상품별 예산 배분 비중을 시각화합니다. 상위 5개 항목까지 개별 표시되며, 나머지는 '기타(Others)'로 합산됩니다.
           </div>
         )}
       </div>

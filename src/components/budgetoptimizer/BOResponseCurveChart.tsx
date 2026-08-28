@@ -10,6 +10,7 @@ interface BOResponseCurveChartProps {
   allocations: BOAllocation[]
   kpiLabel: string
   insight: string
+  viewMode: 'media' | 'product'
 }
 
 const formatAxis = (v: number) => {
@@ -24,25 +25,44 @@ function saturationFn(x: number, a: number, b: number): number {
   return a * (1 - Math.exp(-b * x))
 }
 
-export function BOResponseCurveChart({ data, allocations, kpiLabel, insight }: BOResponseCurveChartProps) {
+export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, viewMode }: BOResponseCurveChartProps) {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
-  // 매체별 예산순 정렬
-  const mediaBudgets = new Map<string, number>()
-  for (const a of allocations) mediaBudgets.set(a.mediaName, (mediaBudgets.get(a.mediaName) || 0) + a.budget)
-  const sortedMediaNames = [...mediaBudgets.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name)
-  const sortedData = sortedMediaNames.map(name => data.find(d => d.name === name)).filter(Boolean) as BOResponseCurveMedia[]
+  // viewMode에 따라 데이터 소스 결정
+  const curveItems: { name: string; currentSpend: number; maxSpend: number; satA: number; satB: number }[] = useMemo(() => {
+    if (viewMode === 'media') {
+      // 매체 레벨: responseCurve 데이터 사용, kpiValue 순 Top5
+      const mediaBudgets = new Map<string, number>()
+      for (const a of allocations) mediaBudgets.set(a.mediaName, (mediaBudgets.get(a.mediaName) || 0) + a.kpiValue)
+      const sorted = [...mediaBudgets.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name).slice(0, 5)
+      return sorted.map(name => {
+        const m = data.find(d => d.name === name)
+        return m ? { name: m.name, currentSpend: m.currentSpend, maxSpend: m.maxSpend, satA: m.satA, satB: m.satB } : null
+      }).filter(Boolean) as any[]
+    } else {
+      // 상품 레벨: allocations의 satA/satB 사용, kpiValue 순 Top5
+      return [...allocations]
+        .sort((a, b) => b.kpiValue - a.kpiValue)
+        .slice(0, 5)
+        .map(a => ({
+          name: `${a.mediaName} > ${a.productName}`,
+          currentSpend: a.budget,
+          maxSpend: a.budget * 3,
+          satA: a.satA,
+          satB: a.satB
+        }))
+    }
+  }, [viewMode, data, allocations])
 
-  // X축 최대 = 가장 긴 매체의 maxSpend
-  const maxSpend = Math.max(...sortedData.map(m => m.maxSpend))
+  const maxSpend = Math.max(...curveItems.map(m => m.maxSpend))
 
-  // 수식으로 200개 등간격 포인트 생성 (완벽한 곡선, 꺾임 불가능)
+  // 수식으로 200개 등간격 포인트 생성
   const chartData = useMemo(() => {
     const steps = 200
     return Array.from({ length: steps + 1 }, (_, i) => {
       const spend = (maxSpend / steps) * i
       const point: Record<string, number | undefined> = { spend }
-      for (const media of sortedData) {
+      for (const media of curveItems) {
         if (spend > media.maxSpend) {
           point[media.name] = undefined
         } else {
@@ -51,10 +71,10 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight }: B
       }
       return point
     })
-  }, [sortedData, maxSpend])
+  }, [curveItems, maxSpend])
 
   // currentSpend 마커 판별용
-  const currentSpendMap = new Map(sortedData.map(m => [m.name, m.currentSpend]))
+  const currentSpendMap = new Map(curveItems.map(m => [m.name, m.currentSpend]))
 
   // KPI 영문 라벨
   const kpiEn = { '노출': 'Impression', '클릭': 'Click', '조회': 'View', '도달': 'Reach' }[kpiLabel] || kpiLabel
@@ -84,6 +104,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight }: B
               <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
               <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과</div>
               <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (곡선이 완만할수록 효율 포화)</div>
+              <div style={{ marginTop: '6px' }}>KPI 기여 상위 5개 항목만 표시됩니다.</div>
             </div>
           </div>
         )}
@@ -134,7 +155,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight }: B
                   )
                 }}
               />
-              {sortedData.map((media, idx) => (
+              {curveItems.map((media, idx) => (
                 <Line
                   key={media.name}
                   type="linear"
@@ -165,8 +186,8 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight }: B
         </div>
 
         {/* 우측 범례 */}
-        <div style={{ width: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px', flexShrink: 0 }}>
-          {sortedData.map((media, idx) => (
+        <div style={{ width: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px', flexShrink: 0 }}>
+          {curveItems.map((media, idx) => (
             <div key={media.name} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
               <span style={{ width: '16px', height: '2px', backgroundColor: getMediaColorByRank(idx), flexShrink: 0, borderRadius: '1px' }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{media.name}</span>

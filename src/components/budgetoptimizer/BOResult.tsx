@@ -10,6 +10,7 @@ import { SpinXPanel } from '../spinx/SpinXPanel'
 import { KPI_LABELS } from './types'
 import { sampleBOResult, KPI_META } from './resultSampleData'
 import { BOResultTable } from './BOResultTable'
+import { BOResultScoreCards } from './BOResultScoreCards'
 import { BOBudgetPieChart } from './BOBudgetPieChart'
 import { BOResponseCurveChart } from './BOResponseCurveChart'
 import { BODailyAttributionChart } from './BODailyAttributionChart'
@@ -26,6 +27,7 @@ export function BOResult() {
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [chartViewMode, setChartViewMode] = useState<'media' | 'product'>('media')
+  const [resultView, setResultView] = useState<'locked' | 'pure'>('locked')
 
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
@@ -207,8 +209,22 @@ export function BOResult() {
 
         {/* 본문 */}
         <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 스코어카드 */}
+          <BOResultScoreCards
+            allocations={result.allocations}
+            totalBudget={result.totalBudget}
+            kpiLabel={kpiLabel}
+            kpiLabelEn={KPI_META[result.kpi].labelEn}
+          />
+
           {/* 결과 테이블 */}
-          <BOResultTable allocations={result.allocations} kpiLabel={KPI_META[result.kpi].labelEn} />
+          <BOResultTable
+            allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
+            lockedAllocations={result.allocations}
+            kpiLabel={KPI_META[result.kpi].labelEn}
+            resultView={resultView}
+            onResultViewChange={setResultView}
+          />
 
           {/* Media / Product 공통 토글 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -224,7 +240,7 @@ export function BOResult() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {mode === 'media' ? 'Media' : 'Product'}
+                  {mode === 'media' ? '매체' : '상품'}
                 </button>
               ))}
             </div>
@@ -240,7 +256,7 @@ export function BOResult() {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <BOBudgetPieChart allocations={result.allocations} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
-              <BOResponseCurveChart data={result.responseCurve} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} />
+              <BOResponseCurveChart data={result.responseCurve} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} />
             </div>
           </div>
 
