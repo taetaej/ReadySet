@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2 } from 'lucide-react'
+import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, PieChart, TrendingUp } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -251,8 +251,9 @@ export function BOResult() {
             <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
               Budget Input Analysis
             </h3>
-            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
-              예산이 어떻게 배분되었고, 효율 여유가 있는지
+            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <PieChart size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+              예산이 각 매체에 어떻게 배분되었으며, 추가 투입 시 효율 여유가 있는지를 확인할 수 있습니다.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <BOBudgetPieChart allocations={result.allocations} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
@@ -265,8 +266,9 @@ export function BOResult() {
             <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
               Performance Output Analysis
             </h3>
-            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
-              최적화로 어떤 성과 변화가 예상되는지
+            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <TrendingUp size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+              최적화를 통해 예상되는 성과 변화와 매체별 기여 추이를 확인할 수 있습니다.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <BODailyAttributionChart data={result.dailyAttribution} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
