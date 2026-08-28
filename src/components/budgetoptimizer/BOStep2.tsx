@@ -100,17 +100,6 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
 
   const rule4Error = remainingBudget < 0 ? '잠금 예산 합계가 총 예산을 초과합니다.' : null
 
-  // R5: 실질 비잠금 행 ≥ 2 (비잠금 상품 수 — 매체 잠금 여부 무관하게 카운트)
-  const unlockedVarCount = useMemo(() => {
-    let count = 0
-    for (const [, children] of mediaGroupsForValidation.entries()) {
-      const unlockedChildren = children.filter(c => !c.isFixed)
-      count += unlockedChildren.length
-    }
-    return count
-  }, [mediaGroupsForValidation])
-  const rule5Error = (totalProductCount >= 2 && unlockedVarCount < 2) ? '최적화를 위해 잠금되지 않은 항목이 2개 이상 필요합니다.' : null
-
   // R6: 잔여 예산 수령처 부재
   const rule6Error = useMemo(() => {
     if (remainingBudget <= 0) return null
@@ -121,22 +110,6 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
     if (!hasUnlockedMedia) return '잔여 예산을 배분할 비잠금 매체가 없습니다. 매체를 추가하거나 잠금을 해제해주세요.'
     return null
   }, [remainingBudget, mediaGroupsForValidation, formData.mediaFixed])
-
-  // R10: 매체 미잠금 + 하위 전부 잠금
-  const rule10Warnings = useMemo(() => {
-    const warnings: { mediaId: string; message: string }[] = []
-    for (const [mediaId, children] of mediaGroupsForValidation.entries()) {
-      const mf = formData.mediaFixed.find(m => m.mediaId === mediaId)
-      const isMediaLocked = mf?.isFixed || false
-      if (!isMediaLocked && children.length > 0 && children.every(c => c.isFixed)) {
-        warnings.push({
-          mediaId,
-          message: `${mediaId}의 모든 상품이 잠금되어 있습니다. 매체도 잠금하거나, 일부 상품의 잠금을 해제해주세요.`
-        })
-      }
-    }
-    return warnings
-  }, [mediaGroupsForValidation, formData.mediaFixed])
 
   // 고정 합계 (Summary 표시용)
   const fixedTotal = useMemo(() => {
@@ -366,7 +339,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                         onClick={() => toggleMediaFixed(mediaId)}
                         style={{
                           background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
-                          color: isMediaFixed ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'
+                          color: isMediaFixed ? '#BF5AF2' : 'hsl(var(--muted-foreground))'
                         }}
                       >
                         {isMediaFixed ? <Lock size={14} /> : <Unlock size={14} />}
@@ -394,7 +367,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                           <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>원</span>
                         </div>
                       ) : (
-                        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>최적화 대상</span>
+                        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>{unfixedCount <= 1 ? '잔여 배정' : '최적화 대상'}</span>
                       )}
                     </div>
                     <button onClick={() => removeMedia(mediaId)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex' }}>
@@ -413,13 +386,6 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                       {err.message}
                     </div>
                   ))}
-                  {/* R10: 매체 미잠금 + 하위 전부 잠금 에러 */}
-                  {rule10Warnings.filter(w => w.mediaId === mediaId).map((warn, i) => (
-                    <div key={`r10-${i}`} style={{ padding: '4px 16px 8px', fontSize: '11px', color: 'hsl(var(--destructive))' }}>
-                      {warn.message}
-                    </div>
-                  ))}
-
                   {/* Product Rows */}
                   {isExpanded && products.map(product => (
                     <div key={`${mediaId}-${product.productName}`}>
@@ -433,7 +399,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                             onClick={() => toggleProductFixed(mediaId, product.productName)}
                             style={{
                               background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
-                              color: product.isFixed ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'
+                              color: product.isFixed ? '#BF5AF2' : 'hsl(var(--muted-foreground))'
                             }}
                           >
                             {product.isFixed ? <Lock size={14} /> : <Unlock size={14} />}
@@ -461,7 +427,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                               <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: 'hsl(var(--muted-foreground))' }}>원</span>
                             </div>
                           ) : (
-                            <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>최적화 대상</span>
+                            <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>{unfixedCount <= 1 ? '잔여 배정' : '최적화 대상'}</span>
                           )}
                         </div>
                         <button onClick={() => removeProduct(mediaId, product.productName)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex' }}>
@@ -505,11 +471,6 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           {rule4Error && (
             <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
               {rule4Error}
-            </div>
-          )}
-          {rule5Error && (
-            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>
-              {rule5Error}
             </div>
           )}
           {rule6Error && (

@@ -1,14 +1,12 @@
 import { useState, useMemo } from 'react'
-import { Lock, Unlock, ChevronRight, Info } from 'lucide-react'
+import { Lock, ChevronRight } from 'lucide-react'
 import { BOAllocation } from './resultSampleData'
 
 interface BOResultTableProps {
   allocations: BOAllocation[]
-  /** 잠금 적용 원본 allocations (비교 delta 계산용) */
   lockedAllocations: BOAllocation[]
   kpiLabel: string
   resultView: 'locked' | 'pure'
-  onResultViewChange: (view: 'locked' | 'pure') => void
 }
 
 // 숫자 + 작고 흐린 단위 (Reach Caster formatWithUnit 방식)
@@ -42,7 +40,7 @@ interface MediaGroup {
 // 그리드 컬럼 정의 (헤더/바디 공통) — 풀 숫자+단위 표기 기준 폭
 const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px'
 
-export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView, onResultViewChange }: BOResultTableProps) {
+export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView }: BOResultTableProps) {
   const mediaGroups = useMemo<MediaGroup[]>(() => {
     const map = new Map<string, BOAllocation[]>()
     for (const a of allocations) {
@@ -91,7 +89,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
   const BudgetCell = ({ amount, isFixed }: { amount: number; isFixed: boolean }) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-      {isFixed && resultView === 'locked' && <Lock size={12} style={{ color: 'hsl(var(--primary))', flexShrink: 0 }} />}
+      {isFixed && resultView === 'locked' && <Lock size={12} style={{ color: '#BF5AF2', flexShrink: 0 }} />}
       <span>{fmtBudget(amount)}</span>
     </div>
   )
@@ -100,7 +98,6 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
   const pct = (v: number) => <>{v.toFixed(2)}<span style={unitStyle}>%</span></>
 
   const hasLocked = lockedAllocations.some(a => a.isFixed)
-  const [toggleTooltipOpen, setToggleTooltipOpen] = useState(false)
 
   // 잠금 해제 뷰에서 delta 계산용: lockedAllocations를 key로 매핑
   const lockedMap = useMemo(() => {
@@ -128,72 +125,10 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
   return (
     <div>
-      {/* 타이틀 + 최적화 결과 토글 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, color: 'hsl(var(--foreground))' }}>
-          Optimized Budget Allocation
-        </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
-          <button
-            onMouseEnter={() => setToggleTooltipOpen(true)}
-            onMouseLeave={() => setToggleTooltipOpen(false)}
-            style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
-          >
-            <Info size={14} />
-          </button>
-          {toggleTooltipOpen && (
-            <div style={{
-              position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '320px',
-              backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-              borderRadius: '8px', padding: '14px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-              zIndex: 100, fontSize: '12px', lineHeight: '1.7', color: 'hsl(var(--muted-foreground))'
-            }}>
-              {resultView === 'locked' ? (
-                <>
-                  <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>잠금 적용 결과</div>
-                  <div>
-                    현재 표시되는 결과는 사용자가 설정한 예산 잠금이 반영된 최적화 결과입니다. 잠금된 매체/상품의 예산은 고정되고, 나머지 잔여 예산만 모델이 최적 배분합니다.
-                  </div>
-                  {hasLocked && (
-                    <div style={{ marginTop: '10px', fontSize: '11px', opacity: 0.8, borderTop: '1px solid hsl(var(--border))', paddingTop: '8px' }}>
-                      "순수 최적화 결과와 비교"를 클릭하면, 잠금 없이 모델이 자유롭게 배분한 결과를 확인할 수 있습니다.
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>순수 최적화 결과</div>
-                  <div style={{ marginBottom: '8px' }}>
-                    현재 표시되는 결과는 잠금 설정 없이 전체 예산을 모델이 자유롭게 최적 배분한 결과입니다.
-                  </div>
-                  <div>
-                    Budget, Share, Guaranteed KPI 컬럼에 표시되는 비교 값(+/−)은 사용자가 설정한 잠금 적용 결과 대비 얼마나 달라졌는지를 나타냅니다.
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-          {hasLocked && (
-            <button
-              onClick={() => onResultViewChange(resultView === 'locked' ? 'pure' : 'locked')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: '12px', fontWeight: '500', color: 'hsl(var(--primary))',
-                display: 'flex', alignItems: 'center', gap: '4px',
-                padding: '4px 0', transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-              {resultView === 'locked' ? (
-                <><Unlock size={13} /> 순수 최적화 결과와 비교</>
-              ) : (
-                <><Lock size={13} /> 잠금 적용 결과로 돌아가기</>
-              )}
-            </button>
-          )}
-        </div>
-      </div>
+      {/* 타이틀 */}
+      <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '16px', color: 'hsl(var(--foreground))' }}>
+        Optimized Budget Allocation
+      </h3>
       <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', fontFamily: 'Paperlogy, sans-serif', width: '100%', overflowX: 'auto' }} className="custom-scrollbar">
         <div style={{ minWidth: '1500px' }}>
           {/* 헤더 */}

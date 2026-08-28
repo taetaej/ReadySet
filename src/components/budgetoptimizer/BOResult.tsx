@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, PieChart, TrendingUp } from 'lucide-react'
+import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, PieChart, TrendingUp, Lock, Unlock } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -209,9 +209,43 @@ export function BOResult() {
 
         {/* 본문 */}
         <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 모드 배너 (최상단 띠) */}
+          {result.allocations.some(a => a.isFixed) && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '10px 20px',
+              borderRadius: '0',
+              marginLeft: '-32px', marginRight: '-32px', marginTop: '-24px',
+              backgroundColor: 'hsl(var(--muted) / 0.5)',
+              borderBottom: '1px solid hsl(var(--border))'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                {resultView === 'locked' ? <Lock size={14} style={{ color: '#BF5AF2' }} /> : <Unlock size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />}
+                <span style={{ color: 'hsl(var(--foreground))' }}>
+                  {resultView === 'locked'
+                    ? '시나리오 생성 시 설정한 예산 잠금이 반영된 최적화 결과입니다.'
+                    : '예산 잠금 없이 모델이 전체 예산을 자유롭게 최적 배분한 결과입니다.'}
+                </span>
+              </div>
+              <button
+                onClick={() => setResultView(resultView === 'locked' ? 'pure' : 'locked')}
+                style={{
+                  background: 'hsl(var(--foreground))',
+                  color: 'hsl(var(--background))',
+                  border: 'none', borderRadius: '20px', padding: '6px 16px',
+                  fontSize: '12px', fontWeight: '500', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                {resultView === 'locked' ? <><Unlock size={12} /> 순수 최적화 결과 보기</> : <><Lock size={12} /> 잠금 반영 최적화 결과 보기</>}
+              </button>
+            </div>
+          )}
+
           {/* 스코어카드 */}
           <BOResultScoreCards
-            allocations={result.allocations}
+            allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
             totalBudget={result.totalBudget}
             kpiLabel={kpiLabel}
             kpiLabelEn={KPI_META[result.kpi].labelEn}
@@ -223,7 +257,6 @@ export function BOResult() {
             lockedAllocations={result.allocations}
             kpiLabel={KPI_META[result.kpi].labelEn}
             resultView={resultView}
-            onResultViewChange={setResultView}
           />
 
           {/* Media / Product 공통 토글 */}
@@ -256,8 +289,8 @@ export function BOResult() {
               예산이 각 매체에 어떻게 배분되었으며, 추가 투입 시 효율 여유가 있는지를 확인할 수 있습니다.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <BOBudgetPieChart allocations={result.allocations} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
-              <BOResponseCurveChart data={result.responseCurve} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} />
+              <BOBudgetPieChart allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
+              <BOResponseCurveChart data={result.responseCurve} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} />
             </div>
           </div>
 
@@ -271,15 +304,12 @@ export function BOResult() {
               최적화를 통해 예상되는 성과 변화와 매체별 기여 추이를 확인할 수 있습니다.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <BODailyAttributionChart data={result.dailyAttribution} allocations={result.allocations} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
+              <BODailyAttributionChart data={result.dailyAttribution} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
               <BOKpiContributionChart data={result.kpiContribution} insight={result.spinxInsights.kpiContribution} />
             </div>
           </div>
 
-          {/* 완료 정보 */}
-          <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', textAlign: 'right' }}>
-            {result.creator}({maskEmail(result.creatorId)}) · 완료 {result.completedAt}
-          </div>
+          {/* 차트 끝 */}
         </div>
       </div>
 
