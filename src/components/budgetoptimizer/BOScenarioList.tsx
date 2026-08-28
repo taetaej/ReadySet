@@ -104,9 +104,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
   }
 
   const formatBudget = (amount: number) => {
-    if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억`
-    if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만`
-    return amount.toLocaleString()
+    return `${amount.toLocaleString()}원`
   }
 
   const activeFilterCount = filters.status.length + filters.kpi.length + filters.industry.length

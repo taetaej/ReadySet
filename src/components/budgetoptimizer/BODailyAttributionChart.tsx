@@ -1,6 +1,7 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { Sparkles } from 'lucide-react'
 import { BODailyAttributionPoint, BOAllocation } from './resultSampleData'
+import { getMediaColorByRank } from './constants'
+import { BOSpinXInsight } from './BOSpinXInsight'
 
 interface BODailyAttributionChartProps {
   data: BODailyAttributionPoint[]
@@ -9,15 +10,6 @@ interface BODailyAttributionChartProps {
   insight: string
 }
 
-const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(217 91% 60%)',
-  'hsl(142 71% 45%)',
-  'hsl(38 92% 50%)',
-  'hsl(280 65% 60%)',
-  'hsl(0 72% 60%)'
-]
-
 const formatAxis = (v: number) => {
   if (v >= 100000000) return `${(v / 100000000).toFixed(0)}억`
   if (v >= 10000) return `${Math.round(v / 10000)}만`
@@ -25,13 +17,16 @@ const formatAxis = (v: number) => {
 }
 
 export function BODailyAttributionChart({ data, allocations, kpiLabel, insight }: BODailyAttributionChartProps) {
-  const mediaNames = allocations.map(a => a.mediaName)
+  // 매체별 예산순 정렬
+  const mediaBudgets = new Map<string, number>()
+  for (const a of allocations) mediaBudgets.set(a.mediaName, (mediaBudgets.get(a.mediaName) || 0) + a.budget)
+  const mediaNames = [...mediaBudgets.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name)
 
   return (
-    <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '20px', backgroundColor: 'hsl(var(--card))' }}>
-      <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>일자별 기여도</h3>
-      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>캠페인 기간 내 매체별 {kpiLabel} 누적 기여</p>
-      <div style={{ width: '100%', height: '200px' }}>
+    <div style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+      <h4 style={{ fontSize: '14px', fontWeight: '600', margin: 0, marginBottom: '4px', flexShrink: 0 }}>Daily Attribution</h4>
+      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px', flexShrink: 0 }}>Cumulative {kpiLabel} contribution by media over campaign period</p>
+      <div style={{ flex: 1, width: '100%' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -43,14 +38,13 @@ export function BODailyAttributionChart({ data, allocations, kpiLabel, insight }
             />
             <Legend wrapperStyle={{ fontSize: '11px' }} />
             {mediaNames.map((name, i) => (
-              <Area key={name} type="monotone" dataKey={name} stackId="1" stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.6} />
+              <Area key={name} type="monotone" dataKey={name} stackId="1" stroke={getMediaColorByRank(i)} fill={getMediaColorByRank(i)} fillOpacity={0.7} />
             ))}
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div style={{ marginTop: '16px', padding: '10px 12px', backgroundColor: 'hsl(var(--muted) / 0.4)', borderRadius: '6px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-        <Sparkles size={14} style={{ color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '2px' }} />
-        <span style={{ fontSize: '12px', lineHeight: '1.5', color: 'hsl(var(--muted-foreground))' }}>{insight}</span>
+      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+        <BOSpinXInsight text={insight} />
       </div>
     </div>
   )
