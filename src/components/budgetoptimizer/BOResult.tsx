@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, PieChart, TrendingUp, Lock, Unlock } from 'lucide-react'
+import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, Lock, Unlock } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
+import { SpinXSymbol } from '../spinx/SpinXSymbol'
 import { KPI_LABELS } from './types'
 import { sampleBOResult, KPI_META } from './resultSampleData'
 import { BOResultTable } from './BOResultTable'
@@ -23,6 +24,12 @@ export function BOResult() {
 
   const [isDarkMode, setIsDarkModeState] = useState(() => getDarkMode())
   const [spinXOpen, setSpinXOpen] = useState(false)
+  const [spinXInitialInput, setSpinXInitialInput] = useState<string | undefined>(undefined)
+  const [spinXInitialMessage, setSpinXInitialMessage] = useState<string | undefined>(undefined)
+  // "이어서 질문하기"(차트): 자동 전송하지 않고 입력창에 프리필만
+  const askSpinX = (prefill: string) => { setSpinXInitialInput(prefill); setSpinXInitialMessage(undefined); setSpinXOpen(true) }
+  // "최적화 원리 알아보기"(헤더): 바로 질문 전송
+  const askSpinXSend = (q: string) => { setSpinXInitialMessage(q); setSpinXInitialInput(undefined); setSpinXOpen(true) }
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -46,6 +53,22 @@ export function BOResult() {
   const handleExportPDF = () => { console.log('Export PDF'); setExportMenuOpen(false) }
 
   const fmtWon = (v: number) => `₩${v.toLocaleString('ko-KR')}`
+
+  // SpinX에게 최적화 원리 물어보기 트리거 (Reach Caster Effective Impression 패턴)
+  const spinXModelTrigger = (
+    <button
+      onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '6px',
+        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+        fontSize: '12px', color: 'hsl(var(--muted-foreground))'
+      }}
+      title="SpinX에게 물어보기"
+    >
+      <SpinXSymbol size={16} motion="idle" title="SpinX에게 물어보기" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
+      <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>최적화 원리 알아보기</span>
+    </button>
+  )
 
   return (
     <AppLayout
@@ -209,19 +232,23 @@ export function BOResult() {
 
         {/* 본문 */}
         <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* 모드 배너 (최상단 띠) */}
+          {/* 결과 상태 띠배너 (잠금 시나리오에만 노출) */}
           {result.allocations.some(a => a.isFixed) && (
             <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '10px 20px',
-              borderRadius: '0',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
               marginLeft: '-32px', marginRight: '-32px', marginTop: '-24px',
-              backgroundColor: 'hsl(var(--muted) / 0.5)',
+              padding: '14px 32px',
+              backgroundColor: 'hsl(var(--muted) / 0.35)',
               borderBottom: '1px solid hsl(var(--border))'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                {resultView === 'locked' ? <Lock size={14} style={{ color: '#BF5AF2' }} /> : <Unlock size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />}
-                <span style={{ color: 'hsl(var(--foreground))' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', minWidth: 0 }}>
+                {resultView === 'locked'
+                  ? <Lock size={16} style={{ color: '#BF5AF2', flexShrink: 0 }} />
+                  : <Unlock size={16} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />}
+                <span style={{ fontSize: '15px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))' }}>
+                  {resultView === 'locked' ? 'Locked Budget Allocation' : 'Fully Optimized Allocation'}
+                </span>
+                <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
                   {resultView === 'locked'
                     ? '시나리오 생성 시 설정한 예산 잠금이 반영된 최적화 결과입니다.'
                     : '예산 잠금 없이 모델이 전체 예산을 자유롭게 최적 배분한 결과입니다.'}
@@ -230,16 +257,26 @@ export function BOResult() {
               <button
                 onClick={() => setResultView(resultView === 'locked' ? 'pure' : 'locked')}
                 style={{
-                  background: 'hsl(var(--foreground))',
-                  color: 'hsl(var(--background))',
-                  border: 'none', borderRadius: '20px', padding: '6px 16px',
+                  background: 'hsl(var(--foreground))', color: 'hsl(var(--background))',
+                  border: 'none', borderRadius: '20px', padding: '7px 14px',
                   fontSize: '12px', fontWeight: '500', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s',
-                  flexShrink: 0
+                  display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0
                 }}
               >
                 {resultView === 'locked' ? <><Unlock size={12} /> 순수 최적화 결과 보기</> : <><Lock size={12} /> 잠금 반영 최적화 결과 보기</>}
               </button>
+            </div>
+          )}
+
+          {/* 잠금이 없는 시나리오: 전환 없이 기본 타이틀만 */}
+          {!result.allocations.some(a => a.isFixed) && (
+            <div style={{ marginBottom: '-8px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+                Optimized Budget Allocation
+              </h3>
+              <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', margin: 0 }}>
+                모델이 전체 예산을 최적 배분한 결과입니다.
+              </p>
             </div>
           )}
 
@@ -251,17 +288,15 @@ export function BOResult() {
             kpiLabelEn={KPI_META[result.kpi].labelEn}
           />
 
-          {/* 결과 테이블 */}
-          <BOResultTable
-            allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
-            lockedAllocations={result.allocations}
-            kpiLabel={KPI_META[result.kpi].labelEn}
-            resultView={resultView}
-          />
-
-          {/* Media / Product 공통 토글 */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid hsl(var(--border))', overflow: 'hidden' }}>
+          {/* 차트 존 상위 제목 + 최적화 원리 트리거 + 매체/상품 공통 토글 — 동일 선상 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '-16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', minWidth: 0 }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, color: 'hsl(var(--foreground))' }}>
+                Optimization Analytics
+              </h3>
+              {spinXModelTrigger}
+            </div>
+            <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid hsl(var(--border))', overflow: 'hidden', flexShrink: 0 }}>
               {(['media', 'product'] as const).map((mode) => (
                 <button
                   key={mode}
@@ -279,37 +314,31 @@ export function BOResult() {
             </div>
           </div>
 
-          {/* Budget Input Analysis */}
-          <div>
-            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
-              Budget Input Analysis
-            </h3>
-            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <PieChart size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-              예산이 각 매체에 어떻게 배분되었으며, 추가 투입 시 효율 여유가 있는지를 확인할 수 있습니다.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <BOBudgetPieChart allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} insight={result.spinxInsights.pie} viewMode={chartViewMode} />
-              <BOResponseCurveChart data={result.responseCurve} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} />
-            </div>
-          </div>
-
-          {/* Performance Output Analysis */}
-          <div>
-            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
-              Performance Output Analysis
-            </h3>
-            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <TrendingUp size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-              최적화를 통해 예상되는 성과 변화와 매체별 기여 추이를 확인할 수 있습니다.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <BODailyAttributionChart data={result.dailyAttribution} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} />
-              <BOKpiContributionChart data={result.kpiContribution} insight={result.spinxInsights.kpiContribution} />
-            </div>
+          {/* 차트 그리드 (각 차트가 한글 질문을 제목으로 가짐) — 여백 넉넉히 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '40px', rowGap: '48px' }}>
+            <BOBudgetPieChart allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} insight={result.spinxInsights.pie} viewMode={chartViewMode} onAsk={askSpinX} />
+            <BOResponseCurveChart data={result.responseCurve} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} totalBudget={result.totalBudget} onAsk={askSpinX} />
+            <BODailyAttributionChart data={result.dailyAttribution} dataByProduct={result.dailyAttributionByProduct} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} viewMode={chartViewMode} onAsk={askSpinX} campaignPeriod={result.period} />
+            <BOKpiContributionChart data={result.kpiWaterfall} dataByProduct={result.kpiWaterfallByProduct} kpiLabel={kpiLabel} insight={result.spinxInsights.kpiContribution} viewMode={chartViewMode} onAsk={askSpinX} />
           </div>
 
           {/* 차트 끝 */}
+
+          {/* 결과 테이블 */}
+          <div style={{ marginTop: '24px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+              Budget Allocation Detail
+            </h3>
+            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
+              매체·상품별 예산 배분과 예상 성과를 상세하게 확인할 수 있습니다.
+            </p>
+            <BOResultTable
+              allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
+              lockedAllocations={result.allocations}
+              kpiLabel={KPI_META[result.kpi].labelEn}
+              resultView={resultView}
+            />
+          </div>
         </div>
       </div>
 
@@ -317,9 +346,18 @@ export function BOResult() {
       <SpinXButton isDarkMode={isDarkMode} onClick={() => setSpinXOpen(true)} isOpen={spinXOpen} />
       <SpinXPanel
         isOpen={spinXOpen}
-        onClose={() => setSpinXOpen(false)}
+        onClose={() => { setSpinXOpen(false); setSpinXInitialMessage(undefined); setSpinXInitialInput(undefined) }}
         isDarkMode={isDarkMode}
         scenarioName={result.name}
+        analysisType="budgetOptimizer"
+        initialMessage={spinXInitialMessage}
+        initialInput={spinXInitialInput}
+        mentionItems={[
+          { id: 'budgetShare', label: 'Budget Share 차트' },
+          { id: 'responseCurve', label: 'Response Curve 차트' },
+          { id: 'weeklyContribution', label: 'Weekly Contribution 차트' },
+          { id: 'incremental', label: 'Incremental 차트' }
+        ]}
       />
     </AppLayout>
   )

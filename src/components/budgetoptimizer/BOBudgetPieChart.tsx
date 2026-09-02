@@ -8,6 +8,7 @@ interface BOBudgetPieChartProps {
   allocations: BOAllocation[]
   insight: string
   viewMode: 'media' | 'product'
+  onAsk?: (question: string) => void
 }
 
 const MAX_ITEMS = 5
@@ -18,7 +19,7 @@ const formatBudget = (v: number) => {
   return v.toLocaleString()
 }
 
-export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPieChartProps) {
+export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBudgetPieChartProps) {
   const [hovered, setHovered] = useState<number | null>(null)
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -52,10 +53,11 @@ export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPie
   const data = viewMode === 'media' ? mediaData : productData
 
   return (
-    <div style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
       {/* 타이틀 + Info 툴팁 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>Budget Share</h4>
+        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>예산은 어디에 배분되었을까?</h4>
+        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Budget Share</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
@@ -77,7 +79,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPie
       </div>
 
       {/* 차트 본체 */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div style={{ flex: 1, minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {/* 100% Stacked Bar */}
         <div style={{ display: 'flex', width: '100%', height: '36px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
           {data.map((d, i) => (
@@ -133,7 +135,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode }: BOBudgetPie
 
       {/* SpinX Insight */}
       <div style={{ marginTop: 'auto', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Budget Share 차트 " />
       </div>
     </div>
   )

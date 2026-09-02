@@ -1,7 +1,8 @@
-// SpinXInput.tsx — 입력 영역 (텍스트 입력, 첨부파일/URL, 모델 선택 드롭다운, 세션 정보)
+// SpinXInput.tsx — 입력 영역 (텍스트 입력, 첨부파일/URL, @멘션, 모델 선택 드롭다운, 세션 정보)
 
-import { X, Paperclip, Clock, Square, ChevronDown, FileText, ArrowUp, Globe, Image as ImageIcon } from 'lucide-react'
-import type { LLMModel } from './spinxTypes'
+import { useRef, useState } from 'react'
+import { X, Paperclip, Clock, Square, ChevronDown, FileText, ArrowUp, Globe, Image as ImageIcon, BarChart3, AtSign } from 'lucide-react'
+import type { LLMModel, SpinXMentionItem } from './spinxTypes'
 import { availableModels } from './spinxData'
 
 interface SpinXInputProps {
@@ -32,6 +33,8 @@ interface SpinXInputProps {
   onModelSelect: (model: LLMModel) => void
   isDisabled?: boolean
   disabledPlaceholder?: string
+  /** @멘션 가능한 항목 목록 (없으면 멘션 비활성) */
+  mentionItems?: SpinXMentionItem[]
 }
 
 export function SpinXInput({
@@ -61,8 +64,72 @@ export function SpinXInput({
   removeAttachment,
   onModelSelect,
   isDisabled = false,
-  disabledPlaceholder
+  disabledPlaceholder,
+  mentionItems
 }: SpinXInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  // @멘션 드롭다운 상태
+  const [mentionOpen, setMentionOpen] = useState(false)
+  const [mentionQuery, setMentionQuery] = useState('')
+  const [mentionStart, setMentionStart] = useState(-1)  // '@' 위치
+  const [mentionIndex, setMentionIndex] = useState(0)
+
+  const filteredMentions = (mentionItems || []).filter(m =>
+    m.label.replace(/\s/g, '').toLowerCase().includes(mentionQuery.replace(/\s/g, '').toLowerCase())
+  )
+
+  // 입력 변경 시 커서 앞의 '@단어' 감지
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setMessage(value)
+    if (!mentionItems || mentionItems.length === 0) return
+    const caret = e.target.selectionStart ?? value.length
+    const before = value.slice(0, caret)
+    const at = before.lastIndexOf('@')
+    if (at >= 0) {
+      const between = before.slice(at + 1)
+      // '@' 이후 공백/개행이 없으면 멘션 입력 중으로 간주
+      if (!/[\s\n]/.test(between)) {
+        setMentionStart(at)
+        setMentionQuery(between)
+        setMentionOpen(true)
+        setMentionIndex(0)
+        return
+      }
+    }
+    setMentionOpen(false)
+  }
+
+  // 멘션 항목 선택 → '@라벨 '으로 치환
+  const applyMention = (item: SpinXMentionItem) => {
+    if (mentionStart < 0) return
+    const caret = textareaRef.current?.selectionStart ?? message.length
+    const newValue = message.slice(0, mentionStart) + `@${item.label} ` + message.slice(caret)
+    setMessage(newValue)
+    setMentionOpen(false)
+    setMentionQuery('')
+    setMentionStart(-1)
+    // 포커스 복귀
+    setTimeout(() => {
+      const el = textareaRef.current
+      if (el) {
+        const pos = mentionStart + item.label.length + 2
+        el.focus()
+        el.setSelectionRange(pos, pos)
+      }
+    }, 0)
+  }
+
+  const handleKeyDownInternal = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (mentionOpen && filteredMentions.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIndex(i => (i + 1) % filteredMentions.length); return }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIndex(i => (i - 1 + filteredMentions.length) % filteredMentions.length); return }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applyMention(filteredMentions[mentionIndex]); return }
+      if (e.key === 'Escape') { setMentionOpen(false); return }
+    }
+    onKeyDown(e)
+  }
+
   return (
     <>
       {/* 모델 표시 + 대화 유지 기간 */}
@@ -268,10 +335,11 @@ export function SpinXInput({
           )}
 
           <textarea
+            ref={textareaRef}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={onKeyDown}
-            placeholder={isDisabled ? disabledPlaceholder : "SpinX에게 무엇이든 물어보세요!"}
+            onChange={handleChange}
+            onKeyDown={handleKeyDownInternal}
+            placeholder={isDisabled ? disabledPlaceholder : (mentionItems && mentionItems.length > 0 ? "SpinX에게 물어보세요! @로 차트를 첨부할 수 있어요" : "SpinX에게 무엇이든 물어보세요!")}
             disabled={isDisabled}
             style={{
               width: '100%',
@@ -297,6 +365,47 @@ export function SpinXInput({
               e.currentTarget.style.borderColor = 'hsl(var(--border))'
             }}
           />
+
+          {/* @멘션 드롭다운 */}
+          {mentionOpen && filteredMentions.length > 0 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              marginBottom: '8px',
+              width: '260px',
+              maxHeight: '220px',
+              overflowY: 'auto',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+              zIndex: 1000,
+              fontFamily: 'Paperlogy, sans-serif',
+              padding: '4px'
+            }}>
+              <div style={{ padding: '6px 8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AtSign size={11} /> 차트 첨부
+              </div>
+              {filteredMentions.map((m, i) => (
+                <button
+                  key={m.id}
+                  onMouseDown={(e) => { e.preventDefault(); applyMention(m) }}
+                  onMouseEnter={() => setMentionIndex(i)}
+                  style={{
+                    width: '100%', padding: '8px 10px', border: 'none', borderRadius: '6px',
+                    backgroundColor: i === mentionIndex ? 'hsl(var(--muted))' : 'transparent',
+                    textAlign: 'left', cursor: 'pointer', fontSize: '13px',
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}
+                >
+                  <BarChart3 size={14} style={{ flexShrink: 0, color: 'hsl(var(--muted-foreground))' }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* 숨겨진 파일 입력 */}
           <input
