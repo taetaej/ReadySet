@@ -1,13 +1,22 @@
 // spinxTypes.ts — SpinX 패널에서 사용하는 모든 타입 정의
 
+export interface SpinXMentionItem {
+  id: string
+  label: string
+}
+
 export interface SpinXPanelProps {
   isOpen: boolean
   onClose: () => void
   isDarkMode?: boolean
   scenarioName?: string
-  analysisType?: 'ratioFinder' | 'reachPredictor'
+  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
   positioning?: 'fixed' | 'absolute'
   initialMessage?: string
+  /** 열릴 때 입력창에 미리 채울 텍스트 (자동 전송하지 않음) */
+  initialInput?: string
+  /** @멘션 가능한 항목 (예: 결과 화면 차트들) */
+  mentionItems?: SpinXMentionItem[]
 }
 
 export type LLMModel = {

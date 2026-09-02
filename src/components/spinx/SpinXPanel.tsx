@@ -16,7 +16,9 @@ export function SpinXPanel({
   scenarioName = '25-34세 여성 타겟 집중 공략 디지털+TV 최적 비중 분석',
   analysisType = 'ratioFinder',
   positioning: _positioning = 'fixed',
-  initialMessage
+  initialMessage,
+  initialInput,
+  mentionItems
 }: SpinXPanelProps) {
   const chat = useSpinXChat()
   const [expanded, setExpanded] = React.useState(false)
@@ -26,14 +28,15 @@ export function SpinXPanel({
     if (!isOpen) setExpanded(false)
   }, [isOpen])
 
-  // initialMessage가 있고 패널이 열릴 때 자동 전송
+  // 패널이 열릴 때: initialMessage는 자동 전송, initialInput은 입력창 프리필(전송 안 함)
   const prevOpenRef = React.useRef(false)
   React.useEffect(() => {
-    if (isOpen && !prevOpenRef.current && initialMessage) {
-      chat.handleSend(initialMessage)
+    if (isOpen && !prevOpenRef.current) {
+      if (initialMessage) chat.handleSend(initialMessage)
+      else if (initialInput) chat.setMessage(initialInput)
     }
     prevOpenRef.current = isOpen
-  }, [isOpen, initialMessage])
+  }, [isOpen, initialMessage, initialInput])
 
   return (
     <div
@@ -179,6 +182,7 @@ export function SpinXPanel({
                 onFileSelect={chat.handleFileSelect}
                 removeAttachment={chat.removeAttachment}
                 onModelSelect={chat.handleModelSelect}
+                mentionItems={mentionItems}
               />
             )}
           </>

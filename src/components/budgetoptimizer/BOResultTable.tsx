@@ -125,10 +125,6 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
   return (
     <div>
-      {/* 타이틀 */}
-      <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '16px', color: 'hsl(var(--foreground))' }}>
-        Optimized Budget Allocation
-      </h3>
       <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', fontFamily: 'Paperlogy, sans-serif', width: '100%', overflowX: 'auto' }} className="custom-scrollbar">
         <div style={{ minWidth: '1500px' }}>
           {/* 헤더 */}

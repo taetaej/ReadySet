@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { Info } from 'lucide-react'
+import { Info, Maximize2, Minimize2 } from 'lucide-react'
 import { BOResponseCurveMedia, BOAllocation } from './resultSampleData'
 import { getMediaColorByRank } from './constants'
 import { BOSpinXInsight } from './BOSpinXInsight'
@@ -11,6 +11,9 @@ interface BOResponseCurveChartProps {
   kpiLabel: string
   insight: string
   viewMode: 'media' | 'product'
+  /** 캠페인 총예산 — 기본 뷰의 X축 max */
+  totalBudget: number
+  onAsk?: (question: string) => void
 }
 
 const formatAxis = (v: number) => {
@@ -25,8 +28,18 @@ function saturationFn(x: number, a: number, b: number): number {
   return a * (1 - Math.exp(-b * x))
 }
 
-export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, viewMode }: BOResponseCurveChartProps) {
+export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, viewMode, totalBudget, onAsk }: BOResponseCurveChartProps) {
   const [tooltipOpen, setTooltipOpen] = useState(false)
+  const [zoomedOut, setZoomedOut] = useState(false)
+  const [hidden, setHidden] = useState<Set<string>>(new Set())
+
+  const toggleSeries = (name: string) => {
+    setHidden(prev => {
+      const next = new Set(prev)
+      next.has(name) ? next.delete(name) : next.add(name)
+      return next
+    })
+  }
 
   // viewMode에 따라 데이터 소스 결정
   const curveItems: { name: string; currentSpend: number; maxSpend: number; satA: number; satB: number }[] = useMemo(() => {
@@ -54,13 +67,16 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
     }
   }, [viewMode, data, allocations])
 
-  const maxSpend = Math.max(...curveItems.map(m => m.maxSpend))
+  // 곡선 생성 상한(모델 전체 제공 범위)
+  const modelMaxSpend = Math.max(...curveItems.map(m => m.maxSpend))
+  // X축 표시 범위: 기본=캠페인 총예산, 줌아웃=모델 전체 범위
+  const axisMax = zoomedOut ? modelMaxSpend : Math.min(totalBudget, modelMaxSpend)
 
-  // 수식으로 200개 등간격 포인트 생성
+  // 수식으로 200개 등간격 포인트 생성 (항상 모델 전체 범위로 생성 → domain으로 잘라 표시)
   const chartData = useMemo(() => {
     const steps = 200
     return Array.from({ length: steps + 1 }, (_, i) => {
-      const spend = (maxSpend / steps) * i
+      const spend = (modelMaxSpend / steps) * i
       const point: Record<string, number | undefined> = { spend }
       for (const media of curveItems) {
         if (spend > media.maxSpend) {
@@ -71,7 +87,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
       }
       return point
     })
-  }, [curveItems, maxSpend])
+  }, [curveItems, modelMaxSpend])
 
   // currentSpend 마커 판별용
   const currentSpendMap = new Map(curveItems.map(m => [m.name, m.currentSpend]))
@@ -79,11 +95,28 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
   // KPI 영문 라벨
   const kpiEn = { '노출': 'Impression', '클릭': 'Click', '조회': 'View', '도달': 'Reach' }[kpiLabel] || kpiLabel
 
+  // X축 범위 전환 버튼 (차트 하단 우측, X축 옆)
+  const zoomButton = (
+    <button
+      onClick={() => setZoomedOut(v => !v)}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '5px',
+        fontSize: '11px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
+        border: '1px solid hsl(var(--border))', backgroundColor: 'transparent',
+        color: 'hsl(var(--muted-foreground))'
+      }}
+    >
+      {zoomedOut ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+      {zoomedOut ? '캠페인 예산' : '전체 예산 범위'}
+    </button>
+  )
+
   return (
-    <div style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
       {/* 타이틀 + Info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>Response Curve</h4>
+        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>예산을 더 넣으면 성과가 오를까?</h4>
+        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Response Curve</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
@@ -91,6 +124,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
         >
           <Info size={14} />
         </button>
+
         {tooltipOpen && (
           <div style={{
             position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '320px',
@@ -104,6 +138,8 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
               <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
               <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과</div>
               <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (곡선이 완만할수록 효율 포화)</div>
+              <div style={{ marginTop: '6px' }}><strong>캠페인 예산</strong>: 설정한 총예산을 X축 상한으로 표시</div>
+              <div><strong>전체 예산 범위</strong>: 추정 가능한 최대 예산 구간까지 확장해 표시</div>
               <div style={{ marginTop: '6px' }}>KPI 기여 상위 5개 항목만 표시됩니다.</div>
             </div>
           </div>
@@ -114,7 +150,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
       </p>
 
       {/* 차트 + 우측 범례 */}
-      <div style={{ flex: 1, display: 'flex', gap: '16px' }}>
+      <div style={{ flex: 1, minHeight: '260px', display: 'flex', gap: '16px' }}>
         <div style={{ flex: 1 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
@@ -127,7 +163,8 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                 tickLine={false}
                 tickCount={6}
                 type="number"
-                domain={[0, maxSpend]}
+                domain={[0, axisMax]}
+                allowDataOverflow
               />
               <YAxis
                 tickFormatter={formatAxis}
@@ -143,12 +180,12 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                   if (!active || !payload?.length) return null
                   return (
                     <div style={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', boxShadow: '0 4px 12px rgb(0 0 0 / 0.1)' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>Spend: {formatAxis(label as number)}</div>
+                      <div style={{ fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>Spend: {Math.round(label as number).toLocaleString()}원</div>
                       {payload.filter((p: any) => p.value != null).map((p: any) => (
                         <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
                           <span style={{ width: '14px', height: '3px', backgroundColor: p.stroke, flexShrink: 0, borderRadius: '1px' }} />
                           <span style={{ color: 'hsl(var(--foreground))' }}>{p.name}</span>
-                          <span style={{ marginLeft: 'auto', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{formatAxis(p.value)}</span>
+                          <span style={{ marginLeft: 'auto', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{Math.round(p.value).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -160,6 +197,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                   key={media.name}
                   type="linear"
                   dataKey={media.name}
+                  hide={hidden.has(media.name)}
                   stroke={getMediaColorByRank(idx)}
                   strokeWidth={idx === 0 ? 2.5 : 1.5}
                   connectNulls={false}
@@ -167,9 +205,9 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                     const { cx, cy, index } = props
                     // currentSpend에 가장 가까운 단 1개 포인트에서만 마커
                     const cs = currentSpendMap.get(media.name) || 0
-                    const spendAtIdx = (maxSpend / 200) * index
-                    const spendAtPrev = index > 0 ? (maxSpend / 200) * (index - 1) : -Infinity
-                    const spendAtNext = (maxSpend / 200) * (index + 1)
+                    const spendAtIdx = (modelMaxSpend / 200) * index
+                    const spendAtPrev = index > 0 ? (modelMaxSpend / 200) * (index - 1) : -Infinity
+                    const spendAtNext = (modelMaxSpend / 200) * (index + 1)
                     const distCurr = Math.abs(spendAtIdx - cs)
                     const distPrev = Math.abs(spendAtPrev - cs)
                     const distNext = Math.abs(spendAtNext - cs)
@@ -185,24 +223,44 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
           </ResponsiveContainer>
         </div>
 
-        {/* 우측 범례 */}
-        <div style={{ width: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px', flexShrink: 0 }}>
-          {curveItems.map((media, idx) => (
-            <div key={media.name} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
-              <span style={{ width: '16px', height: '2px', backgroundColor: getMediaColorByRank(idx), flexShrink: 0, borderRadius: '1px' }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{media.name}</span>
+        {/* 우측 범례 (클릭 토글) */}
+        <div style={{ width: '200px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          {/* 범례 항목: 세로 중앙 */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
+            {curveItems.map((media, idx) => {
+              const isHidden = hidden.has(media.name)
+              return (
+                <button
+                  key={media.name}
+                  onClick={() => toggleSeries(media.name)}
+                  title={media.name}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px',
+                    background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
+                    color: isHidden ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))',
+                    opacity: isHidden ? 0.45 : 1, transition: 'opacity 0.15s'
+                  }}
+                >
+                  <span style={{ width: '16px', height: '2px', backgroundColor: getMediaColorByRank(idx), flexShrink: 0, borderRadius: '1px' }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: isHidden ? 'line-through' : 'none' }}>{media.name}</span>
+                </button>
+              )
+            })}
+            <div style={{ marginTop: '8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--foreground))' }} />
+              <span>Current spend</span>
             </div>
-          ))}
-          <div style={{ marginTop: '8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--foreground))' }} />
-            <span>Current spend</span>
+          </div>
+          {/* X축 범위 전환 버튼: X축 라벨과 동일 선상 */}
+          <div style={{ paddingBottom: '24px' }}>
+            {zoomButton}
           </div>
         </div>
       </div>
 
       {/* SpinX Insight */}
       <div style={{ marginTop: 'auto', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Response Curve 차트 " />
       </div>
     </div>
   )
