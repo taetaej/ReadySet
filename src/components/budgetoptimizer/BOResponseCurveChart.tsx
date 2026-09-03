@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { Info, Maximize2, Minimize2 } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { BOResponseCurveMedia, BOAllocation } from './resultSampleData'
 import { getMediaColorByRank } from './constants'
 import { BOSpinXInsight } from './BOSpinXInsight'
@@ -30,7 +30,6 @@ function saturationFn(x: number, a: number, b: number): number {
 
 export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, viewMode, totalBudget, onAsk }: BOResponseCurveChartProps) {
   const [tooltipOpen, setTooltipOpen] = useState(false)
-  const [zoomedOut, setZoomedOut] = useState(false)
   const [hidden, setHidden] = useState<Set<string>>(new Set())
 
   const toggleSeries = (name: string) => {
@@ -69,8 +68,8 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
 
   // 곡선 생성 상한(모델 전체 제공 범위)
   const modelMaxSpend = Math.max(...curveItems.map(m => m.maxSpend))
-  // X축 표시 범위: 기본=캠페인 총예산, 줌아웃=모델 전체 범위
-  const axisMax = zoomedOut ? modelMaxSpend : Math.min(totalBudget, modelMaxSpend)
+  // X축 표시 범위: 캠페인 총예산 기준 고정
+  const axisMax = Math.min(totalBudget, modelMaxSpend)
 
   // 수식으로 200개 등간격 포인트 생성 (항상 모델 전체 범위로 생성 → domain으로 잘라 표시)
   const chartData = useMemo(() => {
@@ -94,22 +93,6 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
 
   // KPI 영문 라벨
   const kpiEn = { '노출': 'Impression', '클릭': 'Click', '조회': 'View', '도달': 'Reach' }[kpiLabel] || kpiLabel
-
-  // X축 범위 전환 버튼 (차트 하단 우측, X축 옆)
-  const zoomButton = (
-    <button
-      onClick={() => setZoomedOut(v => !v)}
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: '5px',
-        fontSize: '11px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
-        border: '1px solid hsl(var(--border))', backgroundColor: 'transparent',
-        color: 'hsl(var(--muted-foreground))'
-      }}
-    >
-      {zoomedOut ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-      {zoomedOut ? '캠페인 예산' : '전체 예산 범위'}
-    </button>
-  )
 
   return (
     <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
@@ -138,8 +121,6 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
               <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
               <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과</div>
               <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (곡선이 완만할수록 효율 포화)</div>
-              <div style={{ marginTop: '6px' }}><strong>캠페인 예산</strong>: 설정한 총예산을 X축 상한으로 표시</div>
-              <div><strong>전체 예산 범위</strong>: 추정 가능한 최대 예산 구간까지 확장해 표시</div>
               <div style={{ marginTop: '6px' }}>KPI 기여 상위 5개 항목만 표시됩니다.</div>
             </div>
           </div>
@@ -149,8 +130,8 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
         Spend vs. Guaranteed {kpiEn}
       </p>
 
-      {/* 차트 + 우측 범례 */}
-      <div style={{ flex: 1, minHeight: '260px', display: 'flex', gap: '16px' }}>
+      {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
+      <div style={{ height: '300px', display: 'flex', gap: '16px', flexShrink: 0 }}>
         <div style={{ flex: 1 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
@@ -251,15 +232,11 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
               <span>Current spend</span>
             </div>
           </div>
-          {/* X축 범위 전환 버튼: X축 라벨과 동일 선상 */}
-          <div style={{ paddingBottom: '24px' }}>
-            {zoomButton}
-          </div>
         </div>
       </div>
 
-      {/* SpinX Insight */}
-      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+      {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
+      <div style={{ marginTop: '16px', flexShrink: 0 }}>
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Response Curve 차트 " />
       </div>
     </div>

@@ -117,7 +117,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
         균등 배분 대비 채널별 {kpiLabel} 증감 (Incremental {kpiEn})
       </p>
 
-      <div style={{ flex: 1, width: '100%', minHeight: '260px' }}>
+      <div style={{ height: '300px', width: '100%', flexShrink: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={bars} margin={{ top: 20, right: 8, left: 8, bottom: 8 }}>
             <XAxis
@@ -236,7 +236,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+      <div style={{ marginTop: '16px', flexShrink: 0 }}>
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Incremental 차트 " />
       </div>
     </div>

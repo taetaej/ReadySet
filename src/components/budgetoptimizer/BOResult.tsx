@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, Lock, Unlock } from 'lucide-react'
+import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, Lock, Unlock, ArrowRight, TrendingUp } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -9,18 +9,19 @@ import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
 import { KPI_LABELS } from './types'
-import { sampleBOResult, KPI_META } from './resultSampleData'
+import { getBOResult, KPI_META } from './resultSampleData'
 import { BOResultTable } from './BOResultTable'
 import { BOResultScoreCards } from './BOResultScoreCards'
 import { BOBudgetPieChart } from './BOBudgetPieChart'
 import { BOResponseCurveChart } from './BOResponseCurveChart'
 import { BODailyAttributionChart } from './BODailyAttributionChart'
 import { BOKpiContributionChart } from './BOKpiContributionChart'
+import { BOReachCasterEasyCreateModal } from './BOReachCasterEasyCreateModal'
 
 export function BOResult() {
   const navigate = useNavigate()
   const location = useLocation()
-  useParams()
+  const { id: idParam } = useParams()
 
   const [isDarkMode, setIsDarkModeState] = useState(() => getDarkMode())
   const [spinXOpen, setSpinXOpen] = useState(false)
@@ -34,12 +35,13 @@ export function BOResult() {
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [chartViewMode, setChartViewMode] = useState<'media' | 'product'>('media')
+  const [easyCreateOpen, setEasyCreateOpen] = useState(false)
   const [resultView, setResultView] = useState<'locked' | 'pure'>('locked')
 
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
-  // 샘플 결과 데이터 (실제로는 id로 조회)
-  const result = sampleBOResult
+  // id로 결과 조회 — 잠금 없는 시나리오면 잠금 없는 버전이 반환됨
+  const result = getBOResult(Number(idParam) || 1)
   const kpiLabel = KPI_META[result.kpi].label
 
   const slotData = location.state?.slotData || { title: 'CJ올리브영 2025 하반기' }
@@ -268,18 +270,6 @@ export function BOResult() {
             </div>
           )}
 
-          {/* 잠금이 없는 시나리오: 전환 없이 기본 타이틀만 */}
-          {!result.allocations.some(a => a.isFixed) && (
-            <div style={{ marginBottom: '-8px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
-                Optimized Budget Allocation
-              </h3>
-              <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', margin: 0 }}>
-                모델이 전체 예산을 최적 배분한 결과입니다.
-              </p>
-            </div>
-          )}
-
           {/* 스코어카드 */}
           <BOResultScoreCards
             allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
@@ -339,6 +329,40 @@ export function BOResult() {
               resultView={resultView}
             />
           </div>
+
+          {/* Reach Caster 간편 생성 CTA (완료 상태) — Reach Caster DataShot CTA와 동일 스타일/사이즈 */}
+          {result.status === 'Completed' && (
+            <div style={{
+              padding: '24px 0', borderTop: '1px solid hsl(var(--border))', marginTop: '16px',
+              display: 'flex', justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setEasyCreateOpen(true)}
+                style={{
+                  maxWidth: '600px', width: '100%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '16px', background: 'none', border: 'none',
+                  cursor: 'pointer', fontSize: '14px', fontFamily: 'Paperlogy, sans-serif',
+                  color: 'hsl(var(--muted-foreground))', transition: 'all 0.2s', borderRadius: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
+                  e.currentTarget.style.color = 'hsl(var(--foreground))'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                }}
+              >
+                <TrendingUp size={16} />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
+                  <span style={{ fontWeight: '500' }}>Reach Caster로 이 예산안의 도달 성과 예측하기</span>
+                  <span style={{ fontSize: '11px', opacity: 0.7 }}>최적화된 매체별 예산·예상 노출 기반</span>
+                </div>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -358,6 +382,44 @@ export function BOResult() {
           { id: 'weeklyContribution', label: 'Weekly Contribution 차트' },
           { id: 'incremental', label: 'Incremental 차트' }
         ]}
+      />
+
+      {/* Reach Caster 간편 생성 중간 설정 레이어 */}
+      <BOReachCasterEasyCreateModal
+        isOpen={easyCreateOpen}
+        onClose={() => setEasyCreateOpen(false)}
+        allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
+        sourceId={result.id}
+        scenarioName={result.name}
+        industry={result.industry}
+        period={result.period}
+        onConfirm={({ scenarioName, targetGrp, mappedAllocations, impressionMode }) => {
+          setEasyCreateOpen(false)
+          // 예상 노출 전달 여부 판별: none=미전달 / required=CPT 등 필수 상품만 / all=전부
+          const isCPT = (name: string) => /_CPT$|_CPT_|예약형|보장형/.test(name)
+          const includeImpression = (name: string) =>
+            impressionMode === 'all' || (impressionMode === 'required' && isCPT(name))
+          navigate('/reachcaster/scenario/new', {
+            state: {
+              slotData,
+              easyCreateFromBO: {
+                scenarioName,
+                sourceName: result.name,
+                industry: result.industry,
+                brand: result.brand,
+                period: result.period,
+                targetGrp,
+                impressionMode,
+                prefillMedia: mappedAllocations.map(a => ({
+                  mediaName: a.mediaName,
+                  productName: a.productName,
+                  budget: a.budget,
+                  impression: includeImpression(a.productName) ? a.impression : undefined
+                }))
+              }
+            }
+          })
+        }}
       />
     </AppLayout>
   )

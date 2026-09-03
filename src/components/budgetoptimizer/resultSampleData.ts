@@ -236,3 +236,30 @@ export const sampleBOResult: BOResultData = {
     kpiContribution: '균등 배분 대비 최적화를 적용하면 총 보장 노출이 7,120만에서 8,440만으로 약 18%(+1,320만) 증가합니다. 노출 창출을 주도한 매체는 Google Ads(+980만), Meta(+630만), kakao 모먼트(+410만)로, 효율이 높은 매체에 예산이 재배분되면서 성과가 늘었습니다. 반대로 Targetpick(-280만)과 NAVER 성과형 DA(-420만)는 상대적으로 효율이 낮아 예산이 줄었습니다. 핵심은 감액으로 잃은 노출보다 증액으로 얻은 노출이 훨씬 크다는 점이며, 이 재배분이 동일 예산에서 순증 성과를 만들어낸 최적화의 효과입니다.'
   }
 }
+
+// 잠금이 없는 시나리오 목록(목록 mock의 fixedCount === 0인 완료 시나리오 id)
+// 이 id로 진입하면 결과 화면은 '잠금 없는 버전'으로 렌더된다(상태 띠배너/모드 전환 없음).
+const UNLOCKED_SCENARIO_IDS = new Set<number>([2, 8])
+
+/**
+ * 잠금 없는 버전 결과 데이터 생성.
+ * - allocations를 pureAllocations(모두 isFixed=false)로 교체
+ * - pureAllocations 제거(비교 대상 없음) → 결과 화면이 잠금/순수 전환 UI를 숨김
+ */
+function toUnlockedResult(base: BOResultData): BOResultData {
+  const pure = (base.pureAllocations || base.allocations).map(a => ({ ...a, isFixed: false }))
+  return {
+    ...base,
+    allocations: pure,
+    pureAllocations: undefined,
+    pureOptKpiTotal: undefined
+  }
+}
+
+/** id로 결과 데이터 조회. 잠금 없는 시나리오면 잠금 없는 버전을 반환. */
+export function getBOResult(id: number): BOResultData {
+  if (UNLOCKED_SCENARIO_IDS.has(id)) {
+    return toUnlockedResult({ ...sampleBOResult, id })
+  }
+  return { ...sampleBOResult, id }
+}

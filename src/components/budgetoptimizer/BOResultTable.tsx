@@ -241,7 +241,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
             const avgCpc = totals.click > 0 ? Math.round(totals.budget / totals.click) : 0
             const avgCpv = totals.view > 0 ? Math.round(totals.budget / totals.view) : 0
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: GRID_COLS, backgroundColor: 'hsl(var(--muted))', fontSize: '13px', fontWeight: '600' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: GRID_COLS, backgroundColor: 'hsl(var(--muted))', borderTop: '2px solid hsl(var(--foreground))', fontSize: '13px', fontWeight: '600' }}>
                 <div />
                 <div style={cell('left')}>Estimated Total</div>
                 <div style={cell()}>

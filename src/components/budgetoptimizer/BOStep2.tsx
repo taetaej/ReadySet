@@ -55,12 +55,12 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
       } else if (hasUnlockedChild && childLockedSum >= mf.fixedAmount && mf.fixedAmount > 0) {
         errors.push({
           mediaId: mf.mediaId,
-          message: `하위 비잠금 상품에 배분할 예산이 없습니다. 매체 잠금 금액을 늘리거나 상품 잠금을 해제해주세요.`
+          message: `하위 비잠금 상품에 배분할 예산이 없습니다. 매체 잠금 금액을 늘리거나 상품 잠금을 해제해 주세요.`
         })
       } else if (!hasUnlockedChild && lockedChildren.length > 0 && childLockedSum !== mf.fixedAmount && mf.fixedAmount > 0) {
         errors.push({
           mediaId: mf.mediaId,
-          message: `모든 상품이 잠금되어 있으나 합계(${childLockedSum.toLocaleString()}원)가 매체 잠금 금액(${mf.fixedAmount.toLocaleString()}원)과 다릅니다. 비잠금 상품을 추가하거나, 잠금 금액 합계를 매체 금액과 동일하게 맞춰주세요.`
+          message: `모든 상품이 잠금되어 있으나 합계(${childLockedSum.toLocaleString()}원)가 매체 잠금 금액(${mf.fixedAmount.toLocaleString()}원)과 다릅니다. 비잠금 상품을 추가하거나, 잠금 금액 합계를 매체 금액과 동일하게 맞춰 주세요.`
         })
       }
     }
@@ -72,12 +72,12 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
     const errors: { rowId: string; message: string }[] = []
     for (const mf of formData.mediaFixed) {
       if (mf.isFixed && (!mf.fixedAmount || mf.fixedAmount <= 0)) {
-        errors.push({ rowId: `media-${mf.mediaId}`, message: '잠금 금액을 입력해주세요.' })
+        errors.push({ rowId: `media-${mf.mediaId}`, message: '잠금 금액을 입력해 주세요.' })
       }
     }
     for (const p of formData.products) {
       if (p.isFixed && (!p.fixedAmount || p.fixedAmount <= 0)) {
-        errors.push({ rowId: `product-${p.mediaId}-${p.productName}`, message: '잠금 금액을 입력해주세요.' })
+        errors.push({ rowId: `product-${p.mediaId}-${p.productName}`, message: '잠금 금액을 입력해 주세요.' })
       }
     }
     return errors
@@ -100,14 +100,15 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
 
   const rule4Error = remainingBudget < 0 ? '잠금 예산 합계가 총 예산을 초과합니다.' : null
 
-  // R6: 잔여 예산 수령처 부재
+  // R6: 잔여 예산 수령처 부재 (전부 잠금인데 합계가 총예산에 못 미쳐 잔여가 뜨는 경우)
   const rule6Error = useMemo(() => {
     if (remainingBudget <= 0) return null
     const hasUnlockedMedia = Array.from(mediaGroupsForValidation.keys()).some(mediaId => {
       const mf = formData.mediaFixed.find(m => m.mediaId === mediaId)
       return !mf?.isFixed
     })
-    if (!hasUnlockedMedia) return '잔여 예산을 배분할 비잠금 매체가 없습니다. 매체를 추가하거나 잠금을 해제해주세요.'
+    // 비잠금 항목이 없으면(전부 잠금) 잔여 예산을 배분할 대상이 없음 → 합계를 총예산과 일치시켜야 함
+    if (!hasUnlockedMedia) return `모든 항목을 잠근 경우 잠금 금액 합계가 총 예산과 같아야 합니다. 남은 예산(${remainingBudget.toLocaleString()}원)만큼 잠금 금액을 늘리거나 일부 잠금을 해제해 주세요.`
     return null
   }, [remainingBudget, mediaGroupsForValidation, formData.mediaFixed])
 
@@ -242,7 +243,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           )}
         </div>
         {validationActive && !formData.totalBudget && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>총 예산을 입력해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>총 예산을 입력해 주세요.</div>
         )}
       </div>
 
@@ -262,7 +263,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           매체 · 상품 추가
         </button>
         {budgetNotSet && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '4px' }}>총 예산을 먼저 입력해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginTop: '4px' }}>총 예산을 먼저 입력해 주세요.</div>
         )}
       </div>
 
@@ -283,7 +284,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           <ListPlus size={32} style={{ opacity: 0.5 }} />
           <div>
             <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>
-              분석할 매체와 상품을 추가해주세요
+              분석할 매체와 상품을 추가해 주세요
             </div>
             <div style={{ fontSize: '12px', opacity: 0.8 }}>
               '매체 · 상품 추가' 버튼을 클릭하여 시작하세요
@@ -293,7 +294,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
       )}
 
       {validationActive && totalProductCount < 2 && !budgetNotSet && (
-        <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginBottom: '16px' }}>최소 2개 이상의 상품을 추가해주세요.</div>
+        <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginBottom: '16px' }}>최소 2개 이상의 상품을 추가해 주세요.</div>
       )}
 
       {/* 예산 배분 테이블 */}
@@ -377,7 +378,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                   {/* R3: 매체 잠금 금액 미입력 에러 */}
                   {rule3Errors.some(e => e.rowId === `media-${mediaId}`) && (
                     <div style={{ padding: '4px 16px 8px', fontSize: '11px', color: 'hsl(var(--destructive))' }}>
-                      잠금 금액을 입력해주세요.
+                      잠금 금액을 입력해 주세요.
                     </div>
                   )}
                   {/* R1: 매체-상품 계층 제약 에러 */}
@@ -437,7 +438,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                       {/* R3: 상품 잠금 금액 미입력 에러 */}
                       {rule3Errors.some(e => e.rowId === `product-${mediaId}-${product.productName}`) && (
                         <div style={{ padding: '2px 16px 6px 40px', fontSize: '11px', color: 'hsl(var(--destructive))' }}>
-                          잠금 금액을 입력해주세요.
+                          잠금 금액을 입력해 주세요.
                         </div>
                       )}
                     </div>

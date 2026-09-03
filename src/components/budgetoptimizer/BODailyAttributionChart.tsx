@@ -155,8 +155,8 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
 업종 모델이 학습한 주차별 {viewMode === 'product' ? '상품' : '매체'} 기여 패턴 · Weekly {kpiEn} contribution
       </p>
 
-      {/* 차트 + 우측 범례 */}
-      <div style={{ flex: 1, minHeight: '260px', display: 'flex', gap: '16px' }}>
+      {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
+      <div style={{ height: '300px', display: 'flex', gap: '16px', flexShrink: 0 }}>
         <div style={{ flex: 1 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
@@ -267,8 +267,8 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
         </div>
       </div>
 
-      {/* SpinX Insight */}
-      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+      {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
+      <div style={{ marginTop: '16px', flexShrink: 0 }}>
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Weekly Contribution 차트 " />
       </div>
     </div>
