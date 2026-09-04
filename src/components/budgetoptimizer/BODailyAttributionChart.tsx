@@ -152,7 +152,7 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
         )}
       </div>
       <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
-업종 모델이 학습한 주차별 {viewMode === 'product' ? '상품' : '매체'} 기여 패턴 · Weekly {kpiEn} contribution
+        업종 모델이 학습한 주차별 {viewMode === 'product' ? '상품' : '매체'} 기여 패턴
       </p>
 
       {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}

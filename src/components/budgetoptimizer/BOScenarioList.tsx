@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, X, Filter, MoreVertical, Copy, Trash2, ArrowRightLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Search, X, Filter, MoreVertical, Copy, Trash2, ArrowRightLeft, ChevronLeft, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react'
 import { SlotHeader } from '../reachcaster/SlotHeader'
 import { BOScenario, BOSlotData, KPI_LABELS } from './types'
 import { sampleBOScenarios } from './sampleData'
@@ -33,6 +33,21 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
 
   const contextMenuRef = useRef<HTMLDivElement>(null)
 
+  // 이동/삭제 다이얼로그 (Reach Caster 동일)
+  const [showMoveDialog, setShowMoveDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deletingIds, setDeletingIds] = useState<number[]>([])
+  const [moveTargetSlot, setMoveTargetSlot] = useState('')
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
+
   // 외부 클릭 시 컨텍스트 메뉴 닫기
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -46,8 +61,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
 
   // 필터링
   const filteredScenarios = scenarios.filter(s => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
+    const q = searchQuery.trim().toLowerCase()
+    if (q) {
       if (!s.name.toLowerCase().includes(q) && !s.creator.toLowerCase().includes(q)) return false
     }
     if (filters.status.length > 0 && !filters.status.includes(s.status)) return false
@@ -60,10 +75,15 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
   const sortedScenarios = [...filteredScenarios].sort((a, b) => {
     let aVal: any, bVal: any
     switch (sortField) {
+      case 'id': aVal = a.id; bVal = b.id; break
       case 'name': aVal = a.name; bVal = b.name; break
-      case 'created': aVal = a.created; bVal = b.created; break
+      case 'industry': aVal = a.industry; bVal = b.industry; break
+      case 'kpi': aVal = KPI_LABELS[a.kpi] || a.kpi; bVal = KPI_LABELS[b.kpi] || b.kpi; break
       case 'totalBudget': aVal = a.totalBudget; bVal = b.totalBudget; break
+      case 'period': aVal = a.startDate; bVal = b.startDate; break
       case 'status': aVal = a.status; bVal = b.status; break
+      case 'creator': aVal = a.creator; bVal = b.creator; break
+      case 'created': aVal = a.created; bVal = b.created; break
       default: aVal = a.created; bVal = b.created
     }
     if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1
@@ -107,17 +127,57 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
     return `${amount.toLocaleString()}원`
   }
 
+  // 이동 확정 (Reach Caster 동일 패턴)
+  const handleConfirmMove = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setShowToast({
+        type: 'success',
+        message: `${selectedIds.length}개 시나리오가 성공적으로 이동되었습니다.`
+      })
+      setSelectedIds([])
+    } catch (error) {
+      setShowToast({
+        type: 'error',
+        message: '시나리오 이동에 실패했습니다. 다시 시도해주세요.'
+      })
+    } finally {
+      setShowMoveDialog(false)
+      setMoveTargetSlot('')
+    }
+  }
+
+  // 삭제 확정 (Reach Caster 동일 패턴)
+  const handleConfirmDelete = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setScenarios(prev => prev.filter(s => !deletingIds.includes(s.id)))
+      setShowToast({
+        type: 'success',
+        message: `${deletingIds.length}개 시나리오가 성공적으로 삭제되었습니다.`
+      })
+      setSelectedIds([])
+    } catch (error) {
+      setShowToast({
+        type: 'error',
+        message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.'
+      })
+    } finally {
+      setShowDeleteDialog(false)
+      setDeletingIds([])
+    }
+  }
+
   const activeFilterCount = filters.status.length + filters.kpi.length + filters.industry.length
 
-  // Processing 단계별 설명 (Budget Optimizer 6단계)
+  // Processing 단계별 설명 (Budget Optimizer 5단계)
   const getBOProcessingStepDescription = (step: number): string => {
     const steps: { [key: number]: string } = {
       1: '입력 조건 분석 중',
-      2: '매체 기여도 산출 중',
-      3: '예산 배분 최적화 중',
-      4: '최적 배분 성과 예측 중',
-      5: '결과 시각화 중',
-      6: '완료'
+      2: '예산 배분 최적화 중',
+      3: '최적 배분 성과 예측 중',
+      4: '결과 시각화 중',
+      5: '완료'
     }
     return steps[step] || '처리 중'
   }
@@ -202,9 +262,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
             {selectedIds.length > 0 && (
               <>
                 <button
-                  onClick={() => {
-                    console.log('이동:', selectedIds)
-                  }}
+                  onClick={() => setShowMoveDialog(true)}
                   className="btn btn-ghost btn-md"
                   style={{ border: '1px solid hsl(var(--border))' }}
                 >
@@ -215,8 +273,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                   className="btn btn-md"
                   style={{ backgroundColor: 'hsl(var(--destructive))', color: 'hsl(var(--destructive-foreground))', border: 'none' }}
                   onClick={() => {
-                    setScenarios(prev => prev.filter(s => !selectedIds.includes(s.id)))
-                    setSelectedIds([])
+                    setDeletingIds(selectedIds)
+                    setShowDeleteDialog(true)
                   }}
                 >
                   <Trash2 size={16} />
@@ -244,7 +302,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onBlur={() => { if (!searchQuery) setShowSearch(false) }}
-                    placeholder="시나리오명, 작성자 검색"
+                    placeholder="시나리오명, 생성자 검색"
                     className="input"
                     autoFocus
                     style={{ paddingLeft: '40px', paddingRight: '12px', height: '36px', minHeight: '36px', width: '100%' }}
@@ -282,68 +340,88 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               </button>
 
               {showFilter && (
-                <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '280px', padding: '16px', zIndex: 1000 }}>
-                  {/* Status Filter */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }} className="text-muted-foreground">상태</div>
-                    {['Pending', 'Processing', 'Completed', 'Error'].map(status => (
-                      <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', cursor: 'pointer', fontSize: '13px' }} className="text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={filters.status.includes(status)}
-                          onChange={(e) => {
-                            if (e.target.checked) setFilters(f => ({ ...f, status: [...f.status, status] }))
-                            else setFilters(f => ({ ...f, status: f.status.filter(s => s !== status) }))
-                          }}
-                        />
-                        {status}
-                      </label>
-                    ))}
+                <div className="dropdown custom-scrollbar" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  width: '320px',
+                  maxHeight: '500px',
+                  overflowY: 'auto',
+                  zIndex: 1000,
+                  padding: '12px'
+                }}>
+                  {/* 상태 필터 */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>상태</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {['Completed', 'Processing', 'Pending', 'Error'].map(status => (
+                        <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={filters.status.includes(status)}
+                            onChange={(e) => {
+                              if (e.target.checked) setFilters(f => ({ ...f, status: [...f.status, status] }))
+                              else setFilters(f => ({ ...f, status: f.status.filter(s => s !== status) }))
+                            }}
+                            className="checkbox-custom"
+                          />
+                          <span style={{ fontSize: '13px' }}>{status}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  {/* KPI Filter */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }} className="text-muted-foreground">KPI</div>
-                    {Object.entries(KPI_LABELS).map(([key, label]) => (
-                      <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', cursor: 'pointer', fontSize: '13px' }} className="text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={filters.kpi.includes(key)}
-                          onChange={(e) => {
-                            if (e.target.checked) setFilters(f => ({ ...f, kpi: [...f.kpi, key] }))
-                            else setFilters(f => ({ ...f, kpi: f.kpi.filter(k => k !== key) }))
-                          }}
-                        />
-                        {label}
-                      </label>
-                    ))}
+
+                  {/* KPI 필터 */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>KPI</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {Object.entries(KPI_LABELS).map(([key, label]) => (
+                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={filters.kpi.includes(key)}
+                            onChange={(e) => {
+                              if (e.target.checked) setFilters(f => ({ ...f, kpi: [...f.kpi, key] }))
+                              else setFilters(f => ({ ...f, kpi: f.kpi.filter(k => k !== key) }))
+                            }}
+                            className="checkbox-custom"
+                          />
+                          <span style={{ fontSize: '13px' }}>{label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  {/* Industry Filter */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px' }} className="text-muted-foreground">업종</div>
-                    {industries.map(ind => (
-                      <label key={ind} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', cursor: 'pointer', fontSize: '13px' }} className="text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={filters.industry.includes(ind)}
-                          onChange={(e) => {
-                            if (e.target.checked) setFilters(f => ({ ...f, industry: [...f.industry, ind] }))
-                            else setFilters(f => ({ ...f, industry: f.industry.filter(i => i !== ind) }))
-                          }}
-                        />
-                        {ind}
-                      </label>
-                    ))}
+
+                  {/* 업종 필터 */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>업종</div>
+                    <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
+                      {industries.map(ind => (
+                        <label key={ind} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={filters.industry.includes(ind)}
+                            onChange={(e) => {
+                              if (e.target.checked) setFilters(f => ({ ...f, industry: [...f.industry, ind] }))
+                              else setFilters(f => ({ ...f, industry: f.industry.filter(i => i !== ind) }))
+                            }}
+                            className="checkbox-custom"
+                          />
+                          <span style={{ fontSize: '13px' }}>{ind}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  {/* Reset */}
-                  {activeFilterCount > 0 && (
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => setFilters({ status: [], kpi: [], industry: [] })}
-                      style={{ width: '100%', fontSize: '12px', marginTop: '8px' }}
-                    >
-                      필터 초기화
-                    </button>
-                  )}
+
+                  {/* 필터 초기화 버튼 */}
+                  <button
+                    onClick={() => setFilters({ status: [], kpi: [], industry: [] })}
+                    className="btn btn-ghost btn-sm"
+                    style={{ width: '100%', marginTop: '8px' }}
+                  >
+                    필터 초기화
+                  </button>
                 </div>
               )}
             </div>
@@ -363,9 +441,9 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
                 </th>
-                <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', width: '80px' }}>
+                <th onClick={() => handleSort('id')} style={{ cursor: 'pointer', width: '80px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    ID {sortField === 'name' ? null : null}
+                    ID {sortField === 'id' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
                 <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', minWidth: '250px' }}>
@@ -373,19 +451,25 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     시나리오 {sortField === 'name' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th style={{ width: '100px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>업종</div>
+                <th onClick={() => handleSort('industry')} style={{ cursor: 'pointer', width: '100px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    업종 {sortField === 'industry' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
+                  </div>
                 </th>
-                <th style={{ width: '140px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>KPI</div>
+                <th onClick={() => handleSort('kpi')} style={{ cursor: 'pointer', width: '140px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    KPI {sortField === 'kpi' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
+                  </div>
                 </th>
                 <th onClick={() => handleSort('totalBudget')} style={{ cursor: 'pointer', width: '120px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     총 예산 {sortField === 'totalBudget' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th style={{ width: '180px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>기간</div>
+                <th onClick={() => handleSort('period')} style={{ cursor: 'pointer', width: '180px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    기간 {sortField === 'period' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
+                  </div>
                 </th>
                 <th onClick={() => handleSort('status')} style={{ cursor: 'pointer', width: '130px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -525,7 +609,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                               </div>
                               {scenario.completedAt && (
                                 <span style={{ fontSize: '11px' }} className="text-muted-foreground">
-                                  {scenario.completedAt}
+                                  {scenario.completedAt.slice(0, 16)}
                                 </span>
                               )}
                             </>
@@ -554,16 +638,39 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                           </button>
                           {contextMenuId === scenario.id && (
                             <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '120px', zIndex: 1000 }}>
-                              <button className="dropdown-item" onClick={() => setContextMenuId(null)}>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                  setScenarios(prev => {
+                                    const target = prev.find(s => s.id === scenario.id)
+                                    if (!target) return prev
+                                    const newId = Math.max(0, ...prev.map(s => s.id)) + 1
+                                    return [...prev, { ...target, id: newId, name: `${target.name} (사본)` }]
+                                  })
+                                  setContextMenuId(null)
+                                  setShowToast({ type: 'success', message: '시나리오가 복제되었습니다.' })
+                                }}
+                              >
                                 <Copy size={14} /> 복제
                               </button>
-                              <button className="dropdown-item" onClick={() => setContextMenuId(null)}>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                  setSelectedIds([scenario.id])
+                                  setShowMoveDialog(true)
+                                  setContextMenuId(null)
+                                }}
+                              >
                                 <ArrowRightLeft size={14} /> 이동
                               </button>
                               <button
                                 className="dropdown-item"
                                 style={{ color: 'hsl(0 84% 60%)' }}
-                                onClick={() => { setScenarios(prev => prev.filter(s => s.id !== scenario.id)); setContextMenuId(null) }}
+                                onClick={() => {
+                                  setDeletingIds([scenario.id])
+                                  setShowDeleteDialog(true)
+                                  setContextMenuId(null)
+                                }}
                               >
                                 <Trash2 size={14} /> 삭제
                               </button>
@@ -693,6 +800,117 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           </div>
         </div>
       </div>
+
+      {/* 시나리오 이동 다이얼로그 (Reach Caster 동일) */}
+      {showMoveDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오 이동
+              </h3>
+              <p className="dialog-description">
+                선택한 {selectedIds.length}개 시나리오를 다른 Slot으로 이동합니다.
+              </p>
+            </div>
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                  이동할 Slot 선택 (광고주: {slotData.advertiser})
+                </label>
+                <select
+                  className="input"
+                  style={{ width: '100%' }}
+                  value={moveTargetSlot}
+                  onChange={(e) => setMoveTargetSlot(e.target.value)}
+                >
+                  <option value="">Slot을 선택하세요</option>
+                  <option value="slot-1">CJ올리브영 2025 상반기</option>
+                  <option value="slot-2">CJ올리브영 브랜드 캠페인</option>
+                  <option value="slot-3">CJ올리브영 신제품 프로모션</option>
+                </select>
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => { setShowMoveDialog(false); setMoveTargetSlot('') }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmMove}
+                disabled={!moveTargetSlot}
+                className="btn btn-primary btn-sm"
+                style={{ opacity: moveTargetSlot ? 1 : 0.5, cursor: moveTargetSlot ? 'pointer' : 'not-allowed' }}
+              >
+                이동
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 시나리오 삭제 확인 다이얼로그 (Reach Caster 동일) */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오를 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                선택한 {deletingIds.length}개 시나리오를 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => { setShowDeleteDialog(false); setDeletingIds([]) }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 토스트 알림 (Reach Caster 동일) */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

@@ -11,7 +11,7 @@ export interface BOAllocation {
   impression: number
   click: number
   view: number
-  reach: number        // 도달률 (%)
+  reach: number        // 도달 수 (회 단위 표기, % 아님)
   cpm: number
   cpc: number
   cpv: number
@@ -117,10 +117,14 @@ export interface BOResultData {
   creator: string
   creatorId: string
   allocations: BOAllocation[]
+  /** 총 도달(중복 제거) — 프론트 합산 불가, 모델(데이터사이언티스트)이 계산해 내려주는 값. 잠금 반영 결과 기준. Estimated Total 행 Reach 표시용 */
+  totalReach?: number
   /** 순수 최적화(잠금 없음) 시 총 보장 KPI — 잠금 결과와 비교용 */
   pureOptKpiTotal?: number
   /** 순수 최적화(잠금 해제) allocations — 비교 테이블용 */
   pureAllocations?: BOAllocation[]
+  /** 순수 최적화(잠금 없음) 기준 총 도달(중복 제거) — 모델이 계산해 내려주는 값 */
+  pureTotalReach?: number
   responseCurve: BOResponseCurveMedia[]
   dailyAttribution: BODailyAttributionPoint[]
   /** 상품 레벨 일자별 기여 (시리즈 키 = "매체 > 상품") */
@@ -141,7 +145,7 @@ export const KPI_META: Record<string, { label: string; labelEn: string; unit: st
   impression: { label: '노출', labelEn: 'Impression', unit: '회' },
   click: { label: '클릭', labelEn: 'Click', unit: '회' },
   view: { label: '조회', labelEn: 'View', unit: '회' },
-  reach: { label: '도달', labelEn: 'Reach', unit: '%' }
+  reach: { label: '도달', labelEn: 'Reach', unit: '회' }
 }
 
 // 샘플: 시나리오 #1 (설화수 / 노출 KPI / 5개 매체)
@@ -154,6 +158,9 @@ export const sampleBOResult: BOResultData = {
   brand: '설화수',
   kpi: 'impression',
   totalBudget: 400000000,
+  // 총 도달(중복 제거): 개별 매체 reach의 단순 합이 아니라 모델이 계산해 내려주는 값
+  totalReach: 38500000,
+  pureTotalReach: 39200000,
   period: { start: '2026-07-01', end: '2026-09-30' },
   status: 'Completed',
   completedAt: '2025-06-20 14:52:33',

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, Lock, Unlock, ArrowRight, TrendingUp } from 'lucide-react'
+import { Share2, Link2, FileSpreadsheet, FileText, Info, MoreVertical, Copy, ArrowRightLeft, Trash2, Lock, Unlock, ArrowRight, TrendingUp, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -38,6 +38,12 @@ export function BOResult() {
   const [easyCreateOpen, setEasyCreateOpen] = useState(false)
   const [resultView, setResultView] = useState<'locked' | 'pure'>('locked')
 
+  // 이동/삭제 다이얼로그 (Reach Caster 동일)
+  const [showMoveDialog, setShowMoveDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [moveTargetSlot, setMoveTargetSlot] = useState('')
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
   // id로 결과 조회 — 잠금 없는 시나리오면 잠금 없는 버전이 반환됨
@@ -48,7 +54,45 @@ export function BOResult() {
 
   useEffect(() => { setDarkMode(isDarkMode) }, [isDarkMode])
 
+  // 토스트 자동 닫기 (Reach Caster 동일)
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast])
+
   const handleToggleDarkMode = () => { const n = !isDarkMode; setIsDarkModeState(n); setDarkMode(n) }
+
+  // 복제/이동/삭제 (Reach Caster 결과 화면 동일 패턴)
+  const handleDuplicate = () => {
+    setMenuOpen(false)
+    setShowToast({ type: 'success', message: '시나리오가 복제되었습니다.' })
+  }
+
+  const handleConfirmMove = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setShowToast({ type: 'success', message: '시나리오가 성공적으로 이동되었습니다.' })
+    } catch (error) {
+      setShowToast({ type: 'error', message: '시나리오 이동에 실패했습니다. 다시 시도해주세요.' })
+    } finally {
+      setShowMoveDialog(false)
+      setMoveTargetSlot('')
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setShowToast({ type: 'success', message: '시나리오가 성공적으로 삭제되었습니다.' })
+      setTimeout(() => { navigate('/budgetoptimizer') }, 1500)
+    } catch (error) {
+      setShowToast({ type: 'error', message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.' })
+    } finally {
+      setShowDeleteDialog(false)
+    }
+  }
 
   const handleCopyLink = () => { navigator.clipboard.writeText(window.location.href); setExportMenuOpen(false) }
   const handleExportExcel = () => { console.log('Export Excel'); setExportMenuOpen(false) }
@@ -216,13 +260,13 @@ export function BOResult() {
                 </button>
                 {menuOpen && (
                   <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '120px', zIndex: 1000 }}>
-                    <button onClick={() => { setMenuOpen(false); console.log('복제:', result.id) }} className="dropdown-item">
+                    <button onClick={handleDuplicate} className="dropdown-item">
                       <Copy size={14} /> 복제
                     </button>
-                    <button onClick={() => { setMenuOpen(false); console.log('이동:', result.id) }} className="dropdown-item">
+                    <button onClick={() => { setMenuOpen(false); setShowMoveDialog(true) }} className="dropdown-item">
                       <ArrowRightLeft size={14} /> 이동
                     </button>
-                    <button onClick={() => { setMenuOpen(false); console.log('삭제:', result.id) }} className="dropdown-item">
+                    <button onClick={() => { setMenuOpen(false); setShowDeleteDialog(true) }} className="dropdown-item" style={{ color: 'hsl(0 84% 60%)' }}>
                       <Trash2 size={14} /> 삭제
                     </button>
                   </div>
@@ -327,6 +371,7 @@ export function BOResult() {
               lockedAllocations={result.allocations}
               kpiLabel={KPI_META[result.kpi].labelEn}
               resultView={resultView}
+              totalReach={resultView === 'locked' ? result.totalReach : (result.pureTotalReach ?? result.totalReach)}
             />
           </div>
 
@@ -421,6 +466,117 @@ export function BOResult() {
           })
         }}
       />
+
+      {/* 시나리오 이동 다이얼로그 (Reach Caster 동일) */}
+      {showMoveDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오 이동
+              </h3>
+              <p className="dialog-description">
+                "{result.name}"를 다른 Slot으로 이동합니다.
+              </p>
+            </div>
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                  이동할 Slot 선택
+                </label>
+                <select
+                  className="input"
+                  style={{ width: '100%' }}
+                  value={moveTargetSlot}
+                  onChange={(e) => setMoveTargetSlot(e.target.value)}
+                >
+                  <option value="">Slot을 선택하세요</option>
+                  <option value="slot-1">CJ올리브영 2025 상반기</option>
+                  <option value="slot-2">CJ올리브영 브랜드 캠페인</option>
+                  <option value="slot-3">CJ올리브영 신제품 프로모션</option>
+                </select>
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => { setShowMoveDialog(false); setMoveTargetSlot('') }}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmMove}
+                disabled={!moveTargetSlot}
+                className="btn btn-primary btn-sm"
+                style={{ opacity: moveTargetSlot ? 1 : 0.5, cursor: moveTargetSlot ? 'pointer' : 'not-allowed' }}
+              >
+                이동
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 시나리오 삭제 확인 다이얼로그 (Reach Caster 동일) */}
+      {showDeleteDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">
+                시나리오를 삭제하시겠습니까?
+              </h3>
+              <p className="dialog-description">
+                "{result.name}"를 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowDeleteDialog(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'hsl(var(--destructive))',
+                  color: 'hsl(var(--destructive-foreground))'
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 토스트 알림 (Reach Caster 동일) */}
+      {showToast && (
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+          <div className="toast__icon">
+            {showToast.type === 'success' ? (
+              <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
+            ) : (
+              <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+            )}
+          </div>
+          <div className="toast__content">
+            <p className="toast__title">
+              {showToast.type === 'success' ? '성공' : '오류'}
+            </p>
+            <p className="toast__description">
+              {showToast.message}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(null)}
+            className="toast__close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </AppLayout>
   )
 }

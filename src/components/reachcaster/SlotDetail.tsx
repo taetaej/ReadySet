@@ -990,7 +990,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
 
               {/* 필터 드롭다운 */}
               {filterOpen && (
-                <div className="dropdown" style={{
+                <div className="dropdown custom-scrollbar" style={{
                   position: 'absolute',
                   top: '100%',
                   right: 0,
@@ -1052,7 +1052,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                   {/* 업종 필터 */}
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>업종</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
+                    <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
                       {Array.from(new Set(sampleScenarios.map(s => s.industry))).map(industry => (
                         <label key={industry} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                           <input

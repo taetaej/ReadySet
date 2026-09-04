@@ -7,6 +7,8 @@ interface BOResultTableProps {
   lockedAllocations: BOAllocation[]
   kpiLabel: string
   resultView: 'locked' | 'pure'
+  /** 총 도달(중복 제거) — 모델이 계산해 내려주는 값. 현재 뷰 기준. Estimated Total 행 Reach 표시용 */
+  totalReach?: number
 }
 
 // 숫자 + 작고 흐린 단위 (Reach Caster formatWithUnit 방식)
@@ -40,7 +42,7 @@ interface MediaGroup {
 // 그리드 컬럼 정의 (헤더/바디 공통) — 풀 숫자+단위 표기 기준 폭
 const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px'
 
-export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView }: BOResultTableProps) {
+export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView, totalReach }: BOResultTableProps) {
   const mediaGroups = useMemo<MediaGroup[]>(() => {
     const map = new Map<string, BOAllocation[]>()
     for (const a of allocations) {
@@ -264,7 +266,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                 <div style={cell()}>{orDash(totals.impression, fmtCount)}</div>
                 <div style={cell()}>{orDash(totals.click, fmtCount)}</div>
                 <div style={cell()}>{orDash(totals.view, fmtCount)}</div>
-                <div style={cell()}>-</div>
+                <div style={cell()}>{totalReach ? fmtCount(totalReach) : '-'}</div>
                 <div style={cell()}>{orDash(avgCpm, fmtBudget)}</div>
                 <div style={cell()}>{orDash(avgCpc, fmtBudget)}</div>
                 <div style={cell()}>{orDash(avgCpv, fmtBudget)}</div>

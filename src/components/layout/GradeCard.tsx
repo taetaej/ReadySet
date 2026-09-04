@@ -168,7 +168,7 @@ export function GradeCard() {
                     { name: 'DataShot', color: '#7B61FF', done: true, locked: false },
                     { name: 'Reach Caster', color: '#00C8FF', done: false, locked: false },
                     { name: 'Ad Curator', color: '#00E676', done: false, locked: true },
-                    { name: 'Budget Optimizer', color: '#FF3B7A', done: false, locked: true },
+                    { name: 'Budget Optimizer', color: '#FF3B7A', done: false, locked: false },
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', flex: 1 }}>
                       <div style={{

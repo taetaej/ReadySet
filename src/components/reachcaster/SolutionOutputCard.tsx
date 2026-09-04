@@ -10,7 +10,7 @@ interface SolutionOutputCardProps {
   }
 }
 
-const DEFAULT_DATA = { datashot: 633, adCurator: 0, budgetOptimizer: 0, reachCaster: 2200 }
+const DEFAULT_DATA = { datashot: 633, adCurator: 0, budgetOptimizer: 340, reachCaster: 2200 }
 
 // 네온 컬러 4개 (Avatar.tsx NEON_COLORS 참조)
 const BLOBS = [

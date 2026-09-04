@@ -47,7 +47,7 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiLabelEn }: BOR
     {
       title: 'Locked Budget',
       value: hasLocked ? lockedBudget.toLocaleString() : '0',
-      unit: hasLocked ? `원 (${lockedPct.toFixed(1)}%)` : '',
+      unit: hasLocked ? `원 (${lockedPct.toFixed(2)}%)` : '',
       icon: <Lock size={20} />
     }
   ]

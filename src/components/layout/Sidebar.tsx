@@ -225,6 +225,132 @@ export function Sidebar({
                   )
                 })()}
 
+                {/* Budget Optimizer 솔루션 */}
+                <div 
+                  className="tree-node"
+                  style={{ marginBottom: '4px' }}
+                >
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleFolder('samsung-budgetoptimizer')
+                    }}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      marginRight: '4px'
+                    }}
+                  >
+                    <ChevronRight 
+                      size={12} 
+                      style={{ 
+                        transform: expandedFolders.includes('samsung-budgetoptimizer') ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  </div>
+                  <Hexagon size={16} style={{ 
+                    fill: 'hsl(var(--primary))', 
+                    color: 'hsl(var(--primary-foreground))' 
+                  }} />
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate('/budgetoptimizer')
+                    }}
+                    style={{ 
+                      fontSize: '14px', 
+                      flex: 1,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Budget Optimizer
+                  </span>
+                </div>
+
+                {/* Budget Optimizer 결과물들 */}
+                {expandedFolders.includes('samsung-budgetoptimizer') && (() => {
+                  const scenarios = [
+                    { name: '시나리오 A', status: 'completed' },
+                    { name: '시나리오 B', status: 'processing', progress: 3, total: 6 },
+                    { name: '시나리오 C', status: 'processing', progress: 5, total: 6 },
+                    { name: '시나리오 D', status: 'pending' },
+                    { name: '시나리오 E', status: 'completed' },
+                    { name: '시나리오 F', status: 'completed' },
+                    { name: '시나리오 G', status: 'completed' },
+                    { name: '시나리오 H', status: 'processing', progress: 2, total: 6 },
+                    { name: '시나리오 I', status: 'completed' },
+                    { name: '시나리오 J', status: 'completed' },
+                    { name: '시나리오 K', status: 'pending' },
+                    { name: '시나리오 L', status: 'completed' },
+                  ]
+                  const maxVisible = 10
+                  const visibleScenarios = scenarios.slice(0, maxVisible)
+
+                  return (
+                  <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
+                    {visibleScenarios.map((scenario, idx) => (
+                      <div key={idx} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        padding: '6px 8px',
+                        borderRadius: '4px',
+                        marginBottom: '2px',
+                        fontSize: '13px'
+                      }}>
+                        <span 
+                          style={{ flex: 1 }} 
+                          className={scenario.status === 'pending' ? 'text-muted-foreground' : scenario.status === 'processing' ? 'animate-pulse-custom' : ''}
+                        >
+                          {scenario.name}
+                        </span>
+                        {scenario.status === 'processing' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"
+                                strokeDasharray={`${2 * Math.PI * 6 * ((scenario.progress || 0) / (scenario.total || 1))} ${2 * Math.PI * 6}`}
+                                strokeLinecap="round" />
+                            </svg>
+                          </div>
+                        )}
+                        {scenario.status === 'pending' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14" style={{ transform: 'rotate(-90deg)' }}>
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => navigate('/budgetoptimizer')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '6px 8px',
+                        fontSize: '11px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        width: '100%',
+                        transition: 'all 0.2s'
+                      }}
+                      className="text-muted-foreground"
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                    >
+                      최근 {Math.min(scenarios.length, maxVisible)}개 · 목록 보기
+                      <ChevronRight size={12} />
+                    </button>
+                  </div>
+                  )
+                })()}
+
                 {/* Reach Caster 솔루션 */}
                 <div 
                   className="tree-node"
@@ -369,19 +495,6 @@ export function Sidebar({
                   </span>
                 </div>
 
-                {/* Budget Optimizer 솔루션 */}
-                <div className="tree-node" style={{ marginBottom: '4px', opacity: 0.6 }}>
-                  <ChevronRight size={12} style={{ opacity: 0.5 }} />
-                  <Hexagon size={16} style={{ opacity: 0.5 }} />
-                  <span style={{ fontSize: '14px', flex: 1 }}>Budget Optimizer</span>
-                  <span style={{ 
-                    fontSize: '11px',
-                    padding: '2px 6px',
-                    borderRadius: '8px'
-                  }} className="bg-muted text-muted-foreground">
-                    준비중
-                  </span>
-                </div>
               </div>
             )}
             

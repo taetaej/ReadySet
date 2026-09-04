@@ -127,7 +127,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
         )}
       </div>
       <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
-        Spend vs. Guaranteed {kpiEn}
+        예산 투입 대비 보장 {kpiLabel} 반응
       </p>
 
       {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}

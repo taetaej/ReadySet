@@ -85,7 +85,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
     <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
       {/* 타이틀 + Info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>최적화로 성과가 얼마나 늘었을까?</h4>
+        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>최적화로 성과가 얼마나 늘어날까?</h4>
         <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Incremental {kpiEn}</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
@@ -114,7 +114,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
         )}
       </div>
       <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
-        균등 배분 대비 채널별 {kpiLabel} 증감 (Incremental {kpiEn})
+        균등 배분 대비 채널별 {kpiLabel} 증감
       </p>
 
       <div style={{ height: '300px', width: '100%', flexShrink: 0 }}>

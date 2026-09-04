@@ -132,7 +132,7 @@ GNB 우측에 현재 사용자 등급을 표시하고, 클릭 시 등급 상세 
 | DataShot | #7B61FF | 활성 (done: true) |
 | Reach Caster | #00C8FF | 미완료 (done: false) |
 | Ad Curator | #00E676 | 잠금 (locked: true, "준비중") |
-| Budget Optimizer | #FF3B7A | 잠금 (locked: true, "준비중") |
+| Budget Optimizer | #FF3B7A | 미완료 (done: false) |
 
 | 상태 | UI |
 |---|---|
