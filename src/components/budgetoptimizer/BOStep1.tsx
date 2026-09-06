@@ -65,7 +65,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
           maxLength={30}
         />
         {validationActive && !formData.scenarioName && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>시나리오명을 입력해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>시나리오명을 입력해 주세요.</div>
         )}
         <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '4px', textAlign: 'right' }}>{formData.scenarioName.length}/30</div>
       </div>
@@ -111,7 +111,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
           </label>
         </div>
         {validationActive && !formData.industryMode && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>업종 식별 방식을 선택해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>업종 식별 방식을 선택해 주세요.</div>
         )}
       </div>
 
@@ -159,7 +159,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
             )}
           </div>
           {validationActive && !formData.brand && (
-            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>브랜드를 선택해주세요.</div>
+            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>브랜드를 선택해 주세요.</div>
           )}
         </div>
       )}
@@ -190,7 +190,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
             )}
           </div>
           {validationActive && !formData.industry && (
-            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>업종을 선택해주세요.</div>
+            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>업종을 선택해 주세요.</div>
           )}
         </div>
       )}
@@ -209,7 +209,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
           hasError={validationActive && (!formData.period.start || !formData.period.end)}
         />
         {validationActive && (!formData.period.start || !formData.period.end) && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>캠페인 시작일과 종료일을 모두 선택해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>캠페인 시작일과 종료일을 모두 선택해 주세요.</div>
         )}
       </div>
 
@@ -247,7 +247,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
           })}
         </div>
         {validationActive && !formData.kpi && (
-          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>KPI를 선택해주세요.</div>
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>KPI를 선택해 주세요.</div>
         )}
       </div>
     </div>

@@ -55,7 +55,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
   return (
     <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
       {/* 타이틀 + Info 툴팁 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', flexShrink: 0, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
         <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>예산은 어디에 배분되었을까?</h4>
         <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Budget Share</span>
         <button
@@ -77,9 +77,12 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
           </div>
         )}
       </div>
+      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
+        매체·상품별 예산 배분 비중
+      </p>
 
-      {/* 차트 본체 */}
-      <div style={{ flex: 1, minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      {/* 차트 본체 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
+      <div style={{ height: '300px', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {/* 100% Stacked Bar */}
         <div style={{ display: 'flex', width: '100%', height: '36px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
           {data.map((d, i) => (
@@ -133,8 +136,8 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
         </div>
       </div>
 
-      {/* SpinX Insight */}
-      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+      {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
+      <div style={{ marginTop: '16px', flexShrink: 0 }}>
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Budget Share 차트 " />
       </div>
     </div>

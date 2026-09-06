@@ -11,7 +11,7 @@ export interface BOAllocation {
   impression: number
   click: number
   view: number
-  reach: number        // 도달률 (%)
+  reach: number        // 도달 수 (회 단위 표기, % 아님)
   cpm: number
   cpc: number
   cpv: number
@@ -117,10 +117,14 @@ export interface BOResultData {
   creator: string
   creatorId: string
   allocations: BOAllocation[]
+  /** 총 도달(중복 제거) — 프론트 합산 불가, 모델(데이터사이언티스트)이 계산해 내려주는 값. 잠금 반영 결과 기준. Estimated Total 행 Reach 표시용 */
+  totalReach?: number
   /** 순수 최적화(잠금 없음) 시 총 보장 KPI — 잠금 결과와 비교용 */
   pureOptKpiTotal?: number
   /** 순수 최적화(잠금 해제) allocations — 비교 테이블용 */
   pureAllocations?: BOAllocation[]
+  /** 순수 최적화(잠금 없음) 기준 총 도달(중복 제거) — 모델이 계산해 내려주는 값 */
+  pureTotalReach?: number
   responseCurve: BOResponseCurveMedia[]
   dailyAttribution: BODailyAttributionPoint[]
   /** 상품 레벨 일자별 기여 (시리즈 키 = "매체 > 상품") */
@@ -141,7 +145,7 @@ export const KPI_META: Record<string, { label: string; labelEn: string; unit: st
   impression: { label: '노출', labelEn: 'Impression', unit: '회' },
   click: { label: '클릭', labelEn: 'Click', unit: '회' },
   view: { label: '조회', labelEn: 'View', unit: '회' },
-  reach: { label: '도달', labelEn: 'Reach', unit: '%' }
+  reach: { label: '도달', labelEn: 'Reach', unit: '회' }
 }
 
 // 샘플: 시나리오 #1 (설화수 / 노출 KPI / 5개 매체)
@@ -154,6 +158,9 @@ export const sampleBOResult: BOResultData = {
   brand: '설화수',
   kpi: 'impression',
   totalBudget: 400000000,
+  // 총 도달(중복 제거): 개별 매체 reach의 단순 합이 아니라 모델이 계산해 내려주는 값
+  totalReach: 38500000,
+  pureTotalReach: 39200000,
   period: { start: '2026-07-01', end: '2026-09-30' },
   status: 'Completed',
   completedAt: '2025-06-20 14:52:33',
@@ -235,4 +242,31 @@ export const sampleBOResult: BOResultData = {
     dailyAttribution: '이 그래프는 해당 업종 모델이 학습한 과거 기간의 매체별 기여 패턴으로, 이 시나리오의 미래 예측이 아닌 업종 데이터에서 관측된 경향입니다. 전체적으로 Google Ads가 학습 기간 내내 가장 크고 안정적인 기여를 유지하며 기반 매체 역할을 합니다. kakao 모먼트는 특정 시즌 구간에서 기여가 급증하는 변동성이 큰 패턴을 보여, 성수기 집중형 매체 성격이 관측됩니다. Meta와 Targetpick은 상대적으로 낮지만 꾸준한 기여를 이어갑니다. 최근 1년 구간에서 kakao 모먼트의 기여 비중이 확대되는 추세가 나타납니다.',
     kpiContribution: '균등 배분 대비 최적화를 적용하면 총 보장 노출이 7,120만에서 8,440만으로 약 18%(+1,320만) 증가합니다. 노출 창출을 주도한 매체는 Google Ads(+980만), Meta(+630만), kakao 모먼트(+410만)로, 효율이 높은 매체에 예산이 재배분되면서 성과가 늘었습니다. 반대로 Targetpick(-280만)과 NAVER 성과형 DA(-420만)는 상대적으로 효율이 낮아 예산이 줄었습니다. 핵심은 감액으로 잃은 노출보다 증액으로 얻은 노출이 훨씬 크다는 점이며, 이 재배분이 동일 예산에서 순증 성과를 만들어낸 최적화의 효과입니다.'
   }
+}
+
+// 잠금이 없는 시나리오 목록(목록 mock의 fixedCount === 0인 완료 시나리오 id)
+// 이 id로 진입하면 결과 화면은 '잠금 없는 버전'으로 렌더된다(상태 띠배너/모드 전환 없음).
+const UNLOCKED_SCENARIO_IDS = new Set<number>([2, 8])
+
+/**
+ * 잠금 없는 버전 결과 데이터 생성.
+ * - allocations를 pureAllocations(모두 isFixed=false)로 교체
+ * - pureAllocations 제거(비교 대상 없음) → 결과 화면이 잠금/순수 전환 UI를 숨김
+ */
+function toUnlockedResult(base: BOResultData): BOResultData {
+  const pure = (base.pureAllocations || base.allocations).map(a => ({ ...a, isFixed: false }))
+  return {
+    ...base,
+    allocations: pure,
+    pureAllocations: undefined,
+    pureOptKpiTotal: undefined
+  }
+}
+
+/** id로 결과 데이터 조회. 잠금 없는 시나리오면 잠금 없는 버전을 반환. */
+export function getBOResult(id: number): BOResultData {
+  if (UNLOCKED_SCENARIO_IDS.has(id)) {
+    return toUnlockedResult({ ...sampleBOResult, id })
+  }
+  return { ...sampleBOResult, id }
 }

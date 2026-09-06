@@ -177,7 +177,7 @@ export function BOCreateScenario() {
       setShowToast({ type: 'success', message: '시나리오 생성 요청이 완료되었습니다. 완료 시 알림 센터에서 알려드립니다.' })
       setTimeout(() => navigate('/budgetoptimizer'), 2000)
     } catch {
-      setShowToast({ type: 'error', message: '시나리오 생성 요청에 실패했습니다. 다시 시도해주세요.' })
+      setShowToast({ type: 'error', message: '시나리오 생성 요청에 실패했습니다. 다시 시도해 주세요.' })
     } finally {
       setIsSubmitting(false)
     }
