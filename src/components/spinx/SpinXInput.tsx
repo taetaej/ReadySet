@@ -1,7 +1,7 @@
-// SpinXInput.tsx — 입력 영역 (텍스트 입력, 첨부파일/URL, @멘션, 모델 선택 드롭다운, 세션 정보)
+// SpinXInput.tsx — 입력 영역 (텍스트 입력, 첨부파일/URL, #컨텍스트 멘션, 모델 선택 드롭다운, 세션 정보)
 
 import { useRef, useState } from 'react'
-import { X, Paperclip, Clock, Square, ChevronDown, FileText, ArrowUp, Globe, Image as ImageIcon, BarChart3, AtSign } from 'lucide-react'
+import { X, Paperclip, Clock, Square, ChevronDown, FileText, ArrowUp, Globe, Image as ImageIcon, BarChart3, Hash, LayoutList } from 'lucide-react'
 import type { LLMModel, SpinXMentionItem } from './spinxTypes'
 import { availableModels } from './spinxData'
 
@@ -33,7 +33,7 @@ interface SpinXInputProps {
   onModelSelect: (model: LLMModel) => void
   isDisabled?: boolean
   disabledPlaceholder?: string
-  /** @멘션 가능한 항목 목록 (없으면 멘션 비활성) */
+  /** #컨텍스트 첨부 가능한 항목 목록 (없으면 첨부 비활성) */
   mentionItems?: SpinXMentionItem[]
 }
 
@@ -68,10 +68,10 @@ export function SpinXInput({
   mentionItems
 }: SpinXInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  // @멘션 드롭다운 상태
+  // #컨텍스트 멘션 드롭다운 상태
   const [mentionOpen, setMentionOpen] = useState(false)
   const [mentionQuery, setMentionQuery] = useState('')
-  const [mentionStart, setMentionStart] = useState(-1)  // '@' 위치
+  const [mentionStart, setMentionStart] = useState(-1)  // '#' 위치
   const [mentionIndex, setMentionIndex] = useState(0)
 
   const filteredMentions = (mentionItems || []).filter(m =>
@@ -85,10 +85,10 @@ export function SpinXInput({
     if (!mentionItems || mentionItems.length === 0) return
     const caret = e.target.selectionStart ?? value.length
     const before = value.slice(0, caret)
-    const at = before.lastIndexOf('@')
+    const at = before.lastIndexOf('#')
     if (at >= 0) {
       const between = before.slice(at + 1)
-      // '@' 이후 공백/개행이 없으면 멘션 입력 중으로 간주
+      // '#' 이후 공백/개행이 없으면 멘션 입력 중으로 간주
       if (!/[\s\n]/.test(between)) {
         setMentionStart(at)
         setMentionQuery(between)
@@ -100,11 +100,11 @@ export function SpinXInput({
     setMentionOpen(false)
   }
 
-  // 멘션 항목 선택 → '@라벨 '으로 치환
+  // 멘션 항목 선택 → '#라벨 '으로 치환
   const applyMention = (item: SpinXMentionItem) => {
     if (mentionStart < 0) return
     const caret = textareaRef.current?.selectionStart ?? message.length
-    const newValue = message.slice(0, mentionStart) + `@${item.label} ` + message.slice(caret)
+    const newValue = message.slice(0, mentionStart) + `#${item.label} ` + message.slice(caret)
     setMessage(newValue)
     setMentionOpen(false)
     setMentionQuery('')
@@ -114,6 +114,30 @@ export function SpinXInput({
       const el = textareaRef.current
       if (el) {
         const pos = mentionStart + item.label.length + 2
+        el.focus()
+        el.setSelectionRange(pos, pos)
+      }
+    }, 0)
+  }
+
+  // 컨텍스트 첨부 버튼: 커서 위치에 '#'를 삽입하고 멘션 드롭다운을 엶
+  const openMentionMenu = () => {
+    if (!mentionItems || mentionItems.length === 0) return
+    const el = textareaRef.current
+    const caret = el?.selectionStart ?? message.length
+    const prevChar = message.slice(caret - 1, caret)
+    // 바로 앞이 공백/비어있지 않으면 공백 하나 넣어 '#'가 멘션으로 인식되게 함
+    const prefix = caret === 0 || /[\s\n]/.test(prevChar) ? '#' : ' #'
+    const newValue = message.slice(0, caret) + prefix + message.slice(caret)
+    setMessage(newValue)
+    const atPos = caret + prefix.length - 1
+    setMentionStart(atPos)
+    setMentionQuery('')
+    setMentionOpen(true)
+    setMentionIndex(0)
+    setTimeout(() => {
+      if (el) {
+        const pos = atPos + 1
         el.focus()
         el.setSelectionRange(pos, pos)
       }
@@ -143,6 +167,7 @@ export function SpinXInput({
           justifyContent: 'space-between'
         }}
       >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setModelMenuOpen(!modelMenuOpen)}
@@ -225,6 +250,7 @@ export function SpinXInput({
               ))}
             </div>
           )}
+        </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ position: 'relative' }}>
@@ -339,13 +365,13 @@ export function SpinXInput({
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyDownInternal}
-            placeholder={isDisabled ? disabledPlaceholder : (mentionItems && mentionItems.length > 0 ? "SpinX에게 물어보세요! @로 차트를 첨부할 수 있어요" : "SpinX에게 무엇이든 물어보세요!")}
+            placeholder={isDisabled ? disabledPlaceholder : (mentionItems && mentionItems.length > 0 ? "SpinX에게 물어보세요! #로 컨텍스트를 첨부할 수 있어요" : "SpinX에게 무엇이든 물어보세요!")}
             disabled={isDisabled}
             style={{
               width: '100%',
-              minHeight: '44px',
-              maxHeight: '120px',
-              padding: '12px 60px 12px 16px',
+              minHeight: '96px',
+              maxHeight: '200px',
+              padding: '12px 16px 44px 16px',
               borderRadius: '8px',
               border: '1px solid hsl(var(--border))',
               backgroundColor: 'hsl(var(--background))',
@@ -366,7 +392,7 @@ export function SpinXInput({
             }}
           />
 
-          {/* @멘션 드롭다운 */}
+          {/* #컨텍스트 멘션 드롭다운 */}
           {mentionOpen && filteredMentions.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -385,25 +411,39 @@ export function SpinXInput({
               padding: '4px'
             }}>
               <div style={{ padding: '6px 8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <AtSign size={11} /> 차트 첨부
+                <Hash size={11} /> 컨텍스트 첨부
               </div>
-              {filteredMentions.map((m, i) => (
-                <button
-                  key={m.id}
-                  onMouseDown={(e) => { e.preventDefault(); applyMention(m) }}
-                  onMouseEnter={() => setMentionIndex(i)}
-                  style={{
-                    width: '100%', padding: '8px 10px', border: 'none', borderRadius: '6px',
-                    backgroundColor: i === mentionIndex ? 'hsl(var(--muted))' : 'transparent',
-                    textAlign: 'left', cursor: 'pointer', fontSize: '13px',
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    color: 'hsl(var(--foreground))'
-                  }}
-                >
-                  <BarChart3 size={14} style={{ flexShrink: 0, color: 'hsl(var(--muted-foreground))' }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
-                </button>
-              ))}
+              {filteredMentions.map((m, i) => {
+                const isChart = (m.kind ?? 'chart') === 'chart'
+                // 그룹 헤더: 이전 항목과 kind가 바뀌는 지점에 라벨 표시
+                const prevKind = i > 0 ? (filteredMentions[i - 1].kind ?? 'chart') : null
+                const showGroupHeader = prevKind !== (m.kind ?? 'chart')
+                return (
+                  <div key={m.id}>
+                    {showGroupHeader && (
+                      <div style={{ padding: '6px 10px 2px', fontSize: '10px', fontWeight: 600, color: 'hsl(var(--muted-foreground))' }}>
+                        {isChart ? '차트' : '결과'}
+                      </div>
+                    )}
+                    <button
+                      onMouseDown={(e) => { e.preventDefault(); applyMention(m) }}
+                      onMouseEnter={() => setMentionIndex(i)}
+                      style={{
+                        width: '100%', padding: '8px 10px', border: 'none', borderRadius: '6px',
+                        backgroundColor: i === mentionIndex ? 'hsl(var(--muted))' : 'transparent',
+                        textAlign: 'left', cursor: 'pointer', fontSize: '13px',
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        color: 'hsl(var(--foreground))'
+                      }}
+                    >
+                      {isChart
+                        ? <BarChart3 size={14} style={{ flexShrink: 0, color: 'hsl(var(--muted-foreground))' }} />
+                        : <LayoutList size={14} style={{ flexShrink: 0, color: 'hsl(var(--muted-foreground))' }} />}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           )}
 
@@ -417,15 +457,29 @@ export function SpinXInput({
           />
 
           {/* 입력창 내부 버튼들 */}
+          {/* 좌하단: 컨텍스트 첨부 + 파일 첨부 (Kiro 스타일) */}
           <div
             style={{
               position: 'absolute',
-              right: '8px',
+              left: '8px',
               bottom: '8px',
               display: 'flex',
+              alignItems: 'center',
               gap: '4px'
             }}
           >
+            {/* 컨텍스트 첨부 버튼 (#) — mentionItems 있을 때만 */}
+            {mentionItems && mentionItems.length > 0 && !isDisabled && (
+              <button
+                onClick={openMentionMenu}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '6px' }}
+                title="컨텍스트 첨부 (#)"
+              >
+                <Hash size={16} />
+              </button>
+            )}
+
             {/* 첨부 버튼 */}
             {selectedModel.displayName !== 'Chat GPT 4o' && (
               <div style={{ position: 'relative' }}>
@@ -443,7 +497,7 @@ export function SpinXInput({
                   <div style={{
                     position: 'absolute',
                     bottom: '100%',
-                    right: 0,
+                    left: 0,
                     marginBottom: '8px',
                     width: '140px',
                     backgroundColor: 'hsl(var(--card))',
@@ -524,8 +578,18 @@ export function SpinXInput({
                 )}
               </div>
             )}
+          </div>
 
-            {/* 전송 버튼 또는 정지 버튼 */}
+          {/* 우하단: 전송 버튼 또는 정지 버튼 */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '8px',
+              bottom: '8px',
+              display: 'flex',
+              gap: '4px'
+            }}
+          >
             {isLoading ? (
               <button
                 onClick={onStop}

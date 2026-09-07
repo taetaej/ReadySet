@@ -3,6 +3,8 @@
 export interface SpinXMentionItem {
   id: string
   label: string
+  /** 첨부 대상 종류 — 드롭다운 그룹핑/아이콘 구분용 (기본: chart) */
+  kind?: 'chart' | 'result'
 }
 
 export interface SpinXPanelProps {
@@ -15,7 +17,7 @@ export interface SpinXPanelProps {
   initialMessage?: string
   /** 열릴 때 입력창에 미리 채울 텍스트 (자동 전송하지 않음) */
   initialInput?: string
-  /** @멘션 가능한 항목 (예: 결과 화면 차트들) */
+  /** #컨텍스트 첨부 가능한 항목 (예: 결과 화면 차트·결과 요소들) */
   mentionItems?: SpinXMentionItem[]
 }
 

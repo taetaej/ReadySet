@@ -63,6 +63,7 @@ export function SpinXPanel({
         onClose={onClose}
         expanded={expanded}
         onToggleExpand={() => setExpanded(prev => !prev)}
+        analysisType={analysisType}
       />
 
       {/* 메시지 영역 */}

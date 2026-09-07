@@ -1,8 +1,8 @@
 // SpinXMessages.tsx — 메시지 목록 (초기 요약/추천질문 + 대화 메시지 루프 + 로딩 스켈레톤)
 
-import { Copy, Check, Scale, Target } from 'lucide-react'
+import { Copy, Check } from 'lucide-react'
 import type { Message, RagSource } from './spinxTypes'
-import { suggestedQuestions } from './spinxData'
+import { suggestedQuestions, budgetOptimizerSuggestedQuestions } from './spinxData'
 import { SpinXSourceAccordion } from './SpinXSourceAccordion'
 import { SpinXChartBubble } from './SpinXChartBubble'
 import { SpinXErrorBubble } from './SpinXErrorBubble'
@@ -11,7 +11,7 @@ import { SpinXSymbol } from './SpinXSymbol'
 interface SpinXMessagesProps {
   isDarkMode: boolean
   scenarioName: string
-  analysisType: 'ratioFinder' | 'reachPredictor'
+  analysisType: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
   messages: Message[]
   isLoading: boolean
   loadingMessage: string
@@ -129,34 +129,8 @@ export function SpinXMessages({
       <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
         {/* NotebookLM 스타일 초기 분석 */}
         <div style={{ marginTop: '24px' }}>
-          {/* 분석 모듈 칩 + 시나리오명 (세로 배치) */}
+          {/* 시나리오명 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-            <span
-              style={{
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '500',
-                backgroundColor: 'hsl(var(--foreground))',
-                color: 'hsl(var(--background))',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                alignSelf: 'flex-start'
-              }}
-            >
-              {analysisType === 'ratioFinder' ? (
-                <>
-                  <Scale size={14} />
-                  Ratio Finder
-                </>
-              ) : (
-                <>
-                  <Target size={14} />
-                  Reach Predictor
-                </>
-              )}
-            </span>
             <h4
               style={{
                 fontSize: '14px',
@@ -218,7 +192,15 @@ export function SpinXMessages({
                 paddingRight: '32px'
               }}
             >
-              최적 매체 비중은 <strong>TVC 50%, Digital 50%</strong>로 나타났으며, 이 비율로 집행 시 예상 <strong>Reach 1+는 73.2%</strong>입니다. 총 예산 10억원을 TVC 5억원, Digital 5억원으로 배분하는 것을 권장합니다. 이 비율은 타겟 오디언스의 미디어 소비 패턴과 과거 캠페인 데이터를 기반으로 최적화되었습니다.
+              {analysisType === 'budgetOptimizer' ? (
+                <>
+                  총 예산 <strong>4억원</strong>을 5개 매체에 배분한 결과, 보장 노출은 <strong>약 8,440만 회</strong>로 균등 배분 대비 <strong>+18%</strong> 늘었습니다. 예산은 <strong>Google Ads(46.8%)</strong>와 <strong>Meta(34.9%)</strong>에 집중 배분됐고, 두 매체가 노출 창출을 주도했습니다. Targetpick·NAVER 성과형 DA는 효율이 낮아 예산이 축소됐습니다. 잠금을 해제한 순수 최적화안은 보장 노출 <strong>약 9,200만 회</strong>로, 잠금 반영안과 비교해 내 개입의 영향을 확인해 볼 수 있습니다.
+                </>
+              ) : (
+                <>
+                  최적 매체 비중은 <strong>TVC 50%, Digital 50%</strong>로 나타났으며, 이 비율로 집행 시 예상 <strong>Reach 1+는 73.2%</strong>입니다. 총 예산 10억원을 TVC 5억원, Digital 5억원으로 배분하는 것을 권장합니다. 이 비율은 타겟 오디언스의 미디어 소비 패턴과 과거 캠페인 데이터를 기반으로 최적화되었습니다.
+                </>
+              )}
             </p>
           </div>
 
@@ -236,12 +218,12 @@ export function SpinXMessages({
               추천 질문
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {suggestedQuestions.map((question, qIdx) => (
+              {(analysisType === 'budgetOptimizer' ? budgetOptimizerSuggestedQuestions : suggestedQuestions).map((question, qIdx) => (
                 <button
                   key={qIdx}
                   onClick={() => onQuestionClick(question)}
                   style={{
-                    padding: '12px 16px',
+                    padding: '10px 14px',
                     borderRadius: '8px',
                     border: '1px solid hsl(var(--border))',
                     backgroundColor: 'transparent',
@@ -251,7 +233,10 @@ export function SpinXMessages({
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     fontFamily: 'Paperlogy, sans-serif',
-                    lineHeight: '1.5'
+                    lineHeight: '1.5',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'

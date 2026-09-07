@@ -121,7 +121,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
               <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
               <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과</div>
               <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (곡선이 완만할수록 효율 포화)</div>
-              <div style={{ marginTop: '6px' }}>KPI 기여 상위 5개 항목만 표시됩니다.</div>
+              <div style={{ marginTop: '6px' }}>기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
             </div>
           </div>
         )}
@@ -237,7 +237,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
       <div style={{ marginTop: '16px', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Response Curve 차트 " />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Response Curve 차트 " />
       </div>
     </div>
   )
