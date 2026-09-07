@@ -7,9 +7,16 @@ interface SpinXHeaderProps {
   onClose: () => void
   expanded?: boolean
   onToggleExpand?: () => void
+  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
 }
 
-export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand }: SpinXHeaderProps) {
+const SOLUTION_NAME: Record<string, string> = {
+  ratioFinder: 'Reach Caster',
+  reachPredictor: 'Reach Caster',
+  budgetOptimizer: 'Budget Optimizer'
+}
+
+export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand, analysisType = 'reachPredictor' }: SpinXHeaderProps) {
   return (
     <div style={{ flexShrink: 0 }}>
       <div
@@ -32,7 +39,7 @@ export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand }: Spin
             color: 'hsl(var(--foreground))'
           }}
         >
-          SpinX for Reach Caster
+          SpinX for {SOLUTION_NAME[analysisType] ?? 'Reach Caster'}
         </h3>
         <p
           style={{

@@ -73,7 +73,8 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
             zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
           }}>
             <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Budget Share</div>
-            선택된 매체/상품별 예산 배분 비중을 시각화합니다. 상위 5개 항목까지 개별 표시되며, 나머지는 '기타(Others)'로 합산됩니다.
+            선택된 매체·상품별 예산 배분 비중을 시각화합니다.
+            <div style={{ marginTop: '6px' }}>비중 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타(Others)'로 합산됩니다.</div>
           </div>
         )}
       </div>
@@ -138,7 +139,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
       <div style={{ marginTop: '16px', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Budget Share 차트 " />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Budget Share 차트 " />
       </div>
     </div>
   )

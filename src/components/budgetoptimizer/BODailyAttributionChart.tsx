@@ -269,7 +269,7 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
       <div style={{ marginTop: '16px', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Weekly Contribution 차트 " />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Weekly Contribution 차트 " />
       </div>
     </div>
   )

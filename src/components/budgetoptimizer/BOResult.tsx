@@ -33,6 +33,7 @@ export function BOResult() {
   const askSpinXSend = (q: string) => { setSpinXInitialMessage(q); setSpinXInitialInput(undefined); setSpinXOpen(true) }
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false)
+  const [principleTooltipOpen, setPrincipleTooltipOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [chartViewMode, setChartViewMode] = useState<'media' | 'product'>('media')
   const [easyCreateOpen, setEasyCreateOpen] = useState(false)
@@ -101,19 +102,66 @@ export function BOResult() {
   const fmtWon = (v: number) => `₩${v.toLocaleString('ko-KR')}`
 
   // SpinX에게 최적화 원리 물어보기 트리거 (Reach Caster Effective Impression 패턴)
+  // 호버: 최적화 원리 요약 툴팁(B) / 클릭: SpinX 원리 설명 자동 전송(C)
   const spinXModelTrigger = (
-    <button
-      onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: '6px',
-        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-        fontSize: '12px', color: 'hsl(var(--muted-foreground))'
-      }}
-      title="SpinX에게 물어보기"
+    <div
+      style={{ position: 'relative', display: 'inline-flex' }}
+      onMouseEnter={() => setPrincipleTooltipOpen(true)}
+      onMouseLeave={() => setPrincipleTooltipOpen(false)}
     >
-      <SpinXSymbol size={16} motion="idle" title="SpinX에게 물어보기" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
-      <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>최적화 원리 알아보기</span>
-    </button>
+      <button
+        onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+          fontSize: '12px', color: 'hsl(var(--muted-foreground))'
+        }}
+      >
+        <SpinXSymbol size={16} motion="idle" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
+        <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>최적화 원리 알아보기</span>
+      </button>
+      {principleTooltipOpen && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '320px',
+          backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+          borderRadius: '8px', padding: '14px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+          zIndex: 1000, fontFamily: 'Paperlogy, sans-serif'
+        }}>
+          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>최적화 원리</div>
+          <div className="text-muted-foreground" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '10px' }}>
+            같은 예산으로 성과를 최대화하도록, 두 가지 원칙으로 배분해요.
+          </div>
+
+          {/* 원리 2가지 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '1px' }}>1</span>
+              <div style={{ fontSize: '12px', lineHeight: '1.5' }}>
+                <b>매체 우선 배분</b>
+                <div className="text-muted-foreground">매체 단위로 먼저 나눈 뒤, 그 안에서 상품별로 배분합니다.</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '1px' }}>2</span>
+              <div style={{ fontSize: '12px', lineHeight: '1.5' }}>
+                <b>효율 포화 회피</b>
+                <div className="text-muted-foreground">성과가 둔해지는 포화 지점을 넘는 과잉 투입은 피합니다.</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 역전 현상 안내 */}
+          <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '10px 0' }} />
+          <div className="text-muted-foreground" style={{ fontSize: '11px', lineHeight: '1.5' }}>
+            💡 저단가 상품에 예산을 몰아 잠그면 순수 최적화안보다 보장 KPI가 높아 <b>보일</b> 수 있지만, 이는 효율 포화를 넘어선 단순 노출량 증가일 수 있어요.
+          </div>
+
+          <div className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
+            클릭하면 SpinX가 이 시나리오에 맞춰 더 자세히 설명해 드려요.
+          </div>
+        </div>
+      )}
+    </div>
   )
 
   return (
@@ -422,10 +470,10 @@ export function BOResult() {
         initialMessage={spinXInitialMessage}
         initialInput={spinXInitialInput}
         mentionItems={[
-          { id: 'budgetShare', label: 'Budget Share 차트' },
-          { id: 'responseCurve', label: 'Response Curve 차트' },
-          { id: 'weeklyContribution', label: 'Weekly Contribution 차트' },
-          { id: 'incremental', label: 'Incremental 차트' }
+          { id: 'budgetShare', label: 'Budget Share 차트', kind: 'chart' },
+          { id: 'responseCurve', label: 'Response Curve 차트', kind: 'chart' },
+          { id: 'weeklyContribution', label: 'Weekly Contribution 차트', kind: 'chart' },
+          { id: 'incremental', label: 'Incremental 차트', kind: 'chart' }
         ]}
       />
 

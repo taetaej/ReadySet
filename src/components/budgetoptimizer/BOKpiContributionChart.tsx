@@ -109,6 +109,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
               <div><strong style={{ color: 'hsl(142 71% 45%)' }}>+ 초록 값</strong>: 예산 증액으로 창출된 {kpiLabel}</div>
               <div><strong style={{ color: 'hsl(var(--destructive))' }}>− 빨강 값</strong>: 예산 감액으로 감소한 {kpiLabel}</div>
               <div style={{ marginTop: '6px' }}>얻은 {kpiLabel}이 잃은 {kpiLabel}보다 크면 최종값이 더 높아집니다.</div>
+              <div style={{ marginTop: '6px' }}>증감 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타'로 합산됩니다.</div>
             </div>
           </div>
         )}
@@ -237,7 +238,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
         </ResponsiveContainer>
       </div>
       <div style={{ marginTop: '16px', flexShrink: 0 }}>
-        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="@Incremental 차트 " />
+        <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Incremental 차트 " />
       </div>
     </div>
   )
