@@ -282,7 +282,7 @@ export function BOResult() {
                     <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
                     <div style={{ marginBottom: '12px' }}>
                       <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Scenario ID</div>
-                      <div style={{ fontSize: '13px', fontWeight: '500' }}>#{result.id}</div>
+                      <div style={{ fontSize: '13px', fontWeight: '500' }}>{result.id}</div>
                     </div>
                     <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
                     <div style={{ marginBottom: '12px' }}>

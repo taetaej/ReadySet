@@ -572,7 +572,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
                   
                   <div style={{ marginBottom: '12px' }}>
                     <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Scenario ID</div>
-                    <div style={{ fontSize: '13px', fontWeight: '500' }}>#{scenarioData?.id || '1'}</div>
+                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{scenarioData?.id || '1'}</div>
                   </div>
                   
                   <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />

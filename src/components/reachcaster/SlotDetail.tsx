@@ -1201,7 +1201,7 @@ export function SlotDetail({ slotData, onBack, onEdit, onDelete }: SlotDetailPro
                           fontSize: '13px',
                           color: 'hsl(var(--muted-foreground))'
                         }}>
-                          #{scenario.id}
+                          {scenario.id}
                         </span>
                       </td>
                       <td style={{ 

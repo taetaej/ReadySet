@@ -27,6 +27,7 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     scenarioName: '',
     description: '',
     moduleType: '',
+    industryMode: 'brand',
     brand: '',
     industry: '',
     period: { start: '', end: '' },
@@ -150,7 +151,8 @@ export function CreateScenario({ slotData }: CreateScenarioProps) {
     return !!(
       formData.scenarioName &&
       formData.moduleType &&
-      formData.brand &&
+      formData.industryMode &&
+      (formData.industryMode === 'brand' ? formData.brand : true) &&
       formData.industry &&
       formData.period.start &&
       formData.period.end &&

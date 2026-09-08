@@ -119,7 +119,7 @@ export function BOMediaDialog({ open, onClose, onConfirm, currentProducts = [] }
       <div
         className="dialog-content dialog-xl"
         onClick={(e) => e.stopPropagation()}
-        style={{ height: '80vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+        style={{ height: '80vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
       >
         <div className="dialog-header">
           <h3 className="dialog-title">매체 및 상품 선택</h3>
@@ -141,7 +141,7 @@ export function BOMediaDialog({ open, onClose, onConfirm, currentProducts = [] }
           </div>
         </div>
 
-        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '24px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {/* 검색 */}
           <input
             type="text"
