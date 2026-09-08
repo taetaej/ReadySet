@@ -91,11 +91,11 @@ export const AVAILABLE_OUTPUTS: Record<string, SelectedOutput[]> = {
     { id: 'RC012', title: '예산 효율화 시나리오', module: 'Reach Predictor', period: '2024.03.01 → 2024.03.31', reach: '55.8%' },
   ],
   budgetOptimizer: [
-    { id: 'BO001', title: '25년 3분기 디지털 예산 최적화', media: '5개 매체 · 노출 KPI' },
-    { id: 'BO002', title: '여름 시즌 클릭 극대화', media: '4개 매체 · 클릭 KPI' },
-    { id: 'BO003', title: '이커머스 전환 캠페인', media: '7개 매체 · 클릭 KPI' },
-    { id: 'BO004', title: '식품 브랜드 인지도 확산', media: '5개 매체 · 노출 KPI' },
-    { id: 'BO005', title: '여행 성수기 도달 시뮬레이션', media: '6개 매체 · 도달 KPI' },
+    { id: 'BO001', title: '25년 3분기 디지털 예산 최적화', media: '노출 KPI' },
+    { id: 'BO002', title: '여름 시즌 클릭 극대화', media: '클릭 KPI' },
+    { id: 'BO003', title: '이커머스 전환 캠페인', media: '클릭 KPI' },
+    { id: 'BO004', title: '식품 브랜드 인지도 확산', media: '노출 KPI' },
+    { id: 'BO005', title: '여행 성수기 도달 시뮬레이션', media: '도달 KPI' },
   ],
 }
 

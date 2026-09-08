@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight, ChevronDown, Scale, Target, Search } from 'lucide-react'
 import { ScenarioFormData } from './types'
-import { sampleBrands, targetGrpOptions } from './constants'
+import { sampleBrands, industryList, targetGrpOptions } from './constants'
 import { CustomDateRangePicker } from '../reachcaster/CustomDateRangePicker'
 
 interface ScenarioStep1Props {
@@ -13,6 +13,7 @@ interface ScenarioStep1Props {
 export function ScenarioStep1({ formData, setFormData, validationActive }: ScenarioStep1Props) {
   const [brandSearchQuery, setBrandSearchQuery] = useState('')
   const [brandDropdownOpen, setBrandDropdownOpen] = useState(false)
+  const [industryDropdownOpen, setIndustryDropdownOpen] = useState(false)
   const [targetGrpDialogOpen, setTargetGrpDialogOpen] = useState(false)
 
   const filteredBrands = sampleBrands.filter(brand =>
@@ -226,157 +227,118 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
         )}
       </div>
 
-      {/* 브랜드 + 업종 */}
+      {/* 업종 식별 방식 */}
       <div style={{ marginBottom: '24px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '14px',
-          fontWeight: '500',
-          marginBottom: '8px'
-        }}>
-          브랜드 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+          업종 선택 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{
-          fontSize: '12px',
-          color: 'hsl(var(--muted-foreground))',
-          marginBottom: '12px'
-        }}>
+        <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
           업종별 특화 예측 분석 모델로 시나리오를 생성합니다.
         </div>
-        
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr auto',
-          gap: '12px',
-          alignItems: 'center',
-          position: 'relative'
-        }}>
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
-              className="input"
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderColor: validationActive && !formData.brand ? 'hsl(var(--destructive))' : undefined,
-                color: formData.brand ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
-              }}
-            >
-              <span>{formData.brand || '브랜드를 선택하세요'}</span>
-              <ChevronDown size={16} />
-            </button>
-            {brandDropdownOpen && (
-              <div className="dropdown" style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                marginTop: '4px',
-                maxHeight: '240px',
-                zIndex: 1000
-              }}>
-                <div style={{ padding: '8px' }}>
-                  <div style={{ position: 'relative' }}>
-                    <Search size={16} style={{
-                      position: 'absolute',
-                      left: '8px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: 'hsl(var(--muted-foreground))'
-                    }} />
-                    <input
-                      type="text"
-                      value={brandSearchQuery}
-                      onChange={(e) => setBrandSearchQuery(e.target.value)}
-                      placeholder="브랜드 검색..."
-                      className="input"
-                      style={{
-                        paddingLeft: '32px',
-                        fontSize: '14px'
-                      }}
-                      autoFocus
-                    />
+        <div style={{ display: 'flex', gap: '24px' }}>
+          <label
+            onClick={() => setFormData({ ...formData, industryMode: 'brand', industry: '', brand: '' })}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}
+          >
+            <input type="radio" name="industryMode" checked={formData.industryMode === 'brand'} readOnly style={{ accentColor: 'hsl(var(--primary))' }} />
+            <span style={{ fontWeight: '500' }}>브랜드 선택</span>
+          </label>
+          <label
+            onClick={() => setFormData({ ...formData, industryMode: 'direct', industry: '', brand: '' })}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}
+          >
+            <input type="radio" name="industryMode" checked={formData.industryMode === 'direct'} readOnly style={{ accentColor: 'hsl(var(--primary))' }} />
+            <span style={{ fontWeight: '500' }}>업종 직접 선택</span>
+          </label>
+        </div>
+        {validationActive && !formData.industryMode && (
+          <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>업종 식별 방식을 선택해주세요.</div>
+        )}
+      </div>
+
+      {/* 브랜드 선택 (mode: brand) */}
+      {formData.industryMode === 'brand' && (
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+            브랜드 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'center', position: 'relative' }}>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
+                className="input"
+                style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderColor: validationActive && !formData.brand ? 'hsl(var(--destructive))' : undefined, color: formData.brand ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
+              >
+                <span>{formData.brand || '브랜드를 선택하세요'}</span>
+                <ChevronDown size={16} />
+              </button>
+              {brandDropdownOpen && (
+                <div className="dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px', maxHeight: '240px', zIndex: 1000 }}>
+                  <div style={{ padding: '8px' }}>
+                    <div style={{ position: 'relative' }}>
+                      <Search size={16} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--muted-foreground))' }} />
+                      <input type="text" value={brandSearchQuery} onChange={(e) => setBrandSearchQuery(e.target.value)} placeholder="브랜드 검색..." className="input" style={{ paddingLeft: '32px', fontSize: '14px' }} autoFocus />
+                    </div>
+                  </div>
+                  <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
+                    {filteredBrands.length > 0 ? (
+                      filteredBrands.map((brand, index) => (
+                        <button key={index} onClick={() => handleBrandSelect(brand)} className="dropdown-item" style={{ justifyContent: 'space-between' }}>
+                          <span>{brand.name}</span>
+                          <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}>{brand.industry}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>검색 결과가 없습니다</div>
+                    )}
                   </div>
                 </div>
-                <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
-                  {filteredBrands.length > 0 ? (
-                    filteredBrands.map((brand, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleBrandSelect(brand)}
-                        className="dropdown-item"
-                        style={{ justifyContent: 'space-between' }}
-                      >
-                        <span>{brand.name}</span>
-                        <span style={{ 
-                          fontSize: '11px', 
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          backgroundColor: 'hsl(var(--muted))',
-                          color: 'hsl(var(--muted-foreground))'
-                        }}>
-                          {brand.industry}
-                        </span>
-                      </button>
-                    ))
-                  ) : (
-                    <div style={{ padding: '12px', fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                      검색 결과가 없습니다
-                    </div>
-                  )}
-                </div>
+              )}
+            </div>
+            {formData.industry && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '0 12px', height: '36px', borderRadius: '6px', backgroundColor: 'hsl(var(--muted))', border: '1px solid hsl(var(--border))', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>업종</span>
+                <div style={{ width: '1px', height: '12px', backgroundColor: 'hsl(var(--border))' }} />
+                <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{formData.industry}</span>
               </div>
             )}
           </div>
           {validationActive && !formData.brand && (
-            <div style={{
-              fontSize: '11px',
-              color: 'hsl(var(--destructive))',
-              marginTop: '4px',
-              gridColumn: '1 / -1'
-            }}>
-              브랜드를 선택해주세요.
-            </div>
-          )}
-          
-          {/* 업종 뱃지 */}
-          {formData.industry && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '0 12px',
-              height: '36px',
-              borderRadius: '6px',
-              backgroundColor: 'hsl(var(--muted))',
-              border: '1px solid hsl(var(--border))',
-              whiteSpace: 'nowrap'
-            }}>
-              <span style={{ 
-                fontSize: '11px', 
-                color: 'hsl(var(--muted-foreground))'
-              }}>
-                업종
-              </span>
-              <div style={{
-                width: '1px',
-                height: '12px',
-                backgroundColor: 'hsl(var(--border))'
-              }} />
-              <span style={{ 
-                fontSize: '13px', 
-                fontWeight: '500',
-                color: 'hsl(var(--foreground))'
-              }}>
-                {formData.industry}
-              </span>
-            </div>
+            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>브랜드를 선택해주세요.</div>
           )}
         </div>
-      </div>
+      )}
+
+      {/* 업종 직접 선택 (mode: direct) */}
+      {formData.industryMode === 'direct' && (
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+            업종 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+          </label>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setIndustryDropdownOpen(!industryDropdownOpen)}
+              className="input"
+              style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderColor: validationActive && !formData.industry ? 'hsl(var(--destructive))' : undefined, color: formData.industry ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
+            >
+              <span>{formData.industry || '업종을 선택하세요'}</span>
+              <ChevronDown size={16} />
+            </button>
+            {industryDropdownOpen && (
+              <div className="dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px', maxHeight: '280px', overflowY: 'auto', zIndex: 1000 }}>
+                {industryList.map((ind) => (
+                  <button key={ind} onClick={() => { setFormData({ ...formData, industry: ind }); setIndustryDropdownOpen(false) }} className="dropdown-item">
+                    {ind}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {validationActive && !formData.industry && (
+            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>업종을 선택해주세요.</div>
+          )}
+        </div>
+      )}
 
       {/* 캠페인 기간 */}
       <div style={{ marginBottom: '24px' }}>

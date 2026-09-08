@@ -528,7 +528,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                       </td>
                       <td>
                         <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
-                          #{scenario.id}
+                          {scenario.id}
                         </span>
                       </td>
                       <td style={{

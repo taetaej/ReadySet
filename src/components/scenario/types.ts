@@ -5,6 +5,7 @@ export interface ScenarioFormData {
   scenarioName: string
   description: string
   moduleType: 'Ratio Finder' | 'Reach Predictor' | ''
+  industryMode: 'brand' | 'direct' | ''
   brand: string
   industry: string
   period: { start: string; end: string }
