@@ -493,11 +493,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               {paginatedScenarios.length === 0 ? (
                 <tr>
                   <td colSpan={11} style={{ textAlign: 'center', padding: '80px 0' }}>
-                    <p style={{ fontSize: '14px', marginBottom: '8px' }} className="text-muted-foreground">
-                      아직 생성된 시나리오가 없습니다.
-                    </p>
-                    <p style={{ fontSize: '13px' }} className="text-muted-foreground">
-                      새 시나리오를 생성하여 최적 예산 배분을 탐색하세요.
+                    <p style={{ fontSize: '14px' }} className="text-muted-foreground">
+                      등록된 시나리오가 없습니다.
                     </p>
                   </td>
                 </tr>

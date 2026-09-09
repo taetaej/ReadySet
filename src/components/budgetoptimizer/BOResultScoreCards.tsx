@@ -4,6 +4,7 @@ import { BOAllocation } from './resultSampleData'
 interface BOResultScoreCardsProps {
   allocations: BOAllocation[]
   totalBudget: number
+  kpiCode: 'impression' | 'click' | 'view' | 'reach'
   kpiLabel: string
   kpiLabelEn: string
 }
@@ -16,10 +17,19 @@ interface ScoreCard {
   highlighted?: boolean
 }
 
-export function BOResultScoreCards({ allocations, totalBudget, kpiLabelEn }: BOResultScoreCardsProps) {
+export function BOResultScoreCards({ allocations, totalBudget, kpiCode, kpiLabelEn }: BOResultScoreCardsProps) {
   const totalKpi = allocations.reduce((s, a) => s + a.kpiValue, 0)
-  const totalImpression = allocations.reduce((s, a) => s + a.impression, 0)
-  const avgCpm = totalImpression > 0 ? Math.round(totalBudget / (totalImpression / 1000)) : 0
+
+  // 3번 카드: 선택 KPI에 맞는 평균 단가 (노출→CPM, 클릭→CPC, 조회→CPV, 도달→CPR)
+  const unitCostMeta: Record<BOResultScoreCardsProps['kpiCode'], { title: string; denominator: number }> = {
+    impression: { title: 'Avg. CPM', denominator: allocations.reduce((s, a) => s + a.impression, 0) / 1000 },
+    click: { title: 'Avg. CPC', denominator: allocations.reduce((s, a) => s + a.click, 0) },
+    view: { title: 'Avg. CPV', denominator: allocations.reduce((s, a) => s + a.view, 0) },
+    reach: { title: 'Avg. CPR', denominator: allocations.reduce((s, a) => s + a.reach, 0) }
+  }
+  const { title: unitCostTitle, denominator: unitCostDenominator } = unitCostMeta[kpiCode]
+  const avgUnitCost = unitCostDenominator > 0 ? Math.round(totalBudget / unitCostDenominator) : 0
+
   const lockedBudget = allocations.filter(a => a.isFixed).reduce((s, a) => s + a.budget, 0)
   const lockedPct = totalBudget > 0 ? (lockedBudget / totalBudget) * 100 : 0
   const hasLocked = lockedBudget > 0
@@ -39,8 +49,8 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiLabelEn }: BOR
       icon: <DollarSign size={20} />
     },
     {
-      title: 'Avg. CPM',
-      value: avgCpm.toLocaleString(),
+      title: unitCostTitle,
+      value: avgUnitCost.toLocaleString(),
       unit: '원',
       icon: <BarChart3 size={20} />
     },

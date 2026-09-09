@@ -366,6 +366,7 @@ export function BOResult() {
           <BOResultScoreCards
             allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
             totalBudget={result.totalBudget}
+            kpiCode={result.kpi}
             kpiLabel={kpiLabel}
             kpiLabelEn={KPI_META[result.kpi].labelEn}
           />
