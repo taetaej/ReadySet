@@ -17,6 +17,23 @@ inclusion: always
 - 수정 전 전체 파일을 읽지 않는다.
 - 아래 파일별 핵심 참조 가이드를 먼저 확인하고, 필요한 심볼/섹션만 타겟 조회한다.
 - `readCode(selector)` 또는 `readFile(start_line, end_line)` 으로 범위를 한정한다.
+- 가이드에 없는 파일은 먼저 "모듈별 위치 가이드"에서 해당 모듈을 찾고, 파일명 == 컴포넌트명 규칙으로 대상을 특정한다.
+- 그래도 위치가 불명확하면 `grepSearch` / `fileSearch` 로 심볼을 찾은 뒤 필요한 범위만 읽는다.
+
+### 모듈별 위치 가이드
+
+작업 대상 파일은 아래 모듈 디렉터리에서 찾는다. 대부분 파일명 == 컴포넌트명 규칙을 따른다.
+
+| 모듈 | 경로 | 비고 |
+|---|---|---|
+| ReachCaster | `src/components/reachcaster/` | 슬롯/시나리오/솔루션 관련 UI |
+| DataShot | `src/components/datashot/` | 데이터셋 생성·상세·목록 |
+| Scenario | `src/components/scenario/` | 시나리오 스텝(RatioFinder / ReachPredictor) |
+| Budget Optimizer | `src/components/budgetoptimizer/` | `BO*` 프리픽스 컴포넌트 |
+| SpinX | `src/components/spinx/` | SpinX 챗/심볼/패널 |
+| Layout | `src/components/layout/` | GNB, Sidebar, Breadcrumb, Footer 등 공통 레이아웃 |
+| Docs | `src/components/docs/` | 문서 페이지·레이아웃 |
+| Common | `src/components/common/` | Avatar, Calendar, MediaIcons 등 공용 UI |
 
 ### 파일별 핵심 참조 가이드
 
@@ -26,15 +43,35 @@ inclusion: always
 | `src/components/reachcaster/ScenarioComparisonPanel.tsx` | `ScenarioComparisonPanel` 컴포넌트 |
 | `src/components/reachcaster/ScenarioComparisonResult.tsx` | `ScenarioComparisonResult` 컴포넌트 |
 | `src/components/reachcaster/SlotHome.tsx` | `SlotHome` 컴포넌트 |
+| `src/components/reachcaster/SlotHomeSections.tsx` | `SlotHomeSections` 컴포넌트 |
 | `src/components/reachcaster/SlotOverview.tsx` | `SlotOverview` 컴포넌트 |
+| `src/components/reachcaster/SlotDetail.tsx` | `SlotDetail` 컴포넌트 |
 | `src/components/reachcaster/DataInsightCard.tsx` | `DataInsightCard` 컴포넌트 |
 | `src/components/reachcaster/IndustryDualBarChart.tsx` | `IndustryDualBarChart` 컴포넌트 |
+| `src/components/reachcaster/slotHomeTypes.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
 | `src/components/datashot/CreateDatasetStep2.tsx` | `CreateDatasetStep2` 컴포넌트 |
 | `src/components/datashot/AdProductsSelector.tsx` | `AdProductsSelector` 컴포넌트 |
+| `src/components/datashot/DatasetDetail.tsx` | `DatasetDetail` 컴포넌트 |
+| `src/components/datashot/DatasetList.tsx` | `DatasetList` 컴포넌트 |
+| `src/components/datashot/createDatasetTypes.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
 | `src/components/scenario/ScenarioStep2RatioFinder.tsx` | `ScenarioStep2RatioFinder` 컴포넌트 |
 | `src/components/scenario/ScenarioStep2ReachPredictor.tsx` | `ScenarioStep2ReachPredictor` 컴포넌트 |
+| `src/components/scenario/ScenarioStep1.tsx` | `ScenarioStep1` 컴포넌트 |
 | `src/components/scenario/constants.ts` | 상수 전체 (파일 작음, 전체 읽기 허용) |
 | `src/components/scenario/types.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/scenario/utils.ts` | 유틸 함수 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/budgetoptimizer/BOResult.tsx` | `BOResult` 컴포넌트 |
+| `src/components/budgetoptimizer/BOCreateScenario.tsx` | `BOCreateScenario` 컴포넌트 |
+| `src/components/budgetoptimizer/BOScenarioList.tsx` | `BOScenarioList` 컴포넌트 |
+| `src/components/budgetoptimizer/constants.ts` | 상수 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/budgetoptimizer/types.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/spinx/SpinXPanel.tsx` | `SpinXPanel` 컴포넌트 |
+| `src/components/spinx/useSpinXChat.ts` | `useSpinXChat` 훅 |
+| `src/components/spinx/spinxTypes.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/layout/GlobalNavBar.tsx` | `GlobalNavBar` 컴포넌트 |
+| `src/components/layout/Sidebar.tsx` | `Sidebar` 컴포넌트 |
+| `src/components/layout/AppLayout.tsx` | `AppLayout` 컴포넌트 |
+| `src/components/layout/Breadcrumb.tsx` | `Breadcrumb` 컴포넌트 |
 
 ## 출력 규칙
 
