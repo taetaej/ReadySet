@@ -127,10 +127,7 @@ export function BOResult() {
           borderRadius: '8px', padding: '14px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
           zIndex: 1000, fontFamily: 'Paperlogy, sans-serif'
         }}>
-          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>최적화 원리</div>
-          <div className="text-muted-foreground" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '10px' }}>
-            같은 예산으로 성과를 최대화하도록, 두 가지 원칙으로 배분해요.
-          </div>
+          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '10px' }}>최적화 원리</div>
 
           {/* 원리 2가지 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -150,13 +147,7 @@ export function BOResult() {
             </div>
           </div>
 
-          {/* 역전 현상 안내 */}
-          <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '10px 0' }} />
-          <div className="text-muted-foreground" style={{ fontSize: '11px', lineHeight: '1.5' }}>
-            💡 저단가 상품에 예산을 몰아 잠그면 순수 최적화안보다 보장 KPI가 높아 <b>보일</b> 수 있지만, 이는 효율 포화를 넘어선 단순 노출량 증가일 수 있어요.
-          </div>
-
-          <div className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
+          <div className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '12px', opacity: 0.8 }}>
             클릭하면 SpinX가 이 시나리오에 맞춰 더 자세히 설명해 드려요.
           </div>
         </div>
@@ -307,7 +298,11 @@ export function BOResult() {
                   <MoreVertical size={16} />
                 </button>
                 {menuOpen && (
-                  <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '120px', zIndex: 1000 }}>
+                  <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '260px', zIndex: 1000 }}>
+                    <button onClick={() => { setMenuOpen(false); setEasyCreateOpen(true) }} className="dropdown-item" style={{ whiteSpace: 'nowrap' }}>
+                      <TrendingUp size={14} style={{ flexShrink: 0 }} /> Reach Caster로 도달 예측하기
+                    </button>
+                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
                     <button onClick={handleDuplicate} className="dropdown-item">
                       <Copy size={14} /> 복제
                     </button>
@@ -424,36 +419,52 @@ export function BOResult() {
             />
           </div>
 
-          {/* Reach Caster 간편 생성 CTA (완료 상태) — Reach Caster DataShot CTA와 동일 스타일/사이즈 */}
+          {/* Reach Caster 간편 생성 CTA (완료 상태) — 눈에 띄는 primary 스타일 */}
           {result.status === 'Completed' && (
             <div style={{
-              padding: '24px 0', borderTop: '1px solid hsl(var(--border))', marginTop: '16px',
-              display: 'flex', justifyContent: 'center'
+              marginTop: '24px', paddingTop: '32px',
+              borderTop: '1px solid hsl(var(--border))',
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px'
             }}>
+              {/* 맥락: 여기서 새로 보게 될 것 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '560px' }}>
+                <span style={{ fontSize: '18px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))', letterSpacing: '-0.01em' }}>
+                  이 예산안이면 몇 명에게 닿을까요?
+                </span>
+                <span style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.6' }}>
+                  Reach Caster에서 타겟 GRP를 설정하면 도달·프리퀀시와 리치커브까지 이어서 볼 수 있어요.
+                </span>
+              </div>
+
+              {/* 버튼: 프로덕트 primary(pill) 표준에 맞춤 — 텍스트 아래 좌측 정렬 */}
               <button
                 onClick={() => setEasyCreateOpen(true)}
+                className="bo-reach-cta"
                 style={{
-                  maxWidth: '600px', width: '100%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '16px', background: 'none', border: 'none',
-                  cursor: 'pointer', fontSize: '14px', fontFamily: 'Paperlogy, sans-serif',
-                  color: 'hsl(var(--muted-foreground))', transition: 'all 0.2s', borderRadius: '8px'
+                  display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+                  height: '48px', padding: '0 24px',
+                  background: 'hsl(var(--primary))',
+                  border: 'none', borderRadius: '24px',
+                  cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif',
+                  color: 'hsl(var(--primary-foreground))',
+                  transition: 'background-color 0.2s', whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
-                  e.currentTarget.style.color = 'hsl(var(--foreground))'
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)'
+                  const go = e.currentTarget.querySelector<HTMLElement>('.bo-reach-cta__go')
+                  if (go) go.style.transform = 'translateX(3px)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'
+                  const go = e.currentTarget.querySelector<HTMLElement>('.bo-reach-cta__go')
+                  if (go) go.style.transform = 'translateX(0)'
                 }}
               >
-                <TrendingUp size={16} />
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
-                  <span style={{ fontWeight: '500' }}>Reach Caster로 이 예산안의 도달 성과 예측하기</span>
-                  <span style={{ fontSize: '11px', opacity: 0.7 }}>최적화된 매체별 예산·예상 노출 기반</span>
-                </div>
-                <ArrowRight size={16} />
+                <TrendingUp size={16} style={{ flexShrink: 0 }} />
+                Reach Caster로 예측하기
+                <span className="bo-reach-cta__go" style={{ display: 'inline-flex', alignItems: 'center', transition: 'transform 0.2s' }}>
+                  <ArrowRight size={16} />
+                </span>
               </button>
             </div>
           )}
