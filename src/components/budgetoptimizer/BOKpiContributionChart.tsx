@@ -32,6 +32,15 @@ const COLOR_DELTA_BAR = 'hsl(var(--foreground) / 0.35)'
 const COLOR_LABEL_UP = 'hsl(142 71% 45%)'
 const COLOR_LABEL_DOWN = 'hsl(var(--destructive))'
 
+// ── Y축 절단(axis break) 튜닝 상수 ─────────────────────────────
+// 워터폴 total 막대(균등/최적화)가 0부터 그려지면 그 사이 변화 구간이 작아 보인다.
+// 변화 구간이 충분히 안 보일 때만 Y축 하단을 생략(절단)해 변화를 강조한다.
+const AXIS_TICK_UNIT = 10_000_000       // Y축 눈금 정렬 단위 (1천만)
+const TRUNCATE_THRESHOLD = 0.25         // 막대 최저상단/최고점 비율이 이 값 초과면 절단(하단이 크게 비어있음)
+const FLOOR_PADDING_RATIO = 0.4         // 절단 시 하단 여백(변화 구간 대비). 음수 막대가 내려갈 공간 확보
+const TOP_PADDING_RATIO = 0.18          // 상단 여백(값 라벨 공간)
+const FULL_TOP_PADDING = 1.12           // 미절단 시 상단 여백 배율
+
 type WFBar = {
   name: string
   kind: 'total' | 'up' | 'down'
@@ -78,8 +87,43 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
     return COLOR_DELTA_BAR
   }
 
-  // Y축은 0부터 유지(정직한 총량 표현). 변화는 값 라벨 + 색 + 연결선으로 읽게 한다.
-  const yMax = Math.ceil((wf.optimizedKpiTotal * 1.12) / 10000000) * 10000000
+  // Y축 범위 계산 (절단 여부 판단 포함)
+  //
+  // 배경: 워터폴은 균등 배분(총량) → 채널별 증감 → 최적화(총량) 순으로 그린다.
+  //   두 total 막대가 0부터 그려지면 화면 대부분을 차지하고, 그 사이 "변화 구간"이
+  //   눌려 보여 최적화 효과가 미미하게 느껴진다.
+  //
+  // 규칙:
+  //   1. 각 막대의 상단(top) 중 최저값(topsMin)을 절단 하한 후보로 본다.
+  //      (이 지점 아래는 모든 막대에 공통이라 잘라도 변화 정보 손실이 없다.
+  //       total 막대의 bottom=0 은 절단 대상이므로 하한 계산에서 제외한다.)
+  //   2. topsMin/dataMax 가 임계값(0.25)을 넘으면(=하단이 크게 비어있으면) 절단한다.
+  //      그 이하면 변화가 이미 잘 보이므로 0부터 정직하게 그린다.
+  //   3. 절단 시 하단(yFloor)은 topsMin 보다 변화폭의 40%만큼 아래에서 시작한다.
+  //      → 감소(−) 막대가 균등값 아래로 내려가도 화면에 담긴다.
+  const { yFloor, yMax, isTruncated } = useMemo(() => {
+    let topsMin = Infinity   // 막대 상단들 중 최저 (절단 하한 후보)
+    let dataMax = -Infinity  // 전체 최고점 (누적 과정의 최고점 포함)
+    for (const b of bars) {
+      const top = b.kind === 'total' ? b.value : b.base + b.value
+      topsMin = Math.min(topsMin, top)
+      dataMax = Math.max(dataMax, top)
+    }
+    if (!isFinite(topsMin) || !isFinite(dataMax)) return { yFloor: 0, yMax: 1, isTruncated: false }
+
+    const floorTo = (v: number) => Math.floor(v / AXIS_TICK_UNIT) * AXIS_TICK_UNIT
+    const ceilTo = (v: number) => Math.ceil(v / AXIS_TICK_UNIT) * AXIS_TICK_UNIT
+
+    const shouldTruncate = dataMax > 0 && topsMin / dataMax > TRUNCATE_THRESHOLD
+    if (!shouldTruncate) {
+      return { yFloor: 0, yMax: ceilTo(wf.optimizedKpiTotal * FULL_TOP_PADDING), isTruncated: false }
+    }
+
+    const visibleSpan = dataMax - topsMin
+    const yFloorCalc = Math.max(0, floorTo(topsMin - visibleSpan * FLOOR_PADDING_RATIO))
+    const yMaxCalc = ceilTo(dataMax + visibleSpan * TOP_PADDING_RATIO)
+    return { yFloor: yFloorCalc, yMax: yMaxCalc, isTruncated: yFloorCalc > 0 }
+  }, [bars, wf.optimizedKpiTotal])
 
   return (
     <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
@@ -116,6 +160,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
       </div>
       <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
         균등 배분 대비 채널별 {kpiLabel} 증감
+        {isTruncated && <span style={{ marginLeft: '6px', opacity: 0.8 }}>· 변화 구간을 강조하기 위해 Y축 하단을 생략했습니다.</span>}
       </p>
 
       <div style={{ height: '300px', width: '100%', flexShrink: 0 }}>
@@ -160,7 +205,8 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
               width={48}
               axisLine={false}
               tickLine={false}
-              domain={[0, yMax]}
+              domain={[yFloor, yMax]}
+              allowDataOverflow
             />
             <Tooltip
               cursor={{ fill: 'hsl(var(--muted) / 0.4)' }}
@@ -195,7 +241,6 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
                 const lines: JSX.Element[] = []
                 for (let i = 0; i < bars.length - 1; i++) {
                   const b = bars[i]
-                  // 현재 막대의 누적 상단값 (total은 자기 값, up/down은 base+value = 누적 끝)
                   const topVal = b.kind === 'total' ? b.value : b.base + b.value
                   const x1 = (xScale(b.name) ?? 0) + bw / 2
                   const x2 = (xScale(bars[i + 1].name) ?? 0) + bw / 2

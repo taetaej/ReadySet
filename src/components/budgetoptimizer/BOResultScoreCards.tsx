@@ -69,9 +69,9 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiCode, kpiLabel
       gap: '16px',
       marginBottom: '20px'
     }}>
-      {cards.map((card, index) => (
+      {cards.map((card) => (
         <div
-          key={index}
+          key={card.title}
           style={{
             backgroundColor: card.highlighted ? 'hsl(var(--muted))' : 'hsl(var(--card))',
             border: `1px solid ${card.highlighted ? 'hsl(var(--border))' : 'hsl(var(--border))'}`,
@@ -112,7 +112,7 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiCode, kpiLabel
             <span style={{
               fontSize: '28px', fontWeight: '700', color: 'hsl(var(--foreground))',
               fontFamily: 'Paperlogy, sans-serif',
-              borderBottom: '3px solid #BF5AF2', paddingBottom: '2px'
+              ...(card.highlighted ? { borderBottom: '3px solid #BF5AF2', paddingBottom: '2px' } : {})
             }}>
               {card.value}
             </span>
