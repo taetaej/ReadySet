@@ -531,8 +531,12 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                       <td style={{
                         fontWeight: '400',
                         color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                        opacity: isClickable ? 1 : 0.6
-                      }}>
+                        opacity: isClickable ? 1 : 0.6,
+                        maxWidth: '300px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }} title={scenario.name}>
                         {scenario.name}
                       </td>
                       <td className="text-muted-foreground">{scenario.industry}</td>
