@@ -5,6 +5,7 @@ import { docsStructure, DocPage } from './docsData'
 import { Avatar } from '../common/Avatar'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { DocsIntroPage } from './DocsIntroPage'
+import { ReachCasterGuidePage } from './ReachCasterGuidePage'
 
 interface DocsLayoutProps {
   isDarkMode?: boolean
@@ -553,6 +554,10 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         <main className="docs-content" ref={contentRef}>
           {currentPage.slug === 'intro' ? (
             <DocsIntroPage />
+          ) : currentPage.slug === 'reach-caster-principles' ? (
+            <article className="docs-article">
+              <ReachCasterGuidePage />
+            </article>
           ) : (
             <article className="docs-article">
               {renderMarkdown(currentPage.content)}

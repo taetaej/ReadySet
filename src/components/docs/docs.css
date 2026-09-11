@@ -423,7 +423,7 @@
 }
 
 .docs-article {
-  max-width: 720px;
+  max-width: 860px;
   line-height: 1.75;
 }
 
@@ -622,7 +622,7 @@
   margin-top: 48px;
   font-size: 12px;
   color: hsl(var(--muted-foreground));
-  max-width: 720px;
+  max-width: 860px;
 }
 
 /* ===== Pagination ===== */
@@ -632,7 +632,7 @@
   margin-top: 64px;
   padding-top: 24px;
   border-top: 1px solid hsl(var(--border));
-  max-width: 720px;
+  max-width: 860px;
 }
 
 .docs-pagination-btn {
