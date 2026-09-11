@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reach Caster 솔루션 핵심 원리 및 활용 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F6F3;
+    --ink:#1C2523;
+    --ink-soft:#4B5551;
+    --ink-faint:#8A928E;
+    --line:#D8DBD6;
+    --teal:#0F6E56;
+    --teal-soft:#E1F5EE;
+    --teal-mid:#5DCAA5;
+    --amber:#8C5A0E;
+    --amber-soft:#FBEFDD;
+    --amber-mid:#EFA23F;
+    --coral:#8A3B22;
+    --coral-soft:#F7E9E2;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 120px;}
+
+  header.hero{padding:64px 0 36px; border-bottom:1px solid var(--line);}
+  .kicker{font-size:13px; color:var(--teal); font-weight:500; letter-spacing:0.02em; margin:0 0 14px;}
+  h1{font-size:28px; line-height:1.4; font-weight:700; margin:0 0 14px; max-width:24ch;}
+  .hero p{font-size:15px; color:var(--ink-soft); max-width:56ch; margin:0;}
+
+  nav.jump{display:flex; flex-wrap:wrap; gap:8px; padding:22px 0 0;}
+  nav.jump a{font-size:13px; color:var(--ink-soft); text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:6px 14px; background:var(--card); transition:border-color .15s, color .15s;}
+  nav.jump a:hover{border-color:var(--teal); color:var(--teal);}
+
+  section{padding:52px 0; border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .section-num{font-size:13px; color:var(--ink-faint); margin:0 0 6px;}
+  h2{font-size:21px; font-weight:700; margin:0 0 4px;}
+  h3{font-size:15px; font-weight:700; margin:36px 0 4px;}
+  h3:first-of-type{margin-top:24px;}
+  .lead{font-size:14.5px; color:var(--ink-soft); max-width:60ch; margin:6px 0 22px;}
+
+  .metric-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px;}
+  .metric{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 16px;}
+  .metric .name{font-size:15px; font-weight:700; margin:0 0 6px;}
+  .metric .unit{font-size:12px; color:var(--ink-faint); margin:0 0 10px;}
+  .metric .desc{font-size:13px; color:var(--ink-soft); margin:0;}
+  .formula{background:var(--ink); color:var(--paper); border-radius:10px; padding:20px 22px; font-size:14.5px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .formula .frac{display:inline-flex; flex-direction:column; align-items:center; font-family:'IBM Plex Mono', monospace; font-size:14px;}
+  .formula .frac span{padding:2px 4px;}
+  .formula .frac .top{border-bottom:1px solid var(--paper);}
+
+  ul.plain{margin:0 0 20px; padding-left:20px; font-size:13.5px; color:var(--ink-soft);}
+  ul.plain li{margin-bottom:6px;}
+
+  .imp-bars{margin:20px 0 24px;}
+  .imp-bar-row{display:flex; align-items:center; gap:16px; margin-bottom:14px;}
+  .imp-bar-label{width:96px; font-size:13px; color:var(--ink-soft); flex-shrink:0;}
+  .imp-bar-track{flex:1; height:28px; background:var(--line); border-radius:6px; overflow:hidden;}
+  .imp-bar-fill{height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px;}
+  .imp-bar-fill.gross{width:100%; background:var(--ink-faint);}
+  .imp-bar-fill.eff{width:46%; background:var(--teal);}
+  .imp-bar-fill span{font-size:12px; color:#fff; font-weight:500;}
+
+  .chip-row{display:flex; gap:12px; flex-wrap:wrap; margin:20px 0 8px;}
+  .chip{flex:1; min-width:220px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px;}
+  .chip .tag{display:inline-block; font-size:11px; font-weight:500; padding:3px 9px; border-radius:999px; margin-bottom:8px;}
+  .chip.cpt .tag{background:var(--teal-soft); color:var(--teal);}
+  .chip.rtb .tag{background:var(--amber-soft); color:var(--amber);}
+  .chip p{font-size:13px; color:var(--ink-soft); margin:0;}
+
+  .funnel{display:flex; flex-direction:column; align-items:center; gap:2px; margin:24px 0 8px;}
+  .funnel-step{display:flex; align-items:center; justify-content:space-between; color:#fff; border-radius:8px; padding:14px 20px; font-size:13px;}
+  .funnel-step .lbl{font-weight:500;}
+  .funnel-step .val{font-family:'IBM Plex Mono', monospace; font-size:14px;}
+  .funnel-arrow{font-size:12px; color:var(--ink-faint); padding:2px 0;}
+  .f1{width:100%; background:#3A4340;}
+  .f2{width:78%; background:#2C6B58;}
+  .f3{width:56%; background:var(--teal);}
+
+  .callout{background:var(--teal-soft); border-radius:10px; padding:18px 20px; font-size:13.5px; color:var(--ink); margin:20px 0;}
+  .callout b{color:var(--teal);}
+
+  .sim{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px 22px; margin-top:20px;}
+  .dot{width:15px; height:15px; border-radius:50%; background:var(--line); border:1px solid #C3C7C1; transition:background .25s, border-color .25s;}
+  .dot.filled{background:var(--teal-mid); border-color:var(--teal);}
+  .dot.hot{background:var(--amber-mid); border-color:var(--amber);}
+  .pool{display:grid; grid-template-columns:repeat(10,1fr); gap:8px; max-width:280px; margin:0 auto 8px;}
+  .pool-caption{text-align:center; font-size:12px; color:var(--ink-faint); margin:0 0 22px;}
+  .slider-row{display:flex; align-items:center; gap:14px; margin-bottom:20px;}
+  .slider-row label{font-size:13px; color:var(--ink-soft); white-space:nowrap;}
+  input[type=range]{flex:1; accent-color:var(--teal);}
+  .sim-out{font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; min-width:76px; text-align:right;}
+  .sim-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .sim-stat{background:var(--paper); border-radius:8px; padding:14px 8px; text-align:center;}
+  .sim-stat .n{font-family:'IBM Plex Mono', monospace; font-size:19px; font-weight:600;}
+  .sim-stat .l{font-size:11px; color:var(--ink-faint); margin-top:4px;}
+  #simMsg{font-size:13px; color:var(--ink-soft); text-align:center; margin:18px 0 0; line-height:1.6;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px; margin:14px 0 6px;}
+  th, td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--ink-faint); font-weight:500; font-size:12px;}
+  td.mono{font-family:'IBM Plex Mono', monospace;}
+  tr.extreme td.mono{color:var(--amber);}
+  .table-note{font-size:12px; color:var(--ink-faint); margin:4px 0 20px;}
+
+  .dedup-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0 8px;}
+  .dedup-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px;}
+  .dedup-card h4{font-size:14px; margin:0 0 10px;}
+  .dedup-card p{font-size:13px; color:var(--ink-soft); margin:0;}
+  .venn{display:flex; justify-content:center; margin:12px 0;}
+  .venn svg{width:180px; height:80px;}
+
+  .dd-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0 8px;}
+  .dd-card{border-radius:10px; padding:18px; border:1px solid var(--line);}
+  .dd-card.do{background:var(--teal-soft);}
+  .dd-card.dont{background:var(--coral-soft);}
+  .dd-card h4{font-size:14px; margin:0 0 10px;}
+  .dd-card.do h4{color:var(--teal);}
+  .dd-card.dont h4{color:var(--coral);}
+  .dd-card ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink-soft);}
+  .dd-card li{margin-bottom:6px;}
+
+  .rr-badge{display:inline-block; min-width:20px; height:20px; border-radius:50%; text-align:center; line-height:20px; font-size:11px; font-weight:700; padding:0 5px;}
+  .rr-badge.o{background:var(--teal-soft); color:var(--teal);}
+  .rr-badge.x{background:var(--coral-soft); color:var(--coral);}
+  .rr-badge.review{background:var(--amber-soft); color:var(--amber);}
+  .rr-note{font-size:12px; color:var(--ink-faint); margin-top:10px; line-height:1.6;}
+
+  footer{padding:36px 0 0; font-size:12px; color:var(--ink-faint);}
+
+  @media (max-width:600px){
+    h1{font-size:23px;}
+    .metric-row{grid-template-columns:1fr;}
+    .dd-row, .dedup-row{grid-template-columns:1fr;}
+    .pool{max-width:220px;}
+    table{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="kicker">AX팀</p>
+    <h1>Reach Caster 솔루션 핵심 원리 및 활용 가이드</h1>
+    <p>본 문서는 Reach Caster의 알고리즘 산출 메커니즘과 주요 지표의 정의를 설명하고, 올바른 시뮬레이션 활용을 돕기 위해 작성되었습니다.</p>
+    <nav class="jump">
+      <a href="#numbers">지표 정의</a>
+      <a href="#effective">유효노출</a>
+      <a href="#ceiling">물리적 한계</a>
+      <a href="#simulator">직접 눌러보기</a>
+      <a href="#cases">시뮬레이션 예시</a>
+      <a href="#dedup">중복 제거</a>
+      <a href="#guide">입력 가이드</a>
+      <a href="#rr">R&R 안내</a>
+    </nav>
+  </header>
+
+  <section id="numbers">
+    <p class="section-num">1. 핵심 지표 정의 및 산출 원리</p>
+    <h2>도달 vs 노출</h2>
+    <p class="lead">도달, 노출, 빈도는 서로 다른 걸 세는 숫자입니다. 이 셋을 헷갈리면 그다음 원리는 이해가 안 됩니다.</p>
+    <div class="metric-row">
+      <div class="metric">
+        <p class="name">도달 (Unique Reach)</p>
+        <p class="unit">단위: 명</p>
+        <p class="desc">캠페인 기간 동안 광고에 최소 1회 이상 실질적으로 노출된 순수 유저 수. 중복을 제외한 사람 수입니다.</p>
+      </div>
+      <div class="metric">
+        <p class="name">노출 (Gross Impression)</p>
+        <p class="unit">단위: 회</p>
+        <p class="desc">광고가 화면에 송출된 총 횟수. 동일 유저가 여러 번 볼 경우 노출수는 계속 누적됩니다.</p>
+      </div>
+      <div class="metric">
+        <p class="name">빈도 (Frequency)</p>
+        <p class="unit">단위: 회</p>
+        <p class="desc">광고를 본 1인당 평균 광고 노출 횟수입니다.</p>
+      </div>
+    </div>
+    <div class="formula">
+      <span>평균 빈도 =</span>
+      <span class="frac"><span class="top">총 유효 노출수 (Effective Imp)</span><span>순 도달 (Unique Reach)</span></span>
+    </div>
+  </section>
+
+  <section id="effective">
+    <p class="section-num">1. 핵심 지표 정의 및 산출 원리</p>
+    <h2>유효 노출 (Effective Impression)</h2>
+    <p class="lead">단순 서버 카운팅 기준의 총노출수(Gross Imp) 중, 타겟 오디언스가 실제로 인지(Cognitive Perception) 가능한 유의미한 노출만을 통계적으로 선별한 지표입니다.</p>
+
+    <h3>도입 배경</h3>
+    <ul class="plain">
+      <li>총노출수 기반 예측 시 발생하던 현업의 지속적인 '과대 예측(Overestimation) VOC'를 해결하기 위해 도입</li>
+      <li>봇 트래픽, 비뷰어블(Non-viewable) 스크롤 아웃, 무효 트래픽 등 허수 노출을 걷어내고 실제 집행 결과와의 정합성을 확보하기 위한 정밀화 로직</li>
+    </ul>
+
+    <div class="imp-bars">
+      <div class="imp-bar-row">
+        <span class="imp-bar-label">총노출수</span>
+        <div class="imp-bar-track"><div class="imp-bar-fill gross"><span>100%</span></div></div>
+      </div>
+      <div class="imp-bar-row">
+        <span class="imp-bar-label">유효 노출</span>
+        <div class="imp-bar-track"><div class="imp-bar-fill eff"><span>약 46%</span></div></div>
+      </div>
+    </div>
+
+    <h3>지면별 특성</h3>
+    <div class="chip-row">
+      <div class="chip cpt">
+        <span class="tag">보장형 · CPT</span>
+        <p>예: 네이버 스페셜DA, 타임보드. 트래픽 안정성과 가시성(Viewability)이 높아 차감 보정률이 낮으며, 유효 노출 전환 비율이 높습니다.</p>
+      </div>
+      <div class="chip rtb">
+        <span class="tag">비딩형 · RTB</span>
+        <p>트래픽 변동성과 노이즈가 상대적으로 커 보수적인 보정치가 적용됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ceiling">
+    <p class="section-num">2. 알고리즘 산출 메커니즘</p>
+    <h2>타겟 모수와 도달의 물리적 한계</h2>
+    <p class="lead">Reach Caster는 가상 수치를 무한정 생성하는 계산기가 아니며, 국내 실제 인구통계 데이터(Universe) 및 매체별 활동 유저 풀을 기반으로 확률 곡선을 도출합니다.</p>
+    <div class="funnel">
+      <div class="funnel-step f1"><span class="lbl">대한민국 타겟 전체 인구 (Universe)</span><span class="val">예: 19~49세 약 3,000만 명</span></div>
+      <div class="funnel-arrow">↓ 해당 매체 · 지면 실제 가용 모수 (최대 70%)</div>
+      <div class="funnel-step f2"><span class="lbl">네이버 해당 지면 이용자</span><span class="val">약 2,100만 명</span></div>
+      <div class="funnel-arrow">↓ 디바이스 보급률 · 실활동률(DAU) · 뷰어빌리티 필터링</div>
+      <div class="funnel-step f3"><span class="lbl">지면 최종 최대 잠재 도달 한계 (Ceiling)</span><span class="val">약 1,761만 명</span></div>
+    </div>
+    <div class="callout">
+      <b>도달의 한계</b> — 특정 타겟을 타겟팅했을 때, 해당 지면을 이용하는 실제 대한민국 유저 수 이상의 도달은 물리적으로 존재할 수 없습니다.<br><br>
+      <b>포화 현상</b> — 이미 해당 지면의 가용 유저 전체(1,761만 명)에게 광고가 닿은 시점부터는, 노출량을 수억 회 혹은 수조 회 추가 투입하더라도 순도달은 상한선에 고정되어 단 1명도 증가하지 않습니다.
+    </div>
+  </section>
+
+  <section id="simulator">
+    <p class="section-num">2. 알고리즘 산출 메커니즘</p>
+    <h2>노출량 증대 시 도달 vs 빈도</h2>
+    <p class="lead">노출량을 1억 회, 1조 회 늘린다고 해서 대한민국에 존재하지 않는 새로운 타겟 유저가 생성되는 것이 아닙니다. 이미 볼 사람이 다 본 상태에서의 추가 노출은 <b>기존에 본 유저에게 광고를 수십만 번 더 보여주는 빈도의 폭증</b>으로 전량 수렴됩니다. 슬라이더를 밀어 직접 확인해 보세요.</p>
+    <div class="sim">
+      <div class="pool" id="pool"></div>
+      <p class="pool-caption">원 1개 = 이 지면을 실제로 이용하는 약 44만 명</p>
+      <div class="slider-row">
+        <label for="imp">노출량 투입</label>
+        <input type="range" id="imp" min="0" max="100" value="30" step="1">
+        <span class="sim-out" id="impLabel">-</span>
+      </div>
+      <div class="sim-stats">
+        <div class="sim-stat"><div class="n" id="reachNum">-</div><div class="l">순도달(명)</div></div>
+        <div class="sim-stat"><div class="n" id="freqNum">-</div><div class="l">평균 빈도(회)</div></div>
+        <div class="sim-stat"><div class="n" id="statusNum">-</div><div class="l">상태</div></div>
+      </div>
+      <p id="simMsg"></p>
+    </div>
+
+    <h3 style="margin-top:32px;">문서 속 예시 (동일 예산, 노출량만 증대)</h3>
+    <table>
+      <thead>
+        <tr><th>구분</th><th>노출량</th><th>유효 노출</th><th>순도달</th><th>평균 빈도</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>케이스 A</td><td class="mono">5억 회</td><td class="mono">약 2.3억 회</td><td class="mono">1,761만 명</td><td class="mono">13.1회</td>
+          <td>이미 지면 잠재 모수 100% 도달 (포화 상태)</td>
+        </tr>
+        <tr>
+          <td>케이스 B</td><td class="mono">6억 회 (+1억)</td><td class="mono">약 2.7억 회</td><td class="mono">1,761만 명 (변화 없음)</td><td class="mono">15.7회 (상승)</td>
+          <td>신규 유저가 아닌 기존 유저의 노출 횟수만 증가</td>
+        </tr>
+        <tr class="extreme">
+          <td>케이스 C</td><td class="mono">11조 회 (극단값)</td><td class="mono">약 5조 회</td><td class="mono">1,761만 명 (변화 없음)</td><td class="mono">283,929회 (폭증)</td>
+          <td>1인당 광고를 28만 번 본 것으로 전이</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="dedup">
+    <p class="section-num">2. 알고리즘 산출 메커니즘</p>
+    <h2>중복 제거 (Deduplication)</h2>
+    <div class="dedup-row">
+      <div class="dedup-card">
+        <h4>시나리오 내 단일 지면 합산</h4>
+        <div class="venn">
+          <svg viewBox="0 0 180 80">
+            <circle cx="70" cy="40" r="34" fill="#5DCAA5" fill-opacity="0.55"/>
+            <circle cx="100" cy="40" r="34" fill="#5DCAA5" fill-opacity="0.55"/>
+          </svg>
+        </div>
+        <p>동일 지면의 구좌나 노출량이 합산 입력될 경우, 알고리즘 확률 모델에 따라 해당 지면 모수 내 중복 노출이 자동 계산되어 도달 증가 폭은 둔화되고 빈도가 상승합니다.</p>
+      </div>
+      <div class="dedup-card">
+        <h4>이종 매체 믹스</h4>
+        <div class="venn">
+          <svg viewBox="0 0 180 80">
+            <circle cx="62" cy="40" r="30" fill="#5DCAA5" fill-opacity="0.5"/>
+            <circle cx="98" cy="30" r="30" fill="#EFA23F" fill-opacity="0.5"/>
+            <circle cx="98" cy="50" r="30" fill="#8A3B22" fill-opacity="0.4"/>
+          </svg>
+        </div>
+        <p>여러 매체·지면이 믹스될 경우에도 매체 간 교차 유저 풀을 기반으로 중복이 자동 제거(디둡)되어 '통합 순도달(Integrated Unique Reach)'로 정제됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="guide">
+    <p class="section-num">3. 올바른 시뮬레이션 입력 가이드</p>
+    <h2>정상 집행 범위 내 입력 원칙</h2>
+    <p class="lead">Reach Caster는 실제 집행 가능한 미디어 플래닝 환경에서의 최적 믹스를 예측하기 위한 솔루션입니다. 시장 단가 및 지면 가용 트래픽을 벗어난 비현실적 수치를 입력할 경우, 모델은 수학적 한계점(Ceiling)에 도달해 동일한 상한값을 반환하므로 비교 분석의 의미가 상실됩니다.</p>
+    <div class="dd-row">
+      <div class="dd-card do">
+        <h4>이렇게 입력하세요</h4>
+        <ul>
+          <li>실제 집행 가능한 시장 단가 · 지면 가용 트래픽 범위 내 수치</li>
+          <li>고정형(CPT) 다구좌 상품: 구좌 수 · 시간대별 가중치를 개별 변수로 분리하지 않고, 캠페인의 집행 기간 · 총예산 합계 · 총노출수 합계를 단일 슬롯에 합산 입력 (지면 모수 내 중복이 감안되어 정상 산출됨)</li>
+        </ul>
+      </div>
+      <div class="dd-card dont">
+        <h4>이러면 값이 깨집니다</h4>
+        <ul>
+          <li>조 단위 노출량, CPM 수백 원 미만 세팅 등 비현실적 수치</li>
+          <li>구좌 수나 시간대별 가중치를 개별 변수로 쪼개서 입력</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="rr">
+    <p class="section-num">4. R&R 및 지원 범위 안내</p>
+    <h2>누가 뭘 도와줄 수 있나</h2>
+    <table>
+      <thead><tr><th></th><th>AX팀</th><th>현업 (미디어 기획 · 영업)</th></tr></thead>
+      <tbody>
+        <tr><td>도달 곡선, 유효 노출, 모수 상한선(Ceiling) 등 알고리즘 산출 메커니즘 기술 설명</td><td><span class="rr-badge o">O</span></td><td></td></tr>
+        <tr><td>업종 전체 정기 데이터셋 업데이트 및 예측 엔진 정밀도 개선</td><td><span class="rr-badge o">O</span></td><td></td></tr>
+        <tr><td>유효 노출(Effective Imp) 적용 여부 선택 기능(ON/OFF) 제공</td><td><span class="rr-badge review">검토중</span></td><td></td></tr>
+        <tr><td>광고주별 집행 전략(Frequency Cap, 특수 타겟팅 등)에 따른 정성적 수치 해석</td><td></td><td><span class="rr-badge o">O</span></td></tr>
+        <tr><td>광고주 납품용 최종 미디어 믹스 제안서 작성 및 결과 보정</td><td></td><td><span class="rr-badge o">O</span></td></tr>
+        <tr><td>과거 현업 수기 보정치에 맞춘 역산 및 보정 기준 수립</td><td><span class="rr-badge x">X</span></td><td><span class="rr-badge x">X</span></td></tr>
+        <tr><td>Rate Card 건별 시뮬레이션 및 데이터 세팅 대행</td><td><span class="rr-badge x">X</span></td><td><span class="rr-badge x">X</span></td></tr>
+        <tr><td>특정 광고주 단독 비공식 커스텀 튜닝</td><td><span class="rr-badge x">X</span></td><td><span class="rr-badge x">X</span></td></tr>
+      </tbody>
+    </table>
+    <p class="rr-note">
+      · 보정 기준을 마련해 줄 경우, 향후 수치 불일치에 대한 책임이 AX팀으로 전가되는 리스크가 있어 수기 보정치 역산은 지원하지 않습니다.<br>
+      · 광고주 단독 커스텀 모델이 필요한 경우, 자체 데이터 인입 파이프라인(BYOD) 구축 등 정식 R&D 과제로 편입하고 리소스를 선행 확보해야 합니다.
+    </p>
+  </section>
+
+  <footer>
+    Reach Caster 솔루션 핵심 원리 및 활용 가이드 · AX팀
+  </footer>
+
+</div>
+
+<script>
+  const CEILING = 17610000;
+  const UNITS = 40;
+  const pool = document.getElementById('pool');
+  for (let i = 0; i < UNITS; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'd' + i;
+    pool.appendChild(d);
+  }
+  const slider = document.getElementById('imp');
+  function impFromSlider(v) {
+    const minLog = Math.log10(1e8), maxLog = Math.log10(2e13);
+    return Math.pow(10, minLog + (v / 100) * (maxLog - minLog));
+  }
+  function fmt(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(1) + '조';
+    if (n >= 1e8) return (n / 1e8).toFixed(1) + '억';
+    if (n >= 1e4) return (n / 1e4).toFixed(0) + '만';
+    return Math.round(n).toLocaleString();
+  }
+  function update() {
+    const v = Number(slider.value);
+    const imp = impFromSlider(v);
+    const eff = imp * 0.46;
+    let reach, freq;
+    if (eff <= CEILING) { reach = eff; freq = 1; }
+    else { reach = CEILING; freq = eff / CEILING; }
+    document.getElementById('impLabel').textContent = fmt(imp) + '회';
+    document.getElementById('reachNum').textContent = fmt(reach) + '명';
+    document.getElementById('freqNum').textContent = freq >= 1000 ? Math.round(freq).toLocaleString() + '회' : freq.toFixed(1) + '회';
+    const saturated = eff > CEILING;
+    document.getElementById('statusNum').textContent = saturated ? '포화' : '성장중';
+    const filledUnits = Math.round((reach / CEILING) * UNITS);
+    for (let i = 0; i < UNITS; i++) {
+      const d = document.getElementById('d' + i);
+      d.classList.remove('filled', 'hot');
+      if (i < filledUnits) {
+        if (saturated && freq > 20) d.classList.add('hot');
+        else d.classList.add('filled');
+      }
+    }
+    const msg = document.getElementById('simMsg');
+    if (saturated) {
+      msg.textContent = '이 지면을 이용하는 사람(약 1,761만 명)에게는 이미 다 닿았습니다. 노출을 더 넣어도 새로운 사람은 늘지 않고, 같은 사람이 광고를 평균 ' + (freq >= 1000 ? Math.round(freq).toLocaleString() : freq.toFixed(1)) + '번 보게 될 뿐입니다.';
+    } else {
+      msg.textContent = '아직 닿지 않은 사람이 남아 있어 노출을 늘릴수록 도달도 함께 늘어납니다.';
+    }
+  }
+  slider.addEventListener('input', update);
+  update();
+</script>
+</body>
+</html>
