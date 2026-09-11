@@ -141,6 +141,10 @@ export function BOCreateScenario() {
     }
     if (formData.totalBudget - lockedTotal < 0) return false
 
+    // R5: 최적화 대상은 있으나 배분할 예산이 없음 — 비잠금(최적화 대상) 상품이 있는데 잔여 예산이 0
+    const hasOptimizationTarget = formData.products.some(p => !p.isFixed)
+    if (hasOptimizationTarget && formData.totalBudget - lockedTotal <= 0) return false
+
     // R6: 잔여 예산 수령처 부재 — 배분 가능 예산 > 0인데 받을 비잠금 매체가 없음
     const mediaGroups = new Map<string, BOProductEntry[]>()
     for (const p of formData.products) {
@@ -451,7 +455,7 @@ export function BOCreateScenario() {
                           return (
                             <div key={mediaId}>
                               <div style={{ fontSize: '10px', fontWeight: '600', color: 'hsl(var(--muted-foreground))', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                {isMediaLocked && <Lock size={8} style={{ color: '#BF5AF2' }} />}
+                                {isMediaLocked && <Lock size={8} style={{ color: 'hsl(var(--foreground))' }} />}
                                 {mediaId}
                               </div>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>

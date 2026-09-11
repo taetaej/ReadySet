@@ -28,9 +28,9 @@ const formatDelta = (v: number) => `${v > 0 ? '+' : v < 0 ? '-' : ''}${formatAxi
 const COLOR_OPTIMIZED = ACCENT_COLOR
 const COLOR_BASE = 'hsl(var(--foreground) / 0.85)'
 const COLOR_DELTA_BAR = 'hsl(var(--foreground) / 0.35)'
-// 라벨 색상: 증가(+)=초록 / 감소(-)=빨강 (결과 테이블 delta와 통일)
-const COLOR_LABEL_UP = 'hsl(142 71% 45%)'
-const COLOR_LABEL_DOWN = 'hsl(var(--destructive))'
+// 델타 라벨 색상: 증감 모두 무채색 (방향은 +/− 부호로 표기). 초록은 시그니처 강조(최적화 막대)에만 쓰므로 델타엔 쓰지 않음
+const COLOR_LABEL_UP = 'hsl(var(--muted-foreground))'
+const COLOR_LABEL_DOWN = 'hsl(var(--muted-foreground))'
 
 // ── Y축 절단(axis break) 튜닝 상수 ─────────────────────────────
 // 워터폴 total 막대(균등/최적화)가 0부터 그려지면 그 사이 변화 구간이 작아 보인다.
@@ -148,10 +148,10 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
             <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Incremental {kpiEn}</div>
             균등 배분에서 최적화까지, 채널별 {kpiLabel} 창출·감소 기여를 누적해 보여줍니다.
             <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: '1.6' }}>
-              <div><strong>최적화(보라)</strong>: 최적화 후 도달하는 총 {kpiLabel}</div>
+              <div><strong>최적화(강조 막대)</strong>: 최적화 후 도달하는 총 {kpiLabel}</div>
               <div><strong>균등 배분(진한 회색)</strong>: 최적화 전 기준 총 {kpiLabel}</div>
-              <div><strong style={{ color: 'hsl(142 71% 45%)' }}>+ 초록 값</strong>: 예산 증액으로 창출된 {kpiLabel}</div>
-              <div><strong style={{ color: 'hsl(var(--destructive))' }}>− 빨강 값</strong>: 예산 감액으로 감소한 {kpiLabel}</div>
+              <div><strong>+ 값</strong>: 예산 증액으로 창출된 {kpiLabel}</div>
+              <div><strong>− 값</strong>: 예산 감액으로 감소한 {kpiLabel}</div>
               <div style={{ marginTop: '6px' }}>얻은 {kpiLabel}이 잃은 {kpiLabel}보다 크면 최종값이 더 높아집니다.</div>
               <div style={{ marginTop: '6px' }}>증감 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타'로 합산됩니다.</div>
             </div>

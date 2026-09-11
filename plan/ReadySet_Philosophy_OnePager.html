@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ReadySet Philosophy — The Media War Room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('../public/fonts/PaperlogyRegular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('../public/fonts/PaperlogyMedium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('../public/fonts/PaperlogyBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --ink: #171717;          /* primary 0 0% 9% */
+    --ink-soft: #525252;
+    --ink-mute: #8a8a8a;
+    --line: #e5e5e5;
+    --line-soft: #f0f0f0;
+    --bg: #ffffff;
+    --accent: #171717;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #f4f4f5;
+    color: var(--ink);
+    font-family: 'Paperlogy', 'Inter', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 24px auto;
+    background: var(--bg);
+    padding: 20mm 18mm;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+  }
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+
+  .manifesto {
+    margin-top: 18px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 150mm;
+  }
+  .manifesto strong { color: var(--ink); font-weight: 700; }
+
+  /* ---------- Pillars ---------- */
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 26px;
+  }
+  .pillar {
+    background: var(--bg);
+    padding: 18px 18px 20px;
+  }
+  .pillar .num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .pillar h3 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 6px 0 4px;
+  }
+  .pillar .en {
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .pillar p {
+    font-size: 12px;
+    line-height: 1.62;
+    color: var(--ink-soft);
+  }
+  .pillar p + p { margin-top: 7px; }
+  .pillar p b { color: var(--ink); font-weight: 700; }
+
+  /* ---------- Principles ---------- */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .principle {
+    border-top: 2px solid var(--ink);
+    padding-top: 12px;
+  }
+  .principle h4 {
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .principle .en {
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .principle p {
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Anti-patterns ---------- */
+  .antipatterns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .anti {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding: 5px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    position: relative;
+    white-space: nowrap;
+  }
+  .anti::before {
+    content: "✕";
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-right: 6px;
+  }
+  .anti-note {
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--ink-mute);
+    margin-bottom: 24px;
+  }
+  .anti-note b { color: var(--ink); font-weight: 700; }
+
+  @media print {
+    html, body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; padding: 16mm 15mm; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+      <h1>ReadySet Philosophy</h1>
+      <p class="manifesto">
+        <strong>ReadySet은 흩어진 도구의 집합이 아니라, 미디어 전략을 다루는 단 하나의 상황실(War Room)이다.</strong>
+        복잡한 계산 엔진은 날렵한 표면 뒤로 숨기고, 고밀도의 전략 데이터를 정교한 마감으로 다듬어
+        사용자가 생각의 흐름을 잃지 않고 본질적인 판단에만 집중하게 만든다.
+        줄여야 할 것은 정보의 깊이가 아니라 군더더기이며, <strong>전문성은 장식이 아닌 명확한 근거와 마감(Craftsmanship)에서 나온다.</strong>
+      </p>
+    </header>
+
+    <!-- Pillars -->
+    <div class="section-label">Product Pillars</div>
+    <section class="pillars">
+      <div class="pillar">
+        <div class="num">01</div>
+        <h3>복잡함의 추상화</h3>
+        <div class="en">Complexity Abstracted</div>
+        <p><b>결론 우선, 원리는 깊이에.</b> 어려운 연산은 매끄러운 인터페이스 뒤에 둔다. 사용자는 결론을 먼저 마주하고, 원리와 방법론은 원할 때 열어본다.</p>
+        <p><b>시스템의 판단 제시.</b> 헤매지 않도록 최적의 안을 먼저 제안한다. 똑똑한 도구는 사용자의 인지 비용을 대신 치른다.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">02</div>
+        <h3>경계 없는 단 하나의 전략 세션</h3>
+        <div class="en">Ubiquitous Context</div>
+        <p><b>도구를 넘어선 흐름.</b> 여러 솔루션은 개별 툴이 아니라 하나의 캠페인을 관통하는 단 하나의 연속된 전략 세션이다.</p>
+        <p><b>맥락의 무손실 전달.</b> 예산·기간·업종·KPI를 온전히 계승한다. 화면이 바뀌어도 생각의 흐름은 끊기지 않는다.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">03</div>
+        <h3>수치 너머의 큐레이션과 서사</h3>
+        <div class="en">Discovery with SpinX</div>
+        <p><b>요약을 넘어선 전략 파트너.</b> SpinX는 숫자를 읊는 봇이 아니다. "왜 이 매체에 예산이 집중되었는지"의 맥락과 서사를 해석한다.</p>
+        <p><b>발견의 희열.</b> "나보다 내 캠페인을 더 잘 꿰뚫어 본다"는 감각으로 숨은 기회를 발굴한다.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">04</div>
+        <h3>창작물과 모델에 대한 존중</h3>
+        <div class="en">Respect for the Model</div>
+        <p><b>크레딧 뷰와 신뢰.</b> 최적화 결과는 알고리즘 출력이 아닌 정교한 모델이 완성한 전략적 작품으로 대우한다.</p>
+        <p><b>근거가 만드는 품격.</b> 어떤 가정을 거쳐 나온 배분인지 은근히 드러나는 방법론의 서명이 강력한 설득력을 부여한다.</p>
+      </div>
+    </section>
+
+    <!-- Anti-patterns -->
+    <div class="section-label">Anti-patterns</div>
+    <section class="antipatterns">
+      <span class="anti">아이콘 뱃지</span>
+      <span class="anti">uppercase 라벨 남용</span>
+      <span class="anti">회색 칩 나열</span>
+      <span class="anti">겹친 틴트 레이어</span>
+      <span class="anti">translateY 부양 효과</span>
+      <span class="anti">HEX 색상 하드코딩</span>
+      <span class="anti">그라디언트 + 그림자 조합</span>
+      <span class="anti">숫자만 던지기 (근거 없음)</span>
+      <span class="anti">강조가 둘 이상</span>
+      <span class="anti">3줄 넘는 설명 문장</span>
+      <span class="anti">모델 결과 임의 조작·미화</span>
+      <span class="anti">불리한 결과·손실 숨기기</span>
+      <span class="anti">솔루션마다 제각각인 UI 패턴</span>
+    </section>
+    <p class="anti-note">있어 보이려는 장식은 오히려 신뢰를 깎는다. 진짜 있어 보임은 <b>절제와 근거</b>에서 나온다.</p>
+
+    <!-- Principles -->
+    <div class="section-label">Design &amp; Decision Principles</div>
+    <section class="principles">
+      <div class="principle">
+        <h4>절제된 고밀도</h4>
+        <span class="en">High Density, Low Noise</span>
+        <p>정보 밀도는 결함이 아닌 전문 솔루션의 무기다. 장식 뱃지·무의미한 그라디언트·불필요한 라벨을 덜어내고 1px의 위계와 타이포그래피로 질서를 만든다.</p>
+      </div>
+      <div class="principle">
+        <h4>손끝의 반응성</h4>
+        <span class="en">Zero-latency Flow</span>
+        <p>도구는 생각의 속도를 따라잡아야 한다. 불필요한 대기와 확인 단계를 없애 즉각적인 피드백을 제공한다.</p>
+      </div>
+      <div class="principle">
+        <h4>명확한 이유를 가진 강조</h4>
+        <span class="en">Purposeful Emphasis</span>
+        <p>강조색은 시각 효과가 아니라 "시스템이 내린 전략적 판단"에만 부여해 화면 전체의 권위를 유지한다.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

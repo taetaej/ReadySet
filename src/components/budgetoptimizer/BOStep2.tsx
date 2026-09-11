@@ -100,6 +100,15 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
 
   const rule4Error = remainingBudget < 0 ? '잠금 예산 합계가 총 예산을 초과합니다.' : null
 
+  // R5: 최적화 대상은 있으나 배분할 예산이 없음 (비잠금 상품 존재 + 잔여 예산 0)
+  const rule5Error = useMemo(() => {
+    const hasOptimizationTarget = formData.products.some(p => !p.isFixed)
+    if (hasOptimizationTarget && remainingBudget === 0) {
+      return '최적화 대상 상품의 배분 가능 예산이 0원입니다. 총 예산을 늘리거나 일부 잠금을 해제해 주세요.'
+    }
+    return null
+  }, [formData.products, remainingBudget])
+
   // R6: 잔여 예산 수령처 부재 (전부 잠금인데 합계가 총예산에 못 미쳐 잔여가 뜨는 경우)
   const rule6Error = useMemo(() => {
     if (remainingBudget <= 0) return null
@@ -340,7 +349,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                         onClick={() => toggleMediaFixed(mediaId)}
                         style={{
                           background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
-                          color: isMediaFixed ? '#BF5AF2' : 'hsl(var(--muted-foreground))'
+                          color: isMediaFixed ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                         }}
                       >
                         {isMediaFixed ? <Lock size={14} /> : <Unlock size={14} />}
@@ -400,7 +409,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                             onClick={() => toggleProductFixed(mediaId, product.productName)}
                             style={{
                               background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
-                              color: product.isFixed ? '#BF5AF2' : 'hsl(var(--muted-foreground))'
+                              color: product.isFixed ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                             }}
                           >
                             {product.isFixed ? <Lock size={14} /> : <Unlock size={14} />}
@@ -472,6 +481,11 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           {rule4Error && (
             <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
               {rule4Error}
+            </div>
+          )}
+          {rule5Error && (
+            <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>
+              {rule5Error}
             </div>
           )}
           {rule6Error && (
