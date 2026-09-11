@@ -75,7 +75,7 @@ function Section({
       <p style={{ fontSize: 13, color: t.muted, margin: '0 0 6px' }}>{num}</p>
       <h2 style={{ fontSize: 21, fontWeight: 700, margin: '0 0 8px', color: t.fg }}>{title}</h2>
       {lead && (
-        <p style={{ fontSize: 14.5, color: t.muted, maxWidth: 680, margin: '0 0 24px', lineHeight: 1.7 }}>
+        <p style={{ fontSize: 14.5, color: t.muted, maxWidth: 680, margin: '0 0 24px', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
           {lead}
         </p>
       )}
@@ -344,17 +344,30 @@ export function ReachCasterGuidePage() {
       <Section
         num="2. 유효 노출"
         title="서버가 센 노출이 다 유효한 건 아닙니다"
-        lead="유효 노출은 총노출수 중 타겟이 실제로 인지 가능한 유의미한 노출만 통계적으로 선별한 지표입니다. 봇 트래픽, 비뷰어블 스크롤 아웃, 무효 트래픽 등 허수 노출을 걷어냅니다."
+        lead={'유효 노출은 총노출수 중 실제 성과로 이어지는 유의미한 노출만 선별한 지표입니다.\nReach Caster는 CJ\u00A0메조미디어가 실제로 집행한 캠페인 데이터를 기반으로 유효 노출을 산출합니다.'}
       >
-        <ExampleNote>아래 46%는 개념 이해를 돕기 위한 예시 비율입니다. 실제 전환 비율은 매체·지면 특성에 따라 달라집니다.</ExampleNote>
-        <div style={{ margin: '4px 0 20px' }}>
+        <ExampleNote>아래 46%는 개념 이해를 돕기 위한 예시 비율입니다. 실제 전환 비율은 매체·지면·캠페인에 따라 달라집니다.</ExampleNote>
+        <div style={{ margin: '4px 0 24px' }}>
           <Bar label="총노출수" pct={100} tone="muted" text="100%" />
           <Bar label="유효 노출" pct={46} tone="primary" text="약 46% (예시)" />
         </div>
+
+        <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: t.fg }}>
+          어떻게 산출하나요
+        </h3>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <MiniCard tag="보장형 · CPT" text="예를 들어 보장형 DA·타임보드류 상품은 트래픽 안정성과 가시성이 높아 차감 보정률이 낮고, 유효 노출 전환 비율이 높습니다." />
-          <MiniCard tag="비딩형 · RTB" text="트래픽 변동성과 노이즈가 상대적으로 커 보수적인 보정치가 적용됩니다." />
+          <StepCard
+            step="1"
+            title="과거 실 집행 데이터 비교"
+            text="CJ 메조미디어가 실제로 집행했던 캠페인의 노출 수·집행 기간 등 실측 데이터를 비교·분석합니다."
+          />
+          <StepCard
+            step="2"
+            title="보정 가중치 적용"
+            text="실 집행 데이터를 기반으로 매체·지면별 보정 가중치를 적용해 최종 유효 노출을 산출합니다."
+          />
         </div>
+        <ExampleNote>보정 가중치의 상세 산식은 비공개입니다.</ExampleNote>
       </Section>
 
       {/* 3. 물리적 한계 */}
@@ -564,23 +577,13 @@ function Bar({ label, pct, tone, text }: { label: string; pct: number; tone: 'mu
   )
 }
 
-function MiniCard({ tag, text }: { tag: string; text: string }) {
+function StepCard({ step, title, text }: { step: string; title: string; text: string }) {
   return (
-    <div style={{ flex: 1, minWidth: 220, background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: 16 }}>
-      <span
-        style={{
-          display: 'inline-block',
-          fontSize: 11,
-          fontWeight: 500,
-          padding: '3px 9px',
-          borderRadius: 999,
-          marginBottom: 8,
-          background: t.mutedBg,
-          color: t.fg,
-        }}
-      >
-        {tag}
-      </span>
+    <div style={{ flex: 1, minWidth: 240, background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 13, fontWeight: 700, color: t.muted }}>STEP {step}</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: t.fg }}>{title}</span>
+      </div>
       <p style={{ fontSize: 13, color: t.muted, margin: 0, lineHeight: 1.6 }}>{text}</p>
     </div>
   )
