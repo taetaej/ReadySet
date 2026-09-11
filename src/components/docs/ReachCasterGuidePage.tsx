@@ -346,7 +346,7 @@ export function ReachCasterGuidePage() {
         title="서버가 센 노출이 다 유효한 건 아닙니다"
         lead={'유효 노출은 총노출수 중 실제 성과로 이어지는 유의미한 노출만 선별한 지표입니다.\nReach Caster는 CJ\u00A0메조미디어가 실제로 집행한 캠페인 데이터를 기반으로 유효 노출을 산출합니다.'}
       >
-        <ExampleNote>아래 46%는 개념 이해를 돕기 위한 예시 비율입니다. 실제 전환 비율은 매체·지면·캠페인에 따라 달라집니다.</ExampleNote>
+        <ExampleNote>아래 46%는 개념 이해를 돕기 위한 예시 비율입니다. 실제 전환 비율은 산출 로직에 따라 달라집니다.</ExampleNote>
         <div style={{ margin: '4px 0 24px' }}>
           <Bar label="총노출수" pct={100} tone="muted" text="100%" />
           <Bar label="유효 노출" pct={46} tone="primary" text="약 46% (예시)" />
