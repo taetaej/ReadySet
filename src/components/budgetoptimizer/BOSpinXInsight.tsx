@@ -34,37 +34,33 @@ export function BOSpinXInsight({ text, speed = 20, onAsk, followUpQuestion }: BO
   }, [text, speed])
 
   return (
-    <div style={{ paddingTop: '12px', borderTop: '1px solid hsl(var(--border))' }}>
+    <div className="pt-3 border-t border-[hsl(var(--border))]">
       {/* 헤더: 심볼 + 워드마크 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+      <div className="flex items-center gap-1.5 mb-1.5">
         <SpinXSymbol size={13} motion={isTyping ? 'active' : 'idle'} title="" style={{ transform: 'rotate(45deg)', flexShrink: 0 }} />
-        <span style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '0.02em', color: 'hsl(var(--muted-foreground))' }}>SpinX for Budget Optimizer</span>
-        {isTyping && <span style={{ fontSize: '10px', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}>analyzing…</span>}
+        <span className="text-[11px] font-semibold tracking-[0.02em] text-[hsl(var(--muted-foreground))]">SpinX for Budget Optimizer</span>
+        {isTyping && <span className="text-[10px] opacity-60 text-[hsl(var(--muted-foreground))]">analyzing…</span>}
       </div>
 
       {/* 본문 */}
-      <p style={{ fontSize: '12.5px', lineHeight: '1.65', color: 'hsl(var(--foreground))', margin: 0, opacity: 0.9 }}>
+      <p className="text-[12.5px] leading-[1.65] m-0 opacity-90 text-[hsl(var(--foreground))]">
         {displayText}
+        {/* 커서 blink는 애니메이션이라 인라인 유지 */}
         {isTyping && <span style={{ opacity: 0.4, animation: 'blink 1s step-end infinite' }}>|</span>}
       </p>
 
       {/* 푸터: 이어서 질문하기 (텍스트 링크) */}
       {!isTyping && onAsk && (
-        <div style={{ marginTop: '10px' }}>
+        <div className="mt-2.5">
           <button
             onClick={() => onAsk(followUpQuestion || '이 차트 결과를 더 자세히 설명해 주세요.')}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '4px',
-              background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-              fontSize: '11.5px', fontWeight: '500',
-              color: hovered ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-              transition: 'color 0.15s'
-            }}
+            className="inline-flex items-center gap-1 p-0 bg-none border-none cursor-pointer text-[11.5px] font-medium transition-colors duration-150"
+            style={{ color: hovered ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
           >
             이어서 질문하기
-            <span style={{ transform: hovered ? 'translateX(2px)' : 'none', transition: 'transform 0.15s' }}>→</span>
+            <span className="transition-transform duration-150" style={{ transform: hovered ? 'translateX(2px)' : 'none' }}>→</span>
           </button>
         </div>
       )}

@@ -95,44 +95,39 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
   const kpiEn = { '노출': 'Impression', '클릭': 'Click', '조회': 'View', '도달': 'Reach' }[kpiLabel] || kpiLabel
 
   return (
-    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-[400px] flex flex-col">
       {/* 타이틀 + Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>예산을 더 넣으면 성과가 오를까?</h4>
-        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Response Curve</span>
+      <div className="relative flex items-center gap-1.5 mb-1 shrink-0">
+        <h4 className="text-[17px] font-medium m-0">예산을 더 넣으면 성과가 오를까?</h4>
+        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">Response Curve</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
-          style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+          className="flex items-center bg-transparent border-none p-0.5 cursor-help text-[hsl(var(--muted-foreground))] opacity-60"
         >
           <Info size={14} />
         </button>
 
         {tooltipOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '320px',
-            backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-            borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-            zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
-          }}>
-            <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Response Curve</div>
+          <div className="absolute top-full left-0 mt-2 w-[320px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] z-[100] text-[12px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            <div className="font-semibold text-[hsl(var(--foreground))] mb-1.5">Response Curve</div>
             매체별 예산 투입 대비 KPI 반응 곡선입니다.
-            <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: '1.6' }}>
+            <div className="mt-2 text-[11px] leading-[1.6]">
               <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
               <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과</div>
               <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (곡선이 완만할수록 효율 포화)</div>
-              <div style={{ marginTop: '6px' }}>기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
+              <div className="mt-1.5">기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
             </div>
           </div>
         )}
       </div>
-      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
+      <p className="text-[11px] text-[hsl(var(--muted-foreground))] mb-2 shrink-0">
         예산 투입 대비 보장 {kpiLabel} 반응
       </p>
 
       {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
-      <div style={{ height: '300px', display: 'flex', gap: '16px', flexShrink: 0 }}>
-        <div style={{ flex: 1 }}>
+      <div className="h-[300px] flex gap-4 shrink-0">
+        <div className="flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
               <XAxis
@@ -205,9 +200,9 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
         </div>
 
         {/* 우측 범례 (클릭 토글) */}
-        <div style={{ width: '200px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div className="w-[200px] flex flex-col shrink-0">
           {/* 범례 항목: 세로 중앙 */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
+          <div className="flex-1 flex flex-col justify-center gap-2">
             {curveItems.map((media, idx) => {
               const isHidden = hidden.has(media.name)
               return (
@@ -215,20 +210,19 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                   key={media.name}
                   onClick={() => toggleSeries(media.name)}
                   title={media.name}
+                  className="flex items-center gap-1.5 text-[11px] bg-transparent border-none p-0 cursor-pointer text-left transition-opacity"
                   style={{
-                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px',
-                    background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
                     color: isHidden ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))',
-                    opacity: isHidden ? 0.45 : 1, transition: 'opacity 0.15s'
+                    opacity: isHidden ? 0.45 : 1
                   }}
                 >
                   <span style={{ width: '16px', height: '2px', backgroundColor: getMediaColorByRank(idx), flexShrink: 0, borderRadius: '1px' }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: isHidden ? 'line-through' : 'none' }}>{media.name}</span>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ textDecoration: isHidden ? 'line-through' : 'none' }}>{media.name}</span>
                 </button>
               )
             })}
-            <div style={{ marginTop: '8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--foreground))' }} />
+            <div className="mt-2 text-[10px] text-[hsl(var(--muted-foreground))] flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[hsl(var(--foreground))]" />
               <span>Current spend</span>
             </div>
           </div>
@@ -236,7 +230,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
       </div>
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
-      <div style={{ marginTop: '16px', flexShrink: 0 }}>
+      <div className="mt-4 shrink-0">
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Response Curve 차트 " />
       </div>
     </div>

@@ -131,16 +131,14 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
   return (
     <div>
-      <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', fontFamily: 'Paperlogy, sans-serif', width: '100%', overflowX: 'auto' }} className="custom-scrollbar">
-        <div style={{ minWidth: '1500px' }}>
+      <div className="custom-scrollbar border border-[hsl(var(--border))] rounded-lg font-[Paperlogy,sans-serif] w-full overflow-x-auto">
+        <div className="min-w-[1500px]">
           {/* 헤더 */}
-          <div style={{ display: 'grid', gridTemplateColumns: GRID_COLS, backgroundColor: 'hsl(var(--muted))', borderBottom: '1px solid hsl(var(--border))', fontSize: '12px', fontWeight: '500' }}>
-            <div style={{ padding: '12px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="grid bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))] text-[12px] font-medium" style={{ gridTemplateColumns: GRID_COLS }}>
+            <div className="px-2 py-3 flex items-center justify-center">
               <button
                 onClick={toggleAll}
-                style={{ background: 'none', border: 'none', color: 'hsl(var(--foreground))', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', fontFamily: 'Paperlogy, sans-serif' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted-foreground) / 0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                className="bg-none border-none text-[hsl(var(--foreground))] text-[11px] font-medium cursor-pointer px-2 py-1 rounded font-[Paperlogy,sans-serif] hover:bg-[hsl(var(--muted-foreground)/0.1)]"
               >
                 {isAllExpanded ? 'Collapse' : 'Expand'}
               </button>
@@ -166,16 +164,15 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                 {/* 1depth: Media */}
                 <div
                   onClick={() => toggle(g.mediaId)}
-                  style={{ display: 'grid', gridTemplateColumns: GRID_COLS, backgroundColor: 'hsl(var(--muted) / 0.5)', borderBottom: '1px solid hsl(var(--border))', cursor: 'pointer', fontSize: '13px', fontWeight: '600', transition: 'background-color 0.2s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.7)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)'}
+                  className="grid bg-[hsl(var(--muted)/0.5)] hover:bg-[hsl(var(--muted)/0.7)] border-b border-[hsl(var(--border))] cursor-pointer text-[13px] font-semibold transition-colors duration-200"
+                  style={{ gridTemplateColumns: GRID_COLS }}
                 >
-                  <div style={{ padding: '12px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="px-2 py-3 flex items-center justify-center">
                     <ChevronRight size={16} style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                   </div>
-                  <div style={{ ...cell('left'), minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" style={cell('left')}>
                     <span>{g.mediaName}</span>
-                    <span style={{ fontSize: '11px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', marginLeft: '6px' }}>({g.products.length})</span>
+                    <span className="text-[11px] font-normal text-[hsl(var(--muted-foreground))] ml-[6px]">({g.products.length})</span>
                   </div>
                   <div style={cell()}><BudgetCell amount={g.budget} isFixed={g.hasFixed} /></div>
                   <div style={cell()}>{pct(g.ratio)}</div>
@@ -191,9 +188,9 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
                 {/* 2depth: Product */}
                 {isExpanded && g.products.map((p) => (
-                  <div key={`${p.mediaId}-${p.productName}`} style={{ display: 'grid', gridTemplateColumns: GRID_COLS, borderBottom: '1px solid hsl(var(--border))', fontSize: '13px' }}>
+                  <div key={`${p.mediaId}-${p.productName}`} className="grid border-b border-[hsl(var(--border))] text-[13px]" style={{ gridTemplateColumns: GRID_COLS }}>
                     <div />
-                    <div style={{ ...cell('left'), color: 'hsl(var(--foreground))', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.productName}>{p.productName}</div>
+                    <div className="text-[hsl(var(--foreground))] overflow-hidden text-ellipsis whitespace-nowrap" style={cell('left')} title={p.productName}>{p.productName}</div>
                     <div style={cell()}>
                       {(() => {
                         const locked = lockedMap.get(`${p.mediaId}|${p.productName}`)
@@ -248,7 +245,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
             const avgCpc = totals.click > 0 ? Math.round(totals.budget / totals.click) : 0
             const avgCpv = totals.view > 0 ? Math.round(totals.budget / totals.view) : 0
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: GRID_COLS, backgroundColor: 'hsl(var(--muted))', borderTop: '2px solid hsl(var(--foreground))', fontSize: '13px', fontWeight: '600' }}>
+              <div className="grid bg-[hsl(var(--muted))] border-t-2 border-[hsl(var(--foreground))] text-[13px] font-semibold" style={{ gridTemplateColumns: GRID_COLS }}>
                 <div />
                 <div style={cell('left')}>Estimated Total</div>
                 <div style={cell()}>

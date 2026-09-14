@@ -53,39 +53,34 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
   const data = viewMode === 'media' ? mediaData : productData
 
   return (
-    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-[400px] flex flex-col">
       {/* 타이틀 + Info 툴팁 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>예산은 어디에 배분되었을까?</h4>
-        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Budget Share</span>
+      <div className="relative flex items-center gap-1.5 mb-1 shrink-0">
+        <h4 className="text-[17px] font-medium m-0">예산은 어디에 배분되었을까?</h4>
+        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">Budget Share</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
-          style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+          className="flex items-center bg-transparent border-none p-0.5 cursor-help text-[hsl(var(--muted-foreground))] opacity-60"
         >
           <Info size={14} />
         </button>
         {tooltipOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '280px',
-            backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-            borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-            zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
-          }}>
-            <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Budget Share</div>
+          <div className="absolute top-full left-0 mt-2 w-[280px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] z-[100] text-[12px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            <div className="font-semibold text-[hsl(var(--foreground))] mb-1.5">Budget Share</div>
             선택된 매체·상품별 예산 배분 비중을 시각화합니다.
-            <div style={{ marginTop: '6px' }}>비중 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타(Others)'로 합산됩니다.</div>
+            <div className="mt-1.5">비중 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타(Others)'로 합산됩니다.</div>
           </div>
         )}
       </div>
-      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
+      <p className="text-[11px] text-[hsl(var(--muted-foreground))] mb-2 shrink-0">
         매체·상품별 예산 배분 비중
       </p>
 
       {/* 차트 본체 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
-      <div style={{ height: '300px', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div className="h-[300px] shrink-0 flex flex-col justify-center">
         {/* 100% Stacked Bar */}
-        <div style={{ display: 'flex', width: '100%', height: '36px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
+        <div className="flex w-full h-9 rounded-md overflow-hidden mb-4">
           {data.map((d, i) => (
             <div
               key={d.name}
@@ -113,23 +108,20 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
         </div>
 
         {/* 범례 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div className="flex flex-col gap-1.5">
           {data.map((d, i) => (
             <div
               key={d.name}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px',
-                opacity: hovered === null || hovered === i ? 1 : 0.5,
-                transition: 'opacity 0.2s'
-              }}
+              className="flex items-center justify-between text-[12px] transition-opacity"
+              style={{ opacity: hovered === null || hovered === i ? 1 : 0.5 }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+              <div className="flex items-center gap-2 min-w-0">
                 <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: getMediaColorByRank(i), flexShrink: 0 }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">{d.name}</span>
               </div>
-              <span style={{ fontWeight: '500', flexShrink: 0, marginLeft: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              <span className="font-medium shrink-0 ml-3 text-[hsl(var(--muted-foreground))]">
                 {d.ratio.toFixed(1)}% · {formatBudget(d.value)}원
               </span>
             </div>
@@ -138,7 +130,7 @@ export function BOBudgetPieChart({ allocations, insight, viewMode, onAsk }: BOBu
       </div>
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
-      <div style={{ marginTop: '16px', flexShrink: 0 }}>
+      <div className="mt-4 shrink-0">
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Budget Share 차트 " />
       </div>
     </div>

@@ -128,7 +128,11 @@
 **5단계 — Tailwind 도입 및 재작업**
 - 프로덕트 버전에 맞춰 Tailwind v4를 도입함. (Vite 5 업그레이드 + `@tailwindcss/vite` 플러그인, `@import "tailwindcss"`, `.dark` 클래스 기반 `@custom-variant` 등록)
 - `BOScenarioList`를 CSS Module에서 Tailwind 유틸리티로 재작업하고 CSS Module 파일을 제거함.
-- 통과 시 나머지 BO 컴포넌트(`BOResult`, `BOCreateScenario` 등)로 확산함.
+
+**6단계 — Budget Optimizer 전체 확산 (완료)**
+- 개발자 승인 후 BO 전 컴포넌트(총 15개)로 Tailwind 우선 전환을 확산함.
+- 일반 화면(ScoreCards·SpinXInsight·MediaDialog), 폼(Step1·Step2·CreateScenario), 결과 화면(Result·ResultTable·ReachCasterEasyCreateModal), 차트 4종을 정적 스타일→Tailwind, 동적 값→인라인 유지 원칙으로 전환함.
+- 차트는 규범상 복잡 스타일 예외로 다루어, recharts 내부·동적 색·상태 값은 인라인으로 유지하고 정적 wrapper만 전환함.
 
 **보류 (조건부)**
 - slot / reachcaster / datashot은 현행 인라인을 유지함. 프로덕트 방침이 "해당 모듈도 Tailwind 전환"으로 변경될 경우에만 착수함.
@@ -154,13 +158,18 @@
 | **완료** | 공통 클래스·디자인 토큰이 프로덕트와 동일하게 유지됨. |
 | **완료** | 프로덕트와 동일한 Tailwind v4 환경이 구성됨. |
 | **완료** | slot / reachcaster / datashot이 현행대로 유지됨. (불필요한 변경 없음) |
+| **완료** | Budget Optimizer 전체 컴포넌트(15개)가 Tailwind 우선으로 전환됨. |
 | **개발자 확인 대기** | BO 코드베이스 기획서 수령 시 프론트의 스타일 정리 작업이 발생하지 않음. |
-| **확산 후 확정** | 코드베이스 기획서가 프로덕트 코드로 직접 편입 가능한 수준에 도달함. (나머지 BO 컴포넌트 확산 후 확정) |
 
-### 3. 잔여 과제
+### 3. 확산 결과 (2026-09-14)
+
+- Budget Optimizer 전 컴포넌트를 Tailwind 우선으로 전환 완료함. 각 단계마다 `npm run build` 통과(exit 0)를 확인함.
+- 남은 인라인 스타일은 전부 규범상 정당한 항목임: 조건부 색·보더(검증/선택/스텝 상태), 런타임 계산 값(진행률 width 등), recharts 내부 렌더러, 그리드 상수, Toast 성공 의미색.
+
+### 4. 잔여 과제
 
 - 성공 의미색(`hsl(142.1 76.2% 36.3%)`)은 reachcaster/datashot/component-library 등 **전역 공통**으로 사용 중임. 토큰화는 본 격상 범위를 넘어서는 **전역 결정**이므로 별도 과제로 분리함.
-- 나머지 BO 컴포넌트(`BOResult`, `BOCreateScenario` 등)에 Tailwind 우선 방향을 확산함.
+- `BOBudgetPieChart` 스택바 라벨의 HEX 하드코딩(`#000`/`#fff`)은 강조색 세그먼트 위 대비 텍스트로 원본 의도가 있는 값임. 형식 변환 범위를 넘어서므로 별도 과제로 분리함. (다크모드 영향 검토 필요)
 
 ---
 
@@ -171,3 +180,4 @@
 - 2026-09-14: 정식 문서 톤으로 재구성.
 - 2026-09-14: 문서 구조 정비 (개요 / 현황 및 방향성 / 실행 계획 / 결과 검증), 명사형 종결 통일, 유지 자산 부각. 파일럿 결과 반영.
 - 2026-09-14: **파일럿 검증 후 방향 재조정.** 개발자 재피드백(Tailwind 우선, CSS Module은 복잡 스타일만)에 따라 방향을 CSS Module 우선에서 Tailwind 우선으로 전환함. Tailwind v4 도입(Vite 5 업그레이드 포함), BOScenarioList를 Tailwind 유틸리티로 재작업, steering·hook 규범 갱신.
+- 2026-09-14: **Budget Optimizer 전체 확산 완료.** BO 전 컴포넌트(15개)를 Tailwind 우선으로 전환하고 각 단계 빌드 통과를 확인함. 확산 결과·잔여 과제 반영.

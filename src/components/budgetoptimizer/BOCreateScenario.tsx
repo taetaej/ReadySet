@@ -215,53 +215,46 @@ export function BOCreateScenario() {
         onNavigateToWorkspace: () => handleCancel('/slotboard')
       }}
     >
-      <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div className="p-8 max-w-[1400px] mx-auto">
         {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>새 시나리오 생성</h1>
-          <p style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))' }}>단계별로 시나리오 정보를 입력하고 분석을 시작하세요</p>
+        <div className="mb-8">
+          <h1 className="text-[28px] font-bold mb-2">새 시나리오 생성</h1>
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">단계별로 시나리오 정보를 입력하고 분석을 시작하세요</p>
         </div>
 
         {/* Wizard Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 420px', gap: '48px', alignItems: 'start' }}>
+        <div className="grid grid-cols-[1fr_1px_420px] gap-12 items-start">
           {/* Left: Stepper + Form */}
           <div>
             {/* Stepper */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '40px', gap: '8px' }}>
+            <div className="flex items-center mb-10 gap-2">
               {steps.map((step, index) => (
-                <div key={step.number} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '8px 16px', borderRadius: '20px',
+                <div key={step.number} className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 py-2 px-4 rounded-[20px] transition-all duration-300" style={{
                     backgroundColor: step.number === currentStep ? 'hsl(var(--primary))' : step.number < currentStep ? 'hsl(var(--muted))' : 'transparent',
-                    border: step.number > currentStep ? '1px solid hsl(var(--border))' : 'none',
-                    transition: 'all 0.3s'
+                    border: step.number > currentStep ? '1px solid hsl(var(--border))' : 'none'
                   }}>
-                    <div style={{
-                      width: '20px', height: '20px', borderRadius: '50%',
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold" style={{
                       backgroundColor: step.number === currentStep ? 'hsl(var(--primary-foreground))' : step.number < currentStep ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
-                      color: step.number === currentStep ? 'hsl(var(--primary))' : 'hsl(var(--primary-foreground))',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '11px', fontWeight: '600'
+                      color: step.number === currentStep ? 'hsl(var(--primary))' : 'hsl(var(--primary-foreground))'
                     }}>
                       {step.number < currentStep ? <Check size={12} /> : step.number}
                     </div>
-                    <span style={{
-                      fontSize: '13px', fontWeight: '500',
+                    <span className="text-[13px] font-medium" style={{
                       color: step.number === currentStep ? 'hsl(var(--primary-foreground))' : step.number < currentStep ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'
                     }}>
                       {step.title}
                     </span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div style={{ width: '24px', height: '1px', backgroundColor: step.number < currentStep ? 'hsl(var(--primary))' : 'hsl(var(--border))', transition: 'all 0.3s' }} />
+                    <div className="w-6 h-px transition-all duration-300" style={{ backgroundColor: step.number < currentStep ? 'hsl(var(--primary))' : 'hsl(var(--border))' }} />
                   )}
                 </div>
               ))}
             </div>
 
             {/* Form Area */}
-            <div style={{ minHeight: '500px' }}>
+            <div className="min-h-[500px]">
               {currentStep === 1 && (
                 <BOStep1 formData={formData} setFormData={setFormData} validationActive={validationActive} />
               )}
@@ -269,45 +262,27 @@ export function BOCreateScenario() {
                 <BOStep2 formData={formData} setFormData={setFormData} validationActive={validationActive} />
               )}
               {currentStep === 3 && (
-                <div style={{ width: '800px' }}>
-                  <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>검토 및 실행</h2>
+                <div className="w-[800px]">
+                  <h2 className="text-xl font-semibold mb-6">검토 및 실행</h2>
 
                   {/* 안내 메시지 */}
-                  <div style={{
-                    padding: '20px',
-                    backgroundColor: 'hsl(var(--muted) / 0.5)',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    marginBottom: '32px'
-                  }}>
-                    <div style={{
-                      fontSize: '14px', fontWeight: '600', marginBottom: '12px',
-                      color: 'hsl(var(--foreground))',
-                      display: 'flex', alignItems: 'center', gap: '8px'
-                    }}>
+                  <div className="p-5 bg-[hsl(var(--muted)/0.5)] border border-[hsl(var(--border))] rounded-lg mb-8">
+                    <div className="text-sm font-semibold mb-3 text-[hsl(var(--foreground))] flex items-center gap-2">
                       <Clock size={18} />
                       시나리오 생성 소요 시간 안내
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+                    <div className="text-[13px] font-semibold mb-2 text-[hsl(var(--foreground))]">
                       "KPI 목표에 따른 매체별 최적 예산 배분안을 도출합니다."
                     </div>
-                    <div style={{ fontSize: '13px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))' }}>
+                    <div className="text-[13px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
                       수만 개의 예산 조합을 시뮬레이션하여 데이터 기반의 최적 배분안을 도출합니다.<br />
-                      정밀 연산을 위해 <strong style={{ color: 'hsl(var(--foreground))' }}>최대 20분</strong>이 소요될 수 있으며, 완료 시 상단 <strong style={{ color: 'hsl(var(--foreground))' }}>알림 센터</strong>에서 알려드립니다.
+                      정밀 연산을 위해 <strong className="text-[hsl(var(--foreground))]">최대 20분</strong>이 소요될 수 있으며, 완료 시 상단 <strong className="text-[hsl(var(--foreground))]">알림 센터</strong>에서 알려드립니다.
                     </div>
                   </div>
 
                   {/* 확인 메시지 */}
-                  <div style={{
-                    padding: '16px 20px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}>
-                    <div style={{
-                      fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))',
-                      lineHeight: '1.5', display: 'flex', alignItems: 'center', gap: '8px'
-                    }}>
+                  <div className="py-4 px-5 bg-[hsl(var(--muted)/0.3)] border border-[hsl(var(--border))] rounded-lg">
+                    <div className="text-[13px] font-medium text-[hsl(var(--foreground))] leading-[1.5] flex items-center gap-2">
                       <Check size={16} />
                       우측 Configuration Summary에서 설정 내용을 확인하세요!
                     </div>
@@ -317,9 +292,9 @@ export function BOCreateScenario() {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
+            <div className="flex justify-between mt-6">
               <button onClick={() => handleCancel('/budgetoptimizer')} className="btn btn-ghost btn-lg">취소</button>
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div className="flex gap-3">
                 {currentStep > 1 && (
                   <button onClick={handlePrev} className="btn btn-secondary btn-lg">
                     <ChevronLeft size={20} />
@@ -346,70 +321,51 @@ export function BOCreateScenario() {
           </div>
 
           {/* Divider */}
-          <div style={{ width: '1px', backgroundColor: 'hsl(var(--border))', minHeight: '600px' }} />
+          <div className="w-px bg-[hsl(var(--border))] min-h-[600px]" />
 
           {/* Right: Configuration Summary */}
-          <div style={{ position: 'sticky', top: '24px' }}>
-            <div style={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              padding: '24px'
-            }}>
-              <div style={{
-                marginBottom: '24px',
-                paddingBottom: '16px',
-                borderBottom: '1px solid hsl(var(--border))'
-              }}>
-                <h3 style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  margin: 0,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  color: 'hsl(var(--muted-foreground))'
-                }}>
+          <div className="sticky top-6">
+            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-6">
+              <div className="mb-6 pb-4 border-b border-[hsl(var(--border))]">
+                <h3 className="text-[13px] font-semibold m-0 uppercase tracking-[0.5px] text-[hsl(var(--muted-foreground))]">
                   Configuration Summary
                 </h3>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="flex flex-col gap-6">
                 {/* Step 1: 기본 정보 */}
                 <div>
-                  <div style={{
-                    fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',
-                    letterSpacing: '0.8px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px'
-                  }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.8px] text-[hsl(var(--muted-foreground))] mb-3">
                     Step 1 · Basic Information
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>시나리오명</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: formData.scenarioName ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))', textAlign: 'right', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">시나리오명</span>
+                      <span className="text-[13px] font-medium text-right max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: formData.scenarioName ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.scenarioName || '—'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>업종</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: formData.industry ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">업종</span>
+                      <span className="text-[13px] font-medium" style={{ color: formData.industry ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.industry || '—'}
                       </span>
                     </div>
                     {formData.brand && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>브랜드</span>
-                        <span style={{ fontSize: '13px', fontWeight: '500' }}>{formData.brand}</span>
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-xs text-[hsl(var(--muted-foreground))]">브랜드</span>
+                        <span className="text-[13px] font-medium">{formData.brand}</span>
                       </div>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>KPI</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: formData.kpi ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">KPI</span>
+                      <span className="text-[13px] font-medium" style={{ color: formData.kpi ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.kpi ? KPI_LABELS[formData.kpi] : '—'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>캠페인 기간</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: (formData.period.start || formData.period.end) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">캠페인 기간</span>
+                      <span className="text-[13px] font-medium" style={{ color: (formData.period.start || formData.period.end) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.period.start || '—'} → {formData.period.end || '—'}
                       </span>
                     </div>
@@ -417,56 +373,43 @@ export function BOCreateScenario() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
+                <div className="h-px bg-[hsl(var(--border))]" />
 
                 {/* Step 2: 매체/예산 설정 */}
                 <div>
-                  <div style={{
-                    fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',
-                    letterSpacing: '0.8px',
-                    color: currentStep >= 2 ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground) / 0.5)',
-                    marginBottom: '12px'
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.8px] mb-3" style={{
+                    color: currentStep >= 2 ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground) / 0.5)'
                   }}>
                     Step 2 · Media & Budget
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>선택 상품</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: formData.products.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">선택 상품</span>
+                      <span className="text-[13px] font-medium" style={{ color: formData.products.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.products.length > 0 ? `${formData.products.length}개` : '—'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>총 예산</span>
-                      <span style={{ fontSize: '13px', fontWeight: '500', color: formData.totalBudget > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-[hsl(var(--muted-foreground))]">총 예산</span>
+                      <span className="text-[13px] font-medium" style={{ color: formData.totalBudget > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
                         {formData.totalBudget > 0 ? formatBudget(formData.totalBudget) : '—'}
                       </span>
                     </div>
                     {formData.products.length > 0 && (
-                      <div style={{
-                        marginTop: '8px', padding: '8px',
-                        backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px',
-                        display: 'flex', flexDirection: 'column', gap: '8px'
-                      }}>
+                      <div className="mt-2 p-2 bg-[hsl(var(--muted)/0.3)] rounded-md flex flex-col gap-2">
                         {[...new Set(formData.products.map(p => p.mediaId))].map((mediaId) => {
                           const products = formData.products.filter(p => p.mediaId === mediaId)
                           const mediaFixed = formData.mediaFixed.find(m => m.mediaId === mediaId)
                           const isMediaLocked = mediaFixed?.isFixed || false
                           return (
                             <div key={mediaId}>
-                              <div style={{ fontSize: '10px', fontWeight: '600', color: 'hsl(var(--muted-foreground))', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                {isMediaLocked && <Lock size={8} style={{ color: 'hsl(var(--foreground))' }} />}
+                              <div className="text-[10px] font-semibold text-[hsl(var(--muted-foreground))] mb-1 flex items-center gap-[3px]">
+                                {isMediaLocked && <Lock size={8} className="text-[hsl(var(--foreground))]" />}
                                 {mediaId}
                               </div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
+                              <div className="flex flex-wrap gap-[3px]">
                                 {products.map(p => (
-                                  <div key={`${p.mediaId}-${p.productName}`} style={{
-                                    fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
-                                    backgroundColor: p.isFixed ? 'hsl(var(--muted))' : 'hsl(var(--muted))',
-                                    color: p.isFixed ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-                                    fontWeight: '500', whiteSpace: 'nowrap',
-                                    display: 'flex', alignItems: 'center', gap: '3px'
-                                  }}>
+                                  <div key={`${p.mediaId}-${p.productName}`} className="text-[10px] py-0.5 px-1.5 rounded bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] font-medium whitespace-nowrap flex items-center gap-[3px]">
                                     {p.isFixed && <Lock size={8} />}
                                     {p.productName}
                                   </div>
@@ -481,23 +424,20 @@ export function BOCreateScenario() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
+                <div className="h-px bg-[hsl(var(--border))]" />
 
                 {/* Step 3 */}
                 <div>
-                  <div style={{
-                    fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',
-                    letterSpacing: '0.8px',
-                    color: currentStep >= 3 ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground) / 0.5)',
-                    marginBottom: '12px'
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.8px] mb-3" style={{
+                    color: currentStep >= 3 ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground) / 0.5)'
                   }}>
                     Step 3 · Review & Execute
                   </div>
-                  <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+                  <div className="text-xs text-[hsl(var(--muted-foreground))]">
                     {currentStep >= 3 ? (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <div className="flex justify-between items-baseline">
                         <span>검토</span>
-                        <span style={{ fontWeight: '500', color: 'hsl(var(--foreground))' }}>확인 완료</span>
+                        <span className="font-medium text-[hsl(var(--foreground))]">확인 완료</span>
                       </div>
                     ) : '검토'}
                   </div>

@@ -120,44 +120,39 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
   )
 
   return (
-    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-[400px] flex flex-col">
       {/* 타이틀 + Info + 줌 토글 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>업종 내 매체별 기여는 어떤 흐름일까?</h4>
-        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Weekly Contribution</span>
+      <div className="relative flex items-center gap-1.5 mb-1 shrink-0">
+        <h4 className="text-[17px] font-medium m-0">업종 내 매체별 기여는 어떤 흐름일까?</h4>
+        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">Weekly Contribution</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
-          style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+          className="flex items-center bg-transparent border-none p-0.5 cursor-help text-[hsl(var(--muted-foreground))] opacity-60"
         >
           <Info size={14} />
         </button>
 
         {tooltipOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '320px',
-            backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-            borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-            zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
-          }}>
-            <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Weekly Contribution</div>
+          <div className="absolute top-full left-0 mt-2 w-[320px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] z-[100] text-[12px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            <div className="font-semibold text-[hsl(var(--foreground))] mb-1.5">Weekly Contribution</div>
             해당 업종 모델이 학습한 과거 기간의 {viewMode === 'product' ? '상품별' : '매체별'} 주차별 {kpiLabel} 기여 패턴입니다. 이 시나리오의 미래 예측이 아니라, 업종 데이터에서 관측된 매체별 기여 경향을 보여줍니다.
-            <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: '1.6' }}>
+            <div className="mt-2 text-[11px] leading-[1.6]">
               <div><strong>최근 1년</strong>: 가장 최근 52주 구간만 표시</div>
               <div><strong>최근 2년</strong>: 모델이 학습한 전체 기간(104주) 표시</div>
-              <div style={{ marginTop: '6px' }}>음영 구간은 내 캠페인 기간의 전년·전전년 동기간으로, 같은 시기의 업종 매체 기여를 참고할 수 있습니다.</div>
-              <div style={{ marginTop: '6px' }}>기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
+              <div className="mt-1.5">음영 구간은 내 캠페인 기간의 전년·전전년 동기간으로, 같은 시기의 업종 매체 기여를 참고할 수 있습니다.</div>
+              <div className="mt-1.5">기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
             </div>
           </div>
         )}
       </div>
-      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
+      <p className="text-[11px] text-[hsl(var(--muted-foreground))] mb-2 shrink-0">
         업종 모델이 학습한 주차별 {viewMode === 'product' ? '상품' : '매체'} 기여 패턴
       </p>
 
       {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
-      <div style={{ height: '300px', display: 'flex', gap: '16px', flexShrink: 0 }}>
-        <div style={{ flex: 1 }}>
+      <div className="h-[300px] flex gap-4 shrink-0">
+        <div className="flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
               <XAxis
@@ -234,9 +229,9 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
         </div>
 
         {/* 우측 범례 (클릭 토글) */}
-        <div style={{ width: '200px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div className="w-[200px] flex flex-col shrink-0">
           {/* 범례 항목: 세로 중앙 */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
+          <div className="flex-1 flex flex-col justify-center gap-2">
             {mediaNames.map((name, i) => {
               const isHidden = hidden.has(name)
               return (
@@ -244,31 +239,30 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
                   key={name}
                   onClick={() => toggleSeries(name)}
                   title={name}
+                  className="flex items-center gap-1.5 text-[11px] bg-transparent border-none p-0 cursor-pointer text-left transition-opacity"
                   style={{
-                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px',
-                    background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
                     color: isHidden ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))',
-                    opacity: isHidden ? 0.45 : 1, transition: 'opacity 0.15s'
+                    opacity: isHidden ? 0.45 : 1
                   }}
                 >
                   <span style={{ width: '16px', height: '2px', backgroundColor: getMediaColorByRank(i), flexShrink: 0, borderRadius: '1px' }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: isHidden ? 'line-through' : 'none' }}>{name}</span>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ textDecoration: isHidden ? 'line-through' : 'none' }}>{name}</span>
                 </button>
               )
             })}
-            <div style={{ marginTop: '8px', fontSize: '10px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.5' }}>
+            <div className="mt-2 text-[10px] text-[hsl(var(--muted-foreground))] leading-[1.5]">
               업종 모델 과거 학습 데이터
             </div>
           </div>
           {/* X축 범위 전환 버튼: X축 라벨과 동일 선상 */}
-          <div style={{ paddingBottom: '24px' }}>
+          <div className="pb-6">
             {zoomButton}
           </div>
         </div>
       </div>
 
       {/* SpinX Insight (차트 영역 아래 자연 배치 — 텍스트 길이에 따라 아래로 늘어남) */}
-      <div style={{ marginTop: '16px', flexShrink: 0 }}>
+      <div className="mt-4 shrink-0">
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Weekly Contribution 차트 " />
       </div>
     </div>

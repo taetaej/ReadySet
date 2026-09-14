@@ -105,49 +105,40 @@ export function BOResult() {
   // 호버: 최적화 원리 요약 툴팁(B) / 클릭: SpinX 원리 설명 자동 전송(C)
   const spinXModelTrigger = (
     <div
-      style={{ position: 'relative', display: 'inline-flex' }}
+      className="relative inline-flex"
       onMouseEnter={() => setPrincipleTooltipOpen(true)}
       onMouseLeave={() => setPrincipleTooltipOpen(false)}
     >
       <button
         onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
-          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-          fontSize: '12px', color: 'hsl(var(--muted-foreground))'
-        }}
+        className="inline-flex items-center gap-[6px] bg-none border-none p-0 cursor-pointer text-[12px] text-[hsl(var(--muted-foreground))]"
       >
         <SpinXSymbol size={16} motion="idle" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
-        <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>최적화 원리 알아보기</span>
+        <span className="underline underline-offset-2">최적화 원리 알아보기</span>
       </button>
       {principleTooltipOpen && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '320px',
-          backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-          borderRadius: '8px', padding: '14px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-          zIndex: 1000, fontFamily: 'Paperlogy, sans-serif'
-        }}>
-          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '10px' }}>최적화 원리</div>
+        <div className="absolute top-full left-0 mt-2 w-[320px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-[14px] shadow-[0_10px_15px_-3px_rgb(0_0_0_/_0.1)] z-[1000] font-[Paperlogy,sans-serif]">
+          <div className="text-[13px] font-semibold mb-[10px]">최적화 원리</div>
 
           {/* 원리 2가지 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '1px' }}>1</span>
-              <div style={{ fontSize: '12px', lineHeight: '1.5' }}>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-start">
+              <span className="text-[11px] font-bold text-[hsl(var(--primary))] flex-shrink-0 mt-[1px]">1</span>
+              <div className="text-[12px] leading-[1.5]">
                 <b>매체 우선 배분</b>
                 <div className="text-muted-foreground">매체 단위로 먼저 나눈 뒤, 그 안에서 상품별로 배분합니다.</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'hsl(var(--primary))', flexShrink: 0, marginTop: '1px' }}>2</span>
-              <div style={{ fontSize: '12px', lineHeight: '1.5' }}>
+            <div className="flex gap-2 items-start">
+              <span className="text-[11px] font-bold text-[hsl(var(--primary))] flex-shrink-0 mt-[1px]">2</span>
+              <div className="text-[12px] leading-[1.5]">
                 <b>효율 포화 회피</b>
                 <div className="text-muted-foreground">성과가 둔해지는 포화 지점을 넘는 과잉 투입은 피합니다.</div>
               </div>
             </div>
           </div>
 
-          <div className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '12px', opacity: 0.8 }}>
+          <div className="text-muted-foreground text-[11px] mt-3 opacity-80">
             클릭하면 SpinX가 이 시나리오에 맞춰 더 자세히 설명해 드려요.
           </div>
         </div>
@@ -181,67 +172,55 @@ export function BOResult() {
       }}>
         {/* 결과 헤더 (single-line) */}
         <div className="slot-detail-header">
-          <div className="slot-detail-header__main" style={{ alignItems: 'center' }}>
+          <div className="slot-detail-header__main items-center">
             {/* 좌측: 타이틀 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-              <h1 style={{
-                fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Paperlogy, sans-serif',
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0
-              }}>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <h1 className="text-[20px] font-medium m-0 font-[Paperlogy,sans-serif] whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
                 {result.name}
               </h1>
             </div>
 
             {/* 중앙: 주요 정보 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', fontFamily: 'Paperlogy, sans-serif', flexShrink: 0 }} className="text-muted-foreground">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontWeight: '500' }}>총 예산</span>
+            <div className="text-muted-foreground flex items-center gap-4 text-[12px] font-[Paperlogy,sans-serif] flex-shrink-0">
+              <div className="flex items-center gap-1">
+                <span className="font-medium">총 예산</span>
                 <span>{fmtWon(result.totalBudget)}</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontWeight: '500' }}>KPI</span>
-                <span style={{
-                  padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
-                  backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))'
-                }}>{KPI_LABELS[result.kpi]}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-medium">KPI</span>
+                <span className="px-2 py-[2px] rounded-[10px] text-[11px] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">{KPI_LABELS[result.kpi]}</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontWeight: '500' }}>업종</span>
+              <div className="flex items-center gap-1">
+                <span className="font-medium">업종</span>
                 <span>{result.brand ? `${result.brand} / ${result.industry}` : result.industry}</span>
               </div>
               <span>•</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontWeight: '500' }}>기간</span>
+              <div className="flex items-center gap-1">
+                <span className="font-medium">기간</span>
                 <span>{result.period.start} → {result.period.end}</span>
               </div>
             </div>
 
-            <div style={{ width: '1px', height: '24px', backgroundColor: 'hsl(var(--border))', margin: '0 8px', flexShrink: 0 }} />
+            <div className="w-px h-6 bg-[hsl(var(--border))] mx-2 flex-shrink-0" />
 
             {/* 우측: 액션 버튼들 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Export 드롭다운 */}
-              <div style={{ position: 'relative' }}>
-                <button onClick={() => setExportMenuOpen(!exportMenuOpen)} className="btn btn-ghost btn-sm" style={{ padding: '6px' }}>
+              <div className="relative">
+                <button onClick={() => setExportMenuOpen(!exportMenuOpen)} className="btn btn-ghost btn-sm p-[6px]">
                   <Share2 size={16} />
                 </button>
                 {exportMenuOpen && (
-                  <div style={{
-                    position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '200px',
-                    backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', zIndex: 1000, overflow: 'hidden'
-                  }}>
+                  <div className="absolute top-full right-0 mt-2 w-[200px] bg-[hsl(var(--popover))] border border-[hsl(var(--border))] rounded-lg shadow-[0_10px_15px_-3px_rgb(0_0_0_/_0.1)] z-[1000] overflow-hidden">
                     {[
                       { icon: <Link2 size={16} />, label: 'Copy Link', onClick: handleCopyLink },
                       { icon: <FileSpreadsheet size={16} />, label: 'Export to Excel', onClick: handleExportExcel },
                       { icon: <FileText size={16} />, label: 'Export to PDF', onClick: handleExportPDF }
                     ].map((item) => (
                       <button key={item.label} onClick={item.onClick}
-                        style={{ width: '100%', padding: '12px 16px', border: 'none', backgroundColor: 'transparent', textAlign: 'left', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '10px', color: 'hsl(var(--popover-foreground))' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        className="w-full px-4 py-3 border-none bg-transparent hover:bg-[hsl(var(--muted))] text-left cursor-pointer text-[13px] flex items-center gap-[10px] text-[hsl(var(--popover-foreground))]">
                         {item.icon}<span>{item.label}</span>
                       </button>
                     ))}
@@ -249,67 +228,61 @@ export function BOResult() {
                 )}
               </div>
               {/* Info 툴팁 */}
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 <button
                   data-info-tooltip
                   onMouseEnter={() => setInfoTooltipOpen(true)}
                   onMouseLeave={() => setInfoTooltipOpen(false)}
-                  className="btn btn-ghost btn-sm"
-                  style={{ padding: '6px' }}
+                  className="btn btn-ghost btn-sm p-[6px]"
                 >
                   <Info size={16} />
                 </button>
                 {infoTooltipOpen && (
-                  <div style={{
-                    position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '280px',
-                    backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                    zIndex: 1000, fontFamily: 'Paperlogy, sans-serif'
-                  }}>
-                    <div style={{ marginBottom: '12px' }}>
-                      <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>설명</div>
-                      <div style={{ fontSize: '13px', lineHeight: '1.5' }}>{result.description}</div>
+                  <div className="absolute top-full right-0 mt-2 w-[280px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0_0_0_/_0.1)] z-[1000] font-[Paperlogy,sans-serif]">
+                    <div className="mb-3">
+                      <div className="text-muted-foreground text-[11px] mb-1">설명</div>
+                      <div className="text-[13px] leading-[1.5]">{result.description}</div>
                     </div>
-                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
-                    <div style={{ marginBottom: '12px' }}>
-                      <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>Scenario ID</div>
-                      <div style={{ fontSize: '13px', fontWeight: '500' }}>{result.id}</div>
+                    <div className="h-px bg-[hsl(var(--border))] my-2" />
+                    <div className="mb-3">
+                      <div className="text-muted-foreground text-[11px] mb-1">Scenario ID</div>
+                      <div className="text-[13px] font-medium">{result.id}</div>
                     </div>
-                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
-                    <div style={{ marginBottom: '12px' }}>
-                      <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>생성일시</div>
-                      <div style={{ fontSize: '13px', fontWeight: '500' }}>{result.created}</div>
-                      <div className="text-muted-foreground" style={{ fontSize: '12px' }}>
+                    <div className="h-px bg-[hsl(var(--border))] my-2" />
+                    <div className="mb-3">
+                      <div className="text-muted-foreground text-[11px] mb-1">생성일시</div>
+                      <div className="text-[13px] font-medium">{result.created}</div>
+                      <div className="text-muted-foreground text-[12px]">
                         {result.creator} ({maskEmail(result.creatorId)})
                       </div>
                     </div>
-                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '8px 0' }} />
+                    <div className="h-px bg-[hsl(var(--border))] my-2" />
                     <div>
-                      <div className="text-muted-foreground" style={{ fontSize: '11px', marginBottom: '4px' }}>완료일시</div>
-                      <div style={{ fontSize: '13px', fontWeight: '500' }}>{result.completedAt}</div>
+                      <div className="text-muted-foreground text-[11px] mb-1">완료일시</div>
+                      <div className="text-[13px] font-medium">{result.completedAt}</div>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* 컨텍스트 메뉴 */}
-              <div style={{ position: 'relative' }}>
-                <button onClick={() => setMenuOpen(!menuOpen)} className="btn btn-ghost btn-sm" style={{ padding: '6px' }}>
+              <div className="relative">
+                <button onClick={() => setMenuOpen(!menuOpen)} className="btn btn-ghost btn-sm p-[6px]">
                   <MoreVertical size={16} />
                 </button>
                 {menuOpen && (
-                  <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '260px', zIndex: 1000 }}>
-                    <button onClick={() => { setMenuOpen(false); setEasyCreateOpen(true) }} className="dropdown-item" style={{ whiteSpace: 'nowrap' }}>
+                  <div className="dropdown absolute top-full right-0 mt-1 w-[260px] z-[1000]">
+                    <button onClick={() => { setMenuOpen(false); setEasyCreateOpen(true) }} className="dropdown-item whitespace-nowrap">
                       <TrendingUp size={14} style={{ flexShrink: 0 }} /> Reach Caster로 도달 예측하기
                     </button>
-                    <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))', margin: '4px 0' }} />
+                    <div className="h-px bg-[hsl(var(--border))] my-1" />
                     <button onClick={handleDuplicate} className="dropdown-item">
                       <Copy size={14} /> 복제
                     </button>
                     <button onClick={() => { setMenuOpen(false); setShowMoveDialog(true) }} className="dropdown-item">
                       <ArrowRightLeft size={14} /> 이동
                     </button>
-                    <button onClick={() => { setMenuOpen(false); setShowDeleteDialog(true) }} className="dropdown-item" style={{ color: 'hsl(0 84% 60%)' }}>
+                    <button onClick={() => { setMenuOpen(false); setShowDeleteDialog(true) }} className="dropdown-item text-[hsl(var(--destructive))]">
                       <Trash2 size={14} /> 삭제
                     </button>
                   </div>
@@ -320,24 +293,18 @@ export function BOResult() {
         </div>
 
         {/* 본문 */}
-        <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="px-8 py-6 flex flex-col gap-6">
           {/* 결과 상태 띠배너 (잠금 시나리오에만 노출) */}
           {result.allocations.some(a => a.isFixed) && (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
-              marginLeft: '-32px', marginRight: '-32px', marginTop: '-24px',
-              padding: '14px 32px',
-              backgroundColor: 'hsl(var(--muted) / 0.35)',
-              borderBottom: '1px solid hsl(var(--border))'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', minWidth: 0 }}>
+            <div className="flex items-center justify-between gap-4 -mx-8 -mt-6 px-8 py-[14px] bg-[hsl(var(--muted)/0.35)] border-b border-[hsl(var(--border))]">
+              <div className="flex items-center gap-3 flex-wrap min-w-0">
                 {resultView === 'locked'
                   ? <Lock size={16} style={{ color: 'hsl(var(--foreground))', flexShrink: 0 }} />
                   : <Unlock size={16} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />}
-                <span style={{ fontSize: '15px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))' }}>
+                <span className="text-[15px] font-semibold font-[Paperlogy,sans-serif] text-[hsl(var(--foreground))]">
                   {resultView === 'locked' ? 'Locked Budget Allocation' : 'Fully Optimized Allocation'}
                 </span>
-                <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                <span className="text-[13px] text-[hsl(var(--muted-foreground))]">
                   {resultView === 'locked'
                     ? '시나리오 생성 시 설정한 예산 잠금이 반영된 최적화 결과입니다.'
                     : '예산 잠금 없이 모델이 전체 예산을 자유롭게 최적 배분한 결과입니다.'}
@@ -345,12 +312,7 @@ export function BOResult() {
               </div>
               <button
                 onClick={() => setResultView(resultView === 'locked' ? 'pure' : 'locked')}
-                style={{
-                  background: 'hsl(var(--foreground))', color: 'hsl(var(--background))',
-                  border: 'none', borderRadius: '20px', padding: '7px 14px',
-                  fontSize: '12px', fontWeight: '500', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0
-                }}
+                className="bg-[hsl(var(--foreground))] text-[hsl(var(--background))] border-none rounded-[20px] px-[14px] py-[7px] text-[12px] font-medium cursor-pointer flex items-center gap-[5px] flex-shrink-0"
               >
                 {resultView === 'locked' ? <><Unlock size={12} /> 순수 최적화 결과 보기</> : <><Lock size={12} /> 잠금 반영 최적화 결과 보기</>}
               </button>
@@ -367,23 +329,22 @@ export function BOResult() {
           />
 
           {/* 차트 존 상위 제목 + 최적화 원리 트리거 + 매체/상품 공통 토글 — 동일 선상 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '-16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', minWidth: 0 }}>
-              <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, color: 'hsl(var(--foreground))' }}>
+          <div className="flex items-center justify-between gap-4 mb-[-16px]">
+            <div className="flex items-center gap-[14px] flex-wrap min-w-0">
+              <h3 className="text-[20px] font-medium font-[Paperlogy,sans-serif] m-0 text-[hsl(var(--foreground))]">
                 Optimization Analytics
               </h3>
               {spinXModelTrigger}
             </div>
-            <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid hsl(var(--border))', overflow: 'hidden', flexShrink: 0 }}>
+            <div className="flex rounded-md border border-[hsl(var(--border))] overflow-hidden flex-shrink-0">
               {(['media', 'product'] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setChartViewMode(mode)}
+                  className="px-4 py-[6px] text-[12px] font-medium border-none cursor-pointer transition-all duration-200"
                   style={{
-                    padding: '6px 16px', fontSize: '12px', fontWeight: '500', border: 'none', cursor: 'pointer',
                     backgroundColor: chartViewMode === mode ? 'hsl(var(--foreground))' : 'transparent',
-                    color: chartViewMode === mode ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
-                    transition: 'all 0.2s'
+                    color: chartViewMode === mode ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))'
                   }}
                 >
                   {mode === 'media' ? '매체' : '상품'}
@@ -393,7 +354,7 @@ export function BOResult() {
           </div>
 
           {/* 차트 그리드 (각 차트가 한글 질문을 제목으로 가짐) — 여백 넉넉히 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '40px', rowGap: '48px' }}>
+          <div className="grid grid-cols-2 gap-x-10 gap-y-12">
             <BOBudgetPieChart allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} insight={result.spinxInsights.pie} viewMode={chartViewMode} onAsk={askSpinX} />
             <BOResponseCurveChart data={result.responseCurve} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.responseCurve} viewMode={chartViewMode} totalBudget={result.totalBudget} onAsk={askSpinX} />
             <BODailyAttributionChart data={result.dailyAttribution} dataByProduct={result.dailyAttributionByProduct} allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)} kpiLabel={kpiLabel} insight={result.spinxInsights.dailyAttribution} viewMode={chartViewMode} onAsk={askSpinX} campaignPeriod={result.period} />
@@ -403,11 +364,11 @@ export function BOResult() {
           {/* 차트 끝 */}
 
           {/* 결과 테이블 */}
-          <div style={{ marginTop: '24px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '500', fontFamily: 'Paperlogy, sans-serif', margin: 0, marginBottom: '8px', color: 'hsl(var(--foreground))' }}>
+          <div className="mt-6">
+            <h3 className="text-[20px] font-medium font-[Paperlogy,sans-serif] m-0 mb-2 text-[hsl(var(--foreground))]">
               Budget Allocation Detail
             </h3>
-            <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
+            <p className="text-[13px] text-[hsl(var(--muted-foreground))] mb-5">
               매체·상품별 예산 배분과 예상 성과를 상세하게 확인할 수 있습니다.
               {result.allocations.some(a => a.isFixed) && ' 순수 최적화 결과 보기에서는 값 아래에 사용자가 잠근 설정값 대비 증감(↑ 증가 · ↓ 감소)을 함께 표시합니다.'}
             </p>
@@ -422,17 +383,13 @@ export function BOResult() {
 
           {/* Reach Caster 간편 생성 CTA (완료 상태) — 눈에 띄는 primary 스타일 */}
           {result.status === 'Completed' && (
-            <div style={{
-              marginTop: '24px', paddingTop: '32px',
-              borderTop: '1px solid hsl(var(--border))',
-              display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px'
-            }}>
+            <div className="mt-6 pt-8 border-t border-[hsl(var(--border))] flex flex-col items-start gap-5">
               {/* 맥락: 여기서 새로 보게 될 것 */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '560px' }}>
-                <span style={{ fontSize: '18px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))', letterSpacing: '-0.01em' }}>
+              <div className="flex flex-col gap-[10px] max-w-[560px]">
+                <span className="text-[18px] font-semibold font-[Paperlogy,sans-serif] text-[hsl(var(--foreground))] tracking-[-0.01em]">
                   이 예산안이면 몇 명에게 닿을까요?
                 </span>
-                <span style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.6' }}>
+                <span className="text-[14px] text-[hsl(var(--muted-foreground))] leading-[1.6]">
                   Reach Caster에서 타겟 GRP를 설정하면 도달·프리퀀시와 리치커브까지 이어서 볼 수 있어요.
                 </span>
               </div>
@@ -440,30 +397,19 @@ export function BOResult() {
               {/* 버튼: 프로덕트 primary(pill) 표준에 맞춤 — 텍스트 아래 좌측 정렬 */}
               <button
                 onClick={() => setEasyCreateOpen(true)}
-                className="bo-reach-cta"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0,
-                  height: '48px', padding: '0 24px',
-                  background: 'hsl(var(--primary))',
-                  border: 'none', borderRadius: '24px',
-                  cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif',
-                  color: 'hsl(var(--primary-foreground))',
-                  transition: 'background-color 0.2s', whiteSpace: 'nowrap'
-                }}
+                className="bo-reach-cta inline-flex items-center gap-2 flex-shrink-0 h-12 px-6 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] border-none rounded-[24px] cursor-pointer text-[14px] font-semibold font-[Paperlogy,sans-serif] text-[hsl(var(--primary-foreground))] transition-colors duration-200 whitespace-nowrap"
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)'
                   const go = e.currentTarget.querySelector<HTMLElement>('.bo-reach-cta__go')
                   if (go) go.style.transform = 'translateX(3px)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'
                   const go = e.currentTarget.querySelector<HTMLElement>('.bo-reach-cta__go')
                   if (go) go.style.transform = 'translateX(0)'
                 }}
               >
                 <TrendingUp size={16} style={{ flexShrink: 0 }} />
                 Reach Caster로 예측하기
-                <span className="bo-reach-cta__go" style={{ display: 'inline-flex', alignItems: 'center', transition: 'transform 0.2s' }}>
+                <span className="bo-reach-cta__go inline-flex items-center transition-transform duration-200">
                   <ArrowRight size={16} />
                 </span>
               </button>
@@ -540,14 +486,13 @@ export function BOResult() {
                 "{result.name}"를 다른 Slot으로 이동합니다.
               </p>
             </div>
-            <div style={{ padding: '16px 0' }}>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+            <div className="py-4">
+              <div className="mb-3">
+                <label className="text-[13px] font-semibold mb-2 block">
                   이동할 Slot 선택
                 </label>
                 <select
-                  className="input"
-                  style={{ width: '100%' }}
+                  className="input w-full"
                   value={moveTargetSlot}
                   onChange={(e) => setMoveTargetSlot(e.target.value)}
                 >
@@ -599,11 +544,7 @@ export function BOResult() {
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="btn btn-sm"
-                style={{
-                  backgroundColor: 'hsl(var(--destructive))',
-                  color: 'hsl(var(--destructive-foreground))'
-                }}
+                className="btn btn-sm border-none bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]"
               >
                 삭제
               </button>

@@ -73,28 +73,23 @@ export function BOReachCasterEasyCreateModal({
     const label = gender === 'male' ? '남성' : '여성'
     const allSelected = targetGrpOptions[gender].every(t => selectedTarget.includes(t))
     return (
-      <div style={{ marginBottom: gender === 'male' ? '24px' : 0 }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid hsl(var(--border))'
-        }}>
-          <span style={{ fontSize: '14px', fontWeight: '600' }}>{label}</span>
+      <div className={gender === 'male' ? 'mb-6' : ''}>
+        <div className="flex justify-between items-center mb-4 pb-3 border-b border-[hsl(var(--border))]">
+          <span className="text-[14px] font-semibold">{label}</span>
           <button onClick={() => toggleAllGender(gender)} className="btn btn-ghost btn-sm">
             {allSelected ? '전체 해제' : '전체 선택'}
           </button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+        <div className="grid grid-cols-4 gap-2">
           {targetGrpOptions[gender].map((target) => {
             const isChecked = selectedTarget.includes(target)
             return (
               <label
                 key={target}
+                className="flex items-center gap-2 cursor-pointer px-[10px] py-2 rounded-md border transition-all duration-200"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-                  padding: '8px 10px', borderRadius: '6px',
-                  border: `1px solid ${isChecked ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                  backgroundColor: isChecked ? 'hsl(var(--primary) / 0.1)' : 'transparent',
-                  transition: 'all 0.2s'
+                  borderColor: isChecked ? 'hsl(var(--primary))' : 'hsl(var(--border))',
+                  backgroundColor: isChecked ? 'hsl(var(--primary) / 0.1)' : 'transparent'
                 }}
               >
                 <input
@@ -103,7 +98,7 @@ export function BOReachCasterEasyCreateModal({
                   onChange={() => toggleTarget(target)}
                   className="checkbox-custom"
                 />
-                <span style={{ fontSize: '12px' }}>{target.replace(`${label} `, '')}</span>
+                <span className="text-[12px]">{target.replace(`${label} `, '')}</span>
               </label>
             )
           })}
@@ -126,44 +121,40 @@ export function BOReachCasterEasyCreateModal({
           </p>
         </div>
 
-        <div style={{ padding: '24px' }}>
+        <div className="p-6">
           {/* 시나리오명 (자동 생성, 변경 불가) */}
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>시나리오명</div>
-            <div style={{ fontSize: '14px', color: 'hsl(var(--foreground))' }}>{presetName}</div>
+          <div className="mb-5">
+            <div className="text-[13px] font-semibold text-[hsl(var(--foreground))] mb-[6px]">시나리오명</div>
+            <div className="text-[14px] text-[hsl(var(--foreground))]">{presetName}</div>
           </div>
 
           {/* 승계 정보: 업종 · 캠페인 기간 (원본 시나리오에서 동일하게 전달) */}
-          <div style={{
-            display: 'flex', gap: '24px', flexWrap: 'wrap',
-            padding: '12px 14px', marginBottom: '24px', borderRadius: '8px',
-            backgroundColor: 'hsl(var(--muted) / 0.4)'
-          }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>업종</div>
-              <div style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{industry}</div>
+          <div className="flex gap-6 flex-wrap px-[14px] py-3 mb-6 rounded-lg bg-[hsl(var(--muted)/0.4)]">
+            <div className="min-w-0">
+              <div className="text-[11px] text-[hsl(var(--muted-foreground))] mb-[2px]">업종</div>
+              <div className="text-[13px] font-medium text-[hsl(var(--foreground))]">{industry}</div>
             </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '2px' }}>캠페인 기간</div>
-              <div style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{period.start} ~ {period.end}</div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[hsl(var(--muted-foreground))] mb-[2px]">캠페인 기간</div>
+              <div className="text-[13px] font-medium text-[hsl(var(--foreground))]">{period.start} ~ {period.end}</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', marginLeft: 'auto' }}>
-              <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>원본 시나리오와 동일하게 전달됩니다</span>
+            <div className="flex items-end ml-auto">
+              <span className="text-[11px] text-[hsl(var(--muted-foreground))]">원본 시나리오와 동일하게 전달됩니다</span>
             </div>
           </div>
 
           {/* 동일 슬롯 안내 */}
-          <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', margin: '-12px 0 24px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <p className="text-[12px] text-[hsl(var(--muted-foreground))] mt-[-12px] mb-6 flex items-center gap-[5px]">
             <Info size={12} style={{ flexShrink: 0 }} />
             생성되는 Reach Caster 시나리오는 현재 Slot 안에 함께 만들어집니다.
           </p>
 
           {/* 타겟 GRP — 기본 전체 선택, 접힘 요약 + 수정 시 전체 UI 펼침 */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-              <div style={{ minWidth: 0 }}>
-                <span style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>타겟 GRP</span>
-                <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginLeft: '8px' }}>
+          <div className="mb-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-[13px] font-semibold text-[hsl(var(--foreground))]">타겟 GRP</span>
+                <span className="text-[12px] text-[hsl(var(--muted-foreground))] ml-2">
                   {selectedTarget.length === allTargets.length ? '전체' : `${selectedTarget.length}개 선택`}
                 </span>
               </div>
@@ -172,7 +163,7 @@ export function BOReachCasterEasyCreateModal({
               </button>
             </div>
             {targetEditing && (
-              <div style={{ marginTop: '16px' }}>
+              <div className="mt-4">
                 {renderGenderSection('male')}
                 {renderGenderSection('female')}
               </div>
@@ -180,16 +171,16 @@ export function BOReachCasterEasyCreateModal({
           </div>
 
           {/* 전달 미리보기 표 (예상 노출 전달 옵션을 표 헤더 세그먼트로 통합) */}
-          <div style={{ marginTop: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '6px', flexWrap: 'wrap' }}>
+          <div className="mt-6">
+            <div className="flex items-center justify-between gap-3 mb-[6px] flex-wrap">
               <div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'hsl(var(--foreground))' }}>매체별 전달 내역</div>
-                <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '2px' }}>
+                <div className="text-[13px] font-semibold text-[hsl(var(--foreground))]">매체별 전달 내역</div>
+                <div className="text-[12px] text-[hsl(var(--muted-foreground))] mt-[2px]">
                   전달 {mapped.length}개 · 미지원 제외 {unmapped.length}개
                 </div>
               </div>
               {/* 예상 노출 전달 옵션 세그먼트 */}
-              <div style={{ display: 'inline-flex', padding: '2px', borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted) / 0.4)', flexShrink: 0 }}>
+              <div className="inline-flex p-[2px] rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.4)] flex-shrink-0">
                 {([
                   { key: 'all' as const, label: '노출 포함' },
                   { key: 'required' as const, label: '노출 필수 상품만', disabled: requiredImpressionCount === 0 },
@@ -219,19 +210,18 @@ export function BOReachCasterEasyCreateModal({
               </div>
             </div>
 
-            <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+            <div className="border border-[hsl(var(--border))] rounded-lg overflow-hidden">
               {/* 헤더 */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '1fr 110px 130px', gap: '8px',
-                padding: '9px 12px', backgroundColor: 'hsl(var(--muted) / 0.5)',
-                fontSize: '11px', fontWeight: '600', color: 'hsl(var(--muted-foreground))'
-              }}>
+              <div
+                className="grid gap-2 px-3 py-[9px] bg-[hsl(var(--muted)/0.5)] text-[11px] font-semibold text-[hsl(var(--muted-foreground))]"
+                style={{ gridTemplateColumns: '1fr 110px 130px' }}
+              >
                 <div>매체 &gt; 상품</div>
-                <div style={{ textAlign: 'right' }}>예산</div>
-                <div style={{ textAlign: 'right' }}>예상 노출</div>
+                <div className="text-right">예산</div>
+                <div className="text-right">예상 노출</div>
               </div>
               {/* 행 */}
-              <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
+              <div className="max-h-[220px] overflow-y-auto">
                 {[...mapped, ...unmapped].map((a, i) => {
                   const excluded = isUnsupported(a)
                   const required = isImpressionRequired(a)
@@ -240,44 +230,47 @@ export function BOReachCasterEasyCreateModal({
                   return (
                     <div
                       key={i}
+                      className="grid gap-2 px-3 py-[9px] text-[12px] items-center"
                       style={{
-                        display: 'grid', gridTemplateColumns: '1fr 110px 130px', gap: '8px',
-                        padding: '9px 12px', fontSize: '12px', alignItems: 'center',
+                        gridTemplateColumns: '1fr 110px 130px',
                         borderTop: i === 0 ? 'none' : '1px solid hsl(var(--border))',
                         backgroundColor: excluded ? 'hsl(var(--muted) / 0.25)' : 'transparent'
                       }}
                     >
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: excluded ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))', textDecoration: excluded ? 'line-through' : 'none' }}>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-[6px]">
+                          <span
+                            className="overflow-hidden text-ellipsis whitespace-nowrap"
+                            style={{ color: excluded ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))', textDecoration: excluded ? 'line-through' : 'none' }}
+                          >
                             {a.mediaName} &gt; {a.productName}
                           </span>
                           {required && !excluded && (
-                            <span style={{ flexShrink: 0, fontSize: '10px', padding: '1px 6px', borderRadius: '999px', backgroundColor: 'hsl(var(--primary) / 0.12)', color: 'hsl(var(--primary))' }}>노출 필수</span>
+                            <span className="flex-shrink-0 text-[10px] px-[6px] py-[1px] rounded-full bg-[hsl(var(--primary)/0.12)] text-[hsl(var(--primary))]">노출 필수</span>
                           )}
                           {excluded && (
-                            <span style={{ flexShrink: 0, fontSize: '10px', padding: '1px 6px', borderRadius: '999px', backgroundColor: 'hsl(var(--destructive) / 0.1)', color: 'hsl(var(--destructive))', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <span className="flex-shrink-0 text-[10px] px-[6px] py-[1px] rounded-full bg-[hsl(var(--destructive)/0.1)] text-[hsl(var(--destructive))] inline-flex items-center gap-[3px]">
                               <AlertTriangle size={9} /> 미지원 제외
                             </span>
                           )}
                         </div>
                       </div>
                       {/* 예산 */}
-                      <div style={{ textAlign: 'right', color: excluded ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))' }}>
+                      <div className="text-right" style={{ color: excluded ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))' }}>
                         {excluded ? '-' : `${a.budget.toLocaleString()}원`}
                       </div>
                       {/* 예상 노출 */}
-                      <div style={{ textAlign: 'right' }}>
+                      <div className="text-right">
                         {excluded ? (
-                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
+                          <span className="text-[hsl(var(--muted-foreground))]">-</span>
                         ) : !hasImp ? (
-                          <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>노출 없음</span>
+                          <span className="text-[11px] text-[hsl(var(--muted-foreground))]">노출 없음</span>
                         ) : impSent ? (
-                          <span style={{ color: 'hsl(142 71% 45%)', display: 'inline-flex', alignItems: 'center', gap: '3px', justifyContent: 'flex-end' }}>
+                          <span className="inline-flex items-center gap-[3px] justify-end" style={{ color: 'hsl(142 71% 45%)' }}>
                             <Check size={11} /> {a.impression.toLocaleString()}
                           </span>
                         ) : (
-                          <span style={{ color: 'hsl(var(--muted-foreground) / 0.6)' }}>{a.impression.toLocaleString()}</span>
+                          <span className="text-[hsl(var(--muted-foreground)/0.6)]">{a.impression.toLocaleString()}</span>
                         )}
                       </div>
                     </div>
@@ -287,15 +280,15 @@ export function BOReachCasterEasyCreateModal({
             </div>
             {/* 미지원 제외 안내 */}
             {unmapped.length > 0 && !allUnmapped && (
-              <div style={{ marginTop: '10px', fontSize: '11px', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'flex-start', gap: '5px', lineHeight: 1.5 }}>
+              <div className="mt-[10px] text-[11px] text-[hsl(var(--muted-foreground))] flex items-start gap-[5px] leading-[1.5]">
                 <AlertTriangle size={12} style={{ color: 'hsl(var(--destructive))', flexShrink: 0, marginTop: '1px' }} />
                 <span>
-                  <strong style={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}>미지원 제외</strong>는 해당 매체·상품이 Reach Caster의 이 업종에서 지원되지 않아 도달 예측 대상이 아니라는 의미입니다. 제외 항목은 전달되지 않으며, 나머지 항목만 예산·노출이 넘어갑니다.
+                  <strong className="text-[hsl(var(--foreground))] font-semibold">미지원 제외</strong>는 해당 매체·상품이 Reach Caster의 이 업종에서 지원되지 않아 도달 예측 대상이 아니라는 의미입니다. 제외 항목은 전달되지 않으며, 나머지 항목만 예산·노출이 넘어갑니다.
                 </span>
               </div>
             )}
             {allUnmapped && (
-              <div style={{ marginTop: '10px', fontSize: '12px', color: 'hsl(var(--destructive))', display: 'flex', alignItems: 'flex-start', gap: '5px', lineHeight: 1.5 }}>
+              <div className="mt-[10px] text-[12px] text-[hsl(var(--destructive))] flex items-start gap-[5px] leading-[1.5]">
                 <AlertTriangle size={12} style={{ flexShrink: 0, marginTop: '1px' }} />
                 <span>모든 항목이 Reach Caster의 이 업종에서 지원되지 않아, 전달할 항목이 없습니다. Reach Caster 시나리오를 생성할 수 없습니다.</span>
               </div>
@@ -308,11 +301,10 @@ export function BOReachCasterEasyCreateModal({
           <button
             onClick={() => onConfirm({ scenarioName: presetName, targetGrp: selectedTarget, mappedAllocations: mapped, impressionMode })}
             disabled={!canCreate}
-            className="btn btn-primary btn-md"
+            className="btn btn-primary btn-md inline-flex items-center gap-[6px]"
             style={{
               opacity: canCreate ? 1 : 0.5,
-              cursor: canCreate ? 'pointer' : 'not-allowed',
-              display: 'inline-flex', alignItems: 'center', gap: '6px'
+              cursor: canCreate ? 'pointer' : 'not-allowed'
             }}
           >
             Reach Caster 생성 <ArrowRight size={14} />
