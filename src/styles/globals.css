@@ -1,6 +1,12 @@
 /* Paperlogy 폰트 import - 로컬 파일 사용 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* 다크모드는 .dark 클래스 토글 방식 사용 (src/utils/theme.ts). Tailwind dark: variant를 클래스 기반으로 연결 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: 'Paperlogy';
   src: url('/fonts/PaperlogyRegular.woff2') format('woff2');

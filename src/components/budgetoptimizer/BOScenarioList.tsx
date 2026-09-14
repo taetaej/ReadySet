@@ -5,7 +5,6 @@ import { SlotHeader } from '../reachcaster/SlotHeader'
 import { BOScenario, BOSlotData, KPI_LABELS } from './types'
 import { sampleBOScenarios } from './sampleData'
 import { maskEmail } from '../../utils/maskEmail'
-import styles from './BOScenarioList.module.css'
 
 interface BOScenarioListProps {
   slotData: BOSlotData
@@ -198,7 +197,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
   const industries = [...new Set(scenarios.map(s => s.industry))]
 
   return (
-    <div className={styles.container}>
+    <div className="p-0">
       {/* Slot Header */}
       <SlotHeader
         slotId={1}
@@ -210,14 +209,14 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
       {/* Scenario Section */}
       <div className="workspace-content">
         {/* Title + New Button */}
-        <div className={styles.titleRow}>
-          <div className={styles.titleGroup}>
-            <h1 className={styles.title}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold">
               Budget Optimizer
             </h1>
             <button
               onClick={() => navigate('/budgetoptimizer/scenario/new')}
-              className={styles.newButton}
+              className="flex items-center gap-2 h-12 px-5 rounded-3xl border-none text-sm font-semibold cursor-pointer transition-all bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
             >
               <Plus size={16} />
               New Scenario
@@ -226,19 +225,19 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
         </div>
 
         {/* Action Bar */}
-        <div className={styles.actionBar}>
+        <div className="flex items-center justify-between mb-6">
           {/* Left: Count */}
-          <div className={styles.actionGroup}>
-            <div className={styles.count}>
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-[hsl(var(--muted-foreground))]">
               {filteredScenarios.length} Scenarios
             </div>
           </div>
 
           {/* Right: Actions */}
-          <div className={styles.actionGroup}>
+          <div className="flex items-center gap-3">
             {/* Selected count */}
             {selectedIds.length > 0 && (
-              <span className={styles.selectedCount}>
+              <span className="text-sm text-[hsl(var(--primary))]">
                 {selectedIds.length}개 선택됨
               </span>
             )}
@@ -248,13 +247,13 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <>
                 <button
                   onClick={() => setShowMoveDialog(true)}
-                  className={`btn btn-ghost btn-md ${styles.bulkButtonOutline}`}
+                  className="btn btn-ghost btn-md border border-[hsl(var(--border))]"
                 >
                   <ArrowRightLeft size={16} />
                   이동
                 </button>
                 <button
-                  className={`btn btn-md ${styles.bulkButtonDanger}`}
+                  className="btn btn-md border-none bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]"
                   onClick={() => {
                     setDeletingIds(selectedIds)
                     setShowDeleteDialog(true)
@@ -267,31 +266,31 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
             )}
 
             {/* Search */}
-            <div className={styles.searchWrap}>
+            <div className="relative">
               {!showSearch ? (
                 <button
                   onClick={() => setShowSearch(true)}
-                  className={`btn btn-ghost btn-md ${styles.searchTrigger}`}
+                  className="btn btn-ghost btn-md flex items-center gap-1.5 px-3 border border-[hsl(var(--border))]"
                 >
                   <Search size={16} />
                   <span>검색</span>
                 </button>
               ) : (
-                <div className={styles.searchBox}>
-                  <Search size={16} className={`text-muted-foreground ${styles.searchIcon}`} />
+                <div className="relative w-[300px] transition-[width] duration-300 ease-out">
+                  <Search size={16} className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 z-[1]" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onBlur={() => { if (!searchQuery) setShowSearch(false) }}
                     placeholder="시나리오명, 생성자 검색"
-                    className={`input ${styles.searchInput}`}
+                    className="input w-full h-9 min-h-9 pl-10 pr-3"
                     autoFocus
                   />
                   {searchQuery && (
                     <button
                       onClick={() => { setSearchQuery(''); setShowSearch(false) }}
-                      className={styles.searchClear}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1 bg-none border-none cursor-pointer"
                     >
                       <X size={14} className="text-muted-foreground" />
                     </button>
@@ -301,29 +300,29 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
             </div>
 
             {/* Filter */}
-            <div className={styles.filterWrap}>
+            <div className="relative">
               <button
                 onClick={() => setShowFilter(!showFilter)}
-                className={`btn btn-ghost btn-md ${styles.filterTrigger}`}
+                className="btn btn-ghost btn-md flex items-center gap-1.5 px-3 border border-[hsl(var(--border))]"
                 style={{ backgroundColor: activeFilterCount > 0 ? 'hsl(var(--primary) / 0.1)' : 'transparent' }}
               >
                 <Filter size={16} />
                 <span>필터</span>
                 {activeFilterCount > 0 && (
-                  <span className={styles.filterBadge}>
+                  <span className="px-1.5 py-0.5 rounded-[10px] text-[10px] font-semibold bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
                     {activeFilterCount}
                   </span>
                 )}
               </button>
 
               {showFilter && (
-                <div className={`dropdown custom-scrollbar ${styles.filterDropdown}`}>
+                <div className="dropdown custom-scrollbar absolute top-full right-0 mt-1 w-80 max-h-[500px] overflow-y-auto z-[1000] p-3">
                   {/* 상태 필터 */}
-                  <div className={styles.filterSection}>
-                    <div className={styles.filterLabel}>상태</div>
-                    <div className={styles.filterOptions}>
+                  <div className="mb-4">
+                    <div className="text-xs font-medium mb-2">상태</div>
+                    <div className="flex flex-col gap-1.5">
                       {['Completed', 'Processing', 'Pending', 'Error'].map(status => (
-                        <label key={status} className={styles.checkboxLabel}>
+                        <label key={status} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.status.includes(status)}
@@ -333,18 +332,18 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span className={styles.optionText}>{status}</span>
+                          <span className="text-[13px]">{status}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   {/* KPI 필터 */}
-                  <div className={styles.filterSection}>
-                    <div className={styles.filterLabel}>KPI</div>
-                    <div className={styles.filterOptions}>
+                  <div className="mb-4">
+                    <div className="text-xs font-medium mb-2">KPI</div>
+                    <div className="flex flex-col gap-1.5">
                       {Object.entries(KPI_LABELS).map(([key, label]) => (
-                        <label key={key} className={styles.checkboxLabel}>
+                        <label key={key} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.kpi.includes(key)}
@@ -354,18 +353,18 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span className={styles.optionText}>{label}</span>
+                          <span className="text-[13px]">{label}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   {/* 업종 필터 */}
-                  <div className={styles.filterSection}>
-                    <div className={styles.filterLabel}>업종</div>
-                    <div className={`custom-scrollbar ${styles.filterOptionsScroll}`}>
+                  <div className="mb-4">
+                    <div className="text-xs font-medium mb-2">업종</div>
+                    <div className="custom-scrollbar flex flex-col gap-1.5 max-h-[150px] overflow-y-auto">
                       {industries.map(ind => (
-                        <label key={ind} className={styles.checkboxLabel}>
+                        <label key={ind} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.industry.includes(ind)}
@@ -375,7 +374,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span className={styles.optionText}>{ind}</span>
+                          <span className="text-[13px]">{ind}</span>
                         </label>
                       ))}
                     </div>
@@ -384,7 +383,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                   {/* 필터 초기화 버튼 */}
                   <button
                     onClick={() => setFilters({ status: [], kpi: [], industry: [] })}
-                    className={`btn btn-ghost btn-sm ${styles.filterReset}`}
+                    className="btn btn-ghost btn-sm w-full mt-2"
                   >
                     필터 초기화
                   </button>
@@ -399,7 +398,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           <table className="data-table">
             <thead>
               <tr>
-                <th className={styles.thCheckbox}>
+                <th className="w-[50px]">
                   <input
                     type="checkbox"
                     className="checkbox-custom"
@@ -407,59 +406,59 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
                 </th>
-                <th onClick={() => handleSort('id')} className={`${styles.thSortable} ${styles.thId}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('id')} className="cursor-pointer w-20">
+                  <div className="flex items-center gap-1">
                     ID {sortField === 'id' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('name')} className={`${styles.thSortable} ${styles.thName}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('name')} className="cursor-pointer min-w-[250px]">
+                  <div className="flex items-center gap-1">
                     시나리오 {sortField === 'name' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('industry')} className={`${styles.thSortable} ${styles.thIndustry}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('industry')} className="cursor-pointer w-25">
+                  <div className="flex items-center gap-1">
                     업종 {sortField === 'industry' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('kpi')} className={`${styles.thSortable} ${styles.thKpi}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('kpi')} className="cursor-pointer w-35">
+                  <div className="flex items-center gap-1">
                     KPI {sortField === 'kpi' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('totalBudget')} className={`${styles.thSortable} ${styles.thBudget}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('totalBudget')} className="cursor-pointer w-30">
+                  <div className="flex items-center gap-1">
                     총 예산 {sortField === 'totalBudget' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('period')} className={`${styles.thSortable} ${styles.thPeriod}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('period')} className="cursor-pointer w-45">
+                  <div className="flex items-center gap-1">
                     기간 {sortField === 'period' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('status')} className={`${styles.thSortable} ${styles.thStatus}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('status')} className="cursor-pointer w-[130px]">
+                  <div className="flex items-center gap-1">
                     상태 {sortField === 'status' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('creator')} className={`${styles.thSortable} ${styles.thCreator}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('creator')} className="cursor-pointer w-25">
+                  <div className="flex items-center gap-1">
                     생성자 {sortField === 'creator' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('created')} className={`${styles.thSortable} ${styles.thCreated}`}>
-                  <div className={styles.thInner}>
+                <th onClick={() => handleSort('created')} className="cursor-pointer w-35">
+                  <div className="flex items-center gap-1">
                     생성일시 {sortField === 'created' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th className={styles.thActions}></th>
+                <th className="w-[60px] text-right pr-6"></th>
               </tr>
             </thead>
             <tbody>
               {paginatedScenarios.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className={styles.emptyCell}>
-                    <p className={`text-muted-foreground ${styles.emptyText}`}>
+                  <td colSpan={11} className="text-center py-20">
+                    <p className="text-muted-foreground text-sm">
                       등록된 시나리오가 없습니다.
                     </p>
                   </td>
@@ -490,12 +489,12 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                         />
                       </td>
                       <td>
-                        <span className={styles.idText}>
+                        <span className="text-[13px] text-[hsl(var(--muted-foreground))]">
                           {scenario.id}
                         </span>
                       </td>
                       <td
-                        className={styles.nameCell}
+                        className="font-normal max-w-[300px] whitespace-nowrap overflow-hidden text-ellipsis"
                         style={{
                           color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                           opacity: isClickable ? 1 : 0.6
@@ -506,43 +505,43 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                       </td>
                       <td className="text-muted-foreground">{scenario.industry}</td>
                       <td>
-                        <span className={styles.kpiBadge}>
+                        <span className="px-2.5 py-1 rounded-xl text-xs font-medium whitespace-nowrap bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
                           {KPI_LABELS[scenario.kpi]}
                         </span>
                       </td>
                       <td>
-                        <span className={styles.budgetText}>
+                        <span className="text-[13px] font-medium">
                           {formatBudget(scenario.totalBudget)}
                         </span>
                       </td>
                       <td>
-                        <div className={styles.periodCell}>
+                        <div className="flex flex-col text-[13px] leading-[1.4] text-[hsl(var(--muted-foreground))]">
                           <span>{scenario.startDate} →</span>
                           <span>{scenario.endDate}</span>
                         </div>
                       </td>
                       <td onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.statusCell}>
+                        <div className="flex flex-col gap-1">
                           {scenario.status === 'Processing' ? (
                             <>
-                              <div className={styles.progressTrack}>
+                              <div className="relative w-[100px] h-6 rounded overflow-hidden border border-[hsl(var(--border))] bg-[hsl(var(--muted))]">
                                 <div
-                                  className={styles.progressFill}
+                                  className="absolute top-0 left-0 h-full transition-[width] duration-300 ease-in-out bg-[hsl(var(--foreground))]"
                                   style={{ width: `${(scenario.processStep / scenario.totalSteps) * 100}%` }}
                                 />
-                                <div className={styles.progressLabel}>
+                                <div className="absolute inset-0 flex items-center justify-center text-xs font-medium z-[1] text-[hsl(var(--background))]">
                                   Processing
                                 </div>
                               </div>
-                              <span className={styles.progressStep}>
+                              <span className="text-[11px] text-[hsl(var(--muted-foreground))]">
                                 {scenario.processStep}/{scenario.totalSteps} · {getBOProcessingStepDescription(scenario.processStep)}
                               </span>
                             </>
                           ) : (
                             <>
-                              <div className={styles.statusRow}>
+                              <div className="flex items-center gap-1.5">
                                 <span
-                                  className={styles.statusBadge}
+                                  className="px-2.5 py-1 rounded text-xs font-medium"
                                   style={{
                                     backgroundColor: statusStyle.bg,
                                     color: statusStyle.color,
@@ -554,14 +553,14 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                                 {scenario.status === 'Error' && (
                                   <button
                                     onClick={(e) => { e.stopPropagation() }}
-                                    className={styles.retryButton}
+                                    className="px-2 py-1 text-[11px] underline cursor-pointer bg-none border-none text-[hsl(var(--foreground))]"
                                   >
                                     재시도
                                   </button>
                                 )}
                               </div>
                               {scenario.completedAt && (
-                                <span className={`text-muted-foreground ${styles.completedAt}`}>
+                                <span className="text-muted-foreground text-[11px]">
                                   {scenario.completedAt.slice(0, 16)}
                                 </span>
                               )}
@@ -570,26 +569,26 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                         </div>
                       </td>
                       <td>
-                        <span className={styles.creatorText}>
+                        <span className="text-[13px] text-[hsl(var(--muted-foreground))]">
                           {scenario.creator}({maskEmail(scenario.creatorId)})
                         </span>
                       </td>
                       <td>
-                        <span className={styles.createdText}>
+                        <span className="text-[13px] text-[hsl(var(--muted-foreground))]">
                           {scenario.created.slice(0, 16)}
                         </span>
                       </td>
-                      <td className={styles.actionsCell}>
-                        <div className={styles.contextMenuWrap} ref={contextMenuId === scenario.id ? contextMenuRef : null} onClick={(e) => e.stopPropagation()}>
+                      <td className="text-right pr-6">
+                        <div className="relative inline-block" ref={contextMenuId === scenario.id ? contextMenuRef : null} onClick={(e) => e.stopPropagation()}>
                           <button
                             data-context-menu
                             onClick={() => setContextMenuId(contextMenuId === scenario.id ? null : scenario.id)}
-                            className={`btn btn-ghost btn-sm ${styles.contextMenuButton}`}
+                            className="btn btn-ghost btn-sm p-1"
                           >
                             <MoreVertical size={16} />
                           </button>
                           {contextMenuId === scenario.id && (
-                            <div className={`dropdown ${styles.contextMenu}`}>
+                            <div className="dropdown absolute top-full right-0 mt-1 w-30 z-[1000]">
                               <button
                                 className="dropdown-item"
                                 onClick={() => {
@@ -616,7 +615,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                                 <ArrowRightLeft size={14} /> 이동
                               </button>
                               <button
-                                className={`dropdown-item ${styles.contextMenuDanger}`}
+                                className="dropdown-item text-[hsl(var(--destructive))]"
                                 onClick={() => {
                                   setDeletingIds([scenario.id])
                                   setShowDeleteDialog(true)
@@ -638,10 +637,10 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
         </div>
 
         {/* 페이지네이션 (Reach Caster 동일) */}
-        <div className={styles.pagination}>
+        <div className="flex items-center justify-between mt-6">
           {/* 좌측: 페이지 크기 선택 */}
-          <div className={styles.pageSizeGroup}>
-            <span className={`text-muted-foreground ${styles.pageSizeLabel}`}>
+          <div className="flex items-center gap-3">
+            <span className="text-muted-foreground text-sm">
               페이지당 표시:
             </span>
             <select
@@ -650,7 +649,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                 setItemsPerPage(Number(e.target.value))
                 setCurrentPage(1)
               }}
-              className={`input ${styles.pageSizeSelect}`}
+              className="input w-20 h-8 min-h-8 px-2 py-1 text-sm"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -659,30 +658,30 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           </div>
 
           {/* 우측: 페이지 정보 및 네비게이션 */}
-          <div className={styles.pageNavGroup}>
+          <div className="flex items-center gap-6">
             {/* 페이지 정보 */}
-            <span className={`text-muted-foreground ${styles.pageInfo}`}>
+            <span className="text-muted-foreground text-sm">
               {sortedScenarios.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, sortedScenarios.length)} / {sortedScenarios.length}개
             </span>
 
             {/* 페이지 네비게이션 */}
-            <div className={styles.pageButtons}>
+            <div className="flex items-center gap-1">
               {/* 첫 페이지로 */}
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                className="btn btn-ghost btn-sm w-8 h-8 p-0"
                 style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronLeft size={14} />
-                <ChevronLeft size={14} className={styles.pageIconStacked} />
+                <ChevronLeft size={14} className="-ml-2" />
               </button>
 
               {/* 이전 페이지 */}
               <button
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                className="btn btn-ghost btn-sm w-8 h-8 p-0"
                 style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronLeft size={14} />
@@ -704,7 +703,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     <button
                       key={i}
                       onClick={() => setCurrentPage(i)}
-                      className={`btn btn-sm ${currentPage === i ? 'btn-primary' : 'btn-ghost'} ${styles.pageButtonNumber}`}
+                      className={`btn btn-sm w-8 h-8 p-0 text-sm ${currentPage === i ? 'btn-primary' : 'btn-ghost'}`}
                       style={{ fontWeight: currentPage === i ? '600' : '400' }}
                     >
                       {i}
@@ -719,7 +718,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                className="btn btn-ghost btn-sm w-8 h-8 p-0"
                 style={{ opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronRight size={14} />
@@ -729,11 +728,11 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                className="btn btn-ghost btn-sm w-8 h-8 p-0"
                 style={{ opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronRight size={14} />
-                <ChevronRight size={14} className={styles.pageIconStacked} />
+                <ChevronRight size={14} className="-ml-2" />
               </button>
             </div>
           </div>
@@ -752,13 +751,13 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                 선택한 {selectedIds.length}개 시나리오를 다른 Slot으로 이동합니다.
               </p>
             </div>
-            <div className={styles.dialogBody}>
-              <div className={styles.dialogField}>
-                <label className={styles.dialogFieldLabel}>
+            <div className="py-4">
+              <div className="mb-3">
+                <label className="block text-[13px] font-semibold mb-2">
                   이동할 Slot 선택 (광고주: {slotData.advertiser})
                 </label>
                 <select
-                  className={`input ${styles.dialogSelectFull}`}
+                  className="input w-full"
                   value={moveTargetSlot}
                   onChange={(e) => setMoveTargetSlot(e.target.value)}
                 >
@@ -811,7 +810,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className={`btn btn-sm ${styles.bulkButtonDanger}`}
+                className="btn btn-sm border-none bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]"
               >
                 삭제
               </button>

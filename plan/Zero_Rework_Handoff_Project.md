@@ -71,30 +71,35 @@
 | 모듈 | 프로덕트 처리 방식 | 코드베이스 기획서 대응 |
 |---|---|---|
 | slot / reachcaster / datashot | 인라인 그대로 유지 | **현행 유지** (정리 불필요) |
-| Budget Optimizer (`BO*`) | `*.module.css` + Tailwind로 이관 | **격상 대상** |
+| Budget Optimizer (`BO*`) | Tailwind 우선 (복잡 스타일만 CSS Module) | **격상 대상** |
 
-> 참고: 본 프로젝트는 shadcn 기반이 아님. `class-variance-authority`/`clsx`/`tailwind-merge`/`cn()`, `tailwind.config`, `components/ui/`가 모두 존재하지 않으며, shadcn과 동일한 명칭의 토큰만 차용한 순수 CSS 구성임.
+> 참고: 프로덕트는 Tailwind CSS v4(`^4.1.18`)를 사용함. 본 코드베이스 기획서는 당초 순수 CSS 구성이었으나, 프로덕트와의 정합을 위해 Tailwind v4를 도입함. (도입 경위는 「Ⅲ. 실행 계획」 참조)
 
 ### 2. 방향
 
-> **Budget Optimizer 모듈의 인라인 스타일만 CSS Module(역할명 camelCase)로 전환하여 전달함.**
+> **Budget Optimizer 모듈의 화면 고유 스타일은 Tailwind 유틸리티 클래스로 작성하여 전달함.**
+> Tailwind로 표현하기 복잡한 경우(애니메이션·차트 등)에만 CSS Module로 분리함.
 > slot / reachcaster / datashot은 현행 인라인 방식을 유지하며 변경하지 않음.
 
 **전달 형식**
-- **공통 클래스 유지**: `btn` / `input` / `card` / `dropdown` 등은 CSS Module로 분리하지 않고 그대로 사용함.
-- **화면 고유 레이아웃 분리**: 인라인 대신 `<컴포넌트명>.module.css`로 이관함. (예: `BOScenarioList.module.css`)
-- **네이밍**: 엄격한 BEM 미적용. CSS Module 내에서 의미 있는 **역할명 camelCase** 사용함. (예: `container`, `header`, `actionBar`, `trigger`, `dropdownItem`, `selectedItem`)
-- **디자인 토큰 유지**: 값·이름 그대로 `hsl(var(--...))` 사용함. HEX 하드코딩 금지함.
+- **Tailwind 우선**: 레이아웃·간격·타이포 등 정적 스타일은 Tailwind 유틸리티 클래스로 작성함.
+- **CSS Module은 예외**: keyframes 애니메이션·차트 커스텀 등 Tailwind로 장황해지는 스타일에만 `<컴포넌트명>.module.css`로 분리함. 단순 레이아웃은 CSS Module로 빼지 않음.
+- **공통 클래스 유지**: `btn` / `input` / `card` / `dropdown` 등은 Tailwind로 대체하지 않고 그대로 사용함.
+- **디자인 토큰 유지**: 색·radius는 Tailwind 임의 값 문법으로 토큰을 사용함. (예: `bg-[hsl(var(--primary))]`) HEX 하드코딩 금지함.
 - **동적 값 예외**: 런타임 계산 값(진행률 width, 조건부 색상, disabled 상태 등)만 인라인에 남김.
 
-**개발자 확인 내역 (2026-09-14)**
-1. 스타일 시스템: 프로덕트는 순수 CSS + 인라인 + CSS Module + Tailwind 4가지 혼합임.
-2. 이관 위치: slot/reachcaster/datashot은 인라인 유지, Budget Optimizer는 `*.module.css` + Tailwind임.
-3. 네이밍: BEM 강제 없음. CSS Module에서 역할명 camelCase 사용함.
-4. 선호 형식: 컴포넌트별 의미 있는 클래스명 + 필요 시 CSS Module 분리. 공통 클래스는 그대로 유지함.
-5. 공통 클래스: 그대로 사용 가능함.
-6. 디자인 토큰: 프로덕트와 동일. 그대로 사용 가능함.
-7. 주 리워크: 인라인 정리임.
+**개발자 확인 내역**
+
+1차 확인 (2026-09-14):
+1. 스타일 시스템: 프로덕트는 순수 CSS + 인라인 + CSS Module + Tailwind 혼합임.
+2. 공통 클래스·디자인 토큰: 프로덕트와 동일. 그대로 사용 가능함.
+3. 주 리워크: 인라인 정리임.
+
+2차 확인 — 파일럿 검증 후 방향 재조정 (2026-09-14):
+4. **Tailwind 우선**: BO 화면 고유 스타일은 Tailwind 유틸리티로 작성함.
+5. **CSS Module은 예외**: 특정 컴포넌트 전용의 복잡한 스타일(애니메이션·차트 등)에만 사용함.
+6. **파일럿(CSS Module 전면 분리)의 문제**: 모든 스타일을 CSS Module로 분리할 경우, 프론트가 컴포넌트를 분리할 때마다 추가 작업이 발생함. 이에 따라 방향을 CSS Module 우선에서 Tailwind 우선으로 재조정함.
+7. 프로덕트 Tailwind 버전은 `^4.1.18`이며, 이에 맞춰 본 프로젝트에 Tailwind v4를 도입함.
 
 ---
 
@@ -104,23 +109,29 @@
 리팩토링을 선행하지 않는 이유는, 규칙이 사후에 정해지면 이미 이관한 코드를 재작업해야 하기 때문임.
 
 **1단계 — 규범 확정 (문서)**
-- 프론트 개발자 확인 항목 7개를 수집하고, 그 결과를 기반으로 방향을 확정함.
+- 프론트 개발자 확인 항목을 수집하고, 그 결과를 기반으로 방향을 확정함.
 - 확정된 방향을 실행 문서로 정식화함.
 
 **2단계 — 규범 고정 (steering)**
-- `.kiro/steering/handoff-implementation-guide.md`에 전달 형식·마이그레이션 규칙을 규범으로 명문화함.
+- `.kiro/steering/handoff-implementation-guide.md`에 전달 형식·작성 규칙을 규범으로 명문화함.
 - `budgetoptimizer` 경로에만 적용되도록 `inclusion: fileMatch`로 범위를 한정함.
 
 **3단계 — 자동검증 (hook)**
 - `.kiro/hooks/bo-inline-style-check.json`으로 `budgetoptimizer` 경로의 파일 저장 시 정적 인라인 잔존 여부를 검증함.
 - 동적 값은 허용하므로 차단하지 않고 경고만 제공함.
 
-**4단계 — 리팩토링**
-- 파일럿으로 `BOScenarioList`를 `BOScenarioList.module.css`로 이관함.
-- 이후 개발자 검증을 거쳐, 통과 시 나머지 BO 컴포넌트(`BOResult`, `BOCreateScenario` 등)로 확산함.
+**4단계 — 파일럿 및 방향 재조정**
+- 파일럿으로 `BOScenarioList`를 1차 방향(CSS Module 분리)으로 이관하여 개발자 검증을 요청함.
+- 검증 결과, 전면 CSS Module 분리가 프론트의 컴포넌트 분리 작업을 증가시킨다는 피드백을 수령함.
+- 이에 방향을 **Tailwind 우선**으로 재조정하고, steering·hook·파일럿을 이에 맞게 갱신함. (검증을 확산 이전에 수행하여 방향 오류를 조기에 교정함)
+
+**5단계 — Tailwind 도입 및 재작업**
+- 프로덕트 버전에 맞춰 Tailwind v4를 도입함. (Vite 5 업그레이드 + `@tailwindcss/vite` 플러그인, `@import "tailwindcss"`, `.dark` 클래스 기반 `@custom-variant` 등록)
+- `BOScenarioList`를 CSS Module에서 Tailwind 유틸리티로 재작업하고 CSS Module 파일을 제거함.
+- 통과 시 나머지 BO 컴포넌트(`BOResult`, `BOCreateScenario` 등)로 확산함.
 
 **보류 (조건부)**
-- slot / reachcaster / datashot은 현행 인라인을 유지함. 프로덕트 방침이 "해당 모듈도 CSS Module 전환"으로 변경될 경우에만 착수함.
+- slot / reachcaster / datashot은 현행 인라인을 유지함. 프로덕트 방침이 "해당 모듈도 Tailwind 전환"으로 변경될 경우에만 착수함.
 
 ---
 
@@ -128,8 +139,8 @@
 
 ### 1. 파일럿 결과 (BOScenarioList, 2026-09-14)
 
-- **생성**: `src/components/budgetoptimizer/BOScenarioList.module.css` — 역할명 camelCase 클래스로 화면 고유 레이아웃 분리함.
-- **이관**: 정적 인라인(레이아웃·간격·타이포)을 전량 CSS Module로 이관함.
+- **Tailwind 도입**: Vite 5 업그레이드 후 `@tailwindcss/vite` 플러그인 적용, `globals.css`에 `@import "tailwindcss"` 및 `.dark` 클래스 기반 `@custom-variant` 등록함.
+- **재작업**: 화면 고유 스타일(레이아웃·간격·타이포)을 Tailwind 유틸리티 클래스로 작성함. 1차 파일럿의 CSS Module 파일은 제거함.
 - **유지**: 공통 클래스(`btn`/`input`/`card`/`dropdown`/`table`/`toast`/`dialog`)와 디자인 토큰을 그대로 유지함.
 - **동적 값 유지**: 정렬 화살표 회전, 필터 버튼 활성 배경, 행 선택/클릭 상태, 진행률 width, 상태 뱃지 색, 페이지네이션 disabled 상태 등 런타임에 계산되는 값은 규범에 따라 인라인으로 유지함.
 - **정규화**: 하드코딩 색(`hsl(0 84% 60%)`)을 `--destructive` 토큰으로 교체함.
@@ -139,15 +150,17 @@
 
 | 상태 | 기준 |
 |---|---|
-| **완료** | BO 화면 고유 레이아웃이 `*.module.css`에 역할명 camelCase로 분리됨. (BOScenarioList 기준 충족) |
+| **완료** | BO 화면 고유 스타일이 Tailwind 유틸리티로 작성됨. (BOScenarioList 기준 충족) |
 | **완료** | 공통 클래스·디자인 토큰이 프로덕트와 동일하게 유지됨. |
+| **완료** | 프로덕트와 동일한 Tailwind v4 환경이 구성됨. |
 | **완료** | slot / reachcaster / datashot이 현행대로 유지됨. (불필요한 변경 없음) |
-| **개발자 확인 대기** | BO 코드베이스 기획서 수령 시 프론트의 인라인 정리 작업이 발생하지 않음. |
+| **개발자 확인 대기** | BO 코드베이스 기획서 수령 시 프론트의 스타일 정리 작업이 발생하지 않음. |
 | **확산 후 확정** | 코드베이스 기획서가 프로덕트 코드로 직접 편입 가능한 수준에 도달함. (나머지 BO 컴포넌트 확산 후 확정) |
 
 ### 3. 잔여 과제
 
 - 성공 의미색(`hsl(142.1 76.2% 36.3%)`)은 reachcaster/datashot/component-library 등 **전역 공통**으로 사용 중임. 토큰화는 본 격상 범위를 넘어서는 **전역 결정**이므로 별도 과제로 분리함.
+- 나머지 BO 컴포넌트(`BOResult`, `BOCreateScenario` 등)에 Tailwind 우선 방향을 확산함.
 
 ---
 
@@ -157,3 +170,4 @@
 - 2026-09-14: 개발자 확인 반영, 방향 확정 (Budget Optimizer 한정 CSS Module 전환, 그 외 모듈 현행 유지).
 - 2026-09-14: 정식 문서 톤으로 재구성.
 - 2026-09-14: 문서 구조 정비 (개요 / 현황 및 방향성 / 실행 계획 / 결과 검증), 명사형 종결 통일, 유지 자산 부각. 파일럿 결과 반영.
+- 2026-09-14: **파일럿 검증 후 방향 재조정.** 개발자 재피드백(Tailwind 우선, CSS Module은 복잡 스타일만)에 따라 방향을 CSS Module 우선에서 Tailwind 우선으로 전환함. Tailwind v4 도입(Vite 5 업그레이드 포함), BOScenarioList를 Tailwind 유틸리티로 재작업, steering·hook 규범 갱신.

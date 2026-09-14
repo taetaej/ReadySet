@@ -4,11 +4,11 @@
     {
       "name": "BO Inline Style Check",
       "trigger": "PostFileSave",
-      "description": "Budget Optimizer 컴포넌트 저장 시 정적 인라인 style 잔존 여부를 경고(비차단). 동적 값은 허용. slot/reachcaster/datashot에는 적용되지 않음.",
+      "description": "Budget Optimizer 컴포넌트 저장 시 정적 인라인 style 잔존 여부를 경고(비차단). Tailwind 우선 방향 안내. 동적 값은 허용. slot/reachcaster/datashot에는 적용되지 않음.",
       "matcher": "src/components/budgetoptimizer/.*\\.tsx$",
       "action": {
         "type": "command",
-        "command": "f=$(python3 -c \"import sys,json;print(json.load(sys.stdin).get('filePath',''))\"); [ -z \"$f\" ] && exit 0; n=$(grep -o 'style={{' \"$f\" | wc -l | tr -d ' '); if [ \"$n\" -gt 0 ]; then echo \"[handoff-guide] $f: 인라인 style={{ $n개 발견. 정적 스타일은 *.module.css(역할명 camelCase)로 옮기고, 동적 값(런타임 계산)만 인라인에 남기세요. 규범: .kiro/steering/handoff-implementation-guide.md\"; fi; exit 0"
+        "command": "f=$(python3 -c \"import sys,json;print(json.load(sys.stdin).get('filePath',''))\"); [ -z \"$f\" ] && exit 0; n=$(grep -o 'style={{' \"$f\" | wc -l | tr -d ' '); if [ \"$n\" -gt 0 ]; then echo \"[handoff-guide] $f: 인라인 style={{ $n개 발견. 정적 스타일은 Tailwind 유틸리티 클래스로 작성하고, 복잡한 스타일(애니메이션·차트)만 *.module.css로 분리하세요. 동적 값(런타임 계산)만 인라인에 남깁니다. 규범: .kiro/steering/handoff-implementation-guide.md\"; fi; exit 0"
       }
     }
   ]
