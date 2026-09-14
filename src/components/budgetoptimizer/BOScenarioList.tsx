@@ -5,6 +5,7 @@ import { SlotHeader } from '../reachcaster/SlotHeader'
 import { BOScenario, BOSlotData, KPI_LABELS } from './types'
 import { sampleBOScenarios } from './sampleData'
 import { maskEmail } from '../../utils/maskEmail'
+import styles from './BOScenarioList.module.css'
 
 interface BOScenarioListProps {
   slotData: BOSlotData
@@ -197,7 +198,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
   const industries = [...new Set(scenarios.map(s => s.industry))]
 
   return (
-    <div style={{ padding: '0' }}>
+    <div className={styles.container}>
       {/* Slot Header */}
       <SlotHeader
         slotId={1}
@@ -209,30 +210,14 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
       {/* Scenario Section */}
       <div className="workspace-content">
         {/* Title + New Button */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '600' }}>
+        <div className={styles.titleRow}>
+          <div className={styles.titleGroup}>
+            <h1 className={styles.title}>
               Budget Optimizer
             </h1>
             <button
               onClick={() => navigate('/budgetoptimizer/scenario/new')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'hsl(var(--primary))',
-                color: 'hsl(var(--primary-foreground))',
-                border: 'none',
-                padding: '12px 20px',
-                borderRadius: '24px',
-                fontWeight: '600',
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: '0.2s',
-                height: '48px',
-                opacity: 1,
-                transform: 'translateY(0px)'
-              }}
+              className={styles.newButton}
             >
               <Plus size={16} />
               New Scenario
@@ -241,19 +226,19 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
         </div>
 
         {/* Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div className={styles.actionBar}>
           {/* Left: Count */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))' }}>
+          <div className={styles.actionGroup}>
+            <div className={styles.count}>
               {filteredScenarios.length} Scenarios
             </div>
           </div>
 
           {/* Right: Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className={styles.actionGroup}>
             {/* Selected count */}
             {selectedIds.length > 0 && (
-              <span style={{ fontSize: '14px', color: 'hsl(var(--primary))' }}>
+              <span className={styles.selectedCount}>
                 {selectedIds.length}개 선택됨
               </span>
             )}
@@ -263,15 +248,13 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <>
                 <button
                   onClick={() => setShowMoveDialog(true)}
-                  className="btn btn-ghost btn-md"
-                  style={{ border: '1px solid hsl(var(--border))' }}
+                  className={`btn btn-ghost btn-md ${styles.bulkButtonOutline}`}
                 >
                   <ArrowRightLeft size={16} />
                   이동
                 </button>
                 <button
-                  className="btn btn-md"
-                  style={{ backgroundColor: 'hsl(var(--destructive))', color: 'hsl(var(--destructive-foreground))', border: 'none' }}
+                  className={`btn btn-md ${styles.bulkButtonDanger}`}
                   onClick={() => {
                     setDeletingIds(selectedIds)
                     setShowDeleteDialog(true)
@@ -284,33 +267,31 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
             )}
 
             {/* Search */}
-            <div style={{ position: 'relative' }}>
+            <div className={styles.searchWrap}>
               {!showSearch ? (
                 <button
                   onClick={() => setShowSearch(true)}
-                  className="btn btn-ghost btn-md"
-                  style={{ border: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', gap: '6px', padding: '0 12px' }}
+                  className={`btn btn-ghost btn-md ${styles.searchTrigger}`}
                 >
                   <Search size={16} />
                   <span>검색</span>
                 </button>
               ) : (
-                <div style={{ position: 'relative', width: '300px', transition: 'width 0.3s ease-out' }}>
-                  <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} className="text-muted-foreground" />
+                <div className={styles.searchBox}>
+                  <Search size={16} className={`text-muted-foreground ${styles.searchIcon}`} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onBlur={() => { if (!searchQuery) setShowSearch(false) }}
                     placeholder="시나리오명, 생성자 검색"
-                    className="input"
+                    className={`input ${styles.searchInput}`}
                     autoFocus
-                    style={{ paddingLeft: '40px', paddingRight: '12px', height: '36px', minHeight: '36px', width: '100%' }}
                   />
                   {searchQuery && (
                     <button
                       onClick={() => { setSearchQuery(''); setShowSearch(false) }}
-                      style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      className={styles.searchClear}
                     >
                       <X size={14} className="text-muted-foreground" />
                     </button>
@@ -320,43 +301,29 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
             </div>
 
             {/* Filter */}
-            <div style={{ position: 'relative' }}>
+            <div className={styles.filterWrap}>
               <button
                 onClick={() => setShowFilter(!showFilter)}
-                className="btn btn-ghost btn-md"
-                style={{
-                  border: '1px solid hsl(var(--border))',
-                  display: 'flex', alignItems: 'center', gap: '6px', padding: '0 12px',
-                  backgroundColor: activeFilterCount > 0 ? 'hsl(var(--primary) / 0.1)' : 'transparent'
-                }}
+                className={`btn btn-ghost btn-md ${styles.filterTrigger}`}
+                style={{ backgroundColor: activeFilterCount > 0 ? 'hsl(var(--primary) / 0.1)' : 'transparent' }}
               >
                 <Filter size={16} />
                 <span>필터</span>
                 {activeFilterCount > 0 && (
-                  <span style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderRadius: '10px', padding: '2px 6px', fontSize: '10px', fontWeight: '600' }}>
+                  <span className={styles.filterBadge}>
                     {activeFilterCount}
                   </span>
                 )}
               </button>
 
               {showFilter && (
-                <div className="dropdown custom-scrollbar" style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '4px',
-                  width: '320px',
-                  maxHeight: '500px',
-                  overflowY: 'auto',
-                  zIndex: 1000,
-                  padding: '12px'
-                }}>
+                <div className={`dropdown custom-scrollbar ${styles.filterDropdown}`}>
                   {/* 상태 필터 */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>상태</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div className={styles.filterSection}>
+                    <div className={styles.filterLabel}>상태</div>
+                    <div className={styles.filterOptions}>
                       {['Completed', 'Processing', 'Pending', 'Error'].map(status => (
-                        <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <label key={status} className={styles.checkboxLabel}>
                           <input
                             type="checkbox"
                             checked={filters.status.includes(status)}
@@ -366,18 +333,18 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span style={{ fontSize: '13px' }}>{status}</span>
+                          <span className={styles.optionText}>{status}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   {/* KPI 필터 */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>KPI</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div className={styles.filterSection}>
+                    <div className={styles.filterLabel}>KPI</div>
+                    <div className={styles.filterOptions}>
                       {Object.entries(KPI_LABELS).map(([key, label]) => (
-                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <label key={key} className={styles.checkboxLabel}>
                           <input
                             type="checkbox"
                             checked={filters.kpi.includes(key)}
@@ -387,18 +354,18 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span style={{ fontSize: '13px' }}>{label}</span>
+                          <span className={styles.optionText}>{label}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   {/* 업종 필터 */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>업종</div>
-                    <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
+                  <div className={styles.filterSection}>
+                    <div className={styles.filterLabel}>업종</div>
+                    <div className={`custom-scrollbar ${styles.filterOptionsScroll}`}>
                       {industries.map(ind => (
-                        <label key={ind} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <label key={ind} className={styles.checkboxLabel}>
                           <input
                             type="checkbox"
                             checked={filters.industry.includes(ind)}
@@ -408,7 +375,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                             }}
                             className="checkbox-custom"
                           />
-                          <span style={{ fontSize: '13px' }}>{ind}</span>
+                          <span className={styles.optionText}>{ind}</span>
                         </label>
                       ))}
                     </div>
@@ -417,8 +384,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                   {/* 필터 초기화 버튼 */}
                   <button
                     onClick={() => setFilters({ status: [], kpi: [], industry: [] })}
-                    className="btn btn-ghost btn-sm"
-                    style={{ width: '100%', marginTop: '8px' }}
+                    className={`btn btn-ghost btn-sm ${styles.filterReset}`}
                   >
                     필터 초기화
                   </button>
@@ -433,7 +399,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           <table className="data-table">
             <thead>
               <tr>
-                <th style={{ width: '50px' }}>
+                <th className={styles.thCheckbox}>
                   <input
                     type="checkbox"
                     className="checkbox-custom"
@@ -441,59 +407,59 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
                 </th>
-                <th onClick={() => handleSort('id')} style={{ cursor: 'pointer', width: '80px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('id')} className={`${styles.thSortable} ${styles.thId}`}>
+                  <div className={styles.thInner}>
                     ID {sortField === 'id' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', minWidth: '250px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('name')} className={`${styles.thSortable} ${styles.thName}`}>
+                  <div className={styles.thInner}>
                     시나리오 {sortField === 'name' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('industry')} style={{ cursor: 'pointer', width: '100px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('industry')} className={`${styles.thSortable} ${styles.thIndustry}`}>
+                  <div className={styles.thInner}>
                     업종 {sortField === 'industry' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('kpi')} style={{ cursor: 'pointer', width: '140px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('kpi')} className={`${styles.thSortable} ${styles.thKpi}`}>
+                  <div className={styles.thInner}>
                     KPI {sortField === 'kpi' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('totalBudget')} style={{ cursor: 'pointer', width: '120px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('totalBudget')} className={`${styles.thSortable} ${styles.thBudget}`}>
+                  <div className={styles.thInner}>
                     총 예산 {sortField === 'totalBudget' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('period')} style={{ cursor: 'pointer', width: '180px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('period')} className={`${styles.thSortable} ${styles.thPeriod}`}>
+                  <div className={styles.thInner}>
                     기간 {sortField === 'period' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('status')} style={{ cursor: 'pointer', width: '130px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('status')} className={`${styles.thSortable} ${styles.thStatus}`}>
+                  <div className={styles.thInner}>
                     상태 {sortField === 'status' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('creator')} style={{ cursor: 'pointer', width: '100px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('creator')} className={`${styles.thSortable} ${styles.thCreator}`}>
+                  <div className={styles.thInner}>
                     생성자 {sortField === 'creator' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th onClick={() => handleSort('created')} style={{ cursor: 'pointer', width: '140px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <th onClick={() => handleSort('created')} className={`${styles.thSortable} ${styles.thCreated}`}>
+                  <div className={styles.thInner}>
                     생성일시 {sortField === 'created' && (sortDirection === 'asc' ? <ChevronLeft size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronLeft size={14} style={{ transform: 'rotate(-90deg)' }} />)}
                   </div>
                 </th>
-                <th style={{ width: '60px', textAlign: 'right', paddingRight: '1.5rem' }}></th>
+                <th className={styles.thActions}></th>
               </tr>
             </thead>
             <tbody>
               {paginatedScenarios.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', padding: '80px 0' }}>
-                    <p style={{ fontSize: '14px' }} className="text-muted-foreground">
+                  <td colSpan={11} className={styles.emptyCell}>
+                    <p className={`text-muted-foreground ${styles.emptyText}`}>
                       등록된 시나리오가 없습니다.
                     </p>
                   </td>
@@ -524,92 +490,78 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                         />
                       </td>
                       <td>
-                        <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                        <span className={styles.idText}>
                           {scenario.id}
                         </span>
                       </td>
-                      <td style={{
-                        fontWeight: '400',
-                        color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                        opacity: isClickable ? 1 : 0.6,
-                        maxWidth: '300px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }} title={scenario.name}>
+                      <td
+                        className={styles.nameCell}
+                        style={{
+                          color: isClickable ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                          opacity: isClickable ? 1 : 0.6
+                        }}
+                        title={scenario.name}
+                      >
                         {scenario.name}
                       </td>
                       <td className="text-muted-foreground">{scenario.industry}</td>
                       <td>
-                        <span style={{
-                          padding: '4px 10px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          backgroundColor: 'hsl(var(--primary) / 0.1)',
-                          color: 'hsl(var(--primary))',
-                          whiteSpace: 'nowrap'
-                        }}>
+                        <span className={styles.kpiBadge}>
                           {KPI_LABELS[scenario.kpi]}
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontSize: '13px', fontWeight: '500' }}>
+                        <span className={styles.budgetText}>
                           {formatBudget(scenario.totalBudget)}
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '13px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.4' }}>
+                        <div className={styles.periodCell}>
                           <span>{scenario.startDate} →</span>
                           <span>{scenario.endDate}</span>
                         </div>
                       </td>
                       <td onClick={(e) => e.stopPropagation()}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div className={styles.statusCell}>
                           {scenario.status === 'Processing' ? (
                             <>
-                              <div style={{
-                                position: 'relative', width: '100px', height: '24px',
-                                borderRadius: '4px', border: '1px solid hsl(var(--border))',
-                                overflow: 'hidden', backgroundColor: 'hsl(var(--muted))'
-                              }}>
-                                <div style={{
-                                  position: 'absolute', top: 0, left: 0, height: '100%',
-                                  width: `${(scenario.processStep / scenario.totalSteps) * 100}%`,
-                                  backgroundColor: 'hsl(var(--foreground))', transition: 'width 0.3s ease'
-                                }} />
-                                <div style={{
-                                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  fontSize: '12px', fontWeight: '500', color: 'hsl(var(--background))', zIndex: 1
-                                }}>
+                              <div className={styles.progressTrack}>
+                                <div
+                                  className={styles.progressFill}
+                                  style={{ width: `${(scenario.processStep / scenario.totalSteps) * 100}%` }}
+                                />
+                                <div className={styles.progressLabel}>
                                   Processing
                                 </div>
                               </div>
-                              <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                              <span className={styles.progressStep}>
                                 {scenario.processStep}/{scenario.totalSteps} · {getBOProcessingStepDescription(scenario.processStep)}
                               </span>
                             </>
                           ) : (
                             <>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{
-                                  padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '500',
-                                  backgroundColor: statusStyle.bg, color: statusStyle.color,
-                                  border: `1px solid ${statusStyle.border}`
-                                }}>
+                              <div className={styles.statusRow}>
+                                <span
+                                  className={styles.statusBadge}
+                                  style={{
+                                    backgroundColor: statusStyle.bg,
+                                    color: statusStyle.color,
+                                    border: `1px solid ${statusStyle.border}`
+                                  }}
+                                >
                                   {scenario.status}
                                 </span>
                                 {scenario.status === 'Error' && (
                                   <button
                                     onClick={(e) => { e.stopPropagation() }}
-                                    style={{ background: 'none', border: 'none', padding: '4px 8px', fontSize: '11px', color: 'hsl(var(--foreground))', cursor: 'pointer', textDecoration: 'underline' }}
+                                    className={styles.retryButton}
                                   >
                                     재시도
                                   </button>
                                 )}
                               </div>
                               {scenario.completedAt && (
-                                <span style={{ fontSize: '11px' }} className="text-muted-foreground">
+                                <span className={`text-muted-foreground ${styles.completedAt}`}>
                                   {scenario.completedAt.slice(0, 16)}
                                 </span>
                               )}
@@ -618,27 +570,26 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                         </div>
                       </td>
                       <td>
-                        <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                        <span className={styles.creatorText}>
                           {scenario.creator}({maskEmail(scenario.creatorId)})
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))' }}>
+                        <span className={styles.createdText}>
                           {scenario.created.slice(0, 16)}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: '1.5rem' }}>
-                        <div style={{ position: 'relative', display: 'inline-block' }} ref={contextMenuId === scenario.id ? contextMenuRef : null} onClick={(e) => e.stopPropagation()}>
+                      <td className={styles.actionsCell}>
+                        <div className={styles.contextMenuWrap} ref={contextMenuId === scenario.id ? contextMenuRef : null} onClick={(e) => e.stopPropagation()}>
                           <button
                             data-context-menu
                             onClick={() => setContextMenuId(contextMenuId === scenario.id ? null : scenario.id)}
-                            className="btn btn-ghost btn-sm"
-                            style={{ padding: '4px' }}
+                            className={`btn btn-ghost btn-sm ${styles.contextMenuButton}`}
                           >
                             <MoreVertical size={16} />
                           </button>
                           {contextMenuId === scenario.id && (
-                            <div className="dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', width: '120px', zIndex: 1000 }}>
+                            <div className={`dropdown ${styles.contextMenu}`}>
                               <button
                                 className="dropdown-item"
                                 onClick={() => {
@@ -665,8 +616,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                                 <ArrowRightLeft size={14} /> 이동
                               </button>
                               <button
-                                className="dropdown-item"
-                                style={{ color: 'hsl(0 84% 60%)' }}
+                                className={`dropdown-item ${styles.contextMenuDanger}`}
                                 onClick={() => {
                                   setDeletingIds([scenario.id])
                                   setShowDeleteDialog(true)
@@ -688,15 +638,10 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
         </div>
 
         {/* 페이지네이션 (Reach Caster 동일) */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: '24px'
-        }}>
+        <div className={styles.pagination}>
           {/* 좌측: 페이지 크기 선택 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+          <div className={styles.pageSizeGroup}>
+            <span className={`text-muted-foreground ${styles.pageSizeLabel}`}>
               페이지당 표시:
             </span>
             <select
@@ -705,14 +650,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                 setItemsPerPage(Number(e.target.value))
                 setCurrentPage(1)
               }}
-              className="input"
-              style={{
-                width: '80px',
-                height: '32px',
-                minHeight: '32px',
-                padding: '4px 8px',
-                fontSize: '14px'
-              }}
+              className={`input ${styles.pageSizeSelect}`}
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -721,31 +659,31 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
           </div>
 
           {/* 우측: 페이지 정보 및 네비게이션 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div className={styles.pageNavGroup}>
             {/* 페이지 정보 */}
-            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+            <span className={`text-muted-foreground ${styles.pageInfo}`}>
               {sortedScenarios.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, sortedScenarios.length)} / {sortedScenarios.length}개
             </span>
 
             {/* 페이지 네비게이션 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div className={styles.pageButtons}>
               {/* 첫 페이지로 */}
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="btn btn-ghost btn-sm"
-                style={{ width: '32px', height: '32px', padding: '0', opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronLeft size={14} />
-                <ChevronLeft size={14} style={{ marginLeft: '-8px' }} />
+                <ChevronLeft size={14} className={styles.pageIconStacked} />
               </button>
 
               {/* 이전 페이지 */}
               <button
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="btn btn-ghost btn-sm"
-                style={{ width: '32px', height: '32px', padding: '0', opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronLeft size={14} />
               </button>
@@ -766,8 +704,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                     <button
                       key={i}
                       onClick={() => setCurrentPage(i)}
-                      className={`btn btn-sm ${currentPage === i ? 'btn-primary' : 'btn-ghost'}`}
-                      style={{ width: '32px', height: '32px', padding: '0', fontSize: '14px', fontWeight: currentPage === i ? '600' : '400' }}
+                      className={`btn btn-sm ${currentPage === i ? 'btn-primary' : 'btn-ghost'} ${styles.pageButtonNumber}`}
+                      style={{ fontWeight: currentPage === i ? '600' : '400' }}
                     >
                       {i}
                     </button>
@@ -781,8 +719,8 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="btn btn-ghost btn-sm"
-                style={{ width: '32px', height: '32px', padding: '0', opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
+                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                style={{ opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronRight size={14} />
               </button>
@@ -791,11 +729,11 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="btn btn-ghost btn-sm"
-                style={{ width: '32px', height: '32px', padding: '0', opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
+                className={`btn btn-ghost btn-sm ${styles.pageButton}`}
+                style={{ opacity: (currentPage === totalPages || totalPages === 0) ? 0.5 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }}
               >
                 <ChevronRight size={14} />
-                <ChevronRight size={14} style={{ marginLeft: '-8px' }} />
+                <ChevronRight size={14} className={styles.pageIconStacked} />
               </button>
             </div>
           </div>
@@ -814,14 +752,13 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                 선택한 {selectedIds.length}개 시나리오를 다른 Slot으로 이동합니다.
               </p>
             </div>
-            <div style={{ padding: '16px 0' }}>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+            <div className={styles.dialogBody}>
+              <div className={styles.dialogField}>
+                <label className={styles.dialogFieldLabel}>
                   이동할 Slot 선택 (광고주: {slotData.advertiser})
                 </label>
                 <select
-                  className="input"
-                  style={{ width: '100%' }}
+                  className={`input ${styles.dialogSelectFull}`}
                   value={moveTargetSlot}
                   onChange={(e) => setMoveTargetSlot(e.target.value)}
                 >
@@ -847,6 +784,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               >
                 이동
               </button>
+              {/* 위 opacity/cursor는 moveTargetSlot 유무에 따른 동적 값이라 인라인 유지 */}
             </div>
           </div>
         </div>
@@ -873,11 +811,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="btn btn-sm"
-                style={{
-                  backgroundColor: 'hsl(var(--destructive))',
-                  color: 'hsl(var(--destructive-foreground))'
-                }}
+                className={`btn btn-sm ${styles.bulkButtonDanger}`}
               >
                 삭제
               </button>
