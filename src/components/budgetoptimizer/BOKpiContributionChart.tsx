@@ -126,44 +126,39 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
   }, [bars, wf.optimizedKpiTotal])
 
   return (
-    <div style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-[400px] flex flex-col">
       {/* 타이틀 + Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexShrink: 0, position: 'relative' }}>
-        <h4 style={{ fontSize: '17px', fontWeight: '500', margin: 0 }}>최적화로 성과가 얼마나 늘어날까?</h4>
-        <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>Incremental {kpiEn}</span>
+      <div className="relative flex items-center gap-1.5 mb-1 shrink-0">
+        <h4 className="text-[17px] font-medium m-0">최적화로 성과가 얼마나 늘어날까?</h4>
+        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">Incremental {kpiEn}</span>
         <button
           onMouseEnter={() => setTooltipOpen(true)}
           onMouseLeave={() => setTooltipOpen(false)}
-          style={{ background: 'none', border: 'none', padding: '2px', cursor: 'help', display: 'flex', alignItems: 'center', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+          className="flex items-center bg-transparent border-none p-0.5 cursor-help text-[hsl(var(--muted-foreground))] opacity-60"
         >
           <Info size={14} />
         </button>
         {tooltipOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '340px',
-            backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-            borderRadius: '8px', padding: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-            zIndex: 100, fontSize: '12px', lineHeight: '1.6', color: 'hsl(var(--muted-foreground))'
-          }}>
-            <div style={{ fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>Incremental {kpiEn}</div>
+          <div className="absolute top-full left-0 mt-2 w-[340px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] z-[100] text-[12px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            <div className="font-semibold text-[hsl(var(--foreground))] mb-1.5">Incremental {kpiEn}</div>
             균등 배분에서 최적화까지, 채널별 {kpiLabel} 창출·감소 기여를 누적해 보여줍니다.
-            <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: '1.6' }}>
+            <div className="mt-2 text-[11px] leading-[1.6]">
               <div><strong>최적화(강조 막대)</strong>: 최적화 후 도달하는 총 {kpiLabel}</div>
               <div><strong>균등 배분(진한 회색)</strong>: 최적화 전 기준 총 {kpiLabel}</div>
               <div><strong>+ 값</strong>: 예산 증액으로 창출된 {kpiLabel}</div>
               <div><strong>− 값</strong>: 예산 감액으로 감소한 {kpiLabel}</div>
-              <div style={{ marginTop: '6px' }}>얻은 {kpiLabel}이 잃은 {kpiLabel}보다 크면 최종값이 더 높아집니다.</div>
-              <div style={{ marginTop: '6px' }}>증감 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타'로 합산됩니다.</div>
+              <div className="mt-1.5">얻은 {kpiLabel}이 잃은 {kpiLabel}보다 크면 최종값이 더 높아집니다.</div>
+              <div className="mt-1.5">증감 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 나머지는 '기타'로 합산됩니다.</div>
             </div>
           </div>
         )}
       </div>
-      <p style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', marginBottom: '8px', flexShrink: 0 }}>
+      <p className="text-[11px] text-[hsl(var(--muted-foreground))] mb-2 shrink-0">
         균등 배분 대비 채널별 {kpiLabel} 증감
-        {isTruncated && <span style={{ marginLeft: '6px', opacity: 0.8 }}>· 변화 구간을 강조하기 위해 Y축 하단을 생략했습니다.</span>}
+        {isTruncated && <span className="ml-1.5 opacity-80">· 변화 구간을 강조하기 위해 Y축 하단을 생략했습니다.</span>}
       </p>
 
-      <div style={{ height: '300px', width: '100%', flexShrink: 0 }}>
+      <div className="h-[300px] w-full shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={bars} margin={{ top: 20, right: 8, left: 8, bottom: 8 }}>
             <XAxis
@@ -282,7 +277,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div style={{ marginTop: '16px', flexShrink: 0 }}>
+      <div className="mt-4 shrink-0">
         <BOSpinXInsight text={insight} onAsk={onAsk} followUpQuestion="#Incremental 차트 " />
       </div>
     </div>

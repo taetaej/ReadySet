@@ -38,7 +38,7 @@ export function DataInsightCard() {
   return (
     <div className="card" style={{
       padding: '24px',
-      minHeight: '180px',
+      height: '280px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',

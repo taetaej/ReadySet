@@ -2,7 +2,7 @@
 
 > 결정 로그(Decision / Judgment Record). 사실과 코드 근거 기반.
 > 작성일: 2026-09-14
-> 관련 문서: `plan/Zero_Rework_Handoff_Project.md`
+> 관련 문서: `plan/methodology/Zero_Rework_Handoff_Project.md`
 
 ---
 

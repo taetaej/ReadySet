@@ -55,39 +55,23 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiCode, kpiLabel
   ]
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: '16px',
-      marginBottom: '20px'
-    }}>
+    <div className="grid grid-cols-4 gap-4 mb-5">
       {cards.map((card) => (
         <div
           key={card.title}
-          style={{
-            backgroundColor: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center'
-          }}
+          className="flex flex-col justify-center p-5 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))]"
         >
           {/* 헤더 */}
-          <div style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--muted-foreground))', fontFamily: 'Paperlogy, sans-serif', marginBottom: '16px' }}>
+          <div className="text-[13px] font-medium mb-4 text-[hsl(var(--muted-foreground))] font-[Paperlogy,sans-serif]">
             {card.title}
           </div>
 
           {/* 값 */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-            <span style={{
-              fontSize: '28px', fontWeight: '700', color: 'hsl(var(--foreground))',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}>
+          <div className="flex items-baseline gap-1">
+            <span className="text-[28px] font-bold text-[hsl(var(--foreground))] font-[Paperlogy,sans-serif]">
               {card.value}
             </span>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: 'hsl(var(--muted-foreground))' }}>
+            <span className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
               {card.unit}
             </span>
           </div>

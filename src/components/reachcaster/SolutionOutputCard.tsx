@@ -76,7 +76,7 @@ export function SolutionOutputCard({ data = DEFAULT_DATA }: SolutionOutputCardPr
 
   return (
     <div className="card" style={{
-      padding: '20px 24px', minHeight: '180px', display: 'flex',
+      padding: '20px 24px', height: '280px', display: 'flex',
       flexDirection: 'column', boxShadow: 'none', overflow: 'hidden', position: 'relative'
     }}>
       {/* 타이틀 */}
