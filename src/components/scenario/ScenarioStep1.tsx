@@ -80,7 +80,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
           type="text"
           value={formData.scenarioName}
           onChange={(e) => {
-            if (e.target.value.length <= 30) {
+            if (e.target.value.length <= 50) {
               setFormData({ ...formData, scenarioName: e.target.value })
             }
           }}
@@ -90,7 +90,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
             width: '100%',
             borderColor: validationActive && !formData.scenarioName ? 'hsl(var(--destructive))' : undefined
           }}
-          maxLength={30}
+          maxLength={50}
         />
         {validationActive && !formData.scenarioName && (
           <div style={{
@@ -107,7 +107,7 @@ export function ScenarioStep1({ formData, setFormData, validationActive }: Scena
           marginTop: '4px',
           textAlign: 'right'
         }}>
-          {formData.scenarioName.length}/30
+          {formData.scenarioName.length}/50
         </div>
       </div>
 

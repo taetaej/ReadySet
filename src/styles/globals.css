@@ -1,6 +1,12 @@
 /* Paperlogy 폰트 import - 로컬 파일 사용 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* 다크모드는 .dark 클래스 토글 방식 사용 (src/utils/theme.ts). Tailwind dark: variant를 클래스 기반으로 연결 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: 'Paperlogy';
   src: url('/fonts/PaperlogyRegular.woff2') format('woff2');
@@ -49,6 +55,8 @@
     --radius: 0.65rem;
     --sidebar: 0 0% 98%;
     --sidebar-foreground: 0 0% 3.9%;
+    /* ReadySet 시그니처 강조색 (Neon Green) — '시스템이 짚은 정답/최적점'에만 사용. Reach Caster #00FF9D와 통일 */
+    --bo-accent: 157 100% 50%;
   }
 
   .dark {
@@ -73,6 +81,7 @@
     --ring: 0 0% 83.1%;
     --sidebar: 0 0% 9.2%;
     --sidebar-foreground: 0 0% 98%;
+    --bo-accent: 157 100% 50%;
   }
 }
 

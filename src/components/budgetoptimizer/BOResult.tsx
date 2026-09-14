@@ -332,7 +332,7 @@ export function BOResult() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', minWidth: 0 }}>
                 {resultView === 'locked'
-                  ? <Lock size={16} style={{ color: '#BF5AF2', flexShrink: 0 }} />
+                  ? <Lock size={16} style={{ color: 'hsl(var(--foreground))', flexShrink: 0 }} />
                   : <Unlock size={16} style={{ color: 'hsl(var(--muted-foreground))', flexShrink: 0 }} />}
                 <span style={{ fontSize: '15px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))' }}>
                   {resultView === 'locked' ? 'Locked Budget Allocation' : 'Fully Optimized Allocation'}
@@ -409,6 +409,7 @@ export function BOResult() {
             </h3>
             <p style={{ fontSize: '13px', color: 'hsl(var(--muted-foreground))', marginBottom: '20px' }}>
               매체·상품별 예산 배분과 예상 성과를 상세하게 확인할 수 있습니다.
+              {result.allocations.some(a => a.isFixed) && ' 순수 최적화 결과 보기에서는 값 아래에 사용자가 잠근 설정값 대비 증감(↑ 증가 · ↓ 감소)을 함께 표시합니다.'}
             </p>
             <BOResultTable
               allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}

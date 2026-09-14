@@ -58,16 +58,16 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
         <input
           type="text"
           value={formData.scenarioName}
-          onChange={(e) => { if (e.target.value.length <= 30) setFormData({ ...formData, scenarioName: e.target.value }) }}
+          onChange={(e) => { if (e.target.value.length <= 50) setFormData({ ...formData, scenarioName: e.target.value }) }}
           placeholder="시나리오명을 입력하세요."
           className="input"
           style={{ width: '100%', borderColor: validationActive && !formData.scenarioName ? 'hsl(var(--destructive))' : undefined }}
-          maxLength={30}
+          maxLength={50}
         />
         {validationActive && !formData.scenarioName && (
           <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>시나리오명을 입력해 주세요.</div>
         )}
-        <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '4px', textAlign: 'right' }}>{formData.scenarioName.length}/30</div>
+        <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginTop: '4px', textAlign: 'right' }}>{formData.scenarioName.length}/50</div>
       </div>
 
       {/* 설명 */}

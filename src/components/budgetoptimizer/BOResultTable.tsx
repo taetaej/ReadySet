@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Lock, ChevronRight } from 'lucide-react'
+import { Lock, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
 import { BOAllocation } from './resultSampleData'
 
 interface BOResultTableProps {
@@ -91,7 +91,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
 
   const BudgetCell = ({ amount, isFixed }: { amount: number; isFixed: boolean }) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-      {isFixed && resultView === 'locked' && <Lock size={12} style={{ color: '#BF5AF2', flexShrink: 0 }} />}
+      {isFixed && resultView === 'locked' && <Lock size={12} style={{ color: 'hsl(var(--foreground))', flexShrink: 0 }} />}
       <span>{fmtBudget(amount)}</span>
     </div>
   )
@@ -112,18 +112,22 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
   const DeltaCell = ({ current, locked, formatter, isDelta }: { current: number; locked: number; formatter: (v: number) => React.ReactNode; isDelta?: 'won' | 'count' }) => {
     const diff = current - locked
     if (resultView === 'locked' || diff === 0) return <>{formatter(current)}</>
+    const Icon = diff > 0 ? TrendingUp : TrendingDown
     const color = diff > 0 ? 'hsl(142 71% 45%)' : 'hsl(var(--destructive))'
     const deltaText = isDelta === 'won' ? formatDeltaWon(diff) : formatDeltaNum(diff)
     return (
       <div>
         <div>{formatter(current)}</div>
-        <div style={{ fontSize: '10px', color, marginTop: '2px' }}>{deltaText}</div>
+        <div style={{ fontSize: '10px', color, marginTop: '2px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+          <Icon size={10} style={{ flexShrink: 0 }} />{deltaText}
+        </div>
       </div>
     )
   }
 
-  const formatDeltaWon = (v: number) => `${v > 0 ? '+' : ''}${v.toLocaleString()}원`
-  const formatDeltaNum = (v: number) => `${v > 0 ? '+' : ''}${v.toLocaleString()}`
+  // 화살표가 방향을 나타내므로 부호(+/-)는 생략, 절대값만 표기
+  const formatDeltaWon = (v: number) => `${Math.abs(v).toLocaleString()}원`
+  const formatDeltaNum = (v: number) => `${Math.abs(v).toLocaleString()}`
 
   return (
     <div>
@@ -204,7 +208,8 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                         const locked = lockedMap.get(`${p.mediaId}|${p.productName}`)
                         if (resultView === 'pure' && locked && locked.ratio !== p.ratio) {
                           const diff = p.ratio - locked.ratio
-                          return <div><div>{pct(p.ratio)}</div><div style={{ fontSize: '10px', color: diff > 0 ? 'hsl(142 71% 45%)' : 'hsl(var(--destructive))', marginTop: '2px' }}>{diff > 0 ? '+' : ''}{diff.toFixed(2)}%p</div></div>
+                          const DiffIcon = diff > 0 ? TrendingUp : TrendingDown
+                          return <div><div>{pct(p.ratio)}</div><div style={{ fontSize: '10px', color: diff > 0 ? 'hsl(142 71% 45%)' : 'hsl(var(--destructive))', marginTop: '2px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}><DiffIcon size={10} style={{ flexShrink: 0 }} />{Math.abs(diff).toFixed(2)}%p</div></div>
                         }
                         return pct(p.ratio)
                       })()}

@@ -28,13 +28,13 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
           value={formData.datasetName}
           onChange={(e) => {
             const value = e.target.value.replace(/\n/g, '')
-            if (value.length <= 30) setFormData({ ...formData, datasetName: value })
+            if (value.length <= 50) setFormData({ ...formData, datasetName: value })
           }}
           onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
           placeholder="데이터셋명을 입력하세요."
           className="input"
           style={{ width: '100%', borderColor: validationActive && !formData.datasetName.trim() ? 'hsl(var(--destructive))' : undefined }}
-          maxLength={30}
+          maxLength={50}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
           <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))' }}>
@@ -42,7 +42,7 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
             {validationActive && formData.datasetName.trim().length === 0 && formData.datasetName.length > 0 && '공백만으로 구성할 수 없습니다.'}
           </div>
           <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
-            {formData.datasetName.length}/30
+            {formData.datasetName.length}/50
           </div>
         </div>
       </div>

@@ -8,8 +8,35 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-08-27',
+      updatedAt: '2026-10-21',
       content: `# Release Notes
+
+## v1.2.0 (2026-10-21)
+
+ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
+
+---
+
+### Budget Optimizer
+
+- \`NEW\` Budget Optimizer 정식 출시 — 업종별 최적화 모델로 매체·상품별 예산 배분안을 생성하고, 예산 잠금·KPI 기준 최적화·결과 분석까지 지원
+- \`NEW\` Reach Caster 연계 — 최적화한 예산안을 Reach Caster 도달 예측으로 바로 이어서 생성
+
+### Reach Caster
+
+- \`IMPROVED\` 업종 직접 선택 — 브랜드 식별 외에 업종을 직접 선택해 시나리오를 생성할 수 있도록 지원
+- \`IMPROVED\` 시나리오명 입력 확대 — 최대 30자에서 50자로 확대
+- \`IMPROVED\` Slot명 입력 확대 — 최대 30자에서 50자로 확대
+
+### DataShot
+
+- \`IMPROVED\` 데이터셋명 입력 확대 — 최대 30자에서 50자로 확대
+
+### SpinX
+
+- \`NEW\` 컨텍스트 첨부 — 차트·데이터 등 화면 컨텍스트를 대화에 첨부해 더 정확한 분석 요청 가능
+
+
 
 ## v1.1.1 (2026-08-27)
 

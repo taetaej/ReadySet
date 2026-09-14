@@ -145,7 +145,7 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
             <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: '1.6' }}>
               <div><strong>최근 1년</strong>: 가장 최근 52주 구간만 표시</div>
               <div><strong>최근 2년</strong>: 모델이 학습한 전체 기간(104주) 표시</div>
-              <div style={{ marginTop: '6px' }}>보라색 음영은 내 캠페인 기간의 전년·전전년 동기간으로, 같은 시기의 업종 매체 기여를 참고할 수 있습니다.</div>
+              <div style={{ marginTop: '6px' }}>음영 구간은 내 캠페인 기간의 전년·전전년 동기간으로, 같은 시기의 업종 매체 기여를 참고할 수 있습니다.</div>
               <div style={{ marginTop: '6px' }}>기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시됩니다.</div>
             </div>
           </div>
@@ -191,8 +191,8 @@ export function BODailyAttributionChart({ data, dataByProduct, allocations, kpiL
                     key={b.label}
                     x1={Math.max(b.from, startWeek)}
                     x2={Math.min(b.to, lastWeek)}
-                    fill="#BF5AF2"
-                    fillOpacity={0.08}
+                    fill="hsl(var(--foreground))"
+                    fillOpacity={0.06}
                     label={{ value: b.label, position: 'insideTop', fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
                   />
                 ))}

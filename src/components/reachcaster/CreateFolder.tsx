@@ -100,8 +100,8 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
 
     if (!formData.folderName.trim()) {
       newErrors.folderName = 'Slot명을 입력해주세요.'
-    } else if (formData.folderName.length > 30) {
-      newErrors.folderName = 'Slot명은 30자 이내로 입력해주세요.'
+    } else if (formData.folderName.length > 50) {
+      newErrors.folderName = 'Slot명은 50자 이내로 입력해주세요.'
     }
 
     if (!formData.advertiserId) {
@@ -132,7 +132,7 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
 
   const isFormValid = () => {
     const baseValid = formData.folderName.trim() && 
-                     formData.folderName.length <= 30 && 
+                     formData.folderName.length <= 50 && 
                      formData.advertiserId &&
                      formData.visibility &&
                      Object.keys(errors).length === 0
@@ -266,7 +266,7 @@ export function CreateFolder({ onBack, onSuccess }: CreateFolderProps) {
                   fontSize: '12px',
                   marginTop: '4px'
                 }} className="text-muted-foreground">
-                  {formData.folderName.length}/30
+                  {formData.folderName.length}/50
                 </div>
               </div>
 

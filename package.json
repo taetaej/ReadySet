@@ -2,7 +2,9 @@
   "name": "reachcaster-workspace",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@types/react-router-dom": "^5.3.3",
     "date-fns": "^4.1.0",
     "echarts": "^6.0.0",
@@ -18,14 +20,15 @@
     "react-day-picker": "^9.13.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.13.0",
-    "recharts": "^3.7.0"
+    "recharts": "^3.7.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.3",
+    "@vitejs/plugin-react": "^4.7.0",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^5.4.21"
   },
   "scripts": {
     "dev": "vite",
