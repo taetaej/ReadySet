@@ -171,6 +171,11 @@
 - 성공 의미색(`hsl(142.1 76.2% 36.3%)`)은 reachcaster/datashot/component-library 등 **전역 공통**으로 사용 중임. 토큰화는 본 격상 범위를 넘어서는 **전역 결정**이므로 별도 과제로 분리함.
 - `BOBudgetPieChart` 스택바 라벨의 HEX 하드코딩(`#000`/`#fff`)은 강조색 세그먼트 위 대비 텍스트로 원본 의도가 있는 값임. 형식 변환 범위를 넘어서므로 별도 과제로 분리함. (다크모드 영향 검토 필요)
 
+### 5. 향후 방향
+
+- **전 모듈 Tailwind 정렬**: 최종 목표는 slot / reachcaster / datashot을 포함한 전 모듈을 Budget Optimizer 형태(Tailwind 우선)로 정렬하는 것임. 현재는 이행 상태이며, 모듈별 현황은 `codebase-patterns-steering.md` §1-0에 명시함.
+- **컴포넌트-PRD 정렬**: 스타일 형식을 넘어, 컴포넌트 구조 자체를 PRD와 정렬하는 것을 후속 목표로 둠. (범위가 크므로 별도 과제로 다룸)
+
 ---
 
 ## 변경 이력
