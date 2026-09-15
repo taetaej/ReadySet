@@ -10,32 +10,46 @@ inclusion: manual
 
 ## 1. Styling Patterns
 
-### 1-1. 스타일링 방식: Inline Styles + CSS Classes
+> ⚠️ **이행 중 (Transition State).** 프로젝트의 최종 목표는 **전 모듈 Tailwind 우선**(= Budget Optimizer 형태)이다.
+> 현재는 모듈마다 상태가 다르므로 아래 1-0의 모듈별 규칙을 먼저 확인할 것.
+> 전달 형식 규범 상세는 `handoff-implementation-guide.md`, 배경은 `plan/methodology/Zero_Rework_Handoff_Project.md`.
 
-**규칙**: 프로젝트는 **Inline Styles (React style prop)** 를 기본으로 사용하며, 전역 CSS 클래스는 보조적으로만 사용.
+### 1-0. 모듈별 스타일링 방식 (최우선 확인)
 
-- **Inline Styles**: 컴포넌트별 고유 스타일, 동적 스타일, 상태 기반 스타일
-- **CSS Classes** (globals.css): 재사용 가능한 유틸리티 클래스 (`.btn`, `.input`, `.card`, `.dialog-*` 등)
-- **CSS Modules**: 사용하지 않음
-- **Tailwind CSS**: 사용하지 않음
+| 모듈 | 현재 방식 | 비고 |
+|---|---|---|
+| **Budget Optimizer (`budgetoptimizer/`)** | **Tailwind 우선** | 전환 완료. 프로젝트 최종 목표 형태 |
+| slot / reachcaster / datashot | Inline Styles 우선 | Tailwind 전환 예정 (미착수) |
 
-**예시**:
+- **최종 목표**: 모든 모듈을 Budget Optimizer 형태(Tailwind 우선)로 정렬한다.
+- 신규 화면을 Budget Optimizer 하위로 만들 때는 처음부터 Tailwind 우선으로 작성한다.
+- 아직 전환되지 않은 모듈(slot/reachcaster/datashot)은 기존 Inline Styles 방식을 유지하며, 불필요하게 섞지 않는다.
+
+### 1-1. 스타일링 방식
+
+**공통 (전 모듈)**:
+- **CSS Classes** (globals.css): 재사용 가능한 공통 클래스(`.btn`, `.input`, `.card`, `.dialog-*` 등)는 그대로 사용한다.
+- **디자인 토큰**: 색·radius는 `hsl(var(--token))` 형식을 사용한다. (§1-2)
+- **동적 값**: 런타임 계산·상태 기반 값은 인라인 `style`로 둔다.
+
+**Tailwind 우선 모듈 (Budget Optimizer, 이후 확산 대상)**:
+- 정적 레이아웃·간격·타이포는 **Tailwind 유틸리티 클래스**로 작성한다.
+- 토큰은 임의 값 문법으로 사용한다: `bg-[hsl(var(--card))]`, `text-[hsl(var(--muted-foreground))]`.
+- Tailwind로 표현하기 복잡한 스타일(애니메이션·차트 등)만 CSS Module로 분리한다.
+- 상세 규범: `handoff-implementation-guide.md`.
+
+**Inline Styles 모듈 (slot/reachcaster/datashot, 전환 전)**:
+- 컴포넌트 고유 스타일은 인라인 `style`로 작성한다.
+
 ```tsx
-// ✅ 올바른 방식
-<div style={{
-  padding: '16px',
-  borderRadius: '8px',
-  backgroundColor: 'hsl(var(--card))',
-  transition: 'all 0.2s'
-}}>
-  <button className="btn btn-primary btn-md">
-    확인
-  </button>
+// Budget Optimizer (Tailwind 우선)
+<div className="p-4 rounded-lg bg-[hsl(var(--card))] transition-all">
+  <button className="btn btn-primary btn-md">확인</button>  {/* 공통 클래스는 그대로 */}
 </div>
 
-// ❌ 피해야 할 방식
-<div className="p-4 rounded-lg bg-card">  // Tailwind 사용 금지
-  <button className="custom-btn">확인</button>  // 새로운 CSS 클래스 정의 금지
+// slot/reachcaster/datashot (전환 전, Inline)
+<div style={{ padding: '16px', borderRadius: '8px', backgroundColor: 'hsl(var(--card))', transition: 'all 0.2s' }}>
+  <button className="btn btn-primary btn-md">확인</button>
 </div>
 ```
 
@@ -598,7 +612,10 @@ transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
 
 ### 9-4. 호버 효과 패턴
 
-**규칙**: `onMouseEnter`/`onMouseLeave` 이벤트로 동적 스타일 변경.
+> Tailwind 우선 모듈(Budget Optimizer)에서는 `onMouseEnter`/`onMouseLeave`로 스타일을 직접 조작하는 대신 **`hover:` variant**를 사용한다. (예: `hover:bg-[hsl(var(--muted)/0.4)]`)
+> 아래 JS 조작 방식은 Inline Styles 모듈(slot/reachcaster/datashot)의 패턴이다.
+
+**규칙 (Inline 모듈)**: `onMouseEnter`/`onMouseLeave` 이벤트로 동적 스타일 변경.
 
 ```tsx
 // ✅ 올바른 방식
@@ -764,9 +781,9 @@ const onMediaChange = () => { }                       // on 접두사 (콜백용
 - [ ] 파일명: PascalCase (예: `ComponentName.tsx`)
 - [ ] Props 인터페이스 정의됨
 - [ ] 모든 색상: `hsl(var(--token))` 사용
-- [ ] 폰트: `fontFamily: 'Paperlogy, sans-serif'` 명시
-- [ ] 아이콘: lucide-react에서만 import
-- [ ] 스타일: Inline Styles + CSS 클래스 조합
+- [ ] 폰트: Paperlogy 명시 (Tailwind 모듈은 `font-[Paperlogy,sans-serif]`, Inline 모듈은 `fontFamily: 'Paperlogy, sans-serif'`)
+- [ ] 아이콘: lucide-react에서만 import (라벨과 중복되는 장식 아이콘은 지양 — `ui-design-principles.md`)
+- [ ] 스타일: 모듈 방식 준수 — Budget Optimizer는 Tailwind 우선, slot/reachcaster/datashot은 Inline Styles (§1-0)
 - [ ] 상태: `useState` 사용, Props로 전달
 - [ ] 애니메이션: CSS Transitions/Keyframes만 사용
 - [ ] 네비게이션: `useNavigate()` 사용
