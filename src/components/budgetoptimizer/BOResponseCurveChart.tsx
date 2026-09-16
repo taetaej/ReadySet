@@ -128,10 +128,10 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
             <div className="font-semibold text-[hsl(var(--foreground))] mb-1.5">Response Curve</div>
             매체별 예산 투입 대비 KPI 반응 곡선입니다.
             <div className="mt-2 text-[11px] leading-[1.6]">
-              <div><strong>●점(Current Spend)</strong>: 현재 배분된 예산 지점</div>
-              <div><strong>점 왼쪽</strong>: 이미 투입된 예산 구간의 성과 (실선)</div>
-              <div><strong>점 오른쪽</strong>: 추가 투입 시 예상 성과 (점선, 완만할수록 효율 포화)</div>
-              <div className="mt-1.5">우측에서 {viewMode === 'product' ? '상품' : '매체'}을 바꿔 곡선을 확인하세요. (기여 상위 5개)</div>
+              <div><strong>●점(Current Spend)</strong>: 이 배분안에서 배정된 예산 지점</div>
+              <div><strong>점 왼쪽</strong>: 배정 예산까지의 예상 성과 (실선)</div>
+              <div><strong>점 오른쪽</strong>: 예산 추가 시 예상 성과 (점선, 완만할수록 효율 포화)</div>
+              <div className="mt-1.5">기여 상위 5개 {viewMode === 'product' ? '상품' : '매체'}만 표시되며, 우측에서 곡선을 전환할 수 있습니다.</div>
             </div>
           </div>
         )}
@@ -255,11 +255,11 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
           <div className="mt-4 pt-3 border-t border-[hsl(var(--border))] flex flex-col gap-2">
             <div className="flex items-center gap-2 text-[11px] text-[hsl(var(--foreground))]">
               <svg width="20" height="4" className="shrink-0"><line x1="0" y1="2" x2="20" y2="2" stroke="hsl(var(--foreground))" strokeOpacity="0.7" strokeWidth="2.5" /></svg>
-              <span>현재까지 투입</span>
+              <span>배정 예산까지</span>
             </div>
             <div className="flex items-center gap-2 text-[11px] text-[hsl(var(--muted-foreground))]">
               <svg width="20" height="4" className="shrink-0"><line x1="0" y1="2" x2="20" y2="2" stroke="hsl(var(--foreground))" strokeOpacity="0.4" strokeWidth="2" strokeDasharray="5 4" /></svg>
-              <span>추가 투입 시 예상</span>
+              <span>예산 추가 시</span>
             </div>
             <div className="flex items-center gap-2 text-[11px] text-[hsl(var(--foreground))]">
               <span className="w-2 h-2 rounded-full shrink-0 ml-[6px] mr-[6px]" style={{ backgroundColor: ACCENT_COLOR }} />
