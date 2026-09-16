@@ -125,7 +125,7 @@ export function BOMediaDialog({ open, onClose, onConfirm, currentProducts = [] }
           <p className="dialog-description">분석에 포함할 매체와 상품을 선택하세요</p>
           <div className="flex items-center gap-2 mt-3 p-3 rounded-md text-xs bg-[hsl(var(--muted)/0.5)] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]">
             <Info size={14} />
-            <span>Step1에서 선택한 업종의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
+            <span>Step1에서 선택한 업종과 KPI의 모델 학습 결과가 있는 광고상품만 표시됩니다.</span>
           </div>
         </div>
 
