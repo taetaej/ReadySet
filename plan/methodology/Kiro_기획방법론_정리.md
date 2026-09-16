@@ -93,15 +93,19 @@ plan/
 ├── competitive-analysis/   근거 — 나스미디어 VIPer 비교
 ├── decisions/              결정 이력 — Budget_Optimizer_Decision_Log (BO-001)
 ├── spec/                   어떻게 동작하는가 — 화면 상세 명세 20+ 종
-└── eunseo/                 협업 — 다른 기획자·개발자용 가이드/체크리스트
+├── methodology/            방법론 — 이 문서, 마이그레이션/핸드오프 가이드
+├── presentations/          발표·지원 자료 — 슬라이드, 지원서
+└── 기획자_온보딩_가이드.md   협업 — 신규 기획자 온보딩 가이드
 ```
 
-이 계층은 화면 스펙만 담는 게 아니다. 두 종류의 문서가 방법론을 더 넓게 받친다:
+이 계층은 화면 스펙만 담는 게 아니다. 세 종류의 문서가 방법론을 더 넓게 받친다:
 
 - **워크플로우를 어떻게 얹을지 고민한 문서** — `strategic(highlevel)/AI_Workflow_Studio_정책서_v0.1.md`.
   노드·MCP 기반 워크플로우를 이 플랫폼에 어떻게 올릴지 구상한 문서다. "지금 방법론 위에 새 작업 방식(워크플로우/자동화)을 어떻게 얹을까"를 스스로 정리하며 쌓은 흔적이다.
-- **다른 기획자와 협업하기 위한 가이드** — `plan/eunseo/`.
-  담당자가 자기 영역(DataShot)에서만 안전하게 작업하도록 만든 개발 가이드·안전한 작업 체크리스트·프로젝트 현황 요약. 방법론이 나 혼자가 아니라 **여러 사람이 같은 기준으로 협업**하도록 확장되고 있다는 증거다.
+- **방법론 자체를 자산화한 문서** — `plan/methodology/`.
+  이 문서를 비롯해 마이그레이션·핸드오프 가이드가 모여 있다. 일하는 방식 자체를 문서로 남겨 재사용·전파 가능하게 만든 것이다.
+- **다른 기획자와 협업하기 위한 가이드** — `plan/기획자_온보딩_가이드.md`.
+  신규 기획자가 같은 기준으로 합류하도록 만든 온보딩 문서. 방법론이 나 혼자가 아니라 **여러 사람이 같은 기준으로 협업**하도록 확장되고 있다는 증거다.
 
 그리고 스펙 작성 자체를 통제하는 발판을 추가로 깔았다:
 - `screen-specification-guide.md` — 화면 스펙 작성 원칙·체크리스트 (`plan/spec/**` 열면 자동 주입)
@@ -433,8 +437,10 @@ const getMediaRatioValidation = () => {
 - 워크플로우 구상: `strategic(highlevel)/AI_Workflow_Studio_정책서_v0.1.md` (노드·MCP 기반 워크플로우를 플랫폼에 얹는 구상)
 - 근거: `competitive-analysis/나스미디어_VIPer_분석.md`
 - 결정: `decisions/Budget_Optimizer_Decision_Log.md`
-- 화면 스펙: `spec/BudgetOptimizer_Scenario_Creation_Spec.md`(모범, v1.9), `spec/RatioFinder_Step2_Validation_Spec.md` 등 20+
-- 협업 가이드: `eunseo/` (개발 가이드·안전한 작업 체크리스트·프로젝트 현황 요약)
+- 화면 스펙: `spec/BudgetOptimizer_Scenario_Creation_Spec.md`(모범, v2.1), `spec/RatioFinder_Step2_Validation_Spec.md` 등 20+
+- 방법론: `methodology/` (이 문서, `Reborn_Migration_Guide`, `Zero_Rework_Handoff_Project`)
+- 발표 자료: `presentations/` (슬라이드·지원서)
+- 협업 가이드: `기획자_온보딩_가이드.md`
 
 **Kiro Spec (`.kiro/specs/`)**
 - `reach-predictor-phase1/requirements.md`, `design.md`
