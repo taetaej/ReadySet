@@ -396,7 +396,8 @@ export function IndustryDualBarChart({ onIndustryChange }: IndustryDualBarChartP
   const mediaData = MEDIA_LEVEL[selectedIndustry] || MEDIA_LEVEL['뷰티']
   const overallAvg = mode === 'ctr' ? 2.3 : (100 / 6)
 
-  const level1Data = mediaData.map(d => ({
+  const level1Source = mode === 'share' ? mediaData.filter(d => d.media !== '전체') : mediaData
+  const level1Data = level1Source.map(d => ({
     name: d.media,
     value: mode === 'ctr' ? d.ctr : d.share,
     avg: overallAvg,
