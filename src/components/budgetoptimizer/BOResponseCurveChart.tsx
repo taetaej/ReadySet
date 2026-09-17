@@ -137,7 +137,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
         )}
       </div>
       <p className="text-[11px] text-[hsl(var(--muted-foreground))] mb-2 shrink-0">
-        예산 투입 대비 보장 {kpiLabel} 반응
+        예산 투입 대비 예상 {kpiLabel} 반응
       </p>
 
       {/* 차트 + 우측 범례 (고정 높이 → 인사이트 구분선 위치 좌우 통일) */}
@@ -177,7 +177,7 @@ export function BOResponseCurveChart({ data, allocations, kpiLabel, insight, vie
                       <div style={{ fontWeight: '600', marginBottom: '6px', color: 'hsl(var(--foreground))' }}>Spend: {Math.round(label as number).toLocaleString()}원</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ width: '14px', height: '3px', backgroundColor: 'hsl(var(--foreground))', flexShrink: 0, borderRadius: '1px' }} />
-                        <span style={{ color: 'hsl(var(--foreground))' }}>보장 {kpiLabel}</span>
+                        <span style={{ color: 'hsl(var(--foreground))' }}>예상 {kpiLabel}</span>
                         <span style={{ marginLeft: 'auto', fontWeight: '500', color: 'hsl(var(--foreground))' }}>{Math.round(v).toLocaleString()}</span>
                       </div>
                     </div>

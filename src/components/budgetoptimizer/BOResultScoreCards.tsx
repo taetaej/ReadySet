@@ -33,7 +33,7 @@ export function BOResultScoreCards({ allocations, totalBudget, kpiCode, kpiLabel
 
   const cards: ScoreCard[] = [
     {
-      title: `Guaranteed ${kpiLabelEn}`,
+      title: `Estimated ${kpiLabelEn}`,
       value: totalKpi.toLocaleString(),
       unit: '회'
     },
