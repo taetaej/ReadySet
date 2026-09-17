@@ -16,7 +16,7 @@ const unitStyle: React.CSSProperties = { fontSize: '10px', opacity: 0.5, marginL
 const withUnit = (v: number, unit: string) => (
   <>{v.toLocaleString()}<span style={unitStyle}>{unit}</span></>
 )
-const fmtBudget = (v: number) => withUnit(Math.round(v), '원')  // 정수 원 (Budget/CPM/CPC/CPV 공通)
+const fmtBudget = (v: number) => withUnit(Math.round(v), '원')  // 정수 원 (Budget/CPM/CPC/CPV/CPR 공通)
 const fmtCount = (v: number) => withUnit(v, '회')
 
 // 0이면 하이픈 처리
@@ -36,11 +36,12 @@ interface MediaGroup {
   cpm: number
   cpc: number
   cpv: number
+  cpr: number
   hasFixed: boolean
 }
 
 // 그리드 컬럼 정의 (헤더/바디 공통) — 풀 숫자+단위 표기 기준 폭
-const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px'
+const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px 100px'
 
 export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView, totalReach }: BOResultTableProps) {
   const mediaGroups = useMemo<MediaGroup[]>(() => {
@@ -60,9 +61,10 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
       const cpc = click > 0 ? Math.round(budget / click) : 0
       const cpv = view > 0 ? Math.round(budget / view) : 0
       const reach = Math.max(...products.map(p => p.reach))
+      const cpr = reach > 0 ? Math.round(budget / reach) : 0
       return {
         mediaId, mediaName: products[0].mediaName, products,
-        budget, ratio, kpiValue, impression, click, view, reach, cpm, cpc, cpv,
+        budget, ratio, kpiValue, impression, click, view, reach, cpm, cpc, cpv, cpr,
         hasFixed: products.some(p => p.isFixed)
       }
     }).sort((a, b) => b.budget - a.budget)
@@ -132,7 +134,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
   return (
     <div>
       <div className="custom-scrollbar border border-[hsl(var(--border))] rounded-lg font-[Paperlogy,sans-serif] w-full overflow-x-auto">
-        <div className="min-w-[1500px]">
+        <div className="min-w-[1600px]">
           {/* 헤더 */}
           <div className="grid bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))] text-[12px] font-medium" style={{ gridTemplateColumns: GRID_COLS }}>
             <div className="px-2 py-3 flex items-center justify-center">
@@ -146,7 +148,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
             <div style={cell('left')}>매체 &gt; 상품</div>
             <div style={cell()}>Budget</div>
             <div style={cell()}>Share</div>
-            <div style={cell()}>Guaranteed {kpiLabel}</div>
+            <div style={cell()}>Estimated {kpiLabel}</div>
             <div style={cell()}>Impression</div>
             <div style={cell()}>Click</div>
             <div style={cell()}>View</div>
@@ -154,6 +156,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
             <div style={cell()}>CPM</div>
             <div style={cell()}>CPC</div>
             <div style={cell()}>CPV</div>
+            <div style={cell()}>CPR</div>
           </div>
 
           {/* 바디 */}
@@ -184,6 +187,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                   <div style={cell()}>{orDash(g.cpm, fmtBudget)}</div>
                   <div style={cell()}>{orDash(g.cpc, fmtBudget)}</div>
                   <div style={cell()}>{orDash(g.cpv, fmtBudget)}</div>
+                  <div style={cell()}>{orDash(g.cpr, fmtBudget)}</div>
                 </div>
 
                 {/* 2depth: Product */}
@@ -227,6 +231,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                     <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.cpm, fmtBudget)}</div>
                     <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.cpc, fmtBudget)}</div>
                     <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.cpv, fmtBudget)}</div>
+                    <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.reach > 0 ? Math.round(p.budget / p.reach) : 0, fmtBudget)}</div>
                   </div>
                 ))}
               </div>
@@ -244,6 +249,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
             const avgCpm = totals.impression > 0 ? Math.round(totals.budget / (totals.impression / 1000)) : 0
             const avgCpc = totals.click > 0 ? Math.round(totals.budget / totals.click) : 0
             const avgCpv = totals.view > 0 ? Math.round(totals.budget / totals.view) : 0
+            const avgCpr = totalReach ? Math.round(totals.budget / totalReach) : 0
             return (
               <div className="grid bg-[hsl(var(--muted))] border-t-2 border-[hsl(var(--foreground))] text-[13px] font-semibold" style={{ gridTemplateColumns: GRID_COLS }}>
                 <div />
@@ -272,6 +278,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                 <div style={cell()}>{orDash(avgCpm, fmtBudget)}</div>
                 <div style={cell()}>{orDash(avgCpc, fmtBudget)}</div>
                 <div style={cell()}>{orDash(avgCpv, fmtBudget)}</div>
+                <div style={cell()}>{orDash(avgCpr, fmtBudget)}</div>
               </div>
             )
           })()}

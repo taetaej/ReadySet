@@ -89,7 +89,7 @@
 ```
 plan/
 ├── strategic(highlevel)/   왜 만드는가 — PRD, 정책서, 기능정의서, IA
-│                           + 신규 워크플로우 구상(AI_Workflow_Studio_정책서)
+├── ideas/                  구상 단계 — 아직 확정 전 아이디어(AI_Workflow_Studio, Insight_Archive)
 ├── competitive-analysis/   근거 — 나스미디어 VIPer 비교
 ├── decisions/              결정 이력 — Budget_Optimizer_Decision_Log (BO-001)
 ├── spec/                   어떻게 동작하는가 — 화면 상세 명세 20+ 종
@@ -100,7 +100,7 @@ plan/
 
 이 계층은 화면 스펙만 담는 게 아니다. 세 종류의 문서가 방법론을 더 넓게 받친다:
 
-- **워크플로우를 어떻게 얹을지 고민한 문서** — `strategic(highlevel)/AI_Workflow_Studio_정책서_v0.1.md`.
+- **워크플로우를 어떻게 얹을지 고민한 문서** — `ideas/AI_Workflow_Studio_정책서_v0.1.md`.
   노드·MCP 기반 워크플로우를 이 플랫폼에 어떻게 올릴지 구상한 문서다. "지금 방법론 위에 새 작업 방식(워크플로우/자동화)을 어떻게 얹을까"를 스스로 정리하며 쌓은 흔적이다.
 - **방법론 자체를 자산화한 문서** — `plan/methodology/`.
   이 문서를 비롯해 마이그레이션·핸드오프 가이드가 모여 있다. 일하는 방식 자체를 문서로 남겨 재사용·전파 가능하게 만든 것이다.
@@ -434,7 +434,7 @@ const getMediaRatioValidation = () => {
 
 **기획 문서 (`plan/`)**
 - 전략: `strategic(highlevel)/Budget_Optimizer_PRD_v0.1.md` 외 정책서·기능정의서·IA
-- 워크플로우 구상: `strategic(highlevel)/AI_Workflow_Studio_정책서_v0.1.md` (노드·MCP 기반 워크플로우를 플랫폼에 얹는 구상)
+- 구상 단계(ideas): `ideas/AI_Workflow_Studio_정책서_v0.1.md` (노드·MCP 워크플로우), `ideas/Insight_Archive_구상.md` (검증 인사이트 아카이브)
 - 근거: `competitive-analysis/나스미디어_VIPer_분석.md`
 - 결정: `decisions/Budget_Optimizer_Decision_Log.md`
 - 화면 스펙: `spec/BudgetOptimizer_Scenario_Creation_Spec.md`(모범, v2.1), `spec/RatioFinder_Step2_Validation_Spec.md` 등 20+
