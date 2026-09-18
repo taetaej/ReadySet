@@ -55,6 +55,22 @@
 
 ---
 
+## 2-5. 무엇을 극복했나 — 출발점(AS-IS) 대비
+
+"거버넌스를 세웠다"는 건 무(無)에서 만든 게 아니라, **명확한 AS-IS 문제를 극복한 것**이다. 초기 PRD(`strategic(highlevel)/ReadySet_Platform_ReachCaster_PRD_초기.md`)가 정의한 다섯 문제와 대응한다.
+
+| AS-IS (출발점 문제) | 2026에 세운 것 (거버넌스) |
+|---|---|
+| ① 권한·계층 구조 부재 (누구나 남의 광고주 데이터 접근, 파편화) | 워크스페이스/Slot 기반 권한 격리 + SlotBoard→Slot→솔루션→시나리오 계층 (→ 2-2 구조 거버넌스) |
+| ② 유즈케이스 백업 기능 부재 (시나리오 비교·해석 없음) | 시나리오 비교, Easy Create 맥락 승계, 결과 대시보드 (→ 2-4 경험 거버넌스) |
+| ③ 분석 기능 부재 (Raw 수치만, 엑셀 재가공 병목) | SpinX가 수치를 서사로 해석, 결과 화면 내 인사이트 (→ 2-4) |
+| ④ DB View식 UI (표 나열, 낮은 가독성) | War Room 디자인 원칙 기반 분석 환경 UI (→ 2-1 철학 거버넌스) |
+| ⑤ 방송·디지털 통합 분석 부재 (디지털 편중, 비딩 열위) | Reach Caster 크로스미디어 통합 도달 예측 (CJ ENM CIM 연동 방향) |
+
+> 즉 2026의 거버넌스는 "기간계 종속 데이터 추출기"에서 **"독립된 지능형 분석 플랫폼"**으로의 전환을 완성한 것이다. 이게 초기 PRD의 목적 그대로다.
+
+---
+
 ## 3. 무엇을 했나 — 전략 4줄 요약표
 
 > "수치로 확인된 효과" 열은 데이터 확보 후 채운다(§5 참조). 지금은 사실과 의도만.
@@ -123,6 +139,7 @@
 
 ## 7. 참고
 
+- 출발점 PRD: `plan/strategic(highlevel)/ReadySet_Platform_ReachCaster_PRD_초기.md` (AS-IS→TO-BE 원본)
 - 상위 철학: `plan/ReadySet_Philosophy_The_Media_War_Room.md`
 - 현재 IA: `plan/strategic(highlevel)/예측분석_플랫폼_IA_v1.0.md`
 - 2027 방향성: `plan/ideas/2027_ReadySet_Product_Direction_구상.md`
