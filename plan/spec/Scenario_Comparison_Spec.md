@@ -2,9 +2,17 @@
 
 ## 문서 정보
 - **작성일**: 2026-03-25
-- **버전**: v1.0
+- **최종 수정**: 2026-09-21
+- **버전**: v1.1
 - **대상 화면**: 시나리오 비교 설정 패널 + 비교 결과 화면
 - **관련 컴포넌트**: `ScenarioComparisonPanel.tsx`, `ScenarioComparisonResult.tsx`
+- **관련 스펙**: `Scenario_List_Screen_Spec.md`, `Reach_Caster_Result_Screens_Spec.md`, `SpinX_for_ReachCaster_Spec.md`
+
+### 변경 이력
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| v1.0 | 2026-03-25 | 초안 작성 |
+| v1.1 | 2026-09-21 | 작성 가이드 반영 — 문서 활용처(Docs/TC)·기획 의도 명시, 순수 시각 스타일 수치(px·hsl·hex·grid 문법·폰트 크기 표) 제거 후 의도·디자인 토큰 기준으로 위임(정합성 로직·S-curve 산식·Budget Room 임계값 등 행동 규칙은 보존), 향후 개선을 개선 제안(제안·가치·상태) 표로 재구성 |
 
 ---
 
@@ -13,7 +21,14 @@
 ### 1.1 기능 정의
 시나리오 비교는 Reach Caster에서 생성된 시나리오들을 **예산 / 타겟 / 기간** 축으로 비교 분석하여, 캠페인 전략 수립에 필요한 인사이트를 제공하는 기능이다.
 
-### 1.2 비교 유형 (3가지)
+**기획 의도**: "예산을 더 쓰면 도달이 얼마나 늘까 / 어떤 타겟이 더 잘 반응하나 / 어떤 기간 전략이 유리한가"는 캠페인 판단의 핵심 질문이다. 비교는 이 질문에 답하기 위해 **한 축만 바꾸고 나머지는 고정**하는 통제 실험 구조를 강제한다. 그래서 정합성 체크가 필수다 — 고정돼야 할 조건이 어긋난 비교는 결론을 왜곡하므로, 시스템이 먼저 "이 비교가 믿을 만한가"를 판정해 사용자에게 알린다.
+
+### 1.2 문서 활용처
+- **개발 참고**: 프론트엔드 구현 시 화면 동작·규칙·제약의 기준 문서로 활용된다.
+- **제품 Docs**: 비교 유형·정합성 개념·결과 해석이 사용자 대상 기능 문서의 기반이 된다.
+- **AI 기반 TC 생성**: 정합성 판정 로직(Section 2)·실행 활성 조건(3.5)·Budget Room 상태(5.2)·Diff Indicator(6.4)가 테스트 케이스의 원천 데이터가 된다. 각 규칙은 `조건(입력) → 기대 결과(레벨·색·표시)`로 검증 가능하게 작성한다.
+
+### 1.3 비교 유형 (3가지)
 
 | 유형 | 영문명 | 비교 변수 | 권장 고정 조건 | 핵심 질문 |
 |------|--------|-----------|---------------|-----------|
@@ -21,11 +36,11 @@
 | 타겟 비교 | Target Analysis | 타겟 GRP | 예산 · 기간 동일 | 어떤 타겟이 캠페인에 더 효율적으로 반응하는가? |
 | 기간 비교 | Period Analysis | 집행 기간 | 예산 · 타겟 동일 | 어떤 운영 전략(기간/강도)이 더 유리한가? |
 
-### 1.3 진입 경로
+### 1.4 진입 경로
 - 시나리오 목록 화면(SlotDetail)에서 시나리오 선택 후 "비교" 액션
 - 시나리오 결과 화면(RatioFinderResult / ReachPredictorResult)에서 비교 버튼
 
-### 1.4 제약 조건
+### 1.5 제약 조건
 - 기준 시나리오 1개 + 비교 시나리오 최대 3개 (총 4개)
 - 비교 시나리오 최소 1개 이상 선택 시 비교 실행 가능
 - 동일 Slot 내 시나리오만 비교 가능
@@ -36,11 +51,13 @@
 
 ### 2.1 정합성 레벨
 
-| 레벨 | 영문 | 색상 | 아이콘 | 설명 |
-|------|------|------|--------|------|
-| 비교 적합 | optimal | `hsl(var(--muted-foreground))` | CheckCircle | 권장 조건 일치, 신뢰도 높은 비교 가능 |
-| 조건 일부 상이 | caution | `hsl(38 92% 50%)` (주황) | AlertTriangle | 일부 권장 조건 상이, 결과 해석 시 차이 감안 필요 |
-| 비교 부적합 | risk | `hsl(var(--destructive))` (빨강) | XCircle | 권장 조건 대부분 상이, 비교 결과 신뢰도 낮음 |
+| 레벨 | 영문 | 색상(토큰) | 아이콘 | 설명 |
+|------|------|-----------|--------|------|
+| 비교 적합 | optimal | muted-foreground(무채색) | CheckCircle | 권장 조건 일치, 신뢰도 높은 비교 가능 |
+| 조건 일부 상이 | caution | 경고(주황 계열) | AlertTriangle | 일부 권장 조건 상이, 결과 해석 시 차이 감안 필요 |
+| 비교 부적합 | risk | destructive(빨강) | XCircle | 권장 조건 대부분 상이, 비교 결과 신뢰도 낮음 |
+
+정확한 색상 값은 디자인 토큰 기준(caution은 경고 계열 색, risk는 `--destructive`).
 
 ### 2.2 정합성 판정 로직
 
@@ -60,9 +77,9 @@
            둘 다 불일치 → risk
 ```
 
-**예산 일치 기준**: 기준 시나리오 대비 ±5% 이내
-**기간 일치 기준**: 시작일 · 종료일 완전 일치
-**타겟 일치 기준**: 타겟 GRP 배열 정렬 후 완전 일치
+- **예산 일치 기준**: 기준 시나리오 대비 ±5% 이내
+- **기간 일치 기준**: 시작일 · 종료일 완전 일치
+- **타겟 일치 기준**: 타겟 GRP 배열 정렬 후 완전 일치
 
 ### 2.3 전체 정합성 레벨
 - 비교 시나리오 중 하나라도 `risk` → 전체 `risk`
@@ -81,93 +98,37 @@
 
 ### 3.1 패널 레이아웃
 
-**위치**: 화면 하단 슬라이드업 패널
+화면 하단에서 슬라이드업하는 고정 패널. 닫힘→열림 전환은 저비용 애니메이션(정확한 높이·오프셋 수치는 구현 코드 기준).
 
-```
-position: fixed
-bottom: 0 (열림) / -520px (닫힘)
-left: 0, right: 0
-height: 520px
-z-index: 999
-```
-
-**진입 애니메이션**: `bottom: -520px → 0`, 0.3s ease-out
-
-**전체 구조**:
 ```
 ┌──────────────────────────────────────────────────────┐
 │  [A] 헤더: "시나리오 비교" + 닫기 버튼               │
 ├──────────────────────────────────────────────────────┤
-│                                                      │
 │  [B] 비교 유형 선택 (3개 카드)                        │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐                │
 │  │ 예산비교 │ │ 타겟비교 │ │ 기간비교 │                │
 │  └─────────┘ └─────────┘ └─────────┘                │
-│                                                      │
 │  [C] 기준 시나리오 + 비교 시나리오 선택                │
-│  ┌──────────┐  ┌──────────┐ ┌──────────┐ ┌──┐       │
-│  │ 기준(고정)│  │ 비교 1   │ │ 비교 2   │ │+ │       │
-│  └──────────┘  └──────────┘ └──────────┘ └──┘       │
-│                                                      │
 │  [D] 정합성 체크 바                                   │
 │  [E] 비교 실행 버튼                                   │
 └──────────────────────────────────────────────────────┘
 ```
 
 ### 3.2 비교 유형 카드
-
-| 요소 | 스타일 |
-|------|--------|
-| 카드 컨테이너 | padding `16px 20px`, borderRadius 10px, border `1px solid hsl(var(--border))`, cursor pointer |
-| 선택 시 | border `2px solid hsl(var(--primary))`, backgroundColor `hsl(var(--primary) / 0.05)` |
-| 아이콘 | DollarSign / Users / Calendar, 20px, `hsl(var(--foreground))` |
-| 타이틀 | 14px, fontWeight 600, Paperlogy |
-| 서브타이틀 | 12px, `hsl(var(--muted-foreground))` |
-| 설명 | 12px, `hsl(var(--muted-foreground))`, lineHeight 1.5 |
-| 권장 조건 | 11px, `hsl(var(--muted-foreground))`, 하단 |
+- 카드 3개(예산/타겟/기간), 각 카드는 아이콘(DollarSign / Users / Calendar) + 타이틀 + 서브타이틀 + 설명 + 권장 조건으로 구성.
+- 선택 시 primary 테두리 + primary 옅은 틴트 배경으로 강조(강조는 카드당 하나). 정확한 수치·색은 디자인 토큰 기준.
 
 ### 3.3 시나리오 선택
-
-**기준 시나리오**: 고정 표시 (수정 불가)
-- 뱃지: "기준", primary 배경
-- 시나리오명 표시
-
-**비교 시나리오 추가**:
-- "+" 버튼 클릭 → 시나리오 선택 드롭다운 표시
-- 검색 필드: placeholder "시나리오 검색", Search 아이콘
-- 시나리오 목록: 정합성 레벨 아이콘 + 시나리오명 + 조건 정보
-- 최대 3개까지 추가 가능
-
-**시나리오 카드 스타일**:
-
-| 요소 | 스타일 |
-|------|--------|
-| 카드 | padding `12px 16px`, borderRadius 8px, border `1px solid hsl(var(--border))` |
-| 시나리오명 | 13px, fontWeight 500 |
-| 조건 정보 | 11px, `hsl(var(--muted-foreground))` |
-| 정합성 아이콘 | CheckCircle / AlertTriangle / XCircle, 12px |
-| 삭제 버튼 | X 아이콘, 14px, ghost 스타일 |
+- **기준 시나리오**: 고정 표시(수정 불가). "기준" 뱃지(primary 배경) + 시나리오명.
+- **비교 시나리오 추가**: "+" 버튼 → 시나리오 선택 드롭다운. 검색 필드(placeholder "시나리오 검색"), 목록 항목은 정합성 레벨 아이콘 + 시나리오명 + 조건 정보. 최대 3개까지 추가.
+- 각 비교 시나리오 카드: 시나리오명 + 조건 정보 + 정합성 아이콘(CheckCircle/AlertTriangle/XCircle) + 삭제(X) 버튼.
 
 ### 3.4 정합성 체크 바
-
-**위치**: 시나리오 선택 영역 하단
-
-| 요소 | 스타일 |
-|------|--------|
-| 아이콘 | 레벨별 아이콘, 14px |
-| 레벨 라벨 | 12px, fontWeight 600, 레벨별 색상 |
-| 설명 | 12px, `hsl(var(--muted-foreground))` |
-| 상이 항목 뱃지 | 10px, 레벨별 border/background 색상, borderRadius 4px |
+- 시나리오 선택 영역 하단. 레벨 아이콘 + 레벨 라벨(레벨별 색) + 설명 + 상이 항목 뱃지로 구성. 색·크기는 디자인 토큰 기준.
 
 ### 3.5 비교 실행 버튼
-
-| 상태 | 스타일 |
-|------|--------|
-| 비활성 | `btn btn-primary`, opacity 0.5, cursor not-allowed |
-| 활성 (optimal/caution) | `btn btn-primary`, 정상 |
-| 활성 (risk) | `btn btn-primary`, 정상 (경고 표시와 함께) |
-
-**활성 조건**: 비교 유형 선택 + 비교 시나리오 1개 이상
+- **활성 조건**: 비교 유형 선택 + 비교 시나리오 1개 이상.
+- 조건 미충족 시 비활성(흐리게 + not-allowed). optimal/caution/risk 모두 실행 가능하되, risk는 경고 표시와 함께 실행된다.
 
 ---
 
@@ -180,100 +141,44 @@ z-index: 999
 │  [A] 헤더: ← 시나리오 비교 [타입 뱃지]  [재설정][공유]│
 ├──────────────────────────────────────────────────────┤
 │  [B] Health Check 바 (클릭 시 Overview 토글)          │
-├──────────────────────────────────────────────────────┤
 │  [B-1] Scenario Overview (접기/펼치기)                │
-│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐                │
-│  │ 기준  │ │비교1 │ │비교2 │ │비교3 │                │
-│  └──────┘ └──────┘ └──────┘ └──────┘                │
 ├──────────────────────────────────────────────────────┤
-│                                                      │
 │  [C] 시각화 영역 (비교 유형별 다름)                    │
-│                                                      │
 │  [D] Performance Comparison 테이블                    │
-│                                                      │
 └──────────────────────────────────────────────────────┘
-│  [SpinX 버튼] ──────────────── [SpinX 패널 (400px)]  │
+│  [SpinX 버튼] ─────────────── [SpinX 패널]           │
 ```
 
 ### 4.2 헤더 영역 [A]
 
-**레이아웃**: `(← 뒤로) (타이틀 + 타입 뱃지) ... (재설정)(공유)`
+**레이아웃**: 좌측 (← 뒤로 · 타이틀 + 타입 뱃지) … 우측 (재설정 · 공유)
 
-| 요소 | 스타일 | 동작 |
-|------|--------|------|
-| 뒤로 버튼 | ArrowLeft 16px, `btn btn-ghost btn-sm` | 비교 패널로 복귀 |
-| 타이틀 | "시나리오 비교", 16px, fontWeight 600, Paperlogy | — |
-| 타입 뱃지 | 비교 유형 아이콘 + subtitle, 13px, `hsl(var(--muted-foreground))` | — |
-| 재설정 버튼 | RefreshCw 16px, `btn btn-ghost btn-sm` | 재설정 확인 다이얼로그 |
-| 공유 버튼 | Share2 16px, `btn btn-ghost btn-sm` | Export 드롭다운 |
+| 요소 | 동작 |
+|------|------|
+| 뒤로 버튼(ArrowLeft) | 비교 패널로 복귀 |
+| 타이틀 "시나리오 비교" + 타입 뱃지 | 비교 유형 아이콘 + subtitle |
+| 재설정 버튼(RefreshCw) | 재설정 확인 다이얼로그 |
+| 공유 버튼(Share2) | Export 드롭다운(공유 버튼 하단 우측, 항목 "Export to Excel") |
 
-**비교 유형별 뱃지**:
-
-| 유형 | 아이콘 | 텍스트 |
-|------|--------|--------|
-| budget | DollarSign | Budget Scaling |
-| target | Users | Target Analysis |
-| period | Calendar | Period Analysis |
-
-**Export 드롭다운**:
-- 위치: 공유 버튼 하단 우측 정렬
-- 너비: 200px
-- 항목: "Export to Excel" (FileSpreadsheet 아이콘)
+**비교 유형별 뱃지**: budget→DollarSign "Budget Scaling", target→Users "Target Analysis", period→Calendar "Period Analysis". 아이콘/톤은 ghost 스타일(정확한 값은 구현 코드 기준).
 
 ### 4.3 Health Check 바 [B]
-
-**위치**: 헤더 바로 아래, 전체 너비
-
-| 요소 | 스타일 |
-|------|--------|
-| 컨테이너 | width 100%, padding `8px 32px`, borderBottom `1px solid hsl(var(--border))`, cursor pointer |
-| 정합성 아이콘 | 레벨별 아이콘, 13px, 레벨별 색상 |
-| 라벨 | "Comparison Health Check", 12px, fontWeight 600, 레벨별 색상 |
-| 설명 | 11px, `hsl(var(--muted-foreground))` |
-| 상이 항목 뱃지 | 비교 시나리오별 상이 조건 표시, 10px |
-| 토글 | "Scenario Overview" + ChevronUp/Down 14px, 우측 정렬 |
-
-**클릭 동작**: Scenario Overview 영역 접기/펼치기
+- 헤더 바로 아래 전체 너비. 레벨 아이콘 + "Comparison Health Check" 라벨(레벨별 색) + 설명 + 비교 시나리오별 상이 조건 뱃지 + 우측 "Scenario Overview" 토글(ChevronUp/Down).
+- **클릭 동작**: Scenario Overview 영역 접기/펼치기.
 
 ### 4.4 Scenario Overview [B-1]
-
-**레이아웃**: 시나리오 수만큼 균등 분할 (flex: 1)
-
-**공통 스타일**:
-- 각 시나리오 카드: padding `14px 20px`
-- 카드 간 구분: `borderLeft: 1px solid hsl(var(--border))`
-- 기준 시나리오: `backgroundColor: hsl(var(--muted) / 0.15)`
-- 하단 구분선: `borderBottom: 2px solid hsl(var(--border))`
-
-**기준 뱃지**: "기준", 10px, uppercase, primary 배경
-**비교 라벨**: "비교 1/2/3", 10px, uppercase, `hsl(var(--muted-foreground))`
+- 시나리오 수만큼 균등 분할. 각 카드는 세로 구분선으로 구분, 기준 시나리오 카드는 muted 옅은 틴트 배경으로 구분. 강조는 각 카드의 "중점 값" 하나.
+- **기준 뱃지**: "기준"(primary 배경). **비교 라벨**: "비교 1/2/3"(muted-foreground).
 
 **비교 유형별 Overview 구성**:
 
-#### 예산 비교 (Budget Scaling)
-- **중점 표시**: 예산 금액 (22px, fontWeight 700)
-- 기준 대비 증감률 표시 (11px, `hsl(var(--muted-foreground))`)
-- 조건 행: 기간 / 타겟 / 매체 (각 행에 일치 CheckCircle 또는 상이 AlertTriangle 아이콘)
+| 비교 유형 | 중점 표시(강조 값) | 보조 표시 | 조건 행(일치/상이 아이콘) |
+|-----------|--------------------|-----------|---------------------------|
+| 예산 비교 | 예산 금액 | 기준 대비 증감률 | 기간 / 타겟 / 매체 |
+| 타겟 비교 | 타겟 설정 텍스트 | Target Population | 광고비 / 기간 / 매체 |
+| 기간 비교 | 기간 날짜(`YYYY.MM.DD → YYYY.MM.DD`) | 일수 | 광고비 / 타겟 / 매체 |
 
-#### 타겟 비교 (Target Analysis)
-- **중점 표시**: 타겟 설정 텍스트 (12px, fontWeight 600)
-- Target Population 수치 표시
-- 조건 행: 광고비 / 기간 / 매체
-
-#### 기간 비교 (Period Analysis)
-- **중점 표시**: 기간 날짜 (22px, fontWeight 700, `YYYY.MM.DD → YYYY.MM.DD`)
-- 일수 표시 (11px)
-- 조건 행: 광고비 / 타겟 / 매체
-
-**조건 행 스타일**:
-
-| 요소 | 스타일 |
-|------|--------|
-| 행 | `display: flex`, `justifyContent: space-between`, fontSize 11px |
-| 라벨 | `hsl(var(--muted-foreground))` |
-| 값 | `hsl(var(--foreground))` |
-| 일치 아이콘 | CheckCircle 10px, `hsl(var(--muted-foreground))` |
-| 상이 아이콘 | AlertTriangle 10px, `hsl(38 92% 50%)` |
+**조건 행**: 좌측 라벨(muted-foreground) + 우측 값(foreground), 일치는 CheckCircle(무채색), 상이는 AlertTriangle(경고색)으로 표시.
 
 ---
 
@@ -281,58 +186,40 @@ z-index: 999
 
 ### 5.1 타겟 비교 시각화
 
-**레이아웃**: 2컬럼 그리드 (`1fr 1fr`, gap 32px)
+**레이아웃**: 2컬럼(좌우 균등)
 
 #### 5.1.1 Reach × CPRP Matrix (좌측)
-
-**차트 타입**: Recharts ScatterChart
-
-**구성**:
-- X축: CPRP (원), 역순 (높은 값 → 낮은 값 = 좌 → 우)
-- Y축: Reach 1+ (%)
-- 버블 크기: Target Population 비례
-- 색상: 시나리오별 고유 색상 (foreground 기반, opacity 차등)
-
-**인터랙션**:
-- 호버: 시나리오명, Reach 1+, CPRP, Target Population 표시
-- 범례: 하단 우측, 11px
+- **차트**: Recharts ScatterChart
+- X축: CPRP(원), 역순(높은 값 → 낮은 값 = 좌 → 우). Y축: Reach 1+(%). 버블 크기: Target Population 비례. 시나리오별 고유 색(foreground 기반, 명도/투명도 차등).
+- **인터랙션**: 호버 시 시나리오명·Reach 1+·CPRP·Target Population 표시. 범례 하단 우측.
 
 #### 5.1.2 Key Metrics Comparison (우측)
-
-**차트 타입**: Recharts ComposedChart (Bar + Line)
-
-**구성**:
-- X축: 시나리오명 (기준, 비교1, 비교2...)
-- Bar (좌축): Reach 1+ (%), foreground 색상, opacity 차등
-- Line (우축): Avg. Frequency, `#B794F6` 색상
-
-**인터랙션**:
-- 호버: Reach 1+, Avg. Frequency 값 표시
-- 범례: 하단 우측, 11px
+- **차트**: Recharts ComposedChart (Bar + Line)
+- X축: 시나리오명. Bar(좌축): Reach 1+(%). Line(우축): Avg. Frequency. 색은 디자인 토큰/차트 팔레트 기준.
+- **인터랙션**: 호버 시 Reach 1+·Avg. Frequency 표시. 범례 하단 우측.
 
 ### 5.2 예산 비교 시각화
 
-**레이아웃**: 2컬럼 그리드 (`1fr 1fr`, gap 32px)
+**레이아웃**: 2컬럼(좌우 균등)
 
 #### 5.2.1 Unified Reach Curve (좌측)
 
-**차트 타입**: Recharts ComposedChart (Area + Line + ReferenceLine)
+**차트**: Recharts ComposedChart (Area + Line + ReferenceLine)
 
 **표시 정책 (integrityLevel 기반)**:
 
 1. **조건 동일 (integrityLevel = 'optimal')**: 통합 리치커브 정상 표시
    - 예산 외 모든 조건이 동일한 경우에만 통합 리치커브를 표시한다.
-   - 리치커브 최소-최대 구간 설정이 동일한 경우: 예산이 가장 큰 시나리오의 리치커브를 표시한다.
-   - 리치커브 최소-최대 구간 설정이 상이한 경우: 리치커브 최대값이 가장 큰 리치커브를 표시한다.
+   - 리치커브 최소-최대 구간 설정이 동일하면: 예산이 가장 큰 시나리오의 리치커브를 표시한다.
+   - 구간 설정이 상이하면: 리치커브 최대값이 가장 큰 리치커브를 표시한다.
    - 각 시나리오의 예산 위치에 dot 마커로 포인트 표시.
 
 2. **조건 상이 (integrityLevel = 'caution' 또는 'risk')**: 차트 비활성화
-   - 차트 영역을 딤처리한다 (opacity: 0.35, pointerEvents: none).
-   - 차트 위에 반투명 오버레이 (background: `hsl(var(--background) / 0.45)`, backdropFilter: `blur(1px)`)를 표시한다.
-   - 오버레이 중앙에 AlertTriangle 아이콘 + 메시지를 표시한다:
-     - 타이틀: "통합 리치 커브를 제공할 수 없습니다" (13px, fontWeight 600)
-     - 설명: "비교 시나리오 간 조건이 상이하여 통합 리치 커브를 생성할 수 없습니다." (11px, whiteSpace: nowrap, 한 줄 표시)
-   - 딤처리된 배경 차트는 기준 시나리오 1개의 싱글 라인(+신뢰구간)만 표시하여 시각적 복잡도를 낮춘다.
+   - 차트 영역을 딤 처리하고, 반투명 오버레이 + 중앙 메시지를 표시한다.
+     - 타이틀: "통합 리치 커브를 제공할 수 없습니다"
+     - 설명: "비교 시나리오 간 조건이 상이하여 통합 리치 커브를 생성할 수 없습니다." (한 줄 표시)
+   - 딤 처리된 배경 차트는 기준 시나리오 1개의 싱글 라인(+신뢰구간)만 표시해 시각 복잡도를 낮춘다.
+   - 정확한 딤 투명도·blur 값은 구현 코드/디자인 토큰 기준.
 
 **S-curve 생성 로직**:
 ```
@@ -344,78 +231,45 @@ calcReach(metrics, budget):
 ```
 
 **차트 구성 (정상 표시 시)**:
-- X축: 예산 (억 단위), minBudget(3억) ~ maxBudget(18억), 1.5억 간격
-- Y축: Reach 1+ (%)
-- 싱글 모드 (조건 동일): Area(신뢰구간) + Line(#00ff9d, 3px) + Dot 마커
-- 멀티 모드 (조건 상이 시나리오 존재): 기준=실선(#00ff9d, 3px), 상이=점선(strokeDasharray 6 3, 2px)
+- X축: 예산(억 단위), minBudget ~ maxBudget 범위를 균등 간격으로. Y축: Reach 1+(%).
+- 싱글 모드(조건 동일): Area(신뢰구간) + Line + Dot 마커. 라인은 시그니처 그린 계열, 마커 강조.
+- 멀티 모드(조건 상이 시나리오 존재): 기준=실선, 상이=점선으로 구분.
 
-**Efficiency Peak 마커**:
-- 피크 예산 위치에 foreground 색상 dot (r=5) 표시
-- 기준 basePeakN = 0.3, reach1 비율에 따라 동적 계산
+**Efficiency Peak 마커**: 피크 예산 위치에 dot 표시. 기준 basePeakN = 0.3, reach1 비율에 따라 동적 계산.
 
-**범례**: 차트 하단, 시나리오별 색상 dot + 이름 + 조건 차이 표시
+**범례**: 차트 하단, 시나리오별 색 dot + 이름 + 조건 차이 표시.
 
 #### 5.2.2 Budget Summary Table (우측)
 
-**위치**: Unified Reach Curve 우측
+**가이드 메시지**(테이블 상단): Sparkles 아이콘 + "시나리오별 Efficiency Peak를 확인하고, 추가 증액 가능한 Budget Room에 맞춰 예산 최적화 전략을 수립해 보세요." (muted-foreground)
 
-**가이드 메시지** (테이블 상단):
-- Sparkles 아이콘 (14px) + 텍스트
-- 텍스트: "시나리오별 Efficiency Peak를 확인하고, 추가 증액 가능한 Budget Room에 맞춰 예산 최적화 전략을 수립해 보세요."
-- 스타일: 12px, `hsl(var(--muted-foreground))`, lineHeight 1.5
-
-**테이블 구조**:
-
-| 컬럼 | 설명 | 스타일 |
-|------|------|--------|
-| 시나리오 | 시나리오명 + 조건 상이 뱃지 (컬러칩 없음) | 12px, fontWeight 600 |
-| Planned Budget | 설정 예산 + Reach 1+ | 13px, 우측 정렬 |
-| Efficiency Peak | 피크 예산 + Reach 1+ | 13px, 우측 정렬 |
-| Budget Room | 증액/최적/초과 상태 | 상태별 스타일 |
+**테이블 컬럼**: 시나리오(명 + 조건 상이 뱃지, 컬러칩 없음) / Planned Budget(설정 예산 + Reach 1+) / Efficiency Peak(피크 예산 + Reach 1+) / Budget Room(상태).
 
 **Budget Room 값 표현**:
 
-| 상태 | 조건 | 표시 | 스타일 |
-|------|------|------|--------|
-| 증액 추천 | Planned < Peak (±5% 초과) | "+N.NN억" + "증액 추천" | `hsl(142.1 76.2% 36.3%)` (초록), 13px fontWeight 600 |
-| 최적 예산 | Planned ≈ Peak (±5% 이내) | "최적 예산" 뱃지 | 뱃지: foreground 배경 + background 텍스트, 11px fontWeight 600, padding 3px 10px, borderRadius 4px |
-| 효율 저하 | Planned > Peak (±5% 초과) | "−N.NN억" + "효율 저하" | `hsl(var(--destructive))` (빨강), 13px fontWeight 600 |
+| 상태 | 조건 | 표시 | 색상(의미) |
+|------|------|------|-----------|
+| 증액 추천 | Planned < Peak (±5% 초과) | "+N.NN억" + "증액 추천" | 성공(초록) |
+| 최적 예산 | Planned ≈ Peak (±5% 이내) | "최적 예산" 뱃지(foreground 배경 + background 텍스트) | 중립 강조 |
+| 효율 저하 | Planned > Peak (±5% 초과) | "−N.NN억" + "효율 저하" | destructive(빨강) |
+
+정확한 색상·뱃지 수치는 디자인 토큰 기준.
 
 ### 5.3 기간 비교 시각화
-
-**현재**: 차트 없음 (사용자 결정)
-**향후**: 기간별 도달률 추이 차트 추가 예정
+- **현재**: 차트 없음(사용자 결정)
+- **향후**: 기간별 도달률 추이 차트 추가 예정(Section 8 개선 제안)
 
 ---
 
 ## 6. Performance Comparison 테이블 [D]
 
 ### 6.1 테이블 구조
-
-**레이아웃**: 전체 너비, borderRadius 10px, border `1px solid hsl(var(--border))`
-
-**헤더 행**:
-
-| 요소 | 스타일 |
-|------|--------|
-| 지표 컬럼 | width 180px, textAlign left, 12px, fontWeight 600, `hsl(var(--muted-foreground))` |
-| 시나리오 컬럼 | textAlign center, 12px, fontWeight 600 |
-| 기준 시나리오 | `hsl(var(--primary))` 색상, `hsl(var(--muted) / 0.5)` 배경 |
-| 비교 시나리오 | `hsl(var(--foreground))` 색상 |
-| 시나리오명 | 11px, fontWeight 400, `hsl(var(--muted-foreground))`, marginTop 2px |
+- 전체 너비 테이블(얇은 구분선 + 둥근 모서리 — 정확한 수치는 디자인 토큰 기준).
+- **헤더**: 좌측 지표 컬럼(라벨) + 시나리오 컬럼(중앙 정렬). 기준 시나리오 컬럼은 primary 색 + muted 옅은 틴트 배경으로 구분, 비교 시나리오는 foreground. 시나리오명은 헤더 아래 보조 텍스트로 표기.
 
 ### 6.2 총 광고비 + 매체별 예산 비중 행
-
-**구성**:
-- 총 광고비: 14px, fontWeight 600
-- TV/Digital 비율: 10px, `hsl(var(--muted-foreground))`
-- StackedBar: 매체별 예산 비중 시각화
-
-**StackedBar 스타일**:
-- 높이: 16px
-- borderRadius: 3px
-- 매체별 색상: foreground 기반, opacity 차등 (0.15 ~ 1.0)
-- 호버: 매체명 + 비율 + 금액 표시
+- 총 광고비(강조) + TV/Digital 비율(보조 텍스트) + StackedBar(매체별 예산 비중 시각화).
+- StackedBar: 매체별 색(foreground 기반, 명도/투명도 차등), 호버 시 매체명 + 비율 + 금액 표시. 정확한 높이·모서리는 구현 코드 기준.
 
 ### 6.3 지표 행
 
@@ -428,68 +282,44 @@ calcReach(metrics, budget):
 | Efficiency | CPRP, GRPs, Avg. Frequency |
 | Volume | Reach Count, Impression, Effective Impression |
 
-**카테고리 행 스타일**: borderTop `2px solid`, 13px, fontWeight 600
-**하위 지표 행 스타일**: borderTop `1px solid`, 12px, fontWeight 400, paddingLeft 36px
-
-**비교 유형별 지표 순서 차이**:
-- 예산 비교: Market Scale → Reach 1+ → Efficiency → Volume (예산이 변수이므로 Budget 강조)
-- 타겟/기간 비교: Reach Flow → Reach 1+ → Efficiency → Volume
+- 카테고리 행은 굵은 상단 구분선으로 그룹을 나누고, 하위 지표 행은 얇은 구분선 + 들여쓰기로 위계를 만든다.
+- **비교 유형별 지표 순서 차이**:
+  - 예산 비교: Market Scale → Reach 1+ → Efficiency → Volume (예산이 변수이므로 Budget 강조)
+  - 타겟/기간 비교: Reach Flow → Reach 1+ → Efficiency → Volume
 
 ### 6.4 Diff Indicator
 
 **위치**: 비교 시나리오 값 우측
 
-| 조건 | 색상 | 표시 |
-|------|------|------|
-| 긍정적 변화 | `hsl(142 71% 45%)` (초록) | ▲ +값 |
-| 부정적 변화 | `hsl(var(--destructive))` (빨강) | ▼ −값 |
-| 변화 없음 | 표시 안 함 | — |
+| 조건 | 색상(의미) | 표시 |
+|------|-----------|------|
+| 긍정적 변화 | 성공(초록) | ▲ +값 |
+| 부정적 변화 | destructive(빨강) | ▼ −값 |
+| 변화 없음 | — | 표시 안 함 |
 
-**inverse 지표** (낮을수록 좋은 지표): CPRP
-- CPRP 감소 → 초록 (긍정), CPRP 증가 → 빨강 (부정)
-
-**포맷**:
-- % 지표: `+1.2%p` / `-0.8%p`
-- 원 지표: `+₩1,234` / `-₩567`
-- 일반 지표: `+1,234` / `-567`
+- **inverse 지표**(낮을수록 좋은 지표): CPRP — CPRP 감소 → 초록(긍정), 증가 → 빨강(부정).
+- **포맷**: % 지표 `+1.2%p` / `-0.8%p`, 원 지표 `+₩1,234` / `-₩567`, 일반 지표 `+1,234` / `-567`.
 
 ---
 
 ## 7. 재설정 다이얼로그
 
-### 7.1 트리거
-헤더의 재설정(RefreshCw) 버튼 클릭
-
-### 7.2 다이얼로그 구성
-
-| 요소 | 스타일 |
-|------|--------|
-| 오버레이 | `dialog-overlay` 클래스 |
-| 컨테이너 | `dialog-content` 클래스 (confirm 사이즈) |
-| 제목 | "비교를 재설정하시겠습니까?", `dialog-title` |
-| 설명 | "현재 비교 결과가 초기화되고 시나리오 선택 화면으로 돌아갑니다.", `dialog-description` |
-| 취소 버튼 | `btn btn-secondary btn-sm` |
-| 재설정 버튼 | `btn btn-primary btn-sm` |
+- **트리거**: 헤더 재설정(RefreshCw) 버튼 클릭
+- **구성**: 제목 "비교를 재설정하시겠습니까?", 설명 "현재 비교 결과가 초기화되고 시나리오 선택 화면으로 돌아갑니다.", 취소/재설정 버튼. 다이얼로그 스펙은 `ui-dialog-policy.md`(confirm 사이즈) 준수.
 
 ---
 
 ## 8. SpinX 연동
 
-### 8.1 SpinX 버튼 위치
-- 비교 결과 화면 우측 하단 고정
-- 패널 열림 시 `right: 424px`로 이동
-
-### 8.2 SpinX 패널
-- `positioning: 'absolute'` (비교 결과 내부)
-- 비교 결과 컨텍스트 기반 요약 및 추천 질문 생성
-- 세션 키: `comparisonId × userId`
+- **SpinX 버튼**: 비교 결과 화면 우측 하단 고정. 패널 열림 시 패널 폭만큼 좌측으로 이동.
+- **SpinX 패널**: 비교 결과 내부에 위치. 비교 결과 컨텍스트 기반 요약 및 추천 질문 생성. 세션 키: `comparisonId × userId`.
+- 화면 노출·인터랙션만 여기서 다루며, 프롬프팅·기능 상세는 `SpinX_for_ReachCaster_Spec.md` 관할.
 
 ---
 
 ## 9. 인터랙션 플로우
 
 ### 9.1 비교 설정 → 결과
-
 ```
 1. 시나리오 목록/결과 화면에서 비교 진입
 2. 비교 설정 패널 슬라이드업
@@ -501,7 +331,6 @@ calcReach(metrics, budget):
 ```
 
 ### 9.2 결과 화면 내 인터랙션
-
 ```
 1. Health Check 바 클릭 → Scenario Overview 토글
 2. 차트 호버 → 툴팁 표시
@@ -515,51 +344,23 @@ calcReach(metrics, budget):
 
 ## 10. 공통 사항
 
-### 10.1 다크모드 지원
-- 모든 색상은 CSS 변수 사용
-- 차트 색상은 isDarkMode prop으로 분기 처리
-- 정합성 레벨 색상은 다크모드 자동 대응
-
-### 10.2 폰트
-- 기본: Paperlogy, sans-serif
-- 크기:
-  - 헤더 타이틀: 16px
-  - 섹션 타이틀: 20px
-  - Overview 중점 값: 22px
-  - 테이블 카테고리: 13-14px
-  - 테이블 내용: 12-13px
-  - 보조 정보: 10-11px
-
-### 10.3 반응형
-- 비교 설정 패널: 하단 고정, 전체 너비
-- 비교 결과: 스크롤 가능 (`overflowY: auto`)
-- 차트: 부모 컨테이너 너비 100%
-- SpinX 패널 열림 시: `marginRight: 400px` 전환
-
-### 10.4 접근성
-- 버튼: 키보드 접근 가능 (button 태그)
-- 정합성 레벨: 색상 + 아이콘 + 텍스트 3중 표현
-- 다이얼로그: ESC로 닫기
-- title 속성: 재설정 버튼 "비교 재설정"
+- **다크모드**: 모든 색상은 CSS 변수(디자인 토큰) 사용. 차트 색은 isDarkMode prop으로 분기. 정합성 레벨 색은 다크모드 자동 대응.
+- **반응형**: 비교 설정 패널은 하단 고정·전체 너비. 비교 결과는 세로 스크롤. 차트는 부모 너비 100%. SpinX 패널 열림 시 콘텐츠가 패널 폭만큼 밀림.
+- **접근성**: 버튼은 키보드 접근 가능. 정합성 레벨은 색 + 아이콘 + 텍스트 3중 표현. 다이얼로그는 ESC로 닫기. 재설정 버튼에 title 속성("비교 재설정") 제공.
 
 ---
 
-## 11. 향후 개선 사항
+## 11. 개선 제안 (이 화면 한정)
 
-### 11.1 단기
-- [ ] 기간 비교 전용 차트 추가
-- [ ] Export to PDF 기능
-- [ ] 비교 결과 공유 링크
+이 화면(비교 설정/결과)에서 직접 조작·발생하는 개선만 다룬다. 목록/결과 화면 개선은 각 정의서에서 다룬다.
 
-### 11.2 중기
-- [ ] 비교 시나리오 4개 이상 지원
-- [ ] 복합 비교 (예산 + 타겟 동시 비교)
-- [ ] 비교 결과 저장 및 이력 관리
-
-### 11.3 장기
-- [ ] AI 기반 최적 시나리오 추천
-- [ ] 비교 결과 기반 자동 리포트 생성
-- [ ] 팀 공유 및 코멘트 기능
+| 제안 | 내용 | 사용자 가치 | 상태 |
+|------|------|-------------|------|
+| 기간 비교 전용 차트 | 기간별 도달률 추이 차트 추가 | 기간 비교의 결론을 시각적으로 즉시 파악 | 검토 필요 |
+| Export to PDF | 비교 결과 PDF 내보내기 | 보고/공유 활용 | 미채택 (Excel은 구현 완료) |
+| 비교 결과 공유 링크 | 비교 결과를 링크로 공유 | 팀 내 결과 공유 | 미채택 |
+| 4개 이상 비교 | 비교 시나리오 상한 확대 | 다수 대안 동시 비교 | 미채택 |
+| 복합 비교 | 예산 + 타겟 동시 비교 | 다축 전략 판단 | 미채택 (통제 실험 원칙과 상충 검토 필요) |
 
 ---
 
@@ -571,9 +372,11 @@ calcReach(metrics, budget):
 - `src/components/spinx/SpinXPanel.tsx`: SpinX AI 패널
 - `src/components/spinx/SpinXButton.tsx`: SpinX 호출 버튼
 
-### 12.2 디자인 시스템
-- 색상: CSS 변수 기반 (`hsl(var(--foreground))`, `hsl(var(--muted-foreground))`)
-- 폰트: Paperlogy, sans-serif
-- 간격: 4px 단위 (4, 6, 8, 10, 12, 14, 16, 20, 24, 32px)
-- 둥근 모서리: 4px (뱃지), 6px (바), 8px (카드), 10px (테이블), 12px (패널)
-- 다이얼로그: `ui-dialog-policy.md` 참조 (confirm 사이즈)
+### 12.2 관련 스펙
+- `Scenario_List_Screen_Spec.md` — 시나리오 목록(비교 진입)
+- `Reach_Caster_Result_Screens_Spec.md` — 결과 화면(비교 진입)
+- `SpinX_for_ReachCaster_Spec.md` — SpinX 상세
+
+### 12.3 디자인 시스템
+- 색상·폰트·간격·모서리는 모두 CSS 변수(디자인 토큰) 기반. 정확한 값은 구현 코드/디자인 토큰이 단일 진실 공급원.
+- 다이얼로그: `ui-dialog-policy.md` 참조(confirm 사이즈)

@@ -2,14 +2,35 @@
 
 ## 문서 정보
 - **작성일**: 2026-03-05
-- **버전**: v1.0
+- **최종 수정**: 2026-09-21
+- **버전**: v1.1
 - **대상 화면**: Slot 상세 (시나리오 목록)
+- **관련 컴포넌트**: `SlotDetail.tsx`, `SlotHeader.tsx`, `CreateScenario.tsx`
+- **관련 스펙**: `SlotHome_Spec.md`, `Scenario_Creation_Spec.md`, `Reach_Caster_Result_Screens_Spec.md`, `Scenario_Comparison_Spec.md`
+
+### 변경 이력
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| v1.0 | 2026-03-05 | 초안 작성 |
+| v1.1 | 2026-09-21 | 작성 가이드 반영 — 문서 활용처(Docs/TC)·기획 의도 명시, 순수 시각 스타일 수치(px·hex 그림자·너비·높이) 제거 후 레이아웃 의도·디자인 토큰 기준으로 위임, 데이터 구조에서 인터페이스/상태 코드 전문 제거하고 개념·용어 매핑으로 전환, 향후 개선을 개선 제안(제안·가치·상태) 표로 재구성 |
 
 ---
 
 ## 1. 화면 개요
 
-Slot 내의 모든 시나리오를 관리하는 화면으로, 리스트 뷰와 타임라인 뷰를 제공하여 시나리오의 상태, 진행 상황, 일정을 한눈에 파악할 수 있습니다.
+### 1.1 기능 정의
+Slot 내의 모든 시나리오를 관리하는 화면. 리스트 뷰와 타임라인(Gantt) 뷰를 제공하여 시나리오의 상태·진행 상황·일정을 한눈에 파악하게 한다.
+
+**기획 의도**: 하나의 Slot(캠페인 판단 세션)에 쌓인 여러 시나리오는 "언제 무엇이 돌아가고 있는가"를 함께 봐야 전략 판단이 선다. 그래서 목록을 단순 테이블에 가두지 않고, 상태·진행률을 리스트에서 즉시 읽게 하고, 캠페인 기간이 겹치는 관계는 타임라인 뷰로 드러낸다. 두 뷰는 같은 데이터를 서로 다른 질문("무엇이 있나" vs "언제 겹치나")에 답하도록 나눈 것이다.
+
+### 1.2 문서 활용처
+- **개발 참고**: 프론트엔드 구현 시 화면 동작·규칙·제약의 기준 문서로 활용된다.
+- **제품 Docs**: 목록/타임라인의 기능 설명·의도가 사용자 대상 기능 문서의 기반이 된다.
+- **AI 기반 TC 생성**: 검색·필터·정렬·페이지네이션·타임라인 레이어 로직(Section 2·4)이 테스트 케이스의 원천 데이터가 된다. 각 규칙은 `조건(입력) → 기대 결과(표시 항목·이동 경로·활성 여부)`로 검증 가능하게 작성한다.
+
+### 1.3 진입 경로
+- SlotBoard → Slot 선택 → Slot 상세(시나리오 목록)
+- URL: `/reachcaster` (Slot 컨텍스트)
 
 ---
 
@@ -17,251 +38,116 @@ Slot 내의 모든 시나리오를 관리하는 화면으로, 리스트 뷰와 �
 
 ### 2.1 Slot 정보 헤더 (SlotHeader)
 
-**레이아웃**: 상단 고정 영역
+상단 고정 영역. card 배경의 박스(둥근 모서리·미세 그림자, 정확한 수치는 구현 코드/디자인 토큰 기준).
 
 **구성 요소**:
-- **Slot 제목**: 20px, 굵게
+- **Slot 제목**: 큰 굵은 텍스트
 - **광고주 정보**: 광고주명 + 광고주 ID
 - **공개 범위**: Private / Public 뱃지
-- **통계 정보**:
-  - 결과 개수: N개
-  - 최종 수정일: YYYY-MM-DD HH:mm
+- **통계 정보**: 결과 개수(N개), 최종 수정일(YYYY-MM-DD HH:mm)
 - **설명**: Slot 설명 텍스트
-- **액션 버튼**:
-  - 편집 (Edit 아이콘)
-  - 삭제 (Trash2 아이콘)
-
-**스타일**:
-- 배경: card 배경
-- 패딩: 24px
-- 둥근 모서리: 8px
-- 그림자: 미세한 shadow
+- **액션 버튼**: 편집(Edit 아이콘), 삭제(Trash2 아이콘)
 
 ---
 
 ### 2.2 타이틀 섹션
 
-**레이아웃**: `(Title) (New Scenario Button)`
+**레이아웃**: 좌측 타이틀 + 우측 New Scenario 버튼
 
 **구성 요소**:
-- **타이틀**: "Reach Caster" (24px, 굵게)
-- **New Scenario 버튼**:
-  - 스타일: Primary 색상, 둥근 모서리 (24px)
-  - 아이콘: Plus
-  - 텍스트: "New Scenario"
-  - 높이: 48px
-  - 클릭: `/reachcaster/scenario/new` 페이지로 이동
+- **타이틀**: "Reach Caster" (큰 굵은 텍스트)
+- **New Scenario 버튼**: Primary pill 버튼(플랫폼 Primary 버튼 표준 준수 — `BOScenarioList` "New Scenario"와 동일 스펙), Plus 아이콘을 텍스트 앞에 배치, 텍스트 "New Scenario". 클릭 시 `/reachcaster/scenario/new`로 이동.
 
 ---
 
 ### 2.3 컨트롤 섹션
 
-**레이아웃**: `(View Toggle + Count) ... (Bulk Actions) (Search) (Filter)`
+**레이아웃**: 좌측 (뷰 토글 + 개수) … 우측 (일괄 작업 + 검색 + 필터)
 
 #### 2.3.1 좌측 영역
 
 **뷰 모드 토글**:
-- 스타일: 토글 버튼 그룹 (muted 배경)
-- 옵션:
-  - List 아이콘: 리스트 뷰
-  - Calendar 아이콘: 타임라인 뷰
-- 선택된 버튼: 흰색 배경 + 그림자
+- muted 배경의 토글 버튼 그룹. 옵션: List 아이콘(리스트 뷰) / Calendar 아이콘(타임라인 뷰). 선택된 버튼은 밝은 배경 + 미세 그림자로 구분.
 
 **시나리오 개수**:
-- 표시: "N Scenarios" (14px, muted-foreground)
-- 선택 시: "(N개 선택됨)" 추가 표시 (primary 색상)
+- 표시: "N Scenarios" (muted-foreground)
+- 선택 시: "(N개 선택됨)"을 primary 색상으로 추가 표시
 
 #### 2.3.2 우측 영역
 
 **일괄 작업 버튼** (선택된 항목이 있을 때만 표시):
-- **이동 버튼**:
-  - 아이콘: ArrowRightLeft
-  - 텍스트: "이동"
-  - 스타일: Ghost 버튼 + 테두리
-  - 클릭: 이동 다이얼로그 표시
-- **삭제 버튼**:
-  - 아이콘: Trash2
-  - 텍스트: "삭제"
-  - 스타일: Destructive 색상
-  - 클릭: 확인 다이얼로그 후 삭제
+- **이동 버튼**: ArrowRightLeft 아이콘 + "이동". Ghost 버튼 + 테두리. 클릭 시 이동 다이얼로그 표시.
+- **삭제 버튼**: Trash2 아이콘 + "삭제". Destructive 색상. 클릭 시 확인 다이얼로그 후 삭제.
 
 **검색**:
-- 초기 상태: 버튼 형태 (Search 아이콘 + "검색" 텍스트)
-- 확장 상태:
-  - 너비: 300px
-  - 애니메이션: 0.3s ease-out
-  - 플레이스홀더: "시나리오명, 작성자"
-  - 좌측 아이콘: Search (고정)
-  - 우측 아이콘: X (검색어 있을 때만, 클릭 시 초기화)
-  - 포커스 아웃 시: 검색어 없으면 버튼으로 복귀
-- 검색 대상: 시나리오명, 작성자명, 작성자 ID
+- 초기 상태: 버튼 형태(Search 아이콘 + "검색")
+- 확장 상태: 입력 필드로 확장(펼침 애니메이션은 저비용 전환). 플레이스홀더 "시나리오명, 작성자", 좌측 Search 아이콘 고정, 우측 X 아이콘(검색어 있을 때만, 클릭 시 초기화). 포커스 아웃 시 검색어가 없으면 버튼으로 복귀.
+- **검색 대상**: 시나리오명 + 작성자명 + 작성자 ID
+- **매칭 방식**: 부분 일치(substring), 대소문자 무시, onChange 실시간 필터링(디바운스 없음)
 
 **필터**:
-- 버튼: Filter 아이콘 + "필터" 텍스트
-- 활성 필터 있을 때:
-  - 배경: primary/0.1
-  - 뱃지: 활성 필터 개수 표시 (primary 배경)
-- 클릭: 필터 드롭다운 표시
+- Filter 아이콘 + "필터". 활성 필터가 있을 때 primary 틴트 배경 + 활성 필터 개수 뱃지(primary 배경). 클릭 시 필터 드롭다운 표시.
 
 ---
 
 ### 2.4 필터 드롭다운
 
-**위치**: 필터 버튼 하단 우측 정렬
-
-**크기**: 320px 너비, 최대 500px 높이
+**위치**: 필터 버튼 하단 우측 정렬. 고정폭 드롭다운(스크롤 가능), 정확한 크기는 구현 코드 기준.
 
 **필터 항목**:
+- **분석 모듈**: 체크박스 — Ratio Finder, Reach Predictor
+- **상태**: 체크박스 — Completed, Processing, Pending, Error
+- **업종**: 체크박스(스크롤) — 시나리오에서 사용된 모든 업종(동적)
 
-#### 2.4.1 분석 모듈
-- 체크박스 리스트
-- 옵션: Ratio Finder, Reach Predictor
+**필터 초기화 버튼**: 하단, Ghost 버튼(전체 너비), 텍스트 "필터 초기화". 클릭 시 모든 필터 해제.
 
-#### 2.4.2 상태
-- 체크박스 리스트
-- 옵션: Completed, Processing, Pending, Error
-
-#### 2.4.3 업종
-- 체크박스 리스트
-- 스크롤 가능 (최대 150px)
-- 옵션: 시나리오에서 사용된 모든 업종 (동적)
-
-**필터 초기화 버튼**:
-- 위치: 하단
-- 스타일: Ghost 버튼, 전체 너비
-- 텍스트: "필터 초기화"
+**필터 로직**: 각 항목은 다중 선택 가능. 같은 그룹 내 선택은 OR, 그룹 간은 AND로 결합. 여러 필터가 동시에 활성이면 모두 만족하는 시나리오만 노출.
 
 ---
 
 ### 2.5 리스트 뷰
 
-#### 2.5.1 테이블 구조
+#### 2.5.1 테이블 컬럼 구성
 
-**컬럼 구성**:
-1. **체크박스** (50px)
-   - 헤더: 전체 선택/해제
-   - 행: 개별 선택
+정렬 가능 컬럼은 헤더 클릭으로 정렬한다. 컬럼 폭 수치는 구현 코드 기준.
 
-2. **ID** (80px)
-   - 정렬 가능
-   - 표시: #N 형식
-   - 색상: muted-foreground
+| # | 컬럼 | 정렬 | 표시 내용 |
+|---|------|------|-----------|
+| 1 | 체크박스 | — | 헤더=전체 선택/해제, 행=개별 선택 |
+| 2 | ID | ✅ | "#N" 형식, muted-foreground |
+| 3 | 시나리오 | ✅ | 시나리오명. Completed는 클릭 가능(결과 화면 이동), 그 외 상태는 클릭 불가(흐리게 표시) |
+| 4 | 분석 모듈 | ✅ | 뱃지(foreground 배경 + background 텍스트), 아이콘 Scale(RF)/Target(RP) |
+| 5 | 업종 | ✅ | muted-foreground |
+| 6 | 타겟 GRP | ✅ | "전체"(Users 아이콘) 또는 "N개 세그먼트"(User 아이콘), muted-foreground |
+| 7 | 기간 | ✅ (시작일 기준) | 시작일 → 종료일 2줄 표시, muted-foreground |
+| 8 | 상태 | ✅ | 상태별 표시(2.5.2 참조) |
+| 9 | 작성자 | ✅ | "작성자명(작성자ID)", muted-foreground |
+| 10 | 작성일시 | ✅ | YYYY-MM-DD HH:mm, muted-foreground |
+| 11 | 액션 | — | 컨텍스트 메뉴 버튼(MoreVertical 아이콘) |
 
-3. **시나리오** (최소 250px)
-   - 정렬 가능
-   - 시나리오명 표시
-   - Completed 상태: 클릭 가능 (결과 화면으로 이동)
-   - 기타 상태: 클릭 불가 (opacity 0.6)
+#### 2.5.2 상태 뱃지
 
-4. **분석 모듈** (150px)
-   - 정렬 가능
-   - 뱃지 스타일:
-     - 배경: foreground
-     - 텍스트: background
-     - 아이콘: Scale (Ratio Finder), Target (Reach Predictor)
-     - 크기: 12px
+- **Completed**: foreground 배경 + background 텍스트 뱃지 + 완료일시
+- **Processing**: 진행 바(진행 단계에 따라 동적) + "N/5 · 단계 설명" 보조 텍스트(muted-foreground). 총 단계는 5단계.
+- **Pending**: 투명 배경 + muted-foreground 텍스트 + border 테두리 뱃지
+- **Error**: destructive 배경 뱃지 + 재시도 버튼(밑줄 텍스트 버튼) + 완료일시
 
-5. **업종** (100px)
-   - 정렬 가능
-   - 색상: muted-foreground
-
-6. **타겟 GRP** (180px)
-   - 정렬 가능
-   - 표시 형식:
-     - "전체": Users 아이콘 + "전체"
-     - 세그먼트: User 아이콘 + "N개 세그먼트"
-   - 색상: muted-foreground
-   - 크기: 12px
-
-7. **기간** (200px)
-   - 정렬 가능 (시작일 기준)
-   - 표시 형식:
-     ```
-     YYYY-MM-DD →
-     YYYY-MM-DD
-     ```
-   - 2줄 표시
-   - 색상: muted-foreground
-
-8. **상태** (130px)
-   - 정렬 가능
-   - 상태별 표시:
-     - **Processing**: 프로그레스바 + 단계 정보
-     - **Completed**: 뱃지 + 완료일시
-     - **Pending**: 뱃지
-     - **Error**: 뱃지 + 재시도 버튼 + 완료일시
-
-9. **작성자** (100px)
-   - 정렬 가능
-   - 표시: 작성자명(작성자ID)
-   - 색상: muted-foreground
-
-10. **작성일시** (140px)
-    - 정렬 가능
-    - 표시: YYYY-MM-DD HH:mm
-    - 색상: muted-foreground
-
-11. **액션** (60px)
-    - 컨텍스트 메뉴 버튼 (MoreVertical 아이콘)
-
-#### 2.5.2 상태 뱃지 스타일
-
-**Completed**:
-- 배경: foreground
-- 텍스트: background
-- 테두리: foreground
-
-**Processing**:
-- 프로그레스바:
-  - 너비: 100px
-  - 높이: 24px
-  - 배경: muted
-  - 진행: foreground (동적 너비)
-  - 텍스트: "Processing" (중앙, background 색상)
-- 하단 정보: "N/5 · 단계 설명" (11px, muted-foreground)
-
-**Pending**:
-- 배경: transparent
-- 텍스트: muted-foreground
-- 테두리: border
-
-**Error**:
-- 배경: destructive
-- 텍스트: destructive-foreground
-- 테두리: destructive
-- 재시도 버튼: 텍스트 버튼, 밑줄, 11px
+정확한 크기·색상 값은 디자인 토큰/구현 코드 기준.
 
 #### 2.5.3 행 인터랙션
 
-**선택 상태**:
-- 배경: muted/0.3
+- **선택 상태**: 행 배경을 muted 틴트로 강조
+- **클릭(Completed만)**: 커서 pointer. 분석 모듈에 따라 이동
+  - Ratio Finder → `/reachcaster/scenario/ratio-finder/result`
+  - Reach Predictor → `/reachcaster/scenario/reach-predictor/result`
+  - 이동 시 state로 scenarioData 전달
+- **컨텍스트 메뉴**: MoreVertical 버튼 클릭 시 버튼 하단 우측에 표시. 항목: 복제(Copy), 이동(ArrowRightLeft), 삭제(Trash2)
 
-**클릭 (Completed만)**:
-- 커서: pointer
-- 이동:
-  - Ratio Finder: `/reachcaster/scenario/ratio-finder/result`
-  - Reach Predictor: `/reachcaster/scenario/reach-predictor/result`
-- state로 scenarioData 전달
+#### 2.5.4 정렬 로직
 
-**컨텍스트 메뉴**:
-- 트리거: MoreVertical 버튼 클릭
-- 위치: 버튼 하단 우측 정렬
-- 너비: 120px
-- 메뉴 항목:
-  - 복제 (Copy 아이콘)
-  - 이동 (ArrowRightLeft 아이콘)
-  - 삭제 (Trash2 아이콘)
-
-#### 2.5.4 정렬
-
-**정렬 아이콘**:
-- 오름차순: ChevronUp (14px)
-- 내림차순: ChevronDown (14px)
-- 위치: 컬럼명 우측
-
-**정렬 로직**:
-- 같은 컬럼 클릭: 오름차순 ↔ 내림차순 토글
-- 다른 컬럼 클릭: 해당 컬럼 오름차순으로 변경
+- 정렬 아이콘: 오름차순 ChevronUp / 내림차순 ChevronDown, 컬럼명 우측 표시
+- 같은 컬럼 재클릭: 오름차순 ↔ 내림차순 토글
+- 다른 컬럼 클릭: 해당 컬럼 오름차순으로 전환
 
 ---
 
@@ -269,204 +155,93 @@ Slot 내의 모든 시나리오를 관리하는 화면으로, 리스트 뷰와 �
 
 #### 2.6.1 타임라인 컨트롤
 
-**레이아웃**: `(Prev) (Period) (Next) ... (Zoom) (Today)`
+**레이아웃**: 좌측 (이전 · 기간 · 다음) … 우측 (Zoom · 오늘)
 
-**좌측 영역**:
 - **이전/다음 버튼**: ChevronLeft/Right 아이콘
-- **기간 표시**: 중앙 정렬, 최소 120px
-  - 월: "YYYY년 M월"
-  - 분기: "YYYY년 QN"
-  - 년: "YYYY년"
-
-**우측 영역**:
-- **Zoom 컨트롤**: 토글 버튼 그룹
-  - 옵션: 월, 분기, 년
-  - 선택된 버튼: muted 배경
+- **기간 표시**: 중앙 정렬 — 월("YYYY년 M월"), 분기("YYYY년 QN"), 년("YYYY년")
+- **Zoom 컨트롤**: 토글 버튼 그룹(월/분기/년), 선택 버튼 muted 배경
 - **오늘 버튼**: 현재 날짜로 이동
-
-**스타일**:
-- 배경: muted/0.3
-- 패딩: 8px 12px
-- 둥근 모서리: 6px
+- 컨트롤 바는 muted 틴트 배경의 박스(정확한 패딩·모서리 수치는 구현 코드 기준)
 
 #### 2.6.2 타임라인 그리드
 
-**헤더 (Sticky)**:
-- 위치: 상단 고정
-- 배경: muted/0.5 + backdrop-filter blur
-- 테두리: 하단 border
-- 그리드:
-  - 월: 1열 (해당 월)
-  - 분기: 3열 (3개월)
-  - 년: 12열 (12개월)
-
-**콘텐츠 영역**:
-- 최소 높이: 700px
-- 패딩: 16px 0
-- 배경 그리드: 기간 구분선 (border/0.2)
+- **헤더(Sticky)**: 상단 고정, muted 틴트 배경 + blur, 하단 구분선. 그리드 열 수는 Zoom에 따라 월=1열 / 분기=3열 / 년=12열.
+- **콘텐츠 영역**: 기간 구분선(옅은 border)이 배경 그리드로 깔림. 높이는 레이어 수에 따라 확장.
 
 #### 2.6.3 시나리오 바
 
-**위치 계산**:
-- 좌측 (left): 시작일 기준 백분율
-- 너비 (width): 기간 일수 기준 백분율
-- 상단 (top): 레이어 인덱스 × 68px + 16px
-- 높이: 48px
+**위치 계산(개념)**:
+- 좌측 오프셋: 시작일 기준 백분율
+- 너비: 기간 일수 기준 백분율
+- 세로 위치: 레이어 인덱스에 따라 단(段)을 나눔(정확한 단 높이·간격은 구현 코드 기준)
 
-**레이어 로직**:
-- 겹치는 시나리오는 다른 레이어에 배치
-- 겹침 조건: 시작일 ≤ 다른 항목 종료일 AND 종료일 ≥ 다른 항목 시작일
+**레이어 로직**: 겹치는 시나리오는 서로 다른 레이어(단)에 배치한다. 겹침 조건은 `시작일 ≤ 다른 항목 종료일 AND 종료일 ≥ 다른 항목 시작일`.
 
-**스타일**:
-- 배경: primary
-- 텍스트: primary-foreground
-- 둥근 모서리: 6px
-- 그림자: 0 1px 3px rgba(0,0,0,0.1)
-- 선택 시: 2px ring 테두리
+**스타일**: primary 배경 + primary-foreground 텍스트의 막대(둥근 모서리·미세 그림자). 선택 시 ring 테두리로 강조.
 
-**좌측 상태 바**:
-- 너비: 3px
-- 높이: 100%
-- 색상:
-  - Error: destructive
-  - Completed: primary-foreground
-  - Processing: rgba(255,255,255,0.5)
-  - Pending: rgba(255,255,255,0.3)
+**좌측 상태 바**: 막대 좌측에 얇은 상태 색 바 — Error=destructive, Completed/Processing/Pending은 밝기 차이로 구분(정확한 색·투명도는 디자인 토큰 기준).
 
-**내용**:
-- **시나리오명** (12px, 굵게):
-  - 말줄임 처리
-- **상세 정보** (10px, opacity 0.85):
-  - 타입 (RF/RP) + 아이콘
-  - 업종
-  - 상태 (Processing은 N/5 표시)
-  - 작성자
-  - 구분자: "•"
+**내용**: 시나리오명(굵게, 말줄임) + 상세 정보(타입 RF/RP + 아이콘, 업종, 상태(Processing은 N/5), 작성자 — 구분자 "•").
 
-**인터랙션**:
-- 클릭: 체크박스 토글
-- 호버: 툴팁 표시
-  - 시나리오명
-  - 기간
-  - 작성자(작성자ID)
+**인터랙션**: 클릭 시 체크박스 토글, 호버 시 툴팁(시나리오명 · 기간 · 작성자(작성자ID)) 표시.
 
 ---
 
 ### 2.7 페이지네이션
 
-**레이아웃**: `(Page Size) ... (Page Info) (Navigation)`
+**레이아웃**: 좌측 (페이지 크기) … 우측 (페이지 정보 · 네비게이션)
 
-**좌측 영역**:
-- 레이블: "페이지당 표시:"
-- 드롭다운: 10, 20, 50 옵션
-- 너비: 80px
-
-**우측 영역**:
+- **페이지 크기**: 레이블 "페이지당 표시:", 드롭다운 옵션 **10 / 20 / 50**
 - **페이지 정보**: "N-M / Total개"
-- **네비게이션**:
-  - 첫 페이지: ChevronLeft × 2
-  - 이전 페이지: ChevronLeft
-  - 페이지 번호: 최대 5개 표시
-  - 다음 페이지: ChevronRight
-  - 마지막 페이지: ChevronRight × 2
-- **버튼 스타일**:
-  - 크기: 32px × 32px
-  - 현재 페이지: primary 배경
-  - 비활성: opacity 0.5, cursor not-allowed
-
-**페이지 번호 로직**:
-- 현재 페이지 중심으로 최대 5개 표시
-- 범위 초과 시 시작/끝 조정
+- **네비게이션**: 첫 페이지(ChevronLeft×2) · 이전(ChevronLeft) · 페이지 번호(최대 5개) · 다음(ChevronRight) · 마지막(ChevronRight×2)
+- **버튼 상태**: 현재 페이지 primary 배경, 비활성 버튼은 흐리게 + not-allowed 커서
+- **페이지 번호 로직**: 현재 페이지 중심으로 최대 5개 표시, 범위 초과 시 시작/끝 조정
 
 ---
 
 ### 2.8 이동 다이얼로그
 
-**트리거**:
-- 일괄 작업 "이동" 버튼
-- 컨텍스트 메뉴 "이동" 항목
+**트리거**: 일괄 작업 "이동" 버튼 또는 컨텍스트 메뉴 "이동" 항목
 
 **구조**:
-- **제목**: "시나리오 이동"
-- **설명**: "선택한 N개 시나리오를 다른 Slot으로 이동합니다."
-- **내용**:
-  - 레이블: "이동할 Slot 선택 (광고주: [광고주명])"
-  - 드롭다운: 같은 광고주의 다른 Slot 목록
-  - 플레이스홀더: "Slot을 선택하세요"
-- **액션**:
-  - 취소: Secondary 버튼
-  - 이동: Primary 버튼
+- 제목: "시나리오 이동"
+- 설명: "선택한 N개 시나리오를 다른 Slot으로 이동합니다."
+- 내용: 레이블 "이동할 Slot 선택 (광고주: [광고주명])", 드롭다운(같은 광고주의 다른 Slot 목록), 플레이스홀더 "Slot을 선택하세요"
+- 액션: 취소(Secondary) / 이동(Primary)
+
+**제약**: 이동 대상은 **같은 광고주**의 다른 Slot으로 한정한다(다른 광고주로는 이동 불가).
 
 ---
 
-## 3. 데이터 구조
+## 3. 데이터 개념 및 용어 매핑
 
-### 3.1 시나리오 객체
+정확한 타입/필드 목록은 구현 코드가 단일 진실 공급원이다. 여기서는 규칙·플로우 이해에 필요한 개념과 UI↔필드 매핑만 남긴다.
 
-```typescript
-interface Scenario {
-  id: number
-  name: string
-  description: string
-  type: 'Ratio Finder' | 'Reach Predictor'
-  industry: string
-  targetGrp: string
-  startDate: string // YYYY-MM-DD
-  endDate: string // YYYY-MM-DD
-  status: 'Completed' | 'Processing' | 'Pending' | 'Error'
-  processStep: number // 0-5
-  totalSteps: number // 5
-  stepDescription: string
-  created: string // YYYY-MM-DD HH:mm
-  creator: string
-  creatorId: string
-  completedAt: string | null
-  errorMessage: string | null
-  
-  // Reach Predictor 전용
-  reachPredictorMedia?: MediaItem[]
-  period?: { start: string, end: string }
-  targetGrpArray?: string[]
-}
-```
+### 3.1 시나리오 항목 (개념)
 
-### 3.2 상태 관리
+- 시나리오는 **상태**(Completed / Processing / Pending / Error)를 가지며, Processing은 진행 단계(현재 단계 / 총 5단계)와 단계 설명을 함께 가진다.
+- Completed만 결과 화면으로 진입 가능하고, Error는 재시도 및 에러 메시지를 가진다.
+- Reach Predictor 시나리오는 매체 항목·기간·타겟 배열 등 부가 데이터를 추가로 가진다.
 
-```typescript
-// 뷰 모드
-const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list')
+| UI 용어 | 데이터 개념 | 비고 |
+|---|---|---|
+| ID / 시나리오명 | id / name | — |
+| 분석 모듈 | type | Ratio Finder / Reach Predictor |
+| 업종 / 타겟 GRP | industry / targetGrp | — |
+| 기간 | startDate · endDate | 정렬은 시작일 기준 |
+| 상태 / 진행 단계 | status / processStep · totalSteps(5) · stepDescription | Processing 시 "N/5" 표기 |
+| 작성자 | creator · creatorId | — |
+| 완료일시 / 에러 메시지 | completedAt / errorMessage | 상태 의존 |
 
-// 정렬
-const [sortField, setSortField] = useState<SortField>('id')
-const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+### 3.2 화면 상태 (개념)
 
-// 페이지네이션
-const [currentPage, setCurrentPage] = useState(1)
-const [itemsPerPage] = useState(10)
-
-// 선택
-const [selectedScenarios, setSelectedScenarios] = useState<number[]>([])
-
-// 컨텍스트 메뉴
-const [contextMenuOpen, setContextMenuOpen] = useState<number | null>(null)
-
-// 타임라인
-const [timelineZoom, setTimelineZoom] = useState<'month' | 'quarter' | 'year'>('quarter')
-const [timelineYear, setTimelineYear] = useState(2024)
-const [timelineMonth, setTimelineMonth] = useState(1)
-const [timelineQuarter, setTimelineQuarter] = useState(1)
-
-// 검색 & 필터
-const [searchExpanded, setSearchExpanded] = useState(false)
-const [searchQuery, setSearchQuery] = useState('')
-const [filterOpen, setFilterOpen] = useState(false)
-const [statusFilter, setStatusFilter] = useState<string[]>([])
-const [moduleFilter, setModuleFilter] = useState<string[]>([])
-const [industryFilter, setIndustryFilter] = useState<string[]>([])
-
-// 다이얼로그
-const [showMoveDialog, setShowMoveDialog] = useState(false)
-```
+- **뷰 모드**: 리스트 / 타임라인 전환
+- **정렬**: 정렬 필드 + 오름/내림 방향
+- **페이지네이션**: 현재 페이지 + 페이지 크기(10/20/50)
+- **선택**: 선택된 시나리오 ID 집합(일괄 작업 대상)
+- **타임라인**: Zoom 레벨(월/분기/년) + 기준 연/월/분기
+- **검색·필터**: 검색 확장 여부·검색어 + 상태/모듈/업종 필터 집합
+- 정확한 상태 변수/타입은 구현 코드(`SlotDetail.tsx`) 참조.
 
 ---
 
@@ -474,103 +249,74 @@ const [showMoveDialog, setShowMoveDialog] = useState(false)
 
 ### 4.1 시나리오 생성
 1. "New Scenario" 버튼 클릭
-2. `/reachcaster/scenario/new` 페이지로 이동
-3. 시나리오 생성 완료 후 목록으로 복귀
+2. `/reachcaster/scenario/new`로 이동
+3. 생성 완료 후 목록으로 복귀
 
 ### 4.2 시나리오 조회
 1. 리스트 뷰에서 Completed 상태 시나리오 클릭
 2. 분석 모듈에 따라 결과 화면으로 이동
 3. state로 시나리오 데이터 전달
 
-### 4.3 시나리오 검색
+### 4.3 검색
 1. 검색 버튼 클릭 → 입력 필드 확장
-2. 검색어 입력 → 실시간 필터링
+2. 검색어 입력 → 실시간 필터링(시나리오명·작성자명·작성자ID, 부분 일치, 대소문자 무시)
 3. X 버튼 또는 포커스 아웃 → 초기화
 
-### 4.4 시나리오 필터링
+### 4.4 필터링
 1. 필터 버튼 클릭 → 드롭다운 표시
 2. 체크박스 선택 → 실시간 필터링
 3. 필터 초기화 버튼 → 모든 필터 해제
 
-### 4.5 시나리오 정렬
+### 4.5 정렬
 1. 컬럼 헤더 클릭
 2. 같은 컬럼: 오름차순 ↔ 내림차순 토글
 3. 다른 컬럼: 해당 컬럼 오름차순
 
-### 4.6 시나리오 선택 및 일괄 작업
+### 4.6 선택 및 일괄 작업
 1. 체크박스로 시나리오 선택
 2. 일괄 작업 버튼 표시
-3. 이동 또는 삭제 실행
+3. 이동 또는 삭제 실행(삭제는 확인 다이얼로그 후)
 
 ### 4.7 타임라인 네비게이션
-1. Zoom 레벨 선택 (월/분기/년)
+1. Zoom 레벨 선택(월/분기/년)
 2. 이전/다음 버튼으로 기간 이동
 3. 오늘 버튼으로 현재 날짜로 이동
 
 ---
 
-## 5. 반응형 및 접근성
+## 5. 접근성
 
-### 5.1 반응형
-- 테이블: 가로 스크롤 (overflow-x: auto)
-- 타임라인: 부모 컨테이너 너비 100%
-- 검색 필드: 300px 고정 너비
-- 필터 드롭다운: 320px 고정 너비
-
-### 5.2 접근성
-- 체크박스: 키보드 접근 가능
-- 버튼: 포커스 스타일 제공
-- 정렬: 키보드로 활성화 가능
-- 컨텍스트 메뉴: ESC로 닫기
+- 테이블: 가로 스크롤 지원(좁은 화면)
+- 체크박스·버튼·정렬: 키보드 접근 및 활성화 가능, 포커스 스타일 제공
+- 컨텍스트 메뉴·드롭다운: ESC로 닫기
 
 ---
 
-## 6. 기술 스택
+## 6. 개선 제안 (이 화면 한정)
 
-### 6.1 라이브러리
-- **React**: 18.x
-- **React Router**: 네비게이션
-- **Lucide React**: 아이콘
+이 화면(시나리오 목록)에서 직접 조작·발생하는 개선만 다룬다. 시나리오 비교 모드는 `Scenario_Comparison_Spec.md`, 템플릿은 생성 화면 정의서에서 다룬다.
 
-### 6.2 아이콘
-- Plus, List, Calendar, ChevronDown, ChevronUp, ChevronLeft, ChevronRight
-- Scale, Target, Users, User, Search, X, Filter, ArrowRightLeft
-- MoreVertical, Edit, Trash2, Copy
-
-### 6.3 상태 관리
-- React useState
-- 로컬 상태 관리
+| 제안 | 내용 | 사용자 가치 | 상태 |
+|------|------|-------------|------|
+| 로딩 스켈레톤 | 목록 로딩 중 스켈레톤 UI 노출 | 빈 화면 대신 구조를 먼저 보여 체감 지연 감소 | 미채택 |
+| 작업 완료 토스트 | 복제/이동/삭제 완료 시 토스트 피드백 | 작업이 반영됐음을 즉시 확인 | 검토 필요 |
+| 필터 프리셋 저장 | 자주 쓰는 필터 조합을 저장·재적용 | 반복 필터링 비용 감소 | 미채택 |
+| 드래그 앤 드롭 이동 | 타임라인/목록에서 드래그로 Slot 이동 | 이동 조작 단축 | 미채택 |
 
 ---
 
-## 7. 향후 개선 사항
+## 7. 참고 자료
 
-### 7.1 단기
-- [ ] 로딩 스켈레톤 UI
-- [ ] 토스트 메시지 (복제/이동/삭제 완료)
-- [ ] 드래그 앤 드롭으로 이동
-
-### 7.2 중기
-- [ ] 시나리오 일괄 편집
-- [ ] 필터 프리셋 저장
-- [ ] 타임라인 뷰 확대/축소
-
-### 7.3 장기
-- [ ] 시나리오 템플릿
-- [ ] 시나리오 비교 모드
-- [ ] 협업 기능 (댓글, 공유)
-
----
-
-## 8. 참고 자료
-
-### 8.1 관련 컴포넌트
-- `SlotDetail.tsx`: 시나리오 목록 화면 (본 문서)
+### 7.1 관련 컴포넌트
+- `SlotDetail.tsx`: 시나리오 목록 화면(본 문서)
 - `SlotHeader.tsx`: Slot 정보 헤더
 - `CreateScenario.tsx`: 시나리오 생성 화면
 
-### 8.2 디자인 시스템
-- 색상: CSS 변수 기반
-- 간격: 4px 단위
-- 둥근 모서리: 4px, 6px, 8px, 12px, 24px
-- 그림자: 0 1px 3px rgba(0,0,0,0.1)
+### 7.2 관련 스펙
+- `SlotHome_Spec.md` — 슬롯 홈
+- `Scenario_Creation_Spec.md` — 시나리오 생성
+- `Reach_Caster_Result_Screens_Spec.md` — 결과 화면
+- `Scenario_Comparison_Spec.md` — 시나리오 비교
+
+### 7.3 디자인 시스템
+- 색상·간격·모서리·그림자는 모두 CSS 변수(디자인 토큰) 기반. 정확한 값은 구현 코드/디자인 토큰이 단일 진실 공급원.
