@@ -2,9 +2,18 @@
 
 ## 문서 정보
 - **작성일**: 2026-05-27
-- **버전**: v1.0
+- **최종 수정**: 2026-09-21
+- **버전**: v1.1
 - **대상 화면**: 시나리오 생성 위자드 (Step 1 ~ Step 3)
+- **관련 정책서**: `ReadySet_Platform_ReachCaster_PRD_초기.md`
 - **관련 컴포넌트**: `CreateScenario.tsx`, `ScenarioStep1.tsx`, `ScenarioStep2RatioFinder.tsx`, `ScenarioStep2ReachPredictor.tsx`
+- **관련 스펙**: `RatioFinder_Step2_Validation_Spec.md`, `RatioFinder_AutoDistribution_Spec.md`, `Reach_Caster_Result_Screens_Spec.md`, `Scenario_List_Screen_Spec.md`
+
+### 변경 이력
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| v1.0 | 2026-05-27 | 초안 작성 |
+| v1.1 | 2026-09-21 | 작성 가이드 반영 — 문서 활용처(Docs/TC)·기획 의도 명시, 순수 시각 스타일 수치(px·hsl·grid 문법) 제거 후 레이아웃 의도·디자인 토큰 기준으로 위임, 데이터 구조에서 인터페이스 코드 전문 제거하고 개념·용어 매핑으로 전환 |
 
 ---
 
@@ -13,11 +22,18 @@
 ### 1.1 기능 정의
 Reach Caster에서 새 시나리오를 생성하는 3단계 위자드 화면. 기본 정보 입력 → 모듈별 상세 설정 → 검토 및 실행 순서로 진행된다.
 
-### 1.2 진입 경로
+**기획 의도**: 사용자는 분석 모듈(Ratio Finder / Reach Predictor)·기간·타겟·예산·매체를 한 흐름에서 설정하고, 모델이 이를 기반으로 도달/배분 예측을 수행한다. 위자드를 3단계로 나눈 이유는 "무엇을 분석할지(기본 정보) → 어떻게 배분할지(상세 설정) → 맞는지 확인(검토)"이라는 의사결정 순서를 그대로 화면에 반영해, 사용자가 각 단계에서 한 가지 판단에만 집중하도록 하기 위함이다.
+
+### 1.2 문서 활용처
+- **개발 참고**: 프론트엔드 구현 시 화면 동작·규칙·제약의 기준 문서로 활용된다.
+- **제품 Docs**: 본 정의서의 기능 설명·의도가 사용자 대상 기능 문서의 기반이 된다.
+- **AI 기반 TC 생성**: 유효성 조건(Section 3.5·4.5·5.6·8)이 테스트 케이스의 원천 데이터가 된다. 각 조건은 `조건(입력) → 기대 결과(버튼 활성화 여부·에러 메시지)`로 검증 가능하게 작성한다.
+
+### 1.3 진입 경로
 - 시나리오 목록 화면(SlotDetail) → "New Scenario" 버튼
 - URL: `/reachcaster/scenario/new`
 
-### 1.3 위자드 구조
+### 1.4 위자드 구조
 
 ```
 Step 1: 기본 정보 → Step 2: 상세 설정 → Step 3: 검토 및 실행
@@ -39,14 +55,14 @@ Step 1: 기본 정보 → Step 2: 상세 설정 → Step 3: 검토 및 실행
 │  ┌─────────────────────┐ │ ┌──────────────────────┐             │
 │  │ 좌측 (폼 영역)       │ │ │ 우측 (설정 요약)      │             │
 │  │ - 스테퍼             │ │ │ Configuration Summary │             │
-│  │ - 입력 폼 (800px)    │ │ │ (420px, sticky)       │             │
+│  │ - 입력 폼            │ │ │ (sticky 요약)         │             │
 │  │ - 네비게이션 버튼     │ │ │                      │             │
 │  └─────────────────────┘ │ └──────────────────────┘             │
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-**그리드**: `grid-template-columns: 1fr 1px 420px`, gap 48px
+**레이아웃**: 좌우 2단 구성 — 좌측 폼 영역(가변) + 세로 구분선 + 우측 설정 요약 패널(고정폭, sticky). 정확한 폭/간격 수치는 구현 코드 기준.
 
 ### 2.2 스테퍼
 
@@ -239,10 +255,9 @@ isStep2Valid (Reach Predictor) =
 
 ## 7. Configuration Summary (우측 패널)
 
-### 7.1 위치 및 스타일
+### 7.1 위치 및 동작
 
-- 너비: 420px
-- `position: sticky; top: 32px`
+- 우측 고정폭 패널, sticky로 상단 고정(스크롤해도 요약이 따라옴). 정확한 폭/오프셋은 구현 코드 기준.
 - 모든 스텝에서 실시간 반영
 
 ### 7.2 표시 항목
@@ -284,64 +299,43 @@ scenarioName 입력 || description 입력 || moduleType 선택 || brand 선택
 
 ### 8.3 에러 메시지 스타일
 
-| 속성 | 값 |
-|------|-----|
-| fontSize | 11px |
-| color | `hsl(var(--destructive))` |
-| marginTop | 4~8px |
-| border 변경 | 해당 input borderColor → `hsl(var(--destructive))` |
+- 에러는 단일 destructive 스타일로 통일: 해당 입력 필드 하단에 작은 텍스트로 노출하고, 텍스트 색상과 입력 필드 테두리 색을 destructive 토큰(`--destructive`)으로 전환한다.
+- 정확한 폰트 크기·여백 수치는 구현 코드/디자인 토큰 기준. (플랫폼 유효성 메시지 정책은 `ui-validation-message-policy.md`와 동일)
 
 ---
 
-## 9. 데이터 구조
+## 9. 데이터 개념 및 용어 매핑
 
-### 9.1 ScenarioFormData
+정확한 타입/필드 목록은 구현 코드(`src/components/scenario/types.ts`)가 단일 진실 공급원이다. 여기서는 규칙·플로우 이해에 필요한 개념과 UI↔필드 매핑만 남긴다.
 
-```typescript
-interface ScenarioFormData {
-  // Step 1
-  scenarioName: string          // 최대 30자
-  description: string           // 최대 200자
-  moduleType: 'Ratio Finder' | 'Reach Predictor' | ''
-  brand: string
-  industry: string              // 브랜드 선택 시 자동
-  period: { start: string; end: string }
-  targetGrp: string[]           // 기본값: 전체 24개
+### 9.1 시나리오 폼 데이터 (개념)
 
-  // Ratio Finder (Step 2)
-  totalBudget?: number
-  simulationUnit?: '5%' | '10%' | '20%' | ''
+- **하나의 폼 상태**에 Step 1(공통)과 Step 2(모듈별) 입력이 함께 담긴다. 모듈은 하나만 선택되므로, 선택되지 않은 모듈의 상세 값은 비어 있다.
+- Ratio Finder 상세(총 예산·시뮬레이션 단위)와 Reach Predictor 상세(리치커브 설정)는 **상호 배타적**으로 채워진다.
 
-  // Reach Predictor (Step 2)
-  reachCurve?: {
-    budgetCap?: number
-    detailSettings?: {
-      rangeMin?: number
-      rangeMax?: number
-      criteriaType?: 'count' | 'amount'
-      intervalCount?: number
-      intervalAmount?: number
-    }
-  }
-}
-```
+| UI 용어 | 데이터 개념 | 비고 |
+|---|---|---|
+| 시나리오명 | scenarioName | 최대 30자 |
+| 설명 | description | 최대 200자 |
+| 분석 모듈 | moduleType | Ratio Finder / Reach Predictor 중 하나 |
+| 브랜드 / 업종 | brand / industry | 업종은 브랜드 선택 시 자동 매핑(읽기 전용) |
+| 캠페인 기간 | period(start·end) | — |
+| 타겟 GRP | targetGrp | 기본값 전체 24개(남 12 + 여 12) |
+| 총 예산 / 시뮬레이션 단위 | totalBudget / simulationUnit | Ratio Finder 전용 |
+| 리치커브 구간 설정 | reachCurve(구간 최소·최대·기준·구간 수·구간 금액) | Reach Predictor 전용 |
 
-### 9.2 ReachPredictorMedia
+### 9.2 Reach Predictor 매체 항목 (개념)
 
-```typescript
-interface ReachPredictorMedia {
-  id: string
-  category: 'DIGITAL' | 'TVC'
-  type: 'linked' | 'unlinked'
-  mediaName: string
-  productName?: string
-  budget: string
-  impressions: string
-  cpm: string                   // 자동 계산
-  customPeriod?: { start: string; end: string }
-  customTarget?: string[]
-}
-```
+- 매체 항목은 **연동/미연동 유형**과 카테고리(DIGITAL/TVC)를 함께 가진다.
+- CPM은 예산·노출로부터 **자동 계산**되는 파생값이며 직접 입력 대상이 아니다.
+- 기간·타겟은 매체별 오버라이드(개별 설정)를 가질 수 있고, 미설정 시 Step 1 값을 따른다.
+
+| UI 용어 | 데이터 개념 | 비고 |
+|---|---|---|
+| 매체 유형(연동/미연동) | type(linked/unlinked) | 미연동은 노출 수 수동 입력 필수 |
+| 매체별 예산 / 노출 수 | budget / impressions | — |
+| CPM | cpm | (예산 / 노출) × 1000, 자동 계산 |
+| 개별 기간 / 개별 타겟 | customPeriod / customTarget | 매체별 오버라이드 |
 
 ---
 
@@ -391,21 +385,15 @@ SMR, 11번가, CJ ONE, L.POINT, OK캐쉬백, SOOP, X(구.트위터), 골프존, 
 
 ---
 
-## 12. 향후 개선 사항
+## 12. 개선 제안 (이 화면 한정)
 
-### 12.1 단기
-- [ ] 페이지 이탈 방지 (unsaved changes 경고)
-- [ ] 시나리오 임시 저장 (Draft)
-- [ ] Step 간 애니메이션 전환
+이 화면(시나리오 생성 위자드)에서 직접 조작·발생하는 개선만 다룬다. 목록/결과 레벨 기능(시나리오 복제·템플릿, 결과 미리보기 등)은 해당 화면 정의서에서 다룬다.
 
-### 12.2 중기
-- [ ] 시나리오 복제 (기존 시나리오 기반 생성)
-- [ ] 시나리오 템플릿
-- [ ] 매체 즐겨찾기
-
-### 12.3 장기
-- [ ] AI 기반 설정 추천 (업종/브랜드 기반 자동 세팅)
-- [ ] 실시간 예상 결과 미리보기
+| 제안 | 내용 | 사용자 가치 | 상태 |
+|------|------|-------------|------|
+| 페이지 이탈 방지 | 입력 중 페이지 이탈 시 확인 다이얼로그(공통 훅 `useExitGuard` 적용, BO/DataShot 동일) | 작성 중인 시나리오 유실 방지 | 검토 필요 (상세 `Form_Exit_Guard_Spec.md`) |
+| 임시 저장(Draft) | 작성 중 시나리오를 초안으로 저장하고 이어서 작성 | 긴 입력을 나눠서 완성 가능 | 미채택 |
+| AI 기반 설정 추천 | 업종/브랜드 기반으로 매체·비중 초기값 자동 세팅 | 초기 세팅 부담 감소, "판단해줌" 경험 | 미채택 |
 
 ---
 
