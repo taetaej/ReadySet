@@ -1230,25 +1230,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         )}
                       </div>
                     </th>
-                    <th 
-                      onClick={() => handleSort('industrySmall')}
-                      style={{ 
-                        padding: '12px 8px', 
-                        textAlign: 'left', 
-                        fontWeight: '500', 
-                        whiteSpace: 'nowrap', 
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        userSelect: 'none'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        업종(소)
-                        {sortConfig?.key === 'industrySmall' && (
-                          sortConfig.direction === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
-                        )}
-                      </div>
-                    </th>
                     {adProductColumns.map((col) => (
                       <th 
                         key={col.key} 
@@ -1324,7 +1305,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                     {renderListFilter('media')}
                     {renderListFilter('industryLarge')}
                     {renderListFilter('industryMedium')}
-                    {renderListFilter('industrySmall')}
                     {adProductColumns.map((col) => renderListFilter(col.key))}
                     {configData.targetingCategory && renderListFilter('targetingOption')}
                     {renderMetricFilter('cost')}
@@ -1454,7 +1434,6 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.media}</td>
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryLarge}</td>
                       <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industryMedium}</td>
-                      <td style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">{row.industrySmall}</td>
                       {adProductColumns.map((col) => (
                         <td key={col.key} style={{ padding: '8px', fontSize: '11px' }} className="text-muted-foreground">
                           {(row as any)[col.key] || '—'}
