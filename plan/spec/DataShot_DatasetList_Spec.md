@@ -1,14 +1,28 @@
 # DataShot — 데이터셋 목록 화면 상세 명세서
 
-> 목적: QA 테스트케이스(TC) 작성 기준 문서  
-> 버전: v1.2  
-> 작성일: 2026-05-26  
-> 최종 수정일: 2026-06-04  
+> 목적: QA 테스트케이스(TC) 작성 기준 문서 + 제품 Docs 원천 데이터
+> 버전: v2.0
+> 작성일: 2026-05-26
+> 최종 수정일: 2026-09-22
 > 참조: `plan/eunseo/DataShot_Phase1_policy_IA_v1.0.md`
+> 기준: **현재 구현 코드(`src/components/datashot/DatasetList.tsx`)를 단일 진실 공급원으로 삼아 정합**
+
+---
+
+## 변경 이력
+
+| 버전 | 일자 | 변경 내용 |
+|---|---|---|
+| v1.2 | 2026-06-04 | 이동/삭제 다이얼로그, External Slot 이동 차단 정책 반영 |
+| v2.0 | 2026-09-22 | 구현 코드 기준 전면 정합. "지표 구성" 컬럼·복제 차단 다이얼로그·조회 제한 토스트 신규 반영, 용어 "Shared Slot"으로 통일(코드 기준), 정렬 가능 컬럼 실제 구현에 맞게 정정, 스타일 수치를 토큰·의도 서술로 위임, 유효성 규칙 그룹·순차 번호 부여 |
+
+> **용어 주의**: 슬롯 가시성 관련 UI 문구는 코드 기준 **"Shared Slot"**으로 통일한다. (구 문서의 "External Slot"과 동일 개념. 정책 문서 용어 정합은 별도 과제)
 
 ---
 
 ## 1. 화면 개요
+
+### 1.1 기본 정보
 
 | 항목 | 내용 |
 |---|---|
@@ -17,6 +31,18 @@
 | 진입 경로 | SlotBoard → Slot 선택 → DataShot |
 | 접근 권한 | Admin, Marketer, Client, Agency (전 역할 조회 가능) |
 | 주요 기능 | 데이터셋 목록 조회, 검색, 필터, 정렬, 페이지네이션, 생성 진입, 복제/이동/삭제 |
+
+### 1.2 기능 정의 및 기획 의도
+
+DataShot 목록은 **한 슬롯 안에서 추출한 데이터셋을 한눈에 관리하는 대시보드**다. 사용자는 여기서 "지금 어떤 데이터가 준비됐는지"를 상태로 파악하고, 완료된 데이터셋으로 진입해 분석하거나, 조건을 물려받아 새 데이터셋을 만든다.
+
+- **왜 상태 중심인가**: 데이터 추출은 즉시 끝나지 않는 비동기 작업이다. 그래서 목록은 각 행의 상태(Completed/Processing/Pending/Error/Expired)를 명확히 드러내고, **완료된 것만 클릭 가능**하게 해 "아직 못 보는 데이터를 눌러 헛걸음하는" 경험을 막는다.
+- **왜 검색·필터·정렬이 함께 있나**: 슬롯 하나에 데이터셋이 쌓이면 원하는 것을 빠르게 찾아야 한다. 검색(이름·생성자)과 필터(상태·매체)는 좁히는 도구, 정렬은 훑는 도구로 역할을 나눈다.
+
+### 1.3 문서 활용처
+
+- **Docs**: 각 기능의 목적을 사용자 관점으로 서술 → 제품 문서로 재가공
+- **TC**: §8 유효성 규칙 + §9 검증 포인트가 그대로 테스트 케이스 소스가 됨
 
 ---
 
@@ -27,9 +53,6 @@
 ```
 ┌─────────────────────────────────────────────────────┐
 │ AppLayout (GlobalNavBar + Sidebar + Breadcrumb)      │
-│  ├── isDarkMode / onToggleDarkMode                  │
-│  ├── isSidebarCollapsed / onToggleSidebar           │
-│  └── expandedFolders / onToggleFolder               │
 ├─────────────────────────────────────────────────────┤
 │ SlotHeader (Slot 정보 표시)                          │
 ├─────────────────────────────────────────────────────┤
@@ -50,7 +73,7 @@
 | `AppLayout` | 전체 레이아웃 래퍼 (GNB + Sidebar + Breadcrumb) |
 | `SlotHeader` | Slot 정보 헤더 (reachcaster에서 공유) |
 | `useSidebarState` | 사이드바 상태 관리 훅 (collapsed, expandedFolders) |
-| `maskEmail` | 이메일 마스킹 유틸 (예: `user@example.com` → `us***@example.com`) |
+| `maskEmail` | 이메일 마스킹 유틸 |
 | `getDarkMode` / `setDarkMode` | 다크모드 상태 관리 (utils/theme) |
 | `sampleDatasets` | 목 데이터 (types.ts에서 import) |
 
@@ -59,359 +82,366 @@
 | 순서 | 라벨 | 동작 |
 |---|---|---|
 | 1 | SlotBoard | `/slotboard`로 이동 |
-| 2 | {Slot명} | Slot 상세로 이동 |
+| 2 | {Slot명} | Slot 상세로 이동 (`/slot/{id}`, state: slotData 전달) |
 | 3 | DataShot | 현재 페이지 (비활성) |
 
 ---
 
-## 3. 컴포넌트 세부사항
+## 3. 타이틀 섹션
 
-### 3.1 타이틀 섹션
+| 요소 | 내용 / 동작 | 스타일 (의도) |
+|---|---|---|
+| 타이틀 | "DataShot" | 화면 대표 제목(대형·semibold) |
+| New Dataset 버튼 | `Plus` 아이콘 + "New Dataset". 클릭 시 `/datashot/new` 이동 | 프로덕트 표준 Primary 버튼(pill형, primary 배경) — 아이콘은 텍스트 앞 |
 
-| 요소 | 스펙 |
+- **권한 제어**: New Dataset 버튼은 Admin·Marketer에게만 노출한다. Client·Agency는 조회만 하므로 버튼을 렌더링하지 않는다.
+
+---
+
+## 4. 액션바
+
+타이틀 아래, 테이블 위에 위치한다. 좌측은 현황 표시, 우측은 조작 도구(선택 액션·검색·필터)를 모은다.
+
+### 4.1 좌측 — 데이터셋 개수
+
+| 요소 | 내용 |
 |---|---|
-| 타이틀 텍스트 | "DataShot", font-size: 24px, font-weight: 600 |
-| New Dataset 버튼 | 아이콘: Plus(16px) + 텍스트 "New Dataset" |
-| 버튼 스타일 | bg: primary, color: primary-foreground, border-radius: 24px, height: 48px, padding: 12px 20px |
-| 버튼 클릭 | `/datashot/new`로 네비게이션 |
-| 권한 제어 | Admin, Marketer만 표시 (Client, Agency는 버튼 미노출) |
+| 텍스트 | `{필터링된 개수} Datasets` — muted 톤 |
+| 동적 반영 | 검색·필터 적용 시 **필터링된 결과 수**를 표시(전체 수가 아님) |
 
-### 3.2 액션바
+### 4.2 우측 — 선택 액션 (조건부 노출)
 
-#### 3.2.1 좌측 — 데이터셋 개수
+체크박스로 1건 이상 선택했을 때만 나타난다. 선택이 없으면 미노출.
 
-| 요소 | 스펙 |
-|---|---|
-| 텍스트 | `{filteredDatasets.length} Datasets` |
-| 스타일 | font-size: 14px, color: muted-foreground |
-| 동적 반영 | 검색/필터 적용 시 필터링된 결과 수 표시 |
+| 요소 | 노출 조건 | 내용 / 동작 |
+|---|---|---|
+| 선택 개수 | 선택 ≥ 1 | "{N}개 선택됨" |
+| 이동 버튼 | 선택 ≥ 1 | `ArrowRightLeft` + "이동". 이동 다이얼로그 오픈 (ghost + border) |
+| 삭제 버튼 | 선택 ≥ 1 | `Trash2` + "삭제". 삭제 확인 다이얼로그 오픈 (destructive 배경) |
 
-#### 3.2.2 우측 — 선택 액션 (조건부 노출)
+### 4.3 검색
 
-| 조건 | 노출 요소 |
-|---|---|
-| selectedDatasets.length > 0 | "{N}개 선택됨" 텍스트 + 이동 버튼 + 삭제 버튼 |
-| selectedDatasets.length === 0 | 미노출 |
-
-| 버튼 | 아이콘 | 텍스트 | 스타일 | 동작 |
-|---|---|---|---|---|
-| 이동 | ArrowRightLeft(16px) | "이동" | ghost + border | 이동 다이얼로그 오픈 |
-| 삭제 | Trash2(16px) | "삭제" | destructive bg | 삭제 확인 다이얼로그 오픈 |
-
-#### 3.2.3 검색
+**의도**: 평소엔 아이콘 버튼으로 접어두어 화면을 비우고, 쓸 때만 펼쳐 집중하게 한다.
 
 | 상태 | UI |
 |---|---|
-| 축소 (기본) | 버튼: Search 아이콘 + "검색" 텍스트, border 스타일 |
-| 확장 | input width: 300px, placeholder: "데이터셋명, 생성자", 좌측 Search 아이콘, 우측 X 버튼 (값 있을 때) |
+| 축소 (기본) | `Search` 아이콘 + "검색" 버튼 (border 스타일) |
+| 확장 | 입력 필드(좌측 Search 아이콘, placeholder "데이터셋명, 생성자"), 값 있을 때 우측 X 버튼 |
 
-| 동작 | 설명 |
+**검색 동작 (추측 방지)**:
+- **검색 대상**: 데이터셋명 + 생성자명 두 필드
+- **매칭 방식**: 부분 일치(substring)
+- **대소문자**: 무시(case-insensitive) — 입력·대상 모두 소문자로 변환 후 비교
+- **공백 처리**: 트리밍하지 않고 입력 그대로 비교
+- **타이밍**: onChange 실시간 필터 (디바운스 없음)
+- **버튼 클릭**: 확장 + 입력 자동 포커스
+- **X 클릭**: 검색어 초기화 + 축소
+- **blur 시**: 입력값이 비어 있으면 자동 축소 (값이 있으면 유지)
+
+### 4.4 필터
+
+| 요소 | 내용 |
 |---|---|
-| 버튼 클릭 | searchExpanded = true, input 자동 포커스 |
-| 입력 | 데이터셋명, 생성자 필드 대상 실시간 필터링 (case-insensitive) |
-| X 클릭 | 검색어 초기화 + 축소 |
-| blur (값 없을 때) | 자동 축소 |
-
-#### 3.2.4 필터
-
-| 요소 | 스펙 |
-|---|---|
-| 버튼 | Filter 아이콘 + "필터" 텍스트 |
-| 활성 표시 | 필터 적용 시 bg: primary/0.1 + 뱃지(적용 필터 수) |
-| 드롭다운 | width: 320px, max-height: 500px, position: absolute right |
+| 버튼 | `Filter` 아이콘 + "필터" |
+| 활성 표시 | 필터 적용 시 버튼 배경 강조(primary 틴트) + 적용된 필터 개수 뱃지 |
+| 드롭다운 | 버튼 우측 하단에 열림, 세로 스크롤 가능한 패널 |
 
 | 필터 카테고리 | 옵션 | 타입 |
 |---|---|---|
 | 상태 | Completed, Processing, Pending, Error, Expired | 다중 선택 (checkbox) |
-| 매체 | Google Ads, Meta, kakao모먼트, 네이버 성과형 DA, 네이버 보장형 DA, TikTok | 다중 선택 (checkbox) |
+| 매체 | Google Ads, Meta, kakao모먼트, NAVER 성과형 DA, NAVER 보장형 DA, TikTok | 다중 선택 (checkbox) |
 
-| 동작 | 설명 |
-|---|---|
-| 체크박스 선택 | 해당 필터 즉시 적용 (OR 조건) |
-| 필터 초기화 버튼 | 모든 필터 해제 |
-| 필터 간 결합 | 상태 AND 매체 (교차 필터) |
+**필터 동작**:
+- 체크박스 선택 시 즉시 적용
+- **같은 카테고리 내**: OR 조건 (선택한 상태 중 하나라도 일치)
+- **카테고리 간(상태 ↔ 매체)**: AND 조건 (교차 필터)
+- "필터 초기화" 버튼: 상태·매체 필터 모두 해제
 
-### 3.3 테이블
+---
 
-#### 3.3.1 테이블 헤더
+## 5. 테이블
 
-| 컬럼 | 너비 | 정렬 가능 | 정렬 키 |
-|---|---|---|---|
-| 체크박스 | 50px | X | - |
-| ID | 80px | O | `id` |
-| 데이터셋명 | min 200px | O | `name` |
-| 매체 | 120px | O | `media` |
-| 업종 | 100px | O | `industry` |
-| 조회 기간 | 180px | O | `startDate` |
-| 상태 | 100px | O | `status` |
-| 생성자 | 100px | O | `creator` |
-| 생성일시 | 140px | O | `created` |
-| 액션 (⋮) | 60px | X | - |
+### 5.1 컬럼 구성
 
-#### 3.3.2 정렬 동작
+| 순서 | 컬럼 | 정렬 | 정렬 키 | 표시 내용 |
+|---|---|---|---|---|
+| 1 | 체크박스 | X | - | 행 선택 (헤더는 전체 선택) |
+| 2 | ID | O | `id` | 숫자, muted 톤 |
+| 3 | 데이터셋명 | O | `name` | medium weight. 클릭 불가 상태면 muted 톤 |
+| 4 | 매체 | O | `media` | 매체명 텍스트 |
+| 5 | 업종 | X | - | `Building2` 아이콘 + "{레벨} {N}개" |
+| 6 | 조회 기간 | O | `startDate` | 기간 포맷 (아래 5.4) |
+| 7 | 지표 구성 | X | - | "종합 지표" 또는 "성과 지표" |
+| 8 | 상태 | O | `status` | 상태 뱃지 (아래 5.3) |
+| 9 | 생성자 | O | `creator` | "{이름} ({마스킹 이메일})" |
+| 10 | 생성일시 | O | `created` | `YYYY-MM-DD HH:mm` |
+| 11 | 액션(⋮) | X | - | `MoreVertical` — 컨텍스트 메뉴 트리거 |
 
-| 동작 | 설명 |
+> **구현 정합 주의**: "업종"과 "지표 구성" 컬럼은 **정렬 헤더가 아니다**(코드상 정렬 버튼 없음). 나머지 데이터 컬럼(ID·명·매체·기간·상태·생성자·생성일시)만 정렬 가능하다.
+
+### 5.2 정렬
+
+| 동작 | 결과 |
 |---|---|
 | 헤더 클릭 (다른 컬럼) | 해당 컬럼 asc 정렬 |
 | 헤더 클릭 (같은 컬럼) | asc ↔ desc 토글 |
-| 기본 정렬 | `created` desc (최신순) |
-| 정렬 아이콘 | 활성 컬럼에만 ChevronUp/ChevronDown 표시 |
+| 기본 정렬 | `created` **desc** (최신순) |
+| 정렬 아이콘 | 활성 컬럼에만 `ChevronUp`(asc)/`ChevronDown`(desc) 표시 |
+| 문자열 컬럼 | `localeCompare` 정렬 |
+| 그 외(숫자 등) | 값 비교 정렬 |
 
-#### 3.3.3 테이블 행 (Row)
+### 5.3 상태 뱃지
 
-| 필드 | 표시 형식 | 비고 |
+색상만이 아니라 **상태 텍스트를 항상 함께** 노출해 접근성을 확보한다. 색상 의미는 토큰으로 서술한다.
+
+| 상태 | 시각 의도 |
+|---|---|
+| Completed | foreground 반전(진한 배경 + 밝은 텍스트) — 완료 강조 |
+| Processing | muted 배경 — 진행 중 |
+| Pending | 투명 배경 + border만 — 대기(가장 약한 강조) |
+| Error | destructive — 실패 |
+| Expired | destructive — 만료 |
+
+### 5.4 조회 기간 포맷
+
+`periodType`에 따라 분기한다.
+
+| periodType | 표시 형식 | 예 |
 |---|---|---|
-| 체크박스 | checkbox | 클릭 시 행 선택 (행 클릭 이벤트와 독립) |
-| ID | 숫자 | font-size: 13px, muted-foreground |
-| 데이터셋명 | 텍스트 | font-size: 13px, font-weight: 500. 비활성 상태면 muted-foreground |
-| 매체 | 텍스트 | font-size: 13px |
-| 업종 | Building2 아이콘 + "{레벨} {N}개" | font-size: 12px, muted-foreground |
-| 조회 기간 | `{startDate} → {endDate}` 또는 `{year}-Q{n} → {year}-Q{n}` | periodType에 따라 포맷 분기 |
-| 상태 | 뱃지 | 상태별 색상 (아래 참조) |
-| 생성자 | `{이름} ({마스킹된 이메일})` | maskEmail 유틸 적용 |
-| 생성일시 | `YYYY-MM-DD HH:mm` | font-size: 13px |
-| 액션 | MoreVertical 아이콘 | 컨텍스트 메뉴 트리거 |
+| `month` | `{startDate} → {endDate}` | `2024-01 → 2024-03` |
+| `quarter` | `{year}-Q{n} → {year}-Q{n}` | `2024-Q1 → 2024-Q2` |
 
-#### 3.3.4 상태 뱃지 스타일
-
-| 상태 | 배경색 | 텍스트색 | 테두리 |
-|---|---|---|---|
-| Completed | foreground | background | foreground |
-| Processing | muted | foreground | border |
-| Pending | transparent | muted-foreground | border |
-| Error | destructive | destructive-foreground | destructive |
-| Expired | destructive | destructive-foreground | destructive |
-
-#### 3.3.5 업종 표시 로직
+### 5.5 업종 표시 로직
 
 | 조건 | 표시 |
 |---|---|
-| industryLevel === null 또는 industry === '전체' | "대분류 22개" |
-| industryLevel 존재 | `{대분류/중분류/소분류} {industryCount}개` |
+| `industryLevel`이 없음(null) 또는 `industry === '전체'` | "대분류 22개" (전체 업종 의미) |
+| `industryLevel` 존재 | "{대분류/중분류/소분류} {industryCount}개" (기본 카운트 1) |
 
-#### 3.3.6 행 클릭 동작
+### 5.6 지표 구성 표시
+
+| 조건 | 표시 |
+|---|---|
+| `purpose === 'internal'` | "종합 지표" |
+| 그 외 | "성과 지표" |
+
+> **왜 구분하나**: 종합 지표 데이터셋은 Shared Slot에서 조회·이동·복제가 제한된다(§6·§7). 목록에서 유형을 미리 보여줘 사용자가 제약을 예측하게 한다.
+
+### 5.7 행 클릭 동작
 
 | 상태 | 클릭 가능 | 동작 |
 |---|---|---|
-| Completed | O | `/datashot/{id}`로 이동 (state: datasetData, slotData 전달) |
-| Processing | X | cursor: default, 호버 효과 없음 |
-| Pending | X | cursor: default, 호버 효과 없음 |
-| Error | X | cursor: default, 호버 효과 없음 |
-| Expired | X | cursor: default, 호버 효과 없음 |
+| Completed | O | 아래 분기 처리 |
+| Processing / Pending / Error / Expired | X | 기본 커서, 호버 효과 없음 |
 
-- 호버 효과: Completed 상태만 `bg: muted/0.3`
+- 호버 효과(muted 틴트)는 Completed 행에만 적용
+- **Completed 클릭 분기**:
+  - `purpose === 'internal'`(종합 지표): 조회 제한 Error 토스트 노출 + **진입 차단** (§6.1)
+  - 그 외: `/datashot/{id}`로 이동 (state: datasetData, slotData 전달)
 
-#### 3.3.7 컨텍스트 메뉴 (⋮)
+### 5.8 체크박스 선택
 
-| 메뉴 항목 | 아이콘 | 동작 | 권한 |
+| 동작 | 결과 |
+|---|---|
+| 헤더 체크박스 | 현재 **필터링된 전체** 데이터셋 선택/해제 토글 |
+| 개별 체크박스 | 해당 행 선택/해제 |
+| 전체 선택 후 개별 1건 해제 | 헤더 체크박스 해제(selectAll=false) |
+| 개별 선택으로 전체 도달 | 헤더 체크박스 자동 체크(selectAll=true) |
+| 체크박스 클릭 | 행 클릭(네비게이션) 이벤트 전파 차단 (stopPropagation) |
+
+### 5.9 컨텍스트 메뉴 (⋮)
+
+행 우측 ⋮ 클릭 시 열린다. 메뉴 외부 클릭 시 닫힌다.
+
+| 항목 | 아이콘 | 동작 | 권한 |
 |---|---|---|---|
-| 복제 | Copy(14px) | 조회 조건 상속 → 생성 화면 진입 | Admin, Marketer |
-| 이동 | ArrowRightLeft(14px) | 이동 다이얼로그 오픈 (해당 1건 선택) | Admin, Marketer |
-| 삭제 | Trash2(14px) | 삭제 확인 다이얼로그 오픈 (해당 1건) | Admin, Marketer |
-
-- 메뉴 위치: position absolute, top: 100%, right: 0, width: 120px
-- 다른 곳 클릭 시 메뉴 닫힘
-
-### 3.4 체크박스 선택
-
-| 동작 | 설명 |
-|---|---|
-| 헤더 체크박스 클릭 | 현재 필터링된 전체 데이터셋 선택/해제 토글 |
-| 개별 체크박스 클릭 | 해당 행 선택/해제 |
-| 전체 선택 후 개별 해제 | selectAll = false |
-| 개별 선택으로 전체 도달 | selectAll = true |
-| 체크박스 클릭 | 행 클릭 이벤트 전파 차단 (stopPropagation) |
-
-### 3.5 페이지네이션
-
-#### 3.5.1 좌측 — 페이지 크기
-
-| 요소 | 스펙 |
-|---|---|
-| 라벨 | "페이지당 표시:" |
-| select 옵션 | 10, 20, 50 |
-| 기본값 | 10 |
-| 변경 시 | currentPage = 1로 리셋 |
-
-#### 3.5.2 우측 — 페이지 정보 및 네비게이션
-
-| 요소 | 스펙 |
-|---|---|
-| 페이지 정보 | `{startIndex+1}-{endIndex} / {total}개` |
-| 첫 페이지 | `<<` (ChevronLeft x2), disabled: currentPage === 1 |
-| 이전 페이지 | `<` (ChevronLeft), disabled: currentPage === 1 |
-| 페이지 번호 | 최대 5개 표시, 현재 페이지 중심 |
-| 다음 페이지 | `>` (ChevronRight), disabled: currentPage === totalPages |
-| 마지막 페이지 | `>>` (ChevronRight x2), disabled: currentPage === totalPages |
-| disabled 스타일 | opacity: 0.5, cursor: not-allowed |
-| 현재 페이지 버튼 | btn-primary, font-weight: 600 |
+| 복제 | `Copy` | 조회 조건 상속 → 생성 화면 진입 (단, 종합 지표는 §7.2 차단) | Admin, Marketer |
+| 이동 | `ArrowRightLeft` | 해당 1건 선택 상태로 이동 다이얼로그 오픈 | Admin, Marketer |
+| 삭제 | `Trash2` | 해당 1건 대상으로 삭제 확인 다이얼로그 오픈 | Admin, Marketer |
 
 ---
 
-## 4. 상호작용 정의
+## 6. 접근 제어 — 조회 제한 (Shared Slot × 종합 지표)
 
-### 4.1 이동 다이얼로그
+> 본 정책은 사용자 권한(Role)과 무관하며, 오직 **슬롯 가시성**에 따라 제어된다.
+
+**의도**: 종합 지표 데이터셋은 대외 공유용 Shared Slot에서 노출되면 안 되는 민감 데이터다. 그래서 완료 상태여도 진입을 막고 대안을 안내한다.
+
+### 6.1 조회 제한 Error 토스트
+
+| 항목 | 스펙 |
+|---|---|
+| 트리거 | Completed 상태 + `purpose === 'internal'`(종합 지표) 행을 클릭 |
+| 타입 | error |
+| 타이틀 | "조회 제한" |
+| 메시지 | "종합 지표 데이터셋은 Shared Slot에서 조회가 불가능합니다. 데이터셋을 Private 또는 Internal Slot으로 이동하거나 관리자에게 문의해 주세요." |
+| 자동 닫힘 | 5초 |
+| 동작 | 상세 페이지 진입 차단 (목록 화면 유지) |
+
+---
+
+## 7. 다이얼로그
+
+### 7.1 이동 다이얼로그
 
 | 요소 | 스펙 |
 |---|---|
-| 트리거 | 액션바 "이동" 버튼 또는 컨텍스트 메뉴 "이동" |
+| 트리거 | 액션바 "이동" 또는 컨텍스트 메뉴 "이동" |
 | 타이틀 | "데이터셋 이동" |
 | 설명 | "선택한 {N}개 데이터셋을 다른 Slot으로 이동합니다." |
-| Slot 선택 | select 드롭다운, 라벨: "이동할 Slot 선택 (광고주: {advertiser})" |
-| 선택지 제한 | 동일 광고주 ID의 Slot만 표시 |
-| 취소 버튼 | 다이얼로그 닫기 |
-| 이동 버튼 | 이동 실행 → 다이얼로그 닫기 → 선택 초기화 |
+| Slot 선택 | select 드롭다운, 라벨 "이동할 Slot 선택 (광고주: {advertiser})" |
+| 선택지 제한 | **동일 광고주 ID**의 Slot만 표시 |
+| 취소 | 다이얼로그 닫기 |
+| 이동 | 이동 실행 → 다이얼로그 닫기 → 선택 초기화 (단, §7.2 차단 조건이면 이동 대신 차단 다이얼로그) |
 
-### 4.2 이동 예외 처리 (External Slot 종합 지표 차단)
+### 7.2 이동 불가 안내 다이얼로그 (Shared Slot × 종합 지표)
 
-> 본 정책은 사용자 권한(Role)에 영향을 받지 않으며, 오직 '슬롯의 가시성 설정'에 따라서만 제어됨
+**의도**: 여러 건 일괄 이동 시, 대상이 Shared Slot이고 선택 항목에 종합 지표가 섞여 있으면 이동 전에 막고 어떤 건이 문제인지 명확히 보여준다.
 
-여러 개의 데이터셋을 다른 슬롯으로 일괄 이동 시, 대상 슬롯이 External인 경우에 대한 차단 로직입니다.
-
-| 항목 | 내용 |
+| 항목 | 스펙 |
 |---|---|
-| 트리거 시점 | 이동할 Slot 선택 모달에서 [이동] 버튼을 클릭하는 시점 |
-| 차단 조건 | 선택한 데이터셋 중 단 1개라도 **종합 지표** 데이터셋이 포함되어 있고, 대상 Slot이 External인 경우 |
-| UI 대응 | 이동 불가 안내 다이얼로그 노출 후 이동 차단 |
-
-#### 이동 불가 다이얼로그
-
-| 요소 | 스펙 |
-|---|---|
-| 타이틀 | "이동 불가" |
-| 설명 | "종합 지표 데이터셋은 External Slot으로 이동할 수 없습니다. 해당 데이터셋을 선택에서 제외하거나, Private 또는 Internal Slot을 선택해 주세요." |
+| 트리거 시점 | 이동 다이얼로그에서 [이동] 버튼 클릭 시점 |
+| 차단 조건 | 선택 항목 중 1건이라도 종합 지표(`purpose === 'internal'`)이고 대상 Slot이 Shared인 경우 |
+| 타이틀 | "이동 불가 안내" |
+| 설명 | "아래 {N}건의 종합 지표 데이터셋은 Shared Slot으로 이동할 수 없습니다. 해당 데이터셋을 제외한 후 다시 시도해 주세요." |
+| 차단 목록 | ID · 데이터셋명 2열 테이블로 문제 데이터셋 나열 |
 | 확인 버튼 | 다이얼로그 닫기 (이동 미실행) |
 
----
+### 7.3 복제 불가 안내 다이얼로그 (Shared Slot × 종합 지표)
 
-### 4.3 삭제 확인 다이얼로그
+| 항목 | 스펙 |
+|---|---|
+| 트리거 | 컨텍스트 메뉴 "복제" 클릭 시, Shared Slot에서 종합 지표 데이터셋을 복제하려는 경우 |
+| 타이틀 | "복제 불가 안내" |
+| 설명 | "Shared Slot에서는 종합 지표 데이터셋을 복제할 수 없습니다." |
+| 본문 | "종합 지표 데이터셋 복제를 원하실 경우, Private 또는 Internal Slot으로 이동시킨 후 다시 시도해 주세요." |
+| 확인 버튼 | 다이얼로그 닫기 (복제 미실행) |
+
+### 7.4 삭제 확인 다이얼로그
 
 | 요소 | 스펙 |
 |---|---|
-| 트리거 | 액션바 "삭제" 버튼 또는 컨텍스트 메뉴 "삭제" |
+| 트리거 | 액션바 "삭제" 또는 컨텍스트 메뉴 "삭제" |
 | 타이틀 | "데이터셋을 삭제하시겠습니까?" |
 | 설명 | "선택한 {N}개 데이터셋을 삭제하면 복원할 수 없습니다. 정말로 삭제하시겠습니까?" |
-| 취소 버튼 | 다이얼로그 닫기 |
-| 삭제 버튼 | destructive 스타일, 삭제 실행 → 다이얼로그 닫기 → 선택 초기화 |
-
-### 4.3 상태 전환 시나리오
-
-| 시나리오 | 기대 동작 |
-|---|---|
-| 데이터셋 생성 직후 | 목록에 "Pending" 상태로 즉시 등록 |
-| 추출 시작 | "Processing"으로 상태 변경 |
-| 추출 완료 | "Completed"로 변경, 행 클릭 가능 |
-| 추출 실패 | "Error"로 변경, 행 클릭 불가 |
-| 1년 경과 | "Expired"로 변경, 행 클릭 불가 |
+| 취소 | 다이얼로그 닫기 |
+| 삭제 | destructive 스타일, 삭제 실행 → 다이얼로그 닫기 → 선택 초기화 |
 
 ---
 
-## 5. 데이터 구조
+## 8. 유효성 / 동작 검증 규칙
 
-### 5.1 Dataset 인터페이스
+그룹: **A 검색·필터 / B 선택·정렬 / C 페이지네이션 / D 접근·차단 정책**. 각 규칙은 `조건 → 기대 결과`로 검증 가능하게 서술한다.
 
-```typescript
-interface Dataset {
-  id: number
-  name: string
-  media: string
-  industry: string
-  industryLevel?: 'major' | 'mid' | 'minor' | null
-  industryCount?: number
-  startDate: string
-  endDate: string
-  periodType: 'month' | 'quarter'
-  status: 'Completed' | 'Processing' | 'Pending' | 'Error' | 'Expired'
-  created: string
-  creator: string
-  creatorId: string
-}
-```
+### 8.1 요약 표
 
-### 5.2 정렬/필터/페이지네이션 상태
-
-```typescript
-sortField: 'id' | 'name' | 'media' | 'industry' | 'startDate' | 'status' | 'created' | 'creator'
-sortOrder: 'asc' | 'desc'
-currentPage: number (기본 1)
-itemsPerPage: 10 | 20 | 50 (기본 10)
-searchQuery: string
-statusFilter: string[]
-mediaFilter: string[]
-```
-
----
-
-## 6. 에러 처리 및 엣지 케이스
-
-### 6.1 빈 상태 (Empty State)
-
-| 조건 | 표시 |
-|---|---|
-| 데이터셋 0건 (필터 미적용) | 빈 목록 안내 메시지 필요 |
-| 검색/필터 결과 0건 | "검색 결과가 없습니다" 안내 |
-
-### 6.2 Quota 제한
-
-| 조건 | 동작 |
-|---|---|
-| 유효 데이터셋 100개 도달 | "New Dataset" 버튼 비활성화 + 안내 메시지 |
-| Expired 데이터셋 | Quota 산정 제외 |
-
-### 6.3 권한별 UI 차이
-
-| 역할 | New Dataset 버튼 | 컨텍스트 메뉴 | 일괄 이동/삭제 |
+| # | 그룹 | 규칙명 | 조건 → 기대 결과 |
 |---|---|---|---|
-| Admin | 표시 | 복제/이동/삭제 | 표시 |
-| Marketer | 표시 | 복제/이동/삭제 | 표시 |
-| Client | 미표시 | 미표시 | 미표시 |
-| Agency | 미표시 | 미표시 | 미표시 |
+| V1 | A | 검색 대상 | 검색어 입력 → 데이터셋명·생성자에 부분 일치(대소문자 무시)하는 행만 노출 |
+| V2 | A | 검색 결과 없음 | 일치 행 0건 → 빈 테이블 (에러 아님) |
+| V3 | A | 상태 필터 OR | 상태 다중 선택 → 선택 상태 중 하나라도 일치하는 행 노출 |
+| V4 | A | 매체 필터 OR | 매체 다중 선택 → 선택 매체 중 하나라도 일치하는 행 노출 |
+| V5 | A | 카테고리 간 AND | 상태+매체 동시 선택 → 두 조건 모두 만족하는 행만 노출 |
+| V6 | A | 필터 초기화 | "필터 초기화" 클릭 → 상태·매체 필터 전부 해제, 전체 목록 복귀 |
+| V7 | A | 개수 표시 동기화 | 검색/필터 변경 → "{N} Datasets"가 필터링된 결과 수와 일치 |
+| V8 | B | 정렬 시작 방향 | 새 컬럼 헤더 클릭 → asc 정렬 |
+| V9 | B | 정렬 토글 | 같은 헤더 재클릭 → asc ↔ desc 전환 |
+| V10 | B | 기본 정렬 | 초기 진입 → `created` desc(최신순) |
+| V11 | B | 비정렬 컬럼 | 업종·지표 구성 헤더 → 정렬 동작 없음(정렬 버튼 아님) |
+| V12 | B | 전체 선택 범위 | 헤더 체크박스 → 필터링된 전체 선택/해제 |
+| V13 | B | 부분 해제 | 전체 선택 후 개별 1건 해제 → 헤더 체크박스 해제 |
+| V14 | B | 체크박스 전파 차단 | 행의 체크박스 클릭 → 행 네비게이션 미발생 |
+| V15 | C | 페이지 크기 변경 리셋 | itemsPerPage 변경 → currentPage=1 |
+| V16 | C | 페이지 정보 표기 | `{startIndex+1}-{min(끝,전체)} / {전체}개` 정확 표시 |
+| V17 | C | 경계 버튼 비활성 | 1페이지 → 첫/이전 disabled, 마지막 페이지 → 다음/마지막 disabled |
+| V18 | D | 완료만 진입 | Completed 아닌 행 클릭 → 네비게이션 없음 |
+| V19 | D | 종합 지표 조회 차단 | Completed + 종합 지표 행 클릭 → "조회 제한" 토스트(5초) + 진입 차단 |
+| V20 | D | 종합 지표 이동 차단 | 종합 지표 포함 + 대상 Shared Slot에서 [이동] → "이동 불가 안내" + 이동 미실행 |
+| V21 | D | 종합 지표 복제 차단 | Shared Slot에서 종합 지표 복제 시도 → "복제 불가 안내" + 복제 미실행 |
+| V22 | D | 이동 대상 광고주 제한 | 이동 다이얼로그 Slot 목록 → 동일 광고주 Slot만 노출 |
 
-### 6.4 동시성 이슈
+### 8.2 상세 (핵심 규칙)
 
-| 시나리오 | 기대 동작 |
-|---|---|
-| 다른 사용자가 삭제한 데이터셋 클릭 | 에러 처리 (404 또는 안내 메시지) |
-| 목록 로딩 중 네트워크 오류 | 에러 상태 표시 + 재시도 안내 |
+- **V1 검색**: `name.toLowerCase().includes(q)` 또는 `creator.toLowerCase().includes(q)` 중 하나라도 참이면 노출. 트리밍 없음, 실시간(onChange).
+- **V5 필터 결합**: 상태 필터 배열이 비어있지 않고 행 상태가 미포함이면 제외 → 그 후 매체 필터 동일 적용. 즉 두 카테고리는 AND.
+- **V19 조회 제한 토스트**: 메시지 원문은 §6.1과 동일해야 한다(TC 기대값).
+- **V20 이동 차단 문구**: "아래 {N}건의 종합 지표 데이터셋은 Shared Slot으로 이동할 수 없습니다. 해당 데이터셋을 제외한 후 다시 시도해 주세요."
 
 ---
 
-## 7. 접근성 고려사항
-
-| 항목 | 기준 |
-|---|---|
-| 테이블 구조 | `<table>`, `<thead>`, `<tbody>` 시맨틱 태그 사용 |
-| 정렬 버튼 | aria-sort 속성 필요 |
-| 체크박스 | aria-label 또는 연관 label 필요 |
-| 모달 다이얼로그 | focus trap, ESC 키 닫기, aria-modal |
-| 페이지네이션 | aria-label="페이지 네비게이션", 현재 페이지 aria-current="page" |
-| 키보드 네비게이션 | Tab으로 모든 인터랙티브 요소 접근 가능 |
-| 상태 뱃지 | 색상만으로 구분하지 않고 텍스트 라벨 포함 |
-
----
-
-## 8. 비즈니스 규칙 검증 포인트 (TC 작성 기준)
+## 9. 비즈니스 규칙 검증 포인트 (TC 작성 기준)
 
 | # | 검증 항목 | 기대 결과 |
 |---|---|---|
-| 1 | Client/Agency 역할로 접근 시 생성 버튼 미노출 | New Dataset 버튼 렌더링 안 됨 |
-| 2 | Completed 상태 행만 클릭 가능 | 다른 상태 행 클릭 시 네비게이션 없음 |
-| 3 | 검색어 입력 시 데이터셋명 + 생성자 필드 대상 필터링 | 매칭되지 않는 행 숨김 |
-| 4 | 상태 필터 + 매체 필터 동시 적용 | AND 조건으로 교차 필터링 |
-| 5 | 정렬 컬럼 변경 시 asc 시작 | 동일 컬럼 재클릭 시 desc 전환 |
-| 6 | 페이지 크기 변경 시 1페이지로 리셋 | currentPage = 1 |
+| 1 | Completed 상태 행만 클릭 가능 | 다른 상태 행 클릭 시 네비게이션 없음 |
+| 2 | 검색어 → 데이터셋명 + 생성자 부분 일치 필터 | 매칭 안 되는 행 숨김 |
+| 3 | 상태 + 매체 필터 동시 적용 | AND 교차 필터 |
+| 4 | 정렬 컬럼 변경 시 asc 시작 / 재클릭 desc | 토글 정상 |
+| 5 | 업종·지표 구성 컬럼은 비정렬 | 클릭해도 정렬 변화 없음 |
+| 6 | 페이지 크기 변경 시 1페이지 리셋 | currentPage=1 |
 | 7 | 전체 선택 후 개별 해제 시 selectAll 해제 | 헤더 체크박스 unchecked |
-| 8 | 이동 다이얼로그에서 동일 광고주 Slot만 표시 | 다른 광고주 Slot 미노출 |
-| 9 | 삭제 후 복구 불가 | 삭제 확인 다이얼로그에 경고 문구 포함 |
-| 10 | Expired 상태 데이터셋 Quota 미산정 | 유효 데이터셋 수에서 제외 |
-| 11 | 데이터셋명 자동 생성 규칙 | `[매체명]_[생성일자(YYMMDD)]_[순번]` 형식 준수 |
-| 12 | 생성자 이메일 마스킹 처리 | maskEmail 유틸 적용 확인 |
-| 13 | 필터 초기화 버튼 클릭 | 모든 필터 해제, 전체 목록 표시 |
-| 14 | 컨텍스트 메뉴 외부 클릭 시 닫힘 | 메뉴 사라짐 |
-| 15 | 체크박스 클릭 시 행 네비게이션 미발생 | stopPropagation 동작 확인 |
-| 16 | 만료 데이터셋 복사 시 | 조건 상속 → 생성 화면 진입 가능 |
-| 17 | Slot당 동시 추출 제한 초과 시 | "대기중" 상태로 자동 등록 |
-| 18 | 비동기 추출 중 화면 이탈 후 복귀 | 상태 정상 반영 (Polling 또는 WebSocket) |
-| 19 | External Slot으로 종합 지표 데이터셋 이동 시도 | 이동 불가 다이얼로그 노출 + 이동 차단 |
-| 20 | Private/Internal Slot으로 이동 시 | 종합/성과 지표 데이터셋 모두 정상 이동 |
-| 21 | 개별 이동 (컨텍스트 메뉴) + External 대상 + 종합 지표 | 동일하게 차단 |
+| 8 | 체크박스 클릭 시 행 네비게이션 미발생 | stopPropagation 동작 |
+| 9 | 지표 구성 표기 | internal→"종합 지표", 그 외→"성과 지표" |
+| 10 | 조회기간 포맷 분기 | month/quarter 각 형식 정확 |
+| 11 | 생성자 이메일 마스킹 | maskEmail 적용 |
+| 12 | 종합 지표 행 클릭 시 조회 제한 토스트 | "조회 제한" 토스트 + 진입 차단 |
+| 13 | 종합 지표 포함 이동 시 차단 | "이동 불가 안내" + 차단 목록 표시 |
+| 14 | 종합 지표 복제 시 차단 | "복제 불가 안내" 다이얼로그 |
+| 15 | 이동 다이얼로그 동일 광고주 Slot만 표시 | 다른 광고주 Slot 미노출 |
+| 16 | Client/Agency 생성/컨텍스트 메뉴 미노출 | 버튼·메뉴 렌더링 안 됨 |
+| 17 | 데이터셋명 자동 생성 규칙 | `[매체명]_[YYMMDD]_[순번]` |
+| 18 | Expired 데이터셋 Quota 미산정 | 유효 수에서 제외 |
+| 19 | 유효 데이터셋 100개 도달 시 생성 제한 | New Dataset 비활성 + 안내 |
+| 20 | 상태 자동 전환 (Pending→Processing→Completed/Error) | 상태 흐름 반영 |
+| 21 | 비동기 추출 중 이탈 후 복귀 시 상태 유지 | Polling/WebSocket 반영 |
+| 22 | 삭제 성공/실패 토스트 | 성공/에러 토스트 노출 |
+
+---
+
+## 10. 접근성 고려사항
+
+| 항목 | 기준 |
+|---|---|
+| 테이블 구조 | `<table>`, `<thead>`, `<tbody>` 시맨틱 태그 |
+| 정렬 버튼 | aria-sort 속성 |
+| 체크박스 | aria-label 또는 연관 label |
+| 다이얼로그 | focus trap, ESC 닫기, aria-modal |
+| 페이지네이션 | nav aria-label, 현재 페이지 aria-current="page" |
+| 상태 뱃지 | 색상만이 아닌 텍스트 라벨 병행 |
+| 키보드 | Tab으로 모든 인터랙티브 요소 접근 |
+
+---
+
+## 11. 데이터 개념 및 용어 매핑
+
+정확한 타입 정의는 구현이 단일 진실 공급원이다. 규칙 이해에 필요한 UI↔필드 매핑만 남긴다.
+
+| UI 용어 | 데이터 필드 | 비고 |
+|---|---|---|
+| 지표 구성("종합 지표"/"성과 지표") | `purpose` (`'internal'` = 종합 지표) | 조회·이동·복제 제한 판단 기준 |
+| 업종 | `industry` / `industryLevel` / `industryCount` | level 없거나 '전체'면 "대분류 22개" |
+| 조회 기간 | `startDate` / `endDate` / `periodType` | periodType으로 포맷 분기 |
+| 상태 | `status` | Completed만 클릭 가능 |
+| 생성자 | `creator` / `creatorId` | creatorId에 maskEmail 적용 |
+
+> 타입 상세: `src/components/datashot/types.ts` (`Dataset` 인터페이스) 참조.
+
+---
+
+## 12. 개선 제안 (이 화면 한정)
+
+| 제안 | 내용 | 사용자 가치 | 상태 |
+|---|---|---|---|
+| 조회 제한 유형을 목록에서 시각 힌트로 | 종합 지표 행에 잠금 힌트를 미리 노출 | 클릭 전에 제약을 예측해 헛클릭 방지 | 미채택 |
+| 빈 상태 안내 강화 | 데이터셋 0건 / 검색 0건을 구분된 빈 상태 UI로 | 다음 행동(생성·검색어 변경) 유도 | 검토 필요 |
+| 필터 요약 칩 | 적용된 필터를 액션바에 칩으로 표시·개별 해제 | 현재 필터 상태 인지·빠른 해제 | 미채택 |
+
+---
+
+## 13. 참고 자료
+
+- 구현 컴포넌트: `src/components/datashot/DatasetList.tsx`
+- 타입/목데이터: `src/components/datashot/types.ts`
+- 관련 스펙: `DataShot_CreateDataset_Spec.md`, `DataShot_DatasetDetail_Spec.md`
+- 관련 정책: `GNB_Notification_Navigation_Spec.md`(데이터셋 삭제·알림 라우팅), `Platform_Role_Permission_Spec.md`(권한)
+- 참조 원본: `plan/eunseo/DataShot_Phase1_policy_IA_v1.0.md` *(현재 저장소 미포함 — 작성자 확인 필요)*
