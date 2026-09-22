@@ -8,10 +8,10 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-10-21',
+      updatedAt: '2026-09-21',
       content: `# Release Notes
 
-## v1.2.0 (2026-10-21)
+## v1.2.0 (2026-10-26)
 
 ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
 
