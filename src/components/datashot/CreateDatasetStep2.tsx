@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ListPlus, Plus, Minus, Search, ChevronDown, X, Info, Undo2 } from 'lucide-react'
-import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, tvingMetrics, daangnMetrics, naverNospKeywords, type MetricGroup } from './types'
+import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
 import { FormData } from './createDatasetTypes'
 import { adProductStructureByMedia } from './sampleData'
@@ -13,8 +13,6 @@ const metricsByMedia: Record<string, MetricGroup[]> = {
   'NAVER 성과형 DA': naverGfaMetrics,
   'NAVER 보장형 DA': naverNospMetrics,
   'TikTok': tiktokMetrics,
-  'TVING': tvingMetrics,
-  '당근비즈니스': daangnMetrics,
 }
 
 interface Props {
@@ -26,7 +24,7 @@ interface Props {
 export function CreateDatasetStep2({ formData, setFormData, validationActive }: Props) {
   const [metricsSearch, setMetricsSearch] = useState('')
 
-  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok', 'TVING', '당근비즈니스']
+  const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
 
   return (
     <>
@@ -39,7 +37,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
         <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
           매체 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '8px' }}>
           {mediaList.map(media => (
             <button
               key={media}
