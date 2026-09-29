@@ -178,7 +178,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                     <span className="text-[11px] font-normal text-[hsl(var(--muted-foreground))] ml-[6px]">({g.products.length})</span>
                   </div>
                   <div style={cell()}><BudgetCell amount={g.budget} isFixed={g.hasFixed} /></div>
-                  <div style={cell()}>{pct(g.ratio)}</div>
+                  <div style={cell()}>{g.budget === 0 ? <ZeroShareCell /> : pct(g.ratio)}</div>
                   <div style={cell()}>{orDash(g.kpiValue, fmtCount)}</div>
                   <div style={cell()}>{orDash(g.impression, fmtCount)}</div>
                   <div style={cell()}>{orDash(g.click, fmtCount)}</div>
@@ -324,10 +324,10 @@ function ZeroShareCell() {
         >
           <div className="text-[12px] font-semibold text-[hsl(var(--foreground))] mb-1">예산이 배분되지 않았습니다</div>
           <div className="text-[11px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
-일정 예산 이하에서는 성과가 거의 발생하지 않는 상품입니다. 최소 배분을 강제하면 예산이 의미 없이 소모되므로, 더 효율 높은 상품으로 예산을 모은 결과입니다.
+            일정 예산 이하에서는 성과가 거의 발생하지 않는 매체·상품입니다. 최소 배분을 강제하면 예산이 의미 없이 소모되므로, 더 효율 높은 곳으로 예산을 모은 결과입니다.
           </div>
           <div className="mt-2 pt-2 border-t border-[hsl(var(--border))] text-[11px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
-            반드시 배분이 필요한 상품이라면, 시나리오 생성 단계에서 잠금 기능으로 예산을 고정해 보세요.
+            반드시 배분이 필요한 매체·상품이라면, 시나리오 생성 단계에서 잠금 기능으로 예산을 고정해 보세요.
           </div>
         </div>
       )}
