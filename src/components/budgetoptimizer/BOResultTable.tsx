@@ -41,7 +41,7 @@ interface MediaGroup {
 }
 
 // 그리드 컬럼 정의 (헤더/바디 공통) — 풀 숫자+단위 표기 기준 폭
-const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px 100px'
+const GRID_COLS = '80px minmax(220px, 1fr) 160px 90px 150px 150px 130px 130px 120px 110px 110px 110px 110px'
 
 export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView, totalReach }: BOResultTableProps) {
   const mediaGroups = useMemo<MediaGroup[]>(() => {
@@ -89,7 +89,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
     { budget: 0, impression: 0, click: 0, view: 0, kpiValue: 0 }
   )
 
-  const cell = (align: 'left' | 'right' = 'right'): React.CSSProperties => ({ padding: '12px 8px', textAlign: align })
+  const cell = (align: 'left' | 'right' = 'right'): React.CSSProperties => ({ padding: '12px 8px', textAlign: align, whiteSpace: 'nowrap' })
 
   const BudgetCell = ({ amount, isFixed }: { amount: number; isFixed: boolean }) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
