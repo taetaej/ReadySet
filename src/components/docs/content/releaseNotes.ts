@@ -8,7 +8,7 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-09-21',
+      updatedAt: '2026-09-30',
       content: `# Release Notes
 
 ## v1.2.0 (2026-10-26)
@@ -31,6 +31,7 @@ ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
 ### DataShot
 
 - \`IMPROVED\` 데이터셋명 입력 확대 — 최대 30자에서 50자로 확대
+- \`IMPROVED\` Meta 협력 광고 · 기기 유형 타겟팅 동시 선택 방지 — 함께 설정할 수 없는 조건을 비활성화하고 사유를 안내
 
 ### SpinX
 
