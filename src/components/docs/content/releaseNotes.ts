@@ -8,7 +8,7 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-09-30',
+      updatedAt: '2026-09-29',
       content: `# Release Notes
 
 ## v1.2.0 (2026-10-26)
@@ -36,6 +36,7 @@ ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
 ### SpinX
 
 - \`NEW\` 컨텍스트 첨부 — 차트·데이터 등 화면 컨텍스트를 대화에 첨부해 더 정확한 분석 요청 가능
+- \`IMPROVED\` AI 모델 업그레이드 — Claude Sonnet 5.5 적용
 
 
 
