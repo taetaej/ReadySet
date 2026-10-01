@@ -9,6 +9,8 @@ interface AdProductsSelectorProps {
   validationActive: boolean
   readOnly?: boolean
   disabledFields?: string[] // 비활성화할 fieldKey 목록
+  lockClosedFields?: string[] // 강제로 닫고 열기 버튼을 비활성화할 fieldKey 목록
+  lockClosedHints?: Record<string, string> // fieldKey별 잠금 안내 문구
 }
 
 type SelectionMap = { [fieldKey: string]: string[] }
@@ -42,7 +44,7 @@ function getOptionLabel(opt: string | AdProductOption): string {
 
 // ── 접힌 행 ──
 function CollapsibleFieldRow({
-  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText, readOnly = false, disabled = false
+  label, options, selected, onChange, search, onSearchChange, defaultOpen = true, guideText, readOnly = false, disabled = false, lockClosed = false, lockClosedHint
 }: {
   label: string
   options: string[] | AdProductOption[]
@@ -54,8 +56,12 @@ function CollapsibleFieldRow({
   guideText?: string
   readOnly?: boolean
   disabled?: boolean
+  lockClosed?: boolean
+  lockClosedHint?: string
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const [manualOpen, setManualOpen] = useState(defaultOpen)
+  const open = lockClosed ? false : manualOpen
+  const setOpen = setManualOpen
   const hasIds = isOptionObjects(options)
   const filtered = hasIds
     ? (options as AdProductOption[]).filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
@@ -69,10 +75,10 @@ function CollapsibleFieldRow({
     <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden', marginBottom: '0', opacity: disabled ? 0.45 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       {/* 헤더 행 */}
       <div
-        onClick={() => setOpen(o => !o)}
+        onClick={() => { if (!lockClosed) setOpen(o => !o) }}
         style={{
           padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px',
-          cursor: 'pointer', backgroundColor: open ? 'hsl(var(--muted) / 0.2)' : 'transparent',
+          cursor: lockClosed ? 'not-allowed' : 'pointer', backgroundColor: open ? 'hsl(var(--muted) / 0.2)' : 'transparent',
           borderBottom: open ? '1px solid hsl(var(--border))' : 'none',
           transition: 'background 0.15s'
         }}
@@ -80,14 +86,21 @@ function CollapsibleFieldRow({
         <span style={{
           width: '20px', height: '20px', borderRadius: '4px',
           border: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, color: 'hsl(var(--muted-foreground))'
+          flexShrink: 0, color: 'hsl(var(--muted-foreground))', opacity: lockClosed ? 0.4 : 1
         }}>
           {open ? <Minus size={12} /> : <Plus size={12} />}
         </span>
-        <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>
-          {label.endsWith(' *') ? (
-            <>{label.slice(0, -2)}<span style={{ color: 'hsl(var(--destructive))', marginLeft: '2px' }}>*</span></>
-          ) : label}
+        <span style={{ fontSize: '13px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+          <span style={{ opacity: lockClosed ? 0.4 : 1, flexShrink: 0 }}>
+            {label.endsWith(' *') ? (
+              <>{label.slice(0, -2)}<span style={{ color: 'hsl(var(--destructive))', marginLeft: '2px' }}>*</span></>
+            ) : label}
+          </span>
+          {lockClosed && lockClosedHint && (
+            <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: '400', color: 'hsl(var(--muted-foreground))', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {lockClosedHint}
+            </span>
+          )}
         </span>
         {/* 읽기 전용이 아닐 때만 검색/전체선택 표시 */}
         {!readOnly && open && (
@@ -148,7 +161,7 @@ function CollapsibleFieldRow({
     </div>
   )
 }
-export function AdProductsSelector({ media, value, onChange, validationActive, readOnly = false, disabledFields = [] }: AdProductsSelectorProps) {
+export function AdProductsSelector({ media, value, onChange, validationActive, readOnly = false, disabledFields = [], lockClosedFields = [], lockClosedHints = {} }: AdProductsSelectorProps) {
   const [searchMap, setSearchMap] = useState<Record<string, string>>({})
   const structure = adProductStructureByMedia[media]
   const selections: SelectionMap = parseSelections(value)
@@ -204,6 +217,8 @@ export function AdProductsSelector({ media, value, onChange, validationActive, r
             guideText={!readOnly && !isRequiredValid ? `${requiredField.label}${getJosa(requiredField.label, '을/를')} 먼저 선택해주세요.` : undefined}
             readOnly={readOnly}
             disabled={disabledFields.includes(field.key)}
+            lockClosed={lockClosedFields.includes(field.key)}
+            lockClosedHint={lockClosedHints[field.key]}
           />
         </div>
       ))}

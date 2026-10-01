@@ -8,7 +8,7 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-09-21',
+      updatedAt: '2026-09-29',
       content: `# Release Notes
 
 ## v1.2.0 (2026-10-26)
@@ -31,10 +31,12 @@ ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
 ### DataShot
 
 - \`IMPROVED\` 데이터셋명 입력 확대 — 최대 30자에서 50자로 확대
+- \`IMPROVED\` Meta 협력 광고 · 기기 유형 타겟팅 동시 선택 방지 — 함께 설정할 수 없는 조건을 비활성화하고 사유를 안내
 
 ### SpinX
 
 - \`NEW\` 컨텍스트 첨부 — 차트·데이터 등 화면 컨텍스트를 대화에 첨부해 더 정확한 분석 요청 가능
+- \`IMPROVED\` AI 모델 업그레이드 — Claude Sonnet 5.5 적용
 
 
 

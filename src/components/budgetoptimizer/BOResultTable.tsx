@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Lock, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
+import { useState, useMemo, useRef } from 'react'
+import { Lock, ChevronRight, TrendingUp, TrendingDown, Info } from 'lucide-react'
 import { BOAllocation } from './resultSampleData'
 
 interface BOResultTableProps {
@@ -41,7 +41,7 @@ interface MediaGroup {
 }
 
 // 그리드 컬럼 정의 (헤더/바디 공통) — 풀 숫자+단위 표기 기준 폭
-const GRID_COLS = '80px minmax(220px, 1fr) 150px 70px 150px 140px 120px 120px 90px 110px 100px 100px 100px'
+const GRID_COLS = '80px minmax(220px, 1fr) 160px 90px 150px 150px 130px 130px 120px 110px 110px 110px 110px'
 
 export function BOResultTable({ allocations, lockedAllocations, kpiLabel, resultView, totalReach }: BOResultTableProps) {
   const mediaGroups = useMemo<MediaGroup[]>(() => {
@@ -89,7 +89,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
     { budget: 0, impression: 0, click: 0, view: 0, kpiValue: 0 }
   )
 
-  const cell = (align: 'left' | 'right' = 'right'): React.CSSProperties => ({ padding: '12px 8px', textAlign: align })
+  const cell = (align: 'left' | 'right' = 'right'): React.CSSProperties => ({ padding: '12px 8px', textAlign: align, whiteSpace: 'nowrap' })
 
   const BudgetCell = ({ amount, isFixed }: { amount: number; isFixed: boolean }) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
@@ -168,7 +168,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                 <div
                   onClick={() => toggle(g.mediaId)}
                   className="grid bg-[hsl(var(--muted)/0.5)] hover:bg-[hsl(var(--muted)/0.7)] border-b border-[hsl(var(--border))] cursor-pointer text-[13px] font-semibold transition-colors duration-200"
-                  style={{ gridTemplateColumns: GRID_COLS }}
+                  style={{ gridTemplateColumns: GRID_COLS, ...(g.budget === 0 ? { color: 'hsl(var(--muted-foreground))' } : null) }}
                 >
                   <div className="px-2 py-3 flex items-center justify-center">
                     <ChevronRight size={16} style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
@@ -178,7 +178,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                     <span className="text-[11px] font-normal text-[hsl(var(--muted-foreground))] ml-[6px]">({g.products.length})</span>
                   </div>
                   <div style={cell()}><BudgetCell amount={g.budget} isFixed={g.hasFixed} /></div>
-                  <div style={cell()}>{pct(g.ratio)}</div>
+                  <div style={cell()}>{g.budget === 0 ? <ZeroShareCell /> : pct(g.ratio)}</div>
                   <div style={cell()}>{orDash(g.kpiValue, fmtCount)}</div>
                   <div style={cell()}>{orDash(g.impression, fmtCount)}</div>
                   <div style={cell()}>{orDash(g.click, fmtCount)}</div>
@@ -191,10 +191,17 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                 </div>
 
                 {/* 2depth: Product */}
-                {isExpanded && g.products.map((p) => (
-                  <div key={`${p.mediaId}-${p.productName}`} className="grid border-b border-[hsl(var(--border))] text-[13px]" style={{ gridTemplateColumns: GRID_COLS }}>
+                {isExpanded && g.products.map((p) => {
+                  // 사구간: 사용자가 선택했으나 최적화가 0원 배분한 상품. "시스템의 판단"이므로 근거를 붙인다.
+                  const isZero = p.budget === 0
+                  return (
+                  <div
+                    key={`${p.mediaId}-${p.productName}`}
+                    className="grid border-b border-[hsl(var(--border))] text-[13px]"
+                    style={{ gridTemplateColumns: GRID_COLS, ...(isZero ? { color: 'hsl(var(--muted-foreground))' } : null) }}
+                  >
                     <div />
-                    <div className="text-[hsl(var(--foreground))] overflow-hidden text-ellipsis whitespace-nowrap" style={cell('left')} title={p.productName}>{p.productName}</div>
+                    <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...cell('left'), ...(isZero ? null : { color: 'hsl(var(--foreground))' }) }} title={p.productName}>{p.productName}</div>
                     <div style={cell()}>
                       {(() => {
                         const locked = lockedMap.get(`${p.mediaId}|${p.productName}`)
@@ -206,6 +213,9 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                     </div>
                     <div style={cell()}>
                       {(() => {
+                        if (isZero) {
+                          return <ZeroShareCell />
+                        }
                         const locked = lockedMap.get(`${p.mediaId}|${p.productName}`)
                         if (resultView === 'pure' && locked && locked.ratio !== p.ratio) {
                           const diff = p.ratio - locked.ratio
@@ -233,7 +243,7 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
                     <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.cpv, fmtBudget)}</div>
                     <div style={{ ...cell(), color: 'hsl(var(--muted-foreground))' }}>{orDash(p.reach > 0 ? Math.round(p.budget / p.reach) : 0, fmtBudget)}</div>
                   </div>
-                ))}
+                )})}
               </div>
             )
           })}
@@ -284,6 +294,43 @@ export function BOResultTable({ allocations, lockedAllocations, kpiLabel, result
           })()}
         </div>
       </div>
+    </div>
+  )
+}
+
+// 0원 배분(사구간) 상품의 Share 셀. 아이콘 + 0.00% + 사유 툴팁.
+// "제외"가 아니라 "시스템이 더 효율 높은 곳으로 옮긴 판단"으로 읽히게 한다.
+// 툴팁은 position:fixed로 띄워 overflow-x-auto 컨테이너를 벗어나게 한다(표 가로 스크롤 방지).
+function ZeroShareCell() {
+  const iconRef = useRef<HTMLSpanElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+
+  const show = () => {
+    const r = iconRef.current?.getBoundingClientRect()
+    if (r) setPos({ top: r.bottom + 6, left: r.left })
+  }
+  const hide = () => setPos(null)
+
+  return (
+    <div className="inline-flex items-center justify-end gap-[4px] cursor-default" onMouseEnter={show} onMouseLeave={hide}>
+      <span ref={iconRef} className="inline-flex items-center">
+        <Info size={12} className="text-[hsl(var(--muted-foreground))] flex-shrink-0" />
+      </span>
+      <span className="tabular-nums">0.00<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: 400 }}>%</span></span>
+      {pos && (
+        <div
+          className="fixed z-50 w-[260px] p-3 text-left rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--popover))] shadow-md"
+          style={{ top: pos.top, left: pos.left }}
+        >
+          <div className="text-[12px] font-semibold text-[hsl(var(--foreground))] mb-1">예산이 배분되지 않았습니다</div>
+          <div className="text-[11px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            일정 예산 이하에서는 성과가 거의 발생하지 않는 매체·상품입니다. 최소 배분을 강제하면 예산이 의미 없이 소모되므로, 더 효율 높은 곳으로 예산을 모은 결과입니다.
+          </div>
+          <div className="mt-2 pt-2 border-t border-[hsl(var(--border))] text-[11px] leading-[1.6] text-[hsl(var(--muted-foreground))]">
+            반드시 배분이 필요한 매체·상품이라면, 시나리오 생성 단계에서 잠금 기능으로 예산을 고정해 보세요.
+          </div>
+        </div>
+      )}
     </div>
   )
 }

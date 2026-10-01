@@ -175,7 +175,9 @@ export const sampleBOResult: BOResultData = {
     { mediaId: 'Meta', mediaName: 'Meta', productName: '경매_잠재 고객_앱 이벤트 수 극대화_facebook&instagram', budget: 148000000, ratio: 37.00, kpiValue: 16800000, impression: 16800000, click: 76000, view: 670000, reach: 12600000, cpm: 8810, cpc: 1947, cpv: 220.90, isFixed: false, satA: 18500000, satB: 0.000000015 },
     { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 18000000, ratio: 4.50, kpiValue: 24500000, impression: 24500000, click: 365000, view: 0, reach: 11200000, cpm: 735, cpc: 49.32, cpv: 0, isFixed: false, satA: 25000000, satB: 0.00000005 },
     { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 42000000, ratio: 10.50, kpiValue: 32000000, impression: 32000000, click: 68000, view: 0, reach: 17800000, cpm: 1313, cpc: 617.65, cpv: 0, isFixed: false, satA: 35000000, satB: 0.00000004 },
-    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 25000000, ratio: 6.25, kpiValue: 1400000, impression: 1400000, click: 1700, view: 2200000, reach: 390000, cpm: 17857, cpc: 14706, cpv: 11.36, isFixed: false, satA: 3000000, satB: 0.000000018 }
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 25000000, ratio: 6.25, kpiValue: 1400000, impression: 1400000, click: 1700, view: 2200000, reach: 390000, cpm: 17857, cpc: 14706, cpv: 11.36, isFixed: false, satA: 3000000, satB: 0.000000018 },
+    // 사구간(0원 배분): 사용자가 선택했으나 효율 포화가 빨라 최적화가 예산을 배분하지 않은 상품
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Display', budget: 0, ratio: 0, kpiValue: 0, impression: 0, click: 0, view: 0, reach: 0, cpm: 0, cpc: 0, cpv: 0, isFixed: false, satA: 800000, satB: 0.00000002 }
   ] as BOAllocation[],
   allocations: [
     // Google Ads
@@ -187,7 +189,9 @@ export const sampleBOResult: BOResultData = {
     { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '디스플레이_방문_CPC', budget: 13229648, ratio: 3.31, kpiValue: 20914224, impression: 20914224, click: 310596, view: 0, reach: 9861846, cpm: 632.57, cpc: 42.59, cpv: 0, isFixed: false, satA: 25000000, satB: 0.00000005 },
     { mediaId: 'kakao 모먼트', mediaName: 'kakao 모먼트', productName: '카카오톡비즈보드_방문_CPC', budget: 29156256, ratio: 7.29, kpiValue: 29888148, impression: 29888148, click: 61066, view: 0, reach: 16323274, cpm: 975.51, cpc: 477.46, cpv: 0, isFixed: true, satA: 35000000, satB: 0.00000004 },
     // Targetpick
-    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false, satA: 3000000, satB: 0.000000018 }
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Video', budget: 30783661, ratio: 7.70, kpiValue: 1495452, impression: 1495452, click: 1803, view: 2350730, reach: 412835, cpm: 20584.85, cpc: 17069.27, cpv: 13.10, isFixed: false, satA: 3000000, satB: 0.000000018 },
+    // 사구간(0원 배분): 사용자가 선택했으나 효율 포화가 빨라 최적화가 예산을 배분하지 않은 상품
+    { mediaId: 'Targetpick', mediaName: 'Targetpick', productName: 'TargetPick Display', budget: 0, ratio: 0, kpiValue: 0, impression: 0, click: 0, view: 0, reach: 0, cpm: 0, cpc: 0, cpv: 0, isFixed: false, satA: 800000, satB: 0.00000002 }
   ],
   responseCurve: [
     // 각 매체: a * (1 - e^(-b*x)) 포화 함수 파라미터로 정의. 차트에서 수식으로 직접 생성.

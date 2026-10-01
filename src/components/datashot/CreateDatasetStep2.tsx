@@ -26,6 +26,19 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
 
   const mediaList = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
 
+  // 협력 광고 파트너사 ↔ 기기유형 상호 배제 (Meta 전용)
+  const isMeta = formData.media === 'Meta'
+  const productSelections: Record<string, string[]> = (() => {
+    if (formData.products.length === 0) return {}
+    try { return JSON.parse(formData.products[0]) } catch { return {} }
+  })()
+  const hasCollaborativePartner = isMeta && (productSelections['collaborativePartner']?.length ?? 0) > 0
+  const isDeviceTargeting = isMeta && formData.targetingCategory === '기기유형'
+  // 파트너사 체크가 있으면 → 기기유형 선택 비활성화
+  const disabledTargetingCategories = hasCollaborativePartner ? ['기기유형'] : []
+  // 파트너사 체크 없음 + 기기유형 선택됨 → 파트너사 아코디언 강제 닫힘 + 열기 잠금
+  const lockCollaborativePartner = isMeta && !hasCollaborativePartner && isDeviceTargeting
+
   return (
     <>
     
@@ -129,6 +142,8 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               value={formData.products}
               onChange={(products) => setFormData({ ...formData, products })}
               validationActive={validationActive}
+              lockClosedFields={lockCollaborativePartner ? ['collaborativePartner'] : []}
+              lockClosedHints={{ collaborativePartner: "타겟팅 옵션에서 '기기 유형' 사용 중에는 선택할 수 없습니다" }}
             />
           </div>
 
@@ -144,6 +159,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               }}
               onOptionsChange={opts => setFormData({ ...formData, targetingOptions: opts })}
               validationActive={validationActive}
+              disabledCategories={disabledTargetingCategories}
             />
           </div>
           )}
@@ -304,13 +320,14 @@ function MetricGroupList({ groups, selected, onChange, searchQuery }: { groups: 
   )
 }
 
-function TargetingSelector({ media, category, selected, onCategoryChange, onOptionsChange, validationActive }: {
+function TargetingSelector({ media, category, selected, onCategoryChange, onOptionsChange, validationActive, disabledCategories = [] }: {
   media: string
   category: string
   selected: string[]
   onCategoryChange: (cat: string) => void
   onOptionsChange: (opts: string[]) => void
   validationActive: boolean
+  disabledCategories?: string[]
 }) {
   const [open, setOpen] = useState(true)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -450,12 +467,21 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
                   style={{ backgroundColor: !category ? 'hsl(var(--muted))' : 'transparent' }}>
                   선택 안 함
                 </button>
-                {categories.map(t => (
-                  <button key={t.category} onClick={() => { onCategoryChange(t.category); setDropdownOpen(false); setSearch(''); setKeywordSearch(''); setKeywordResults([]); setHasSearchedKeyword(false) }} className="dropdown-item"
-                    style={{ backgroundColor: category === t.category ? 'hsl(var(--muted))' : 'transparent' }}>
-                    {t.category}
+                {categories.map(t => {
+                  const isDisabled = disabledCategories.includes(t.category)
+                  return (
+                  <button key={t.category} disabled={isDisabled}
+                    onClick={() => { if (isDisabled) return; onCategoryChange(t.category); setDropdownOpen(false); setSearch(''); setKeywordSearch(''); setKeywordResults([]); setHasSearchedKeyword(false) }} className="dropdown-item"
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: category === t.category ? 'hsl(var(--muted))' : 'transparent', opacity: isDisabled ? 0.55 : 1, cursor: isDisabled ? 'not-allowed' : 'pointer' }}>
+                    <span>{t.category}</span>
+                    {isDisabled && (
+                      <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'hsl(var(--muted-foreground))' }}>
+                        협력 광고 파트너사 선택 중에는 사용할 수 없습니다
+                      </span>
+                    )}
                   </button>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
