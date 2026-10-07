@@ -37,7 +37,7 @@ export function BOScenarioListPage() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: sampleSlotData.title, onClick: () => navigate(`/slot/SLT001`) },
-        { label: 'Budget Optimizer' }
+        { label: 'BudgetOpt 2.0' }
       ]}
       isDarkMode={isDarkMode}
       onToggleDarkMode={handleToggleDarkMode}

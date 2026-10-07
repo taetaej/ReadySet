@@ -13,13 +13,13 @@ export const releaseNotesSection: DocSection = {
 
 ## v1.2.0 (2026-10-26)
 
-ReadySet 플랫폼 신규 솔루션 Budget Optimizer 출시 및 사용성 개선
+ReadySet 플랫폼 신규 솔루션 BudgetOpt 2.0 출시 및 사용성 개선
 
 ---
 
-### Budget Optimizer
+### BudgetOpt 2.0
 
-- \`NEW\` Budget Optimizer 정식 출시 — 업종별 최적화 모델로 매체·상품별 예산 배분안을 생성하고, 예산 잠금·KPI 기준 최적화·결과 분석까지 지원
+- \`NEW\` BudgetOpt 2.0 정식 출시 — 업종별 최적화 모델로 매체·상품별 예산 배분안을 생성하고, 예산 잠금·KPI 기준 최적화·결과 분석까지 지원
 - \`NEW\` Reach Caster 연계 — 최적화한 예산안을 Reach Caster 도달 예측으로 바로 이어서 생성
 
 ### Reach Caster

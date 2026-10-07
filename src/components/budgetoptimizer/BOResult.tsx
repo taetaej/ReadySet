@@ -110,7 +110,7 @@ export function BOResult() {
       onMouseLeave={() => setPrincipleTooltipOpen(false)}
     >
       <button
-        onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
+        onClick={() => askSpinXSend('BudgetOpt 2.0은 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
         className="inline-flex items-center gap-[6px] bg-none border-none p-0 cursor-pointer text-[12px] text-[hsl(var(--muted-foreground))]"
       >
         <SpinXSymbol size={16} motion="idle" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
@@ -153,7 +153,7 @@ export function BOResult() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: slotData.title },
-        { label: 'Budget Optimizer', href: '/budgetoptimizer' },
+        { label: 'BudgetOpt 2.0', href: '/budgetoptimizer' },
         { label: result.name }
       ]}
       isDarkMode={isDarkMode}
