@@ -8,7 +8,8 @@ import { RatioFinderResult } from './components/reachcaster/RatioFinderResult'
 import { ReachPredictorResult } from './components/reachcaster/ReachPredictorResult'
 import { SplashCursor } from './components/common/SplashCursor'
 // DataShot 컴포넌트
-import { DatasetList, CreateDataset, DatasetDetail } from './components/datashot'
+import { DatasetList, CreateDataset } from './components/datashot'
+import { DatasetDetailRouter } from './components/datashot/DatasetDetailRouter'
 // Budget Optimizer 컴포넌트
 import { BOScenarioListPage } from './components/budgetoptimizer/BOScenarioListPage'
 import { BOCreateScenario } from './components/budgetoptimizer/BOCreateScenario'
@@ -40,7 +41,7 @@ function App() {
         <Route path="/reachcaster/scenario/reach-predictor/result" element={<ReachPredictorResult />} />
         <Route path="/datashot" element={<DatasetList />} />
         <Route path="/datashot/new" element={<CreateDataset />} />
-        <Route path="/datashot/:id" element={<DatasetDetail />} />
+        <Route path="/datashot/:id" element={<DatasetDetailRouter />} />
         <Route path="/budgetoptimizer" element={<BOScenarioListPage />} />
         <Route path="/budgetoptimizer/scenario/new" element={<BOCreateScenario />} />
         <Route path="/budgetoptimizer/scenario/:id/result" element={<BOResult />} />

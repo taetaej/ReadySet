@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { X, Plus, Minus } from 'lucide-react'
 import { adProductStructureByMedia } from './sampleData'
 import { AdProductsSelector } from './AdProductsSelector'
+import { MediaProductSelect } from './MediaProductSelect'
+import type { MediaProductSelection } from './createDatasetTypes'
 
 // 매체별 목 데이터 생성 (고정 선택값)
 function generateMockProducts(media: string): string[] {
@@ -303,7 +305,9 @@ function ReadOnlyMetricGroupRow({ group, metrics }: { group: string; metrics: st
         <span style={{ fontSize: '13px', fontWeight: '500', flex: 1 }}>{group}</span>
       </div>
       {open && (
-        <div style={{ maxHeight: '128px', overflowY: 'auto', padding: '4px' }}>
+        // 스크롤은 모달 본문(85vh overflowY:auto)이 담당. 그룹 내부엔 별도 스크롤을 두지 않아
+        // 지표 수가 많아도 "박스 안 스크롤바" 중첩이 생기지 않게 한다.
+        <div style={{ padding: '4px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
             {metrics.map((metric, i) => (
               <label key={i} style={{
@@ -355,6 +359,59 @@ export function MetricsModal({ isOpen, onClose, metricGroups }: MetricsModalProp
           {metricGroups.map(g => (
             <ReadOnlyMetricGroupRow key={g.group} group={g.group} metrics={g.metrics} />
           ))}
+        </div>
+
+        <div className="dialog-footer">
+          <button onClick={onClose} className="btn btn-primary btn-md">확인</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+// ── 매체 · 광고상품 상세 모달 (광고상품 조회 전용) ──────────────────────────────
+// 생성 시 MediaProductSelection({ [media]: string[] }) 그대로: 매체별 선택 상품명 리스트를 읽기전용 표시.
+interface ProductListModalProps {
+  isOpen: boolean
+  onClose: () => void
+  mediaProducts: { media: string; products: string[] }[]
+}
+
+export function ProductListModal({ isOpen, onClose, mediaProducts }: ProductListModalProps) {
+  if (!isOpen) return null
+
+  // 배열 → 생성 폼과 동일한 MediaProductSelection({ [media]: string[] })으로 변환해 생성 UI 재사용
+  const selection: MediaProductSelection = mediaProducts.reduce((acc, m) => {
+    acc[m.media] = m.products
+    return acc
+  }, {} as MediaProductSelection)
+
+  return (
+    <div className="dialog-overlay" onClick={onClose}>
+      <div
+        className="dialog-content dialog-lg"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="dialog-header">
+          <h3 className="dialog-title">선택한 광고상품</h3>
+          <p className="dialog-description">이 데이터샷에 적용된 매체별 광고상품입니다.</p>
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute', right: '24px', top: '24px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '4px', color: 'hsl(var(--muted-foreground))'
+            }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
+          {/* 생성 Step2 '매체·광고상품' 선택 UI를 읽기전용으로 재사용 */}
+          <MediaProductSelect value={selection} onChange={() => {}} validationActive={false} readOnly />
         </div>
 
         <div className="dialog-footer">

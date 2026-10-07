@@ -1,8 +1,20 @@
+// 광고상품 기준: 매체별 선택된 상품 목록
+export interface MediaProductSelection {
+  [media: string]: string[]
+}
+
 export interface FormData {
   datasetName: string
   description: string
   purpose: 'internal' | 'external' | ''
+  // 추출 기준: 'product'(광고상품) | 'condition'(조건 조합). '' = 미선택
+  extractMode: 'product' | 'condition' | ''
   media: string
+  // 광고상품 기준(extractMode='product') 전용: 매체별 상품 + 공통/매체 지표
+  mediaProducts: MediaProductSelection
+  productMetrics: string[]
+  // 광고상품 기준 + Meta 단일 선택 시: 협력 광고 파트너사
+  productCollaborativePartners: string[]
   industries: string[]
   industryLevel: 'major' | 'mid' | 'minor' | null
   period: {
@@ -22,7 +34,11 @@ export const initialFormData: FormData = {
   datasetName: '',
   description: '',
   purpose: '',
+  extractMode: '',
   media: '',
+  mediaProducts: {},
+  productMetrics: [],
+  productCollaborativePartners: [],
   industries: [],
   industryLevel: null,
   period: { startYear: '', startMonth: '', endYear: '', endMonth: '' },
