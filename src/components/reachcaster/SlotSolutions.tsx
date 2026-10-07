@@ -28,7 +28,7 @@ export function SlotSolutions({ slotData }: SlotSolutionsProps) {
       name: 'BudgetOpt 2.0',
       icon: DollarSign,
       color: 'hsl(47.9 95.8% 53.1%)',
-      path: '/budgetoptimizer'
+      path: '/budgetopt'
     },
     {
       id: 'reach-caster',

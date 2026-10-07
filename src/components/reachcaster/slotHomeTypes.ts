@@ -102,7 +102,7 @@ export const AVAILABLE_OUTPUTS: Record<string, SelectedOutput[]> = {
 export const INITIAL_FLOW: SolutionSlot[] = [
   { key: 'datashot', name: 'DataShot', desc: '업종별 벤치마크 기반 광고 효율 분석', path: '/datashot', status: 'empty' },
   { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/ad-curator', status: 'coming-soon' },
-  { key: 'budgetOptimizer', name: 'BudgetOpt 2.0', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budgetoptimizer', status: 'empty' },
+  { key: 'budgetOptimizer', name: 'BudgetOpt 2.0', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budgetopt', status: 'empty' },
   { key: 'reachCaster', name: 'Reach Caster', desc: '크로스미디어 통합 도달 예측 시뮬레이션', path: '/reachcaster', status: 'empty' },
 ]
 

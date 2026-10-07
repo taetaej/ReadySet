@@ -41,9 +41,9 @@ function App() {
         <Route path="/datashot" element={<DatasetList />} />
         <Route path="/datashot/new" element={<CreateDataset />} />
         <Route path="/datashot/:id" element={<DatasetDetail />} />
-        <Route path="/budgetoptimizer" element={<BOScenarioListPage />} />
-        <Route path="/budgetoptimizer/scenario/new" element={<BOCreateScenario />} />
-        <Route path="/budgetoptimizer/scenario/:id/result" element={<BOResult />} />
+        <Route path="/budgetopt" element={<BOScenarioListPage />} />
+        <Route path="/budgetopt/scenario/new" element={<BOCreateScenario />} />
+        <Route path="/budgetopt/scenario/:id/result" element={<BOResult />} />
         <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />
         <Route path="/docs/:slug" element={<DocsLayout />} />
         <Route path="/component" element={<ComponentLibrary />} />

@@ -110,7 +110,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: true,
       status: 'success',
       type: 'task',
-      resultUrl: '/budgetoptimizer/scenario/1/result'
+      resultUrl: '/budgetopt/scenario/1/result'
     },
     {
       id: 37,
@@ -121,7 +121,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       isNew: false,
       status: 'error',
       type: 'task',
-      resultUrl: '/budgetoptimizer'
+      resultUrl: '/budgetopt'
     },
     {
       id: 35,

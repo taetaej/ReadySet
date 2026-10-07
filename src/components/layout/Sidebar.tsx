@@ -257,7 +257,7 @@ export function Sidebar({
                   <span 
                     onClick={(e) => {
                       e.stopPropagation()
-                      navigate('/budgetoptimizer')
+                      navigate('/budgetopt')
                     }}
                     style={{ 
                       fontSize: '14px', 
@@ -326,7 +326,7 @@ export function Sidebar({
                       </div>
                     ))}
                     <button
-                      onClick={() => navigate('/budgetoptimizer')}
+                      onClick={() => navigate('/budgetopt')}
                       style={{
                         display: 'flex',
                         alignItems: 'center',

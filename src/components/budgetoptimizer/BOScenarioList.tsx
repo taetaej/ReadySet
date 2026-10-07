@@ -216,7 +216,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
               <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">2.0</span>
             </h1>
             <button
-              onClick={() => navigate('/budgetoptimizer/scenario/new')}
+              onClick={() => navigate('/budgetopt/scenario/new')}
               className="flex items-center gap-2 h-12 px-5 rounded-3xl border-none text-sm font-semibold cursor-pointer transition-all bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
             >
               <Plus size={16} />
@@ -478,7 +478,7 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
                         cursor: isClickable ? 'pointer' : 'default'
                       }}
                       onClick={() => {
-                        if (isClickable) navigate(`/budgetoptimizer/scenario/${scenario.id}/result`)
+                        if (isClickable) navigate(`/budgetopt/scenario/${scenario.id}/result`)
                       }}
                     >
                       <td onClick={(e) => e.stopPropagation()}>
