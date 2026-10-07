@@ -25,7 +25,7 @@ export function SlotSolutions({ slotData }: SlotSolutionsProps) {
     },
     {
       id: 'budget-optimizer',
-      name: 'Budget Optimizer',
+      name: 'BudgetOpt 2.0',
       icon: DollarSign,
       color: 'hsl(47.9 95.8% 53.1%)',
       path: '/budgetoptimizer'

@@ -211,8 +211,9 @@ export function BOScenarioList({ slotData, onBack: _onBack, onEdit, onDelete }: 
         {/* Title + New Button */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">
-              Budget Optimizer
+            <h1 className="text-2xl font-semibold flex items-center gap-2">
+              BudgetOpt
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">2.0</span>
             </h1>
             <button
               onClick={() => navigate('/budgetoptimizer/scenario/new')}

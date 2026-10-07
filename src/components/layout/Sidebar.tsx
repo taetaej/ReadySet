@@ -265,7 +265,7 @@ export function Sidebar({
                       cursor: 'pointer'
                     }}
                   >
-                    Budget Optimizer
+                    BudgetOpt 2.0
                   </span>
                 </div>
 

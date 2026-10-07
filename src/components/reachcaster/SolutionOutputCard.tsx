@@ -17,7 +17,7 @@ const BLOBS = [
   { key: 'datashot',        label: 'DataShot',            color: '#7B2FFF', cx: 42, cy: 38 },
   { key: 'reachCaster',     label: 'Reach Caster',        color: '#00D9FF', cx: 58, cy: 38 },
   { key: 'adCurator',       label: 'Ad Curator',          color: '#00FF94', cx: 58, cy: 62 },
-  { key: 'budgetOptimizer', label: 'Budget Optimizer',    color: '#FF006B', cx: 42, cy: 62 },
+  { key: 'budgetOptimizer', label: 'BudgetOpt 2.0',    color: '#FF006B', cx: 42, cy: 62 },
 ]
 
 // 블롭 SVG path 생성 — 약간 불규칙한 원형

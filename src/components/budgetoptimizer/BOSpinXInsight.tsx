@@ -38,7 +38,7 @@ export function BOSpinXInsight({ text, speed = 20, onAsk, followUpQuestion }: BO
       {/* 헤더: 심볼 + 워드마크 */}
       <div className="flex items-center gap-1.5 mb-1.5">
         <SpinXSymbol size={13} motion={isTyping ? 'active' : 'idle'} title="" style={{ transform: 'rotate(45deg)', flexShrink: 0 }} />
-        <span className="text-[11px] font-semibold tracking-[0.02em] text-[hsl(var(--muted-foreground))]">SpinX for Budget Optimizer</span>
+        <span className="text-[11px] font-semibold tracking-[0.02em] text-[hsl(var(--muted-foreground))]">SpinX for BudgetOpt 2.0</span>
         {isTyping && <span className="text-[10px] opacity-60 text-[hsl(var(--muted-foreground))]">analyzing…</span>}
       </div>
 

@@ -202,7 +202,7 @@ export function BOCreateScenario() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: 'CJ올리브영 2025 하반기' },
-        { label: 'Budget Optimizer', href: '/budgetoptimizer' },
+        { label: 'BudgetOpt 2.0', href: '/budgetoptimizer' },
         { label: '새 시나리오 생성' }
       ]}
       isDarkMode={isDarkMode}
