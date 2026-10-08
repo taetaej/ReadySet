@@ -40,6 +40,8 @@ interface IndustryDialogProps {
   selectedIndustries: string[]
   onUpdate: (industries: string[], level: IndustryLevel) => void
   industryLevel: IndustryLevel | null
+  // 추출 기준: 'product'(광고상품)이면 중분류 선택 비활성(대분류만 허용)
+  extractMode?: 'product' | 'condition' | ''
 }
 
 function getItemStatus(path: string, selected: string[]): 'selected' | 'parent-selected' | 'child-selected' | 'none' {
@@ -61,7 +63,8 @@ function getParentTooltip(path: string, selected: string[]): string {
   return ''
 }
 
-export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, industryLevel }: IndustryDialogProps) {
+export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, industryLevel, extractMode }: IndustryDialogProps) {
+  const midDisabled = extractMode === 'product' // 광고상품: 중분류 선택 불가
   const [showLevelChangeAlert, setShowLevelChangeAlert] = useState(false)
   const [pendingLevel, setPendingLevel] = useState<IndustryLevel | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
@@ -420,9 +423,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
           padding: '14px 24px',
           backgroundColor: 'hsl(var(--muted) / 0.4)',
           borderBottom: '1px solid hsl(var(--border))',
-          display: 'flex', alignItems: 'center', gap: '12px',
+          display: 'flex', flexDirection: 'column', gap: '8px',
           flexShrink: 0,
         }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))', flexShrink: 0 }}>분류 레벨</span>
           <div style={{ display: 'inline-flex', border: '1px solid hsl(var(--border))', borderRadius: '6px', overflow: 'hidden' }}>
             {([
@@ -430,9 +434,12 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               { value: 'mid'   as IndustryLevel, label: '중분류' },
             ]).map(({ value, label }, i, arr) => {
               const isActive = localLevel === value
+              const disabled = value === 'mid' && midDisabled
               return (
                 <button key={value}
+                  disabled={disabled}
                   onClick={() => {
+                    if (disabled) return
                     if (localLevel !== value) {
                       if (selectedIndustries.length > 0) {
                         setPendingLevel(value)
@@ -454,10 +461,10 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                     borderRadius: 0, border: 'none',
                     borderRight: i < arr.length - 1 ? '1px solid hsl(var(--border))' : 'none',
                     backgroundColor: isActive ? 'hsl(var(--muted))' : 'transparent',
-                    color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                    color: disabled ? 'hsl(var(--muted-foreground) / 0.4)' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                     padding: '6px 16px', fontSize: '13px',
                     fontWeight: isActive ? '500' : '400',
-                    cursor: 'pointer',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
                   }}
                 >
                   {label}
@@ -465,6 +472,12 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
               )
             })}
           </div>
+          </div>
+          {midDisabled && (
+            <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
+              추출 기준이 광고상품인 경우 대분류 업종만 선택할 수 있습니다.
+            </span>
+          )}
         </div>
 
         {/* 콘텐츠 영역 */}

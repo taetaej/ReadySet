@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Check, X, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Database } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Check, X, CheckCircle, AlertCircle, Info, ChevronLeft, ChevronRight, Database } from 'lucide-react'
 import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
@@ -8,7 +8,9 @@ import { ConfigurationSummary } from './ConfigurationSummary'
 import { SampleDataModal } from './SampleDataModal'
 import { CreateDatasetStep1 } from './CreateDatasetStep1'
 import { CreateDatasetStep2 } from './CreateDatasetStep2'
+import { CreateDatasetStep2Product } from './CreateDatasetStep2Product'
 import { CreateDatasetStep3 } from './CreateDatasetStep3'
+import { CreateDatasetStep3Product } from './CreateDatasetStep3Product'
 import { FormData, initialFormData, validateDateRange } from './createDatasetTypes'
 
 interface CreateDatasetProps {
@@ -17,11 +19,14 @@ interface CreateDatasetProps {
 
 export function CreateDataset({ slotData }: CreateDatasetProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [currentStep, setCurrentStep] = useState(1)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
-  const [formData, setFormData] = useState<FormData>(initialFormData)
+  // 복제 진입: location.state.prefillForm이 있으면 초기 폼으로 사용(이름 앞 "(복사)" 포함)
+  const prefillForm = (location.state as { prefillForm?: FormData } | null)?.prefillForm
+  const [formData, setFormData] = useState<FormData>(prefillForm ?? initialFormData)
 
   // 스텝별 유효성 검사 활성화 상태
   const [validationStep1, setValidationStep1] = useState(false)
@@ -31,6 +36,7 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   useEffect(() => {
     if (!validationStep1) {
       const hasAnyInput = !!(
+        formData.extractMode ||
         formData.datasetName ||
         formData.description ||
         formData.period.startYear ||
@@ -49,7 +55,9 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         formData.products.length > 0 ||
         formData.metrics.length > 0 ||
         formData.targetingCategory ||
-        formData.targetingOptions.length > 0
+        formData.targetingOptions.length > 0 ||
+        Object.keys(formData.mediaProducts).length > 0 ||
+        formData.productMetrics.length > 0
       )
       if (hasAnyInput) setValidationStep2(true)
     }
@@ -58,8 +66,12 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [industryDialogOpen, setIndustryDialogOpen] = useState(false)
   const [showSampleDataModal, setShowSampleDataModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showToast, setShowToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [showToast, setShowToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
   const [showLeaveDialog, setShowLeaveDialog] = useState(false)
+  // 광고상품 전환 시 중분류 업종 초기화 확인 다이얼로그
+  const [showExtractModeResetDialog, setShowExtractModeResetDialog] = useState(false)
+  // 광고상품 매체 수 변경(지표 소스 전환) 시 지표 초기화 확인 — pending에 다음 mediaProducts 보관
+  const [pendingMediaProducts, setPendingMediaProducts] = useState<FormData['mediaProducts'] | null>(null)
 
   // 입력값 존재 여부 (이탈 방지 조건)
   const hasAnyInput = !!(
@@ -113,13 +125,31 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
       formData.period.endYear &&
       formData.period.endMonth &&
       dateValidation.valid &&
+      formData.extractMode &&
       formData.industries.length > 0 &&
       formData.industryLevel
     )
 
   const isStep2Valid = () => {
+    // 광고상품 기준: 매체 1개↑ + 선택한 모든 매체에 상품 1개↑ + 지표 1개↑
+    if (formData.extractMode === 'product') {
+      const medias = Object.keys(formData.mediaProducts)
+      const allHaveProducts = medias.length > 0 && medias.every(m => (formData.mediaProducts[m] || []).length > 0)
+      return !!(allHaveProducts && formData.productMetrics.length > 0)
+    }
+    // 조건 조합 기준(기존)
     const isTargetingValid = !formData.targetingCategory || formData.targetingOptions.length > 0
     return !!(formData.media && formData.products.length > 0 && formData.metrics.length > 0 && isTargetingValid)
+  }
+
+  // Step3: 추출 버튼은 미리보기 데이터가 있을 때만 활성화
+  const isStep3HasData = () => {
+    if (formData.extractMode === 'product') {
+      const rows = Object.keys(formData.mediaProducts).flatMap(m => formData.mediaProducts[m] || [])
+      return rows.length > 0 && formData.productMetrics.length > 0
+    }
+    // 조건 조합
+    return formData.products.length > 0 && formData.metrics.length > 0
   }
 
   const handleNext = () => {
@@ -243,20 +273,34 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                   validationActive={validationStep1}
                   industryDialogOpen={industryDialogOpen}
                   setIndustryDialogOpen={setIndustryDialogOpen}
+                  onConfirmResetForProduct={() => setShowExtractModeResetDialog(true)}
                 />
               )}
               {currentStep === 2 && (
-                <CreateDatasetStep2
-                  formData={formData}
-                  setFormData={setFormData}
-                  validationActive={validationStep2}
-                />
+                formData.extractMode === 'product' ? (
+                  <CreateDatasetStep2Product
+                    formData={formData}
+                    setFormData={setFormData}
+                    validationActive={validationStep2}
+                    onConfirmResetMetrics={(next) => setPendingMediaProducts(next)}
+                  />
+                ) : (
+                  <CreateDatasetStep2
+                    formData={formData}
+                    setFormData={setFormData}
+                    validationActive={validationStep2}
+                  />
+                )
               )}
               {currentStep === 3 && (
-                <CreateDatasetStep3
-                  formData={formData}
-                  onShowSampleData={() => setShowSampleDataModal(true)}
-                />
+                formData.extractMode === 'product' ? (
+                  <CreateDatasetStep3Product formData={formData} onShowSampleData={() => setShowSampleDataModal(true)} />
+                ) : (
+                  <CreateDatasetStep3
+                    formData={formData}
+                    onShowSampleData={() => setShowSampleDataModal(true)}
+                  />
+                )
               )}
             </div>
 
@@ -299,9 +343,9 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
                   ) : (
                     <button
                       onClick={handleSubmit}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isStep3HasData()}
                       className="btn btn-primary btn-lg"
-                      style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+                      style={{ opacity: (isSubmitting || !isStep3HasData()) ? 0.5 : 1, cursor: (isSubmitting || !isStep3HasData()) ? 'not-allowed' : 'pointer' }}
                     >
                       {isSubmitting ? '생성 중...' : '데이터셋 생성 요청'}
                     </button>
@@ -359,17 +403,97 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
         </div>
       )}
 
+      {/* 추출 기준 변경(광고상품) 시 업종 초기화 확인 다이얼로그 */}
+      {showExtractModeResetDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 업종 초기화</h3>
+              <p className="dialog-description">
+                광고상품 기준은 대분류 업종만 선택할 수 있습니다.<br />
+                변경하면 선택한 업종이 초기화됩니다. 계속 진행하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setShowExtractModeResetDialog(false)}
+                className="btn btn-primary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    extractMode: 'product',
+                    industries: [], industryLevel: null,
+                    // 반대쪽 필드 + 공유 필드 초기화
+                    media: '', products: [], metrics: [],
+                    mediaProducts: {}, productMetrics: [], productCollaborativePartners: [],
+                    targetingCategory: '', targetingOptions: [],
+                  })
+                  setShowExtractModeResetDialog(false)
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                변경
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 매체 수 변경(지표 소스 전환) 시 지표 초기화 확인 다이얼로그 */}
+      {pendingMediaProducts && (
+        <div className="dialog-overlay">
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <h3 className="dialog-title">선택한 지표 초기화</h3>
+              <p className="dialog-description">
+                매체 수가 바뀌어 선택 가능한 지표가 달라집니다.<br />
+                변경하면 선택한 지표가 초기화됩니다. 계속 진행하시겠습니까?
+              </p>
+            </div>
+            <div className="dialog-footer">
+              <button
+                onClick={() => setPendingMediaProducts(null)}
+                className="btn btn-primary btn-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    mediaProducts: pendingMediaProducts,
+                    productMetrics: [],
+                    // 매체 구성이 바뀌었으므로 타겟팅/파트너사도 항상 초기화
+                    targetingCategory: '', targetingOptions: [], productCollaborativePartners: [],
+                  })
+                  setPendingMediaProducts(null)
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                변경
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 토스트 */}
       {showToast && (
-        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : 'toast--error'}`}>
+        <div className={`toast ${showToast.type === 'success' ? 'toast--success' : showToast.type === 'error' ? 'toast--error' : ''}`}>
           <div className="toast__icon">
             {showToast.type === 'success'
               ? <CheckCircle size={20} style={{ color: 'hsl(142.1 76.2% 36.3%)' }} />
-              : <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+              : showToast.type === 'error'
+              ? <AlertCircle size={20} style={{ color: 'hsl(var(--destructive))' }} />
+              : <Info size={20} style={{ color: 'hsl(var(--muted-foreground))' }} />
             }
           </div>
           <div className="toast__content">
-            <p className="toast__title">{showToast.type === 'success' ? '성공' : '오류'}</p>
+            <p className="toast__title">{showToast.type === 'success' ? '성공' : showToast.type === 'error' ? '오류' : '안내'}</p>
             <p className="toast__description">{showToast.message}</p>
           </div>
           <button onClick={() => setShowToast(null)} className="toast__close">
