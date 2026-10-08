@@ -87,7 +87,7 @@ export function BOResult() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setShowToast({ type: 'success', message: '시나리오가 성공적으로 삭제되었습니다.' })
-      setTimeout(() => { navigate('/budgetoptimizer') }, 1500)
+      setTimeout(() => { navigate('/budgetopt') }, 1500)
     } catch (error) {
       setShowToast({ type: 'error', message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.' })
     } finally {
@@ -153,7 +153,7 @@ export function BOResult() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: slotData.title },
-        { label: 'BudgetOpt 2.0', href: '/budgetoptimizer' },
+        { label: 'BudgetOpt 2.0', href: '/budgetopt' },
         { label: result.name }
       ]}
       isDarkMode={isDarkMode}
