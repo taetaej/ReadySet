@@ -21,6 +21,13 @@ export interface Dataset {
   creator: string
   creatorId: string
   purpose?: 'internal' | 'external' | '' // 지표 구성 (종합/성과)
+  // 조회 결과 차트(Benchmark Analytics) 강제 미달 플래그.
+  // true면 광고상품 상세의 차트 2종 영역이 데이터 소스와 무관하게 "데이터 충분하지 않음" 안내만 표시.
+  // (차트 제공 조건 미달 엣지 케이스 데모용 — 실데이터 집계 거치지 않음)
+  chartInsufficient?: boolean
+  // 차트2 엣지 케이스 데모 플래그. true면 상세의 ResultCharts가 엣지 전용 업종 세트를 사용.
+  // 업종 드롭다운으로 정상/단일매체/클릭부족/조회부족/둘다부족 케이스를 전환하며 확인(엣지 재현용).
+  chartEdgeDemo?: boolean
 }
 
 // 샘플 데이터
@@ -40,6 +47,10 @@ export const sampleDatasets: Dataset[] = [
   { id: 13, name: '리타겟팅 광고상품 통합 데이터',        extractMode: 'product',   media: 'Meta',              mediaCount: 5, mediaList: ['Meta', 'Google Ads', 'kakao모먼트', 'NAVER 성과형 DA', 'TikTok'], industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-04', endDate: '2024-06', periodType: 'month',   status: 'Completed',  created: '2024-04-01 09:00', creator: '박지훈', creatorId: 'parkjihun@naver.com' },
   { id: 14, name: 'kakao모먼트 브랜드 인지도 캠페인',     media: 'kakao모먼트',       industry: '전자제품', industryLevel: 'mid',   industryCount: 1,         startDate: '2024-2',  endDate: '2024-2',  periodType: 'quarter', status: 'Error',      created: '2024-04-10 16:30', creator: '최수진', creatorId: 'choisujin@kakao.com' },
   { id: 15, name: '신규 고객 유치 광고상품 데이터',       extractMode: 'product',   media: 'TikTok',            mediaCount: 2, mediaList: ['TikTok', 'Meta'], industry: '3개 업종', industryLevel: 'major', industryCount: 3,         startDate: '2024-05', endDate: '2024-07', periodType: 'month',   status: 'Processing', created: '2024-05-01 10:45', creator: '정예린', creatorId: 'jungyerin@gmail.com' },
+  // 차트 미달 엣지 데모: 2026년 1월 1달·광고상품 기준이지만 결과 차트 제공 조건 미달(chartInsufficient).
+  { id: 16, name: '[엣지] 차트 제공조건 미달 (상품 3개 미만)', extractMode: 'product', media: 'Google Ads',        mediaCount: 1, mediaList: ['Google Ads'],   industry: '식품',     industryLevel: 'major', industryCount: 1,         startDate: '2026-01', endDate: '2026-01', periodType: 'month',   status: 'Completed',  created: '2026-02-03 10:20', creator: '서지안', creatorId: 'seojian@gmail.com', chartInsufficient: true },
+  // 차트2 엣지 데모: 업종 드롭다운으로 정상/단일매체/클릭부족/조회부족/둘다부족 전환(chartEdgeDemo).
+  { id: 17, name: '[엣지] 차트2 케이스 모음 (업종별 전환)', extractMode: 'product', media: 'Google Ads',        mediaCount: 3, mediaList: ['Google Ads', 'Meta', 'TikTok'], industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-07', endDate: '2024-08', periodType: 'month',   status: 'Completed',  created: '2026-02-05 15:40', creator: '서지안', creatorId: 'seojian@gmail.com', chartEdgeDemo: true },
 ]
 
 // 업종 분류 데이터
