@@ -164,15 +164,19 @@ export function SlotCard({
         </div>
 
         {/* 광고주와 가시성 뱃지 - 상단 영역 하단에 배치 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
             {/* 광고주 프로필 */}
             <Avatar 
               name={slot.advertiser}
               type="advertiser"
               size={20}
             />
-            <span style={{ fontSize: '14px' }} className="text-muted-foreground">
+            <span
+              style={{ fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
+              className="text-muted-foreground"
+              title={slot.advertiser}
+            >
               {slot.advertiser}
             </span>
           </div>
@@ -182,7 +186,8 @@ export function SlotCard({
             borderRadius: '12px',
             backgroundColor: 'hsl(var(--muted))',
             color: 'hsl(var(--muted-foreground))',
-            fontWeight: '500'
+            fontWeight: '500',
+            flexShrink: 0
           }}>
             {slot.visibility}
           </span>
