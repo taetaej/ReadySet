@@ -1,6 +1,7 @@
 import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, type MetricGroup } from './types'
 import { adProductStructureByMedia } from './sampleData'
 import { FormData } from './createDatasetTypes'
+import { getMatchedMetricGroups } from './MetricSelect'
 
 const metricsByMedia: Record<string, MetricGroup[]> = {
   'Meta': metaMetrics,
@@ -62,13 +63,23 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
                     : '—'
                 }
               />
+              <SummaryItem
+                label="추출 기준"
+                value={
+                  formData.extractMode === 'product' ? '광고상품'
+                    : formData.extractMode === 'condition' ? '조건 조합'
+                    : '—'
+                }
+              />
               <IndustryItem industries={formData.industries} industryLevel={formData.industryLevel} />
             </div>
           </div>
           <div style={{ height: '1px', backgroundColor: 'hsl(var(--border))' }} />
           <div>
             <StepLabel label="QUERY SETTINGS" step={2} currentStep={currentStep} />
-            {!formData.media ? (
+            {formData.extractMode === 'product' ? (
+              <ProductQuerySettings formData={formData} />
+            ) : !formData.media ? (
               <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontStyle: 'italic' }}>Pending</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -103,6 +114,84 @@ export function ConfigurationSummary({ formData, currentStep }: ConfigurationSum
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+// 광고상품 기준 QUERY SETTINGS: 매체 수 · 매체별 상품 수 · 선택 지표
+function ProductQuerySettings({ formData }: { formData: FormData }) {
+  const mediaProducts = formData.mediaProducts
+  const selectedMedias = Object.keys(mediaProducts)
+  const totalProducts = selectedMedias.reduce((sum, m) => sum + (mediaProducts[m] || []).length, 0)
+  const productMetrics = formData.productMetrics
+  const productMetricGroups = getMatchedMetricGroups(selectedMedias, productMetrics, formData.purpose)
+
+  if (selectedMedias.length === 0) {
+    return <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontStyle: 'italic' }}>Pending</div>
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <SummaryItem label="매체" value={`${selectedMedias.length}개`} />
+      <div style={{ marginTop: '4px', padding: '8px 12px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+          <span style={{ fontSize: '11px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>광고상품</span>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap' }}>{totalProducts}개</span>
+        </div>
+        {selectedMedias.map((media) => {
+          const count = (mediaProducts[media] || []).length
+          return (
+            <div key={media} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{ fontSize: '11px', color: 'hsl(var(--foreground))', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{media}</span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'hsl(var(--foreground))', whiteSpace: 'nowrap' }}>{count > 0 ? `${count}개` : '-'}</span>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 상세 조건 (매체 1개일 때만, 지표와 동일 레이아웃) */}
+      {selectedMedias.length === 1 && (formData.productCollaborativePartners.length > 0 || (formData.targetingCategory && formData.targetingOptions.length > 0)) && (
+        <div>
+          {(() => {
+            const totalDetailCount = formData.productCollaborativePartners.length + formData.targetingOptions.length
+            return (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>상세 조건</span>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: 'hsl(var(--foreground))' }}>
+                    {totalDetailCount}개
+                  </span>
+                </div>
+                <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {formData.productCollaborativePartners.length > 0 && (
+                    <GroupChipRow label="협력 광고 파트너사" chips={formData.productCollaborativePartners} />
+                  )}
+                  {formData.targetingCategory && formData.targetingOptions.length > 0 && (
+                    <GroupChipRow label={formData.targetingCategory} chips={formData.targetingOptions} />
+                  )}
+                </div>
+              </>
+            )
+          })()}
+        </div>
+      )}
+
+      {/* 지표 */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>지표</span>
+          <span style={{ fontSize: '13px', fontWeight: '500', color: productMetrics.length > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+            {productMetrics.length > 0 ? `${productMetrics.length}개` : '—'}
+          </span>
+        </div>
+        {productMetricGroups.length > 0 && (
+          <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'hsl(var(--muted) / 0.3)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {productMetricGroups.map(g => (
+              <GroupChipRow key={g.group} label={g.group} chips={g.matched} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

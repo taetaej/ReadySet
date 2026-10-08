@@ -1081,48 +1081,73 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
             )}
         </div>
 
-        {/* DataShot CTA */}
+        {/* DataShot 이어가기 CTA 존 */}
         <div style={{
-          padding: '24px 0',
+          marginTop: '24px',
+          paddingTop: '32px',
           borderTop: '1px solid hsl(var(--border))',
-          marginTop: '16px',
           display: 'flex',
-          justifyContent: 'center'
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: '20px'
         }}>
+          {/* 맥락: 여기서 새로 보게 될 것 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '560px' }}>
+            <span style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              fontFamily: 'Paperlogy, sans-serif',
+              color: 'hsl(var(--foreground))',
+              letterSpacing: '-0.01em'
+            }}>
+              {scenarioData?.industry || '여행'} 업종의 캠페인 성과는 어떨까요?
+            </span>
+            <span style={{
+              fontSize: '14px',
+              color: 'hsl(var(--muted-foreground))',
+              lineHeight: '1.6'
+            }}>
+              DataShot에서 내 업종의 캠페인 성과 데이터를 이어서 확인할 수 있어요.
+            </span>
+          </div>
+
+          {/* 버튼: 프로덕트 primary(pill) 표준 — 텍스트 아래 좌측 정렬 */}
           <button
             onClick={() => navigate('/datashot')}
             style={{
-              maxWidth: '600px',
-              width: '100%',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '8px',
-              padding: '16px',
-              background: 'none',
+              flexShrink: 0,
+              height: '48px',
+              padding: '0 24px',
+              background: 'hsl(var(--primary))',
               border: 'none',
+              borderRadius: '24px',
               cursor: 'pointer',
               fontSize: '14px',
+              fontWeight: '600',
               fontFamily: 'Paperlogy, sans-serif',
-              color: 'hsl(var(--muted-foreground))',
-              transition: 'all 0.2s',
-              borderRadius: '8px'
+              color: 'hsl(var(--primary-foreground))',
+              transition: 'background-color 0.2s',
+              whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.3)'
-              e.currentTarget.style.color = 'hsl(var(--foreground))'
+              e.currentTarget.style.background = 'hsl(var(--primary) / 0.9)'
+              const go = e.currentTarget.querySelector<HTMLElement>('.rc-datashot-cta__go')
+              if (go) go.style.transform = 'translateX(3px)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+              e.currentTarget.style.background = 'hsl(var(--primary))'
+              const go = e.currentTarget.querySelector<HTMLElement>('.rc-datashot-cta__go')
+              if (go) go.style.transform = 'translateX(0)'
             }}
           >
-            <Database size={16} />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
-              <span style={{ fontWeight: '500' }}>DataShot에서 {scenarioData?.industry || '업종명'} 업종의 캠페인 성과 확인하기</span>
-              <span style={{ fontSize: '11px', opacity: 0.7 }}>실제 집행 데이터 기반</span>
-            </div>
-            <ArrowRight size={16} />
+            <Database size={16} style={{ flexShrink: 0 }} />
+            DataShot으로 캠페인 성과 보기
+            <span className="rc-datashot-cta__go" style={{ display: 'inline-flex', alignItems: 'center', transition: 'transform 0.2s' }}>
+              <ArrowRight size={16} />
+            </span>
           </button>
         </div>
       </div>

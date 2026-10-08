@@ -77,7 +77,7 @@ export const generateMetaSampleData = () => {
       ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
       cpc: Math.round(cost / (clicks || 1)),
       cpm: parseFloat((cost / impressions * 1000).toFixed(1)),
-      vtr: parseFloat((seed(i, 10) * 60).toFixed(1))
+      vtr: parseFloat((seed(i, 10) * 60).toFixed(2))
     })
   }
   return data
@@ -143,7 +143,7 @@ export const generateKakaoSampleData = () => {
       ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
       cpc: Math.round(cost / (clicks || 1)),
       cpm: parseFloat((cost / impressions * 1000).toFixed(1)),
-      vtr: parseFloat((seed(i, 11) * 60).toFixed(1))
+      vtr: parseFloat((seed(i, 11) * 60).toFixed(2))
     })
   }
   return data
@@ -200,7 +200,7 @@ export const generateNaverGfaSampleData = () => {
       ctr: parseFloat((clicks / impressions * 100).toFixed(2)),
       cpc: Math.round(cost / (clicks || 1)),
       cpm: parseFloat((cost / impressions * 1000).toFixed(1)),
-      vtr: parseFloat((seed(i, 12) * 60).toFixed(1))
+      vtr: parseFloat((seed(i, 12) * 60).toFixed(2))
     })
   }
   return data

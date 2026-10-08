@@ -155,6 +155,19 @@ export function DatasetList() {
     return styles[status as keyof typeof styles] || styles.Pending
   }
 
+  // 추출 기준 표시 (미지정 시 조건 조합 — 기존 데이터 하위 호환)
+  const getExtractModeLabel = (dataset: { extractMode?: 'product' | 'condition' }) =>
+    dataset.extractMode === 'product' ? '광고상품' : '조건 조합'
+
+  // 매체 표시 함수: 광고상품(복수 매체)은 "N개 매체", 조건 조합은 단일 매체명
+  const getMediaDisplay = (dataset: { extractMode?: 'product' | 'condition'; media: string; mediaCount?: number }) => {
+    if (dataset.extractMode === 'product') {
+      const count = dataset.mediaCount ?? 1
+      return `${count}개 매체`
+    }
+    return dataset.media
+  }
+
   // 업종 표시 함수
   const getIndustryDisplay = (dataset: { industry: string; industryLevel?: 'major' | 'mid' | 'minor' | null; industryCount?: number }) => {
     if (!dataset.industryLevel || dataset.industry === '전체') {
@@ -539,6 +552,9 @@ export function DatasetList() {
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '110px', color: 'hsl(var(--foreground))' }}>
                   지표 구성
                 </th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '110px', color: 'hsl(var(--foreground))' }}>
+                  추출 기준
+                </th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
                   <button onClick={() => handleSort('status')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     상태 {renderSortIcon('status')}
@@ -612,7 +628,7 @@ export function DatasetList() {
                       {dataset.name}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }}>
-                      {dataset.media}
+                      {getMediaDisplay(dataset)}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
@@ -625,6 +641,9 @@ export function DatasetList() {
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
                       {dataset.purpose === 'internal' ? '종합 지표' : '성과 지표'}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">
+                      {getExtractModeLabel(dataset)}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{

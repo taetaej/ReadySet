@@ -1,4 +1,6 @@
 import { Database } from 'lucide-react'
+import type { FormData } from './createDatasetTypes'
+import { getMetricGroups } from './MetricSelect'
 
 
 
@@ -22,7 +24,7 @@ const metricMockNumbers: Record<string, () => number> = {
   cpc: () => Math.floor(Math.random() * 800) + 200,
   cpm: () => Math.floor(Math.random() * 15000) + 3000,
   cpv: () => Math.floor(Math.random() * 300) + 50,
-  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(1)),
+  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(2)),
   reach: () => Math.floor(Math.random() * 500000) + 50000,
   frequency: () => parseFloat((Math.random() * 3 + 1).toFixed(1)),
   link_click: () => Math.floor(Math.random() * 5000) + 500,
@@ -58,26 +60,61 @@ const targetPool = ['데스크톱', '모바일', '태블릿', 'PC', '앱 내']
 interface SampleDataModalProps {
   isOpen: boolean
   onClose: () => void
-  formData: {
-    media: string
-    period: {
-      startYear: string
-      startMonth: string
-      endYear: string
-      endMonth: string
-    }
-    periodType: 'month' | 'quarter'
-    industries: string[]
-    products: string[]
-    metrics: string[]
-    targetingCategory: string
-    targetingOptions: string[]
-  }
+  formData: FormData
 }
 
 export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalProps) {
   if (!isOpen) return null
 
+  return (
+    <div className="dialog-overlay" onClick={onClose}>
+      <div
+        className="dialog-content dialog-full"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="dialog-header">
+          <h3 className="dialog-title">샘플 데이터 미리보기</h3>
+          <p className="dialog-description">
+            데이터 구조를 확인하고, 조회조건이 다르다면 이전 단계에서 수정하세요.
+          </p>
+        </div>
+
+        <div style={{ padding: '24px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))', margin: 0 }}>
+              Sample Data
+            </h3>
+            <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
+              <Database size={14} />
+              예상 데이터 크기 : 1,234 행
+            </span>
+          </div>
+
+          <div style={{
+            flex: 1, minHeight: 0,
+            border: '1px solid hsl(var(--border))', borderRadius: '8px',
+            overflow: 'auto',
+            backgroundColor: 'hsl(var(--card))'
+          }}>
+            {formData.extractMode === 'product'
+              ? <ProductSampleTable formData={formData} />
+              : <ConditionSampleTable formData={formData} />
+            }
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button onClick={onClose} className="btn btn-primary btn-md">확인</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 조건 조합 기준 샘플 테이블 (기존 로직)
+function ConditionSampleTable({ formData }: { formData: FormData }) {
+  const showMidIndustry = formData.industryLevel === 'mid'
   const adProductColumns = formData.media === 'Meta'
     ? [
         { key: 'objective', label: '캠페인 목표' },
@@ -135,45 +172,13 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
   })
 
   return (
-    <div className="dialog-overlay" onClick={onClose}>
-      <div
-        className="dialog-content dialog-full"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
-      >
-        <div className="dialog-header">
-          <h3 className="dialog-title">샘플 데이터 미리보기</h3>
-          <p className="dialog-description">
-            데이터 구조를 확인하고, 조회조건이 다르다면 이전 단계에서 수정하세요.
-          </p>
-        </div>
-
-        <div style={{ padding: '24px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', fontFamily: 'Paperlogy, sans-serif', color: 'hsl(var(--foreground))', margin: 0 }}>
-              Sample Data
-            </h3>
-            <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
-              <Database size={14} />
-              예상 데이터 크기 : 1,234 행
-            </span>
-          </div>
-
-          {/* 스크롤 컨테이너: minHeight:0 필수 */}
-          <div style={{
-            flex: 1, minHeight: 0,
-            border: '1px solid hsl(var(--border))', borderRadius: '8px',
-            overflow: 'auto',
-            backgroundColor: 'hsl(var(--card))'
-          }}>
             <table style={{ borderCollapse: 'collapse', fontSize: '12px', width: '100%', minWidth: 'max-content' }}>
               <thead>
                 <tr>
                   <th style={th()}>기간</th>
                   <th style={th()}>매체</th>
                   <th style={th()}>업종(대)</th>
-                  <th style={th()}>업종(중)</th>
-                  <th style={th()}>업종(소)</th>
+                  {showMidIndustry && <th style={th()}>업종(중)</th>}
                   {adProductColumns.map(col => <th key={col.key} style={th()}>{col.label}</th>)}
                   {formData.targetingCategory && <th style={th()}>{formData.targetingCategory}</th>}
                   {fixedMetrics.map(m => <th key={m.id} style={th(true)}>{m.label}</th>)}
@@ -185,8 +190,7 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
                     <td style={td(false, true)}>{periodStr}</td>
                     <td style={td(false, true)}>{formData.media || 'Meta'}</td>
                     <td style={td(false, true)}>{row.ind[0]}</td>
-                    <td style={td(false, true)}>{row.ind[1]}</td>
-                    <td style={td(false, true)}>{row.ind[2]}</td>
+                    {showMidIndustry && <td style={td(false, true)}>{row.ind[1]}</td>}
                     {row.adCols.map((v, j) => <td key={j} style={td(false, true)}>{v}</td>)}
                     {formData.targetingCategory && <td style={td(false, true)}>{row.targeting}</td>}
                     {fixedMetrics.map(m => {
@@ -207,13 +211,97 @@ export function SampleDataModal({ isOpen, onClose, formData }: SampleDataModalPr
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
+  )
+}
 
-        <div className="dialog-footer">
-          <button onClick={onClose} className="btn btn-primary btn-md">확인</button>
-        </div>
-      </div>
-    </div>
+// 광고상품 기준 샘플 테이블 (매체×상품×업종 조합, 선택 항목별 컬럼)
+function ProductSampleTable({ formData }: { formData: FormData }) {
+  const mediaProducts = formData.mediaProducts
+  const productMetrics = formData.productMetrics
+  const selectedMedias = Object.keys(mediaProducts)
+  const showMidIndustry = formData.industryLevel === 'mid'
+  const hasTargeting = !!(formData.targetingCategory && formData.targetingOptions.length > 0)
+  const hasPartners = formData.productCollaborativePartners.length > 0
+
+  const periodStr = formData.period.startYear
+    ? formData.periodType === 'quarter'
+      ? `${formData.period.startYear}-Q${formData.period.startMonth}`
+      : `${formData.period.startYear}-${formData.period.startMonth.padStart(2, '0')}`
+    : '2024-01'
+
+  // 선택 지표 라벨
+  const metricLabels = (() => {
+    const groups = getMetricGroups(selectedMedias, formData.purpose)
+    const flat = groups.flatMap(g => g.metrics)
+    return productMetrics.map(id => flat.find(m => m.id === id)?.label ?? id)
+  })()
+
+  // 업종(대) 목록
+  const industryRows = formData.industries.length > 0
+    ? formData.industries.map(s => ({ major: s.split(' > ')[0], mid: s.split(' > ')[1] ?? '' }))
+    : [{ major: '전체', mid: '' }]
+
+  // 행: 매체 × 상품 × 업종
+  const rows = selectedMedias.flatMap((media) =>
+    (mediaProducts[media] || []).flatMap((product) =>
+      industryRows.map((ind) => ({ media, product, major: ind.major, mid: ind.mid }))
+    )
+  ).slice(0, 5)
+
+  const th = (right = false): React.CSSProperties => ({
+    padding: '8px 12px', textAlign: right ? 'right' : 'left', fontSize: '12px', fontWeight: '500',
+    whiteSpace: 'nowrap', backgroundColor: 'hsl(var(--muted))',
+    borderBottom: '1px solid hsl(var(--border))',
+    borderRight: '1px solid hsl(var(--border) / 0.5)',
+    position: 'sticky', top: 0, zIndex: 1,
+  })
+  const td = (right = false, muted = false): React.CSSProperties => ({
+    padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap',
+    textAlign: right ? 'right' : 'left',
+    borderBottom: '1px solid hsl(var(--border))',
+    borderRight: '1px solid hsl(var(--border) / 0.5)',
+    color: muted ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))'
+  })
+
+  return (
+    <table style={{ borderCollapse: 'collapse', fontSize: '12px', width: '100%', minWidth: 'max-content' }}>
+      <thead>
+        <tr>
+          <th style={th()}>기간</th>
+          <th style={th()}>매체</th>
+          <th style={th()}>업종(대)</th>
+          {showMidIndustry && <th style={th()}>업종(중)</th>}
+          <th style={th()}>광고상품</th>
+          {hasPartners && <th style={th()}>협력 광고 파트너사</th>}
+          {hasTargeting && <th style={th()}>{formData.targetingCategory}</th>}
+          {metricLabels.map(l => <th key={l} style={th(true)}>{l}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, i) => (
+          <tr key={i} style={{ backgroundColor: i % 2 === 1 ? 'hsl(var(--muted) / 0.2)' : 'transparent' }}>
+            <td style={td(false, true)}>{periodStr}</td>
+            <td style={td(false, true)}>{row.media}</td>
+            <td style={td(false, true)}>{row.major}</td>
+            {showMidIndustry && <td style={td(false, true)}>{row.mid || '—'}</td>}
+            <td style={td(false, true)}>{row.product}</td>
+            {hasPartners && <td style={td(false, true)}>{formData.productCollaborativePartners[i % formData.productCollaborativePartners.length]}</td>}
+            {hasTargeting && <td style={td(false, true)}>{formData.targetingOptions[i % formData.targetingOptions.length]}</td>}
+            {productMetrics.map(id => {
+              const unit = metricUnits[id.replace('common_', '')] || (id.includes('ctr') || id.includes('vtr') ? '%' : id.includes('cp') || id.includes('cost') ? '원' : '회')
+              const val = getMockMetricNumber(id.replace('common_', ''))
+              const isPercent = unit === '%'
+              const formatted = isPercent ? (val % 10).toFixed(2) : val.toLocaleString()
+              return (
+                <td key={id} style={{ ...td(true), color: '#0A0A0A' }}>
+                  {formatted}
+                  {unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: isPercent ? '2px' : '4px', fontWeight: '400' }}>{unit}</span>}
+                </td>
+              )
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
