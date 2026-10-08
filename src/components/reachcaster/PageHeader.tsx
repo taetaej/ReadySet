@@ -178,7 +178,7 @@ export function PageHeader({
             fontSize: '13px',
             fontWeight: '400'
           }} className="text-muted-foreground">
-            Budget Optimizer
+            BudgetOpt 2.0
           </div>
         </div>
 

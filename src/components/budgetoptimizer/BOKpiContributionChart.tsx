@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, Customized } from 'recharts'
-import { Info } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { BOKpiWaterfall } from './resultSampleData'
 import { ACCENT_COLOR } from './constants'
 import { BOSpinXInsight } from './BOSpinXInsight'
@@ -22,15 +22,19 @@ const formatAxis = (v: number) => {
   if (abs >= 10000) return `${Math.round(v / 10000).toLocaleString()}만`
   return `${v}`
 }
-const formatDelta = (v: number) => `${v > 0 ? '+' : v < 0 ? '-' : ''}${formatAxis(Math.abs(v))}`
 
-// 막대 색상: 최종 결과(최적화)=강조색 / 시작 기준(균등 배분)=진한 무채색 / 증감 막대=흐린 무채색(동일)
+// 막대 색상: 최종 결과(최적화)=시그니처 강조색 / 시작 기준(균등 배분)=진한 무채색
 const COLOR_OPTIMIZED = ACCENT_COLOR
 const COLOR_BASE = 'hsl(var(--foreground) / 0.85)'
-const COLOR_DELTA_BAR = 'hsl(var(--foreground) / 0.35)'
-// 델타 라벨 색상: 증감 모두 무채색 (방향은 +/− 부호로 표기). 초록은 시그니처 강조(최적화 막대)에만 쓰므로 델타엔 쓰지 않음
-const COLOR_LABEL_UP = 'hsl(var(--muted-foreground))'
-const COLOR_LABEL_DOWN = 'hsl(var(--muted-foreground))'
+// 증감 색: 결과 테이블(BOResultTable)의 증감 표기와 동일한 플랫폼 표준 색 언어를 재사용.
+//  - 증가=의미 그린(hsl(142 71% 45%)) / 감소=destructive 빨강.
+//  - 이 의미 그린은 시그니처 강조 그린(ACCENT_COLOR=최적점)과 명도·채도가 다른 별개 색이라,
+//    증가 막대가 최적화 막대의 "판단/최적점" 신호를 침범하지 않는다.
+// 라벨은 방향을 확정하는 진한 의미색, 막대는 total 막대보다 튀지 않도록 연한 틴트로 둔다.
+const COLOR_LABEL_UP = 'hsl(142 71% 45%)'
+const COLOR_LABEL_DOWN = 'hsl(var(--destructive))'
+const COLOR_DELTA_UP = 'hsl(142 71% 45% / 0.3)'
+const COLOR_DELTA_DOWN = 'hsl(var(--destructive) / 0.3)'
 
 // ── Y축 절단(axis break) 튜닝 상수 ─────────────────────────────
 // 워터폴 total 막대(균등/최적화)가 0부터 그려지면 그 사이 변화 구간이 작아 보인다.
@@ -84,7 +88,7 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
 
   const colorOf = (b: WFBar) => {
     if (b.kind === 'total') return b.name === '최적화' ? COLOR_OPTIMIZED : COLOR_BASE
-    return COLOR_DELTA_BAR
+    return b.delta >= 0 ? COLOR_DELTA_UP : COLOR_DELTA_DOWN
   }
 
   // Y축 범위 계산 (절단 여부 판단 포함)
@@ -262,14 +266,36 @@ export function BOKpiContributionChart({ data, dataByProduct, kpiLabel, insight,
                   const { x, y, width, index } = props
                   const b = bars[index]
                   if (!b) return null
-                  const text = b.kind === 'total' ? formatAxis(b.delta) : formatDelta(b.delta)
-                  const labelColor = b.kind === 'total'
-                    ? 'hsl(var(--foreground))'
-                    : b.delta >= 0 ? COLOR_LABEL_UP : COLOR_LABEL_DOWN
+                  const isTotal = b.kind === 'total'
+                  const cx = x + width / 2
+                  // total 막대: 아이콘 없이 총값만 중앙 표기
+                  if (isTotal) {
+                    return (
+                      <text x={cx} y={y - 4} textAnchor="middle" style={{ fontSize: '10px', fontWeight: 600 }} fill="hsl(var(--foreground))">
+                        {formatAxis(b.delta)}
+                      </text>
+                    )
+                  }
+                  // 증감 막대: 결과 테이블과 동일한 lucide 추세 아이콘(색 + 모양) + 절대값.
+                  // 아이콘이 방향을 나타내므로 +/− 부호는 생략(결과 테이블 패턴).
+                  const up = b.delta >= 0
+                  const Icon = up ? TrendingUp : TrendingDown
+                  const labelColor = up ? COLOR_LABEL_UP : COLOR_LABEL_DOWN
+                  const text = formatAxis(Math.abs(b.delta))
+                  const iconSize = 10
+                  const gap = 2
+                  // 아이콘(iconSize) + gap + 텍스트를 하나의 묶음으로 중앙 정렬.
+                  // 텍스트 폭은 글자당 약 6px로 추정(fontSize 10 기준).
+                  const textW = text.length * 6
+                  const groupW = iconSize + gap + textW
+                  const startX = cx - groupW / 2
                   return (
-                    <text x={x + width / 2} y={y - 4} textAnchor="middle" style={{ fontSize: '10px', fontWeight: b.kind === 'total' ? 600 : 500 }} fill={labelColor}>
-                      {text}
-                    </text>
+                    <g>
+                      <Icon x={startX} y={y - 4 - iconSize + 1} width={iconSize} height={iconSize} color={labelColor} />
+                      <text x={startX + iconSize + gap} y={y - 4} textAnchor="start" style={{ fontSize: '10px', fontWeight: 500 }} fill={labelColor}>
+                        {text}
+                      </text>
+                    </g>
                   )
                 }}
               />

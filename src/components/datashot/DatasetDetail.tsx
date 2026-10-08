@@ -1386,7 +1386,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                             {aCtr.toFixed(2)}<span style={pctSpan}>%</span>
                           </td>
                           <td style={valStyle}>
-                            {aVtr.toFixed(1)}<span style={pctSpan}>%</span>
+                            {aVtr.toFixed(2)}<span style={pctSpan}>%</span>
                           </td>
                         </tr>
                         {/* 필터 대상 합계 */}
@@ -1412,7 +1412,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                             {fCtr.toFixed(2)}<span style={pctSpan}>%</span>
                           </td>
                           <td style={valStyle}>
-                            {fVtr.toFixed(1)}<span style={pctSpan}>%</span>
+                            {fVtr.toFixed(2)}<span style={pctSpan}>%</span>
                           </td>
                         </tr>
                       </>
@@ -1465,7 +1465,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
                         <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '4px', fontWeight: '400' }}>원</span>
                       </td>
                       <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>{row.ctr.toFixed(2)}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>{(row as any).vtr?.toFixed(1) ?? '—'}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontSize: '11px', color: 'hsl(var(--foreground))' }}>{(row as any).vtr?.toFixed(2) ?? '—'}<span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px', fontWeight: '400' }}>%</span></td>
                     </tr>
                   ))}
                 </tbody>

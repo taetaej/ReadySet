@@ -6,14 +6,14 @@ import { SpinXSymbol } from '../spinx/SpinXSymbol'
 const solutions = [
   { name: 'DataShot', desc: '업종별 벤치마크 기반으로\n광고 효율을 분석합니다.', slug: 'datashot-overview' },
   { name: 'Ad Curator', desc: '캠페인 성과 데이터를 기반으로\n맞춤형 광고 상품을 큐레이션합니다.', slug: 'ad-curator-overview', disabled: true },
-  { name: 'Budget Optimizer', desc: 'KPI 목표에 맞춰\n미디어믹스 예산을 최적 배분합니다.', slug: 'budget-optimizer-overview', disabled: true },
+  { name: 'BudgetOpt 2.0', desc: 'KPI 목표에 맞춰\n미디어믹스 예산을 최적 배분합니다.', slug: 'budget-optimizer-overview', disabled: true },
   { name: 'Reach Caster', desc: '크로스미디어 통합 도달을 예측하고\n최적 예산 배분을 시뮬레이션합니다.', slug: 'reach-caster-overview' },
 ]
 
 const workflow = [
   { step: '01', label: '벤치마크 데이터 추출', solution: 'DataShot' },
   { step: '02', label: '광고 상품 큐레이션', solution: 'Ad Curator' },
-  { step: '03', label: '미디어믹스 최적화', solution: 'Budget Optimizer' },
+  { step: '03', label: '미디어믹스 최적화', solution: 'BudgetOpt 2.0' },
   { step: '04', label: '도달 예측 시뮬레이션', solution: 'Reach Caster' },
 ]
 

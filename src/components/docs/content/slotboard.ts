@@ -220,7 +220,7 @@ Slot Home은 크게 3개 영역으로 구성됩니다.
 
 ## Ready to Final Set
 
-4개 솔루션(DataShot → Ad Curator → Budget Optimizer → Reach Caster)의 결과물을 컬럼 형태로 나란히 보여줍니다. 각 솔루션에서 선택한 최종 결과물이 여기에 표시됩니다.
+4개 솔루션(DataShot → Ad Curator → BudgetOpt 2.0 → Reach Caster)의 결과물을 컬럼 형태로 나란히 보여줍니다. 각 솔루션에서 선택한 최종 결과물이 여기에 표시됩니다.
 
 ### 솔루션 컬럼
 
@@ -228,7 +228,7 @@ Slot Home은 크게 3개 영역으로 구성됩니다.
 |---|---|---|
 | DataShot | 사용 가능 | 업종별 벤치마크 기반 광고 효율 분석 |
 | Ad Curator | 준비 중 | 캠페인 성과 기반 맞춤형 상품 큐레이션 |
-| Budget Optimizer | 준비 중 | KPI 목표 기반 미디어믹스 예산 최적화 |
+| BudgetOpt 2.0 | 준비 중 | KPI 목표 기반 미디어믹스 예산 최적화 |
 | Reach Caster | 사용 가능 | 크로스미디어 통합 도달 예측 시뮬레이션 |
 
 ### 결과물 표시

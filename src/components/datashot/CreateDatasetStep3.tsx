@@ -1,6 +1,7 @@
 import { Check, Maximize2, SearchX } from 'lucide-react'
 import { FormData } from './createDatasetTypes'
 import { metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, type MetricGroup } from './types'
+import { adProductStructureByMedia } from './sampleData'
 
 const metricsByMedia: Record<string, MetricGroup[]> = {
   'Meta': metaMetrics,
@@ -20,17 +21,6 @@ function getMetricLabel(media: string, id: string): string {
   return id
 }
 
-// 매체별 광고상품 목 값
-const adProductMockByMedia: Record<string, string[][]> = {
-  'Meta': [
-    ['전환', '경매', 'facebook', '앱 이벤트 수 극대화'],
-    ['트래픽', '경매', 'instagram', '링크 클릭수 극대화'],
-    ['동영상 조회', '예약', 'facebook&instagram', 'ThruPlay 조회 극대화'],
-    ['도달', '경매', 'facebook', '일일 고유 도달 극대화'],
-    ['잠재 고객 확보', '경매', 'instagram', '잠재 고객 수 극대화'],
-  ],
-}
-const defaultAdMock = ['디맨드젠 캠페인', '앱', '디스플레이', '동영상', '실적 최대화']
 
 // 지표별 숫자 값만 반환
 const metricMockNumbers: Record<string, () => number> = {
@@ -41,7 +31,7 @@ const metricMockNumbers: Record<string, () => number> = {
   cpc: () => Math.floor(Math.random() * 800) + 200,
   cpm: () => Math.floor(Math.random() * 15000) + 3000,
   cpv: () => Math.floor(Math.random() * 300) + 50,
-  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(1)),
+  vtr: () => parseFloat((Math.random() * 30 + 5).toFixed(2)),
   reach: () => Math.floor(Math.random() * 500000) + 50000,
   frequency: () => parseFloat((Math.random() * 3 + 1).toFixed(1)),
   link_click: () => Math.floor(Math.random() * 5000) + 500,
@@ -65,8 +55,30 @@ function getMockMetricNumber(id: string): number {
   return fn ? fn() : Math.floor(Math.random() * 90000) + 10000
 }
 
+// 선택한 광고상품(products JSON)에서 "값이 선택된 필드"만 추출 (라벨 + 값 목록)
+// → 선택한 분류만 미리보기 컬럼으로 노출하기 위함.
+function getSelectedProductFields(formData: FormData): { key: string; label: string; values: string[] }[] {
+  const structure = formData.media ? adProductStructureByMedia[formData.media] : null
+  if (!structure) return []
+  const picked: Record<string, Set<string>> = {}
+  formData.products.forEach(p => {
+    try {
+      const parsed = JSON.parse(p)
+      Object.entries(parsed).forEach(([key, val]) => {
+        if (!picked[key]) picked[key] = new Set()
+        if (Array.isArray(val)) val.forEach(v => picked[key].add(String(v)))
+        else if (val) picked[key].add(String(val))
+      })
+    } catch {}
+  })
+  // structure의 필드 순서를 유지하면서, 선택된 값이 있는 필드만
+  return structure.fields
+    .filter(f => (picked[f.key]?.size ?? 0) > 0)
+    .map(f => ({ key: f.key, label: f.label, values: Array.from(picked[f.key]) }))
+}
+
 // 5행 목 데이터 생성
-function generateMockRows(formData: FormData) {
+function generateMockRows(formData: FormData, selectedFields: { key: string; label: string; values: string[] }[]) {
   const industryPool = [
     ['패션', '패션의류', '여성의류'],
     ['식품', '가공식품', '즉석식품'],
@@ -88,9 +100,8 @@ function generateMockRows(formData: FormData) {
       rawInd?.[1] || industryPool[i % industryPool.length][1],
       rawInd?.[2] || industryPool[i % industryPool.length][2],
     ]
-    const adCols = formData.media === 'Meta'
-      ? (adProductMockByMedia['Meta'][i] ?? adProductMockByMedia['Meta'][0])
-      : [defaultAdMock[i % defaultAdMock.length]]
+    // 선택된 분류 필드별로 행값을 순환해 샘플 노출
+    const adCols = selectedFields.map(f => f.values[i % f.values.length])
     const targeting = formData.targetingCategory
       ? (formData.targetingOptions[i % Math.max(formData.targetingOptions.length, 1)] ?? targetPool[i % targetPool.length])
       : null
@@ -118,6 +129,14 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
   })()
 
 
+
+  // 업종(중) 컬럼은 중분류 선택 시에만 노출. 업종(소)는 미제공(폐지).
+  const showMidIndustry = formData.industryLevel === 'mid'
+  // 선택한 광고분류 필드만 컬럼으로 노출
+  const selectedFields = getSelectedProductFields(formData)
+  // 타겟팅은 카테고리 + 옵션 1개↑ 선택 시에만 노출 (광고상품 Step3와 통일)
+  const showTargeting = !!(formData.targetingCategory && formData.targetingOptions.length > 0)
+  const mockRows = generateMockRows(formData, selectedFields)
 
   return (
     <div style={{ width: '800px' }}>
@@ -191,26 +210,21 @@ export function CreateDatasetStep3({ formData, onShowSampleData }: Props) {
                 <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>기간</th>
                 <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>매체</th>
                 <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(대)</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(중)</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(소)</th>
-                {formData.media === 'Meta'
-                  ? ['캠페인 목표', '구매 유형', '플랫폼', '성과 목표'].map(l => <th key={l} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{l}</th>)
-                  : <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '110px' }}>캠페인 유형</th>
-                }
-                {formData.targetingCategory && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>{formData.targetingCategory}</th>}
+                {showMidIndustry && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '80px' }}>업종(중)</th>}
+                {selectedFields.map(f => <th key={f.key} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{f.label}</th>)}
+                {showTargeting && <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '90px' }}>{formData.targetingCategory}</th>}
                 {(['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const).map(m => <th key={m} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '500', whiteSpace: 'nowrap', fontSize: '12px', width: '100px' }}>{getMetricLabel(formData.media, m)}</th>)}
               </tr>
             </thead>
             <tbody>
-              {generateMockRows(formData).map((row, i) => (
+              {mockRows.map((row, i) => (
                 <tr key={i} style={{ borderBottom: i < 4 ? '1px solid hsl(var(--border))' : 'none' }}>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.period}</td>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.media}</td>
                   <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[0] || '—'}</td>
-                  <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[1] || '—'}</td>
-                  <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[2] || '—'}</td>
+                  {showMidIndustry && <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ind[1] || '—'}</td>}
                   {row.adCols.map((v, j) => <td key={j} style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</td>)}
-                  {formData.targetingCategory && <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>{row.targeting}</td>}
+                  {showTargeting && <td style={{ padding: '10px 12px', fontSize: '12px', color: 'hsl(var(--muted-foreground))', whiteSpace: 'nowrap' }}>{row.targeting}</td>}
                   {row.metrics.map((v, j) => {
                     const metricId = (['cost', 'impressions', 'clicks', 'ctr', 'cpc'] as const)[j]
                     const unit = metricUnits[metricId] || ''

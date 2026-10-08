@@ -29,7 +29,7 @@ export const resourcesSection: DocSection = {
 - **Reach Caster** — 광고 캠페인의 도달률을 예측하고 최적 매체 배분을 찾는 솔루션
 - **SpinX** — AI 기반 인사이트 어시스턴트. 분석 결과를 자연어로 해석
 - **Ad Curator** — 광고 소재 최적화 솔루션 (준비중)
-- **Budget Optimizer** — 예산 최적화 솔루션 (준비중)
+- **BudgetOpt 2.0** — 예산 최적화 솔루션 (준비중)
 
 ## Reach Caster 용어
 

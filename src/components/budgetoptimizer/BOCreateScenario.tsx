@@ -179,7 +179,7 @@ export function BOCreateScenario() {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setIsSubmitted(true)
       setShowToast({ type: 'success', message: '시나리오 생성 요청이 완료되었습니다. 완료 시 알림 센터에서 알려드립니다.' })
-      setTimeout(() => navigate('/budgetoptimizer'), 2000)
+      setTimeout(() => navigate('/budgetopt'), 2000)
     } catch {
       setShowToast({ type: 'error', message: '시나리오 생성 요청에 실패했습니다. 다시 시도해 주세요.' })
     } finally {
@@ -202,7 +202,7 @@ export function BOCreateScenario() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: 'CJ올리브영 2025 하반기' },
-        { label: 'Budget Optimizer', href: '/budgetoptimizer' },
+        { label: 'BudgetOpt 2.0', href: '/budgetopt' },
         { label: '새 시나리오 생성' }
       ]}
       isDarkMode={isDarkMode}
@@ -293,7 +293,7 @@ export function BOCreateScenario() {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-6">
-              <button onClick={() => handleCancel('/budgetoptimizer')} className="btn btn-ghost btn-lg">취소</button>
+              <button onClick={() => handleCancel('/budgetopt')} className="btn btn-ghost btn-lg">취소</button>
               <div className="flex gap-3">
                 {currentStep > 1 && (
                   <button onClick={handlePrev} className="btn btn-secondary btn-lg">

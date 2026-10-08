@@ -1,4 +1,4 @@
-import { ChevronRight, Layers, TrendingUp } from 'lucide-react'
+import { ChevronRight, Layers, TrendingUp, Package, SlidersHorizontal } from 'lucide-react'
 import { MonthRangePicker } from './MonthRangePicker'
 import { IndustryDialog } from './IndustryDialog'
 import { FormData, validateDateRange } from './createDatasetTypes'
@@ -9,10 +9,50 @@ interface Props {
   validationActive: boolean
   industryDialogOpen: boolean
   setIndustryDialogOpen: (open: boolean) => void
+  // 광고상품 전환이 선택 업종(중분류) 초기화를 유발할 때, 상위에 확인 다이얼로그를 요청
+  onConfirmResetForProduct?: () => void
 }
 
-export function CreateDatasetStep1({ formData, setFormData, validationActive, industryDialogOpen, setIndustryDialogOpen }: Props) {
+// 추출 기준 택1 옵션
+const extractOptions: { value: 'product' | 'condition'; icon: typeof Package; title: string; desc: string }[] = [
+  {
+    value: 'product',
+    icon: Package,
+    title: '광고상품',
+    desc: 'ReadySet 표준 광고상품 기준으로 정돈된 성과 데이터를 추출\n(업종 대분류만 선택 가능)',
+  },
+  {
+    value: 'condition',
+    icon: SlidersHorizontal,
+    title: '조건 조합',
+    desc: '매체별 상세 옵션을 직접 조합해 세밀하게 데이터를 추출\n(업종 대·중분류 선택 가능)',
+  },
+]
+
+export function CreateDatasetStep1({ formData, setFormData, validationActive, industryDialogOpen, setIndustryDialogOpen, onConfirmResetForProduct }: Props) {
   const dateValidation = validateDateRange(formData, validationActive)
+
+  // 추출 기준 선택/변경: 광고상품은 업종 대분류만 가능하다.
+  // 기존 선택이 중분류면 초기화가 필요하므로, 바로 바꾸지 않고 상위에 확인 다이얼로그를 요청한다(파괴적 동작 사전 동의).
+  // 대분류이거나 선택 업종이 없으면 잃을 게 없어 즉시 변경한다.
+  const handleExtractModeChange = (mode: 'product' | 'condition') => {
+    if (mode === formData.extractMode) return
+    if (mode === 'product' && formData.industryLevel === 'mid' && formData.industries.length > 0) {
+      onConfirmResetForProduct?.()
+      return
+    }
+    // 추출 기준 전환 시 반대쪽 Step2 입력은 무효이므로 모두 초기화 (잔류 데이터 방지)
+    setFormData({
+      ...formData,
+      extractMode: mode,
+      // 조건 조합 전용
+      media: '', products: [], metrics: [],
+      // 광고상품 전용
+      mediaProducts: {}, productMetrics: [], productCollaborativePartners: [],
+      // 공유(타겟팅)
+      targetingCategory: '', targetingOptions: [],
+    })
+  }
 
   return (
     <div style={{ width: '800px' }}>
@@ -73,7 +113,10 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <button
-            onClick={() => setFormData({ ...formData, purpose: 'internal' })}
+            onClick={() => {
+              if (formData.purpose === 'internal') return
+              setFormData({ ...formData, purpose: 'internal', productMetrics: [] })
+            }}
             style={{
               padding: '16px',
               border: `1px solid ${formData.purpose === 'internal' ? 'hsl(var(--primary))' : validationActive && !formData.purpose ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
@@ -93,7 +136,10 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
             </div>
           </button>
           <button
-            onClick={() => setFormData({ ...formData, purpose: 'external' })}
+            onClick={() => {
+              if (formData.purpose === 'external') return
+              setFormData({ ...formData, purpose: 'external', productMetrics: [] })
+            }}
             style={{
               padding: '16px',
               border: `1px solid ${formData.purpose === 'external' ? 'hsl(var(--primary))' : validationActive && !formData.purpose ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
@@ -146,7 +192,51 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
         )}
       </div>
 
-      {/* 업종 */}
+      {/* 추출 기준 */}
+      <div style={{ marginBottom: '24px' }}>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+          추출 기준 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
+        </label>
+        <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>
+          데이터를 어떤 기준으로 추출할지 선택하세요. 선택한 기준에 따라 설정할 업종·매체·지표 항목이 달라집니다.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {extractOptions.map(({ value, icon: Icon, title, desc }) => {
+            const selected = formData.extractMode === value
+            return (
+              <button
+                key={value}
+                onClick={() => handleExtractModeChange(value)}
+                style={{
+                  padding: '16px',
+                  border: `1px solid ${selected ? 'hsl(var(--primary))' : validationActive && !formData.extractMode ? 'hsl(var(--destructive))' : 'hsl(var(--border))'}`,
+                  borderRadius: '8px',
+                  backgroundColor: selected ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '16px', marginBottom: '4px', color: 'hsl(var(--foreground))' }}>
+                  <Icon size={18} style={{ color: 'hsl(var(--foreground))' }} />
+                  {title}
+                </div>
+                <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', lineHeight: '1.5', whiteSpace: 'pre-line' }}>
+                  {desc}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+        {validationActive && !formData.extractMode && (
+          <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '8px' }}>
+            추출 기준을 선택해주세요.
+          </div>
+        )}
+      </div>
+
+      {/* 업종 — 추출 기준 선택 후 노출 */}
+      {formData.extractMode && (
       <div style={{ marginBottom: '24px' }}>
         <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
           업종 <span style={{ color: 'hsl(var(--destructive))' }}>*</span>
@@ -172,12 +262,14 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
           <div style={{ fontSize: '12px', color: 'hsl(var(--destructive))', marginTop: '4px' }}>업종을 선택해주세요.</div>
         )}
       </div>
+      )}
 
       <IndustryDialog
         isOpen={industryDialogOpen}
         onClose={() => setIndustryDialogOpen(false)}
         selectedIndustries={formData.industries}
         industryLevel={formData.industryLevel}
+        extractMode={formData.extractMode}
         onUpdate={(industries, level) => setFormData({ ...formData, industries, industryLevel: level })}
       />
     </div>

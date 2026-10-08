@@ -103,25 +103,25 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
     },
     {
       id: 36,
-      solution: 'Budget Optimizer',
+      solution: 'BudgetOpt 2.0',
       scenarioName: '25년 3분기 디지털 예산 최적화',
       message: '시나리오 생성이 완료되었습니다.',
       completedMinutesAgo: 9,
       isNew: true,
       status: 'success',
       type: 'task',
-      resultUrl: '/budgetoptimizer/scenario/1/result'
+      resultUrl: '/budgetopt/scenario/1/result'
     },
     {
       id: 37,
-      solution: 'Budget Optimizer',
+      solution: 'BudgetOpt 2.0',
       scenarioName: '여름 시즌 클릭 극대화',
       message: '시나리오 생성이 실패했습니다.',
       completedMinutesAgo: 50,
       isNew: false,
       status: 'error',
       type: 'task',
-      resultUrl: '/budgetoptimizer'
+      resultUrl: '/budgetopt'
     },
     {
       id: 35,
@@ -448,7 +448,7 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               const latest = notifications.find(n => n.isNew) || notifications[0]
               const prefix = latest.solution === 'DataShot' ? 'D/S' : 
                              latest.solution === 'Reach Caster' ? 'R/C' :
-                             latest.solution === 'Budget Optimizer' ? 'B/O' : ''
+                             latest.solution === 'BudgetOpt 2.0' ? 'B/O' : ''
               return `${prefix} ${latest.scenarioName}: ${latest.message}`
             })()}
           </span>

@@ -87,7 +87,7 @@ export function BOResult() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setShowToast({ type: 'success', message: '시나리오가 성공적으로 삭제되었습니다.' })
-      setTimeout(() => { navigate('/budgetoptimizer') }, 1500)
+      setTimeout(() => { navigate('/budgetopt') }, 1500)
     } catch (error) {
       setShowToast({ type: 'error', message: '시나리오 삭제에 실패했습니다. 다시 시도해주세요.' })
     } finally {
@@ -110,7 +110,7 @@ export function BOResult() {
       onMouseLeave={() => setPrincipleTooltipOpen(false)}
     >
       <button
-        onClick={() => askSpinXSend('Budget Optimizer는 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
+        onClick={() => askSpinXSend('BudgetOpt 2.0은 어떤 원리로 예산을 최적화하나요? 효율 포화와 매체 우선 배분 관점에서 설명해 주세요.')}
         className="inline-flex items-center gap-[6px] bg-none border-none p-0 cursor-pointer text-[12px] text-[hsl(var(--muted-foreground))]"
       >
         <SpinXSymbol size={16} motion="idle" style={{ flexShrink: 0, transform: 'rotate(45deg)' }} />
@@ -153,7 +153,7 @@ export function BOResult() {
       breadcrumbItems={[
         { label: 'SlotBoard', href: '/slotboard' },
         { label: slotData.title },
-        { label: 'Budget Optimizer', href: '/budgetoptimizer' },
+        { label: 'BudgetOpt 2.0', href: '/budgetopt' },
         { label: result.name }
       ]}
       isDarkMode={isDarkMode}

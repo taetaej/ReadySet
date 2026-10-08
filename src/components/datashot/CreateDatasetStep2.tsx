@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ListPlus, Plus, Minus, Search, ChevronDown, X, Info, Undo2 } from 'lucide-react'
 import { targetingOptionsByMedia, metaMetrics, googleMetrics, kakaoMetrics, naverGfaMetrics, naverNospMetrics, tiktokMetrics, naverNospKeywords, type MetricGroup } from './types'
 import { AdProductsSelector } from './AdProductsSelector'
+import { applyTargetingExclusions } from './MetricSelect'
 import { FormData } from './createDatasetTypes'
 import { adProductStructureByMedia } from './sampleData'
 import { mediaIconMap } from '../common/MediaIcons'
@@ -191,25 +192,7 @@ export function CreateDatasetStep2({ formData, setFormData, validationActive }: 
               )}
             </div>
             <MetricGroupList
-              groups={(() => {
-                const base = metricsByMedia[formData.media] ?? []
-                if (formData.media === 'Meta' && formData.targetingCategory === '기기유형') {
-                  const excluded = ['post_reaction', 'post_engagement', 'cost_per_post_engagement', 'link_click', 'cost_per_link_click', 'link_ctr', 'complete_registration', 'cost_per_registration']
-                  return base.map(g => {
-                    if (g.group === '협력 광고') return { ...g, metrics: [] }
-                    return { ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) }
-                  }).filter(g => g.metrics.length > 0)
-                }
-                if (formData.media === 'kakao모먼트' && formData.targetingCategory === '디바이스') {
-                  const excluded = ['conversions', 'message_send', 'message_open', 'message_click', 'message_open_rate', 'message_click_rate', 'channel_add_cpa', 'channel_add_cvr']
-                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
-                }
-                if (formData.media === 'NAVER 보장형 DA' && formData.targetingCategory === '노출영역') {
-                  const excluded = ['cost', 'cost_guaranteed', 'cpc', 'cpm', 'cpv']
-                  return base.map(g => ({ ...g, metrics: g.metrics.filter(m => !excluded.includes(m.id)) })).filter(g => g.metrics.length > 0)
-                }
-                return base
-              })()}
+              groups={applyTargetingExclusions(metricsByMedia[formData.media] ?? [], formData.media, formData.targetingCategory)}
               selected={formData.metrics}
               onChange={metrics => setFormData({ ...formData, metrics })}
               searchQuery={metricsSearch}
@@ -320,7 +303,7 @@ function MetricGroupList({ groups, selected, onChange, searchQuery }: { groups: 
   )
 }
 
-function TargetingSelector({ media, category, selected, onCategoryChange, onOptionsChange, validationActive, disabledCategories = [] }: {
+export function TargetingSelector({ media, category, selected, onCategoryChange, onOptionsChange, validationActive, disabledCategories = [] }: {
   media: string
   category: string
   selected: string[]
@@ -329,7 +312,8 @@ function TargetingSelector({ media, category, selected, onCategoryChange, onOpti
   validationActive: boolean
   disabledCategories?: string[]
 }) {
-  const [open, setOpen] = useState(true)
+  // 이미 설정값(카테고리/선택 옵션)이 있으면 기본 열림 (스텝 이동 후 재마운트 시 열림 유지)
+  const [open, setOpen] = useState(!!category || selected.length > 0)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
 

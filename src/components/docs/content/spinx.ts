@@ -20,7 +20,7 @@ SpinX는 ReadySet 플랫폼의 AI 인사이트 어시스턴트입니다. AnXer�
 - **Reach Caster** — 시나리오 결과 및 비교 결과 분석 (현재 지원)
 - DataShot — 준비중
 - Ad Curator — 준비중
-- Budget Optimizer — 준비중
+- BudgetOpt 2.0 — 준비중
 
 ## 주요 기능
 

@@ -22,9 +22,12 @@ interface BOReachCasterEasyCreateModalProps {
   }) => void
 }
 
-// Reach Caster 미지원(매핑 불일치) 판별 — mock: 특정 상품 패턴을 미지원으로 간주
+// Reach Caster 미지원(매핑 불일치) 판별 — mock: Targetpick 매체를 미지원으로 간주
 const isUnsupported = (a: BOAllocation) =>
-  a.mediaName === 'Targetpick' || a.productName.includes('디스플레이_방문')
+  a.mediaName === 'Targetpick'
+
+// 예산 0원 배분 판별 — BO가 "이 상품엔 배분하지 않음"으로 판단한 항목 (도달 예측 대상 아님)
+const isZeroBudget = (a: BOAllocation) => (a.budget || 0) <= 0
 
 // 예상 노출 입력이 '필수'인 상품 판별 — CPT(보장형/예약형) 상품은 노출 확정 입력이 필요
 const isImpressionRequired = (a: BOAllocation) =>
@@ -42,11 +45,17 @@ export function BOReachCasterEasyCreateModal({
   // 노출 포함 전달을 기본값으로
   const [impressionMode, setImpressionMode] = useState<'none' | 'required' | 'all'>('all')
 
-  const { mapped, unmapped } = useMemo(() => {
+  const { mapped, unmapped, zeroBudget } = useMemo(() => {
     const mapped: BOAllocation[] = []
     const unmapped: BOAllocation[] = []
-    for (const a of allocations) (isUnsupported(a) ? unmapped : mapped).push(a)
-    return { mapped, unmapped }
+    const zeroBudget: BOAllocation[] = []
+    for (const a of allocations) {
+      // 미지원 우선 판별 → 그다음 예산 0원 → 나머지는 전달 대상
+      if (isUnsupported(a)) unmapped.push(a)
+      else if (isZeroBudget(a)) zeroBudget.push(a)
+      else mapped.push(a)
+    }
+    return { mapped, unmapped, zeroBudget }
   }, [allocations])
 
   // 매핑 가능한 항목 중 예상 노출 필수 상품 수
@@ -112,16 +121,16 @@ export function BOReachCasterEasyCreateModal({
       <div
         className="dialog-content dialog-md"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '86vh', overflowY: 'auto' }}
+        style={{ maxHeight: '86vh', display: 'flex', flexDirection: 'column' }}
       >
-        <div className="dialog-header">
+        <div className="dialog-header flex-shrink-0">
           <h3 className="dialog-title">최적화 예산으로 도달 예측하기</h3>
           <p className="dialog-description">
             최적화 결과의 매체별 예산·예상 노출을 Reach Caster 도달 예측으로 가져갑니다.
           </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 flex-1 min-h-0 overflow-y-auto">
           {/* 시나리오명 (자동 생성, 변경 불가) */}
           <div className="mb-5">
             <div className="text-[13px] font-semibold text-[hsl(var(--foreground))] mb-[6px]">시나리오명</div>
@@ -177,6 +186,7 @@ export function BOReachCasterEasyCreateModal({
                 <div className="text-[13px] font-semibold text-[hsl(var(--foreground))]">매체별 전달 내역</div>
                 <div className="text-[12px] text-[hsl(var(--muted-foreground))] mt-[2px]">
                   전달 {mapped.length}개 · 미지원 제외 {unmapped.length}개
+                  {zeroBudget.length > 0 && ` · 예산 0원 제외 ${zeroBudget.length}개`}
                 </div>
               </div>
               {/* 예상 노출 전달 옵션 세그먼트 */}
@@ -221,9 +231,11 @@ export function BOReachCasterEasyCreateModal({
                 <div className="text-right">예상 노출</div>
               </div>
               {/* 행 */}
-              <div className="max-h-[220px] overflow-y-auto">
-                {[...mapped, ...unmapped].map((a, i) => {
-                  const excluded = isUnsupported(a)
+              <div className="max-h-[300px] overflow-y-auto">
+                {[...unmapped, ...zeroBudget, ...mapped].map((a, i) => {
+                  const unsupported = isUnsupported(a)
+                  const zeroExcluded = !unsupported && isZeroBudget(a)
+                  const excluded = unsupported || zeroExcluded
                   const required = isImpressionRequired(a)
                   const hasImp = (a.impression || 0) > 0
                   const impSent = !excluded && hasImp && (impressionMode === 'all' || (impressionMode === 'required' && required))
@@ -248,16 +260,21 @@ export function BOReachCasterEasyCreateModal({
                           {required && !excluded && (
                             <span className="flex-shrink-0 text-[10px] px-[6px] py-[1px] rounded-full bg-[hsl(var(--primary)/0.12)] text-[hsl(var(--primary))]">노출 필수</span>
                           )}
-                          {excluded && (
+                          {unsupported && (
                             <span className="flex-shrink-0 text-[10px] px-[6px] py-[1px] rounded-full bg-[hsl(var(--destructive)/0.1)] text-[hsl(var(--destructive))] inline-flex items-center gap-[3px]">
                               <AlertTriangle size={9} /> 미지원 제외
+                            </span>
+                          )}
+                          {zeroExcluded && (
+                            <span className="flex-shrink-0 text-[10px] px-[6px] py-[1px] rounded-full bg-[hsl(var(--muted-foreground)/0.12)] text-[hsl(var(--muted-foreground))] inline-flex items-center gap-[3px]">
+                              예산 0원 제외
                             </span>
                           )}
                         </div>
                       </div>
                       {/* 예산 */}
                       <div className="text-right" style={{ color: excluded ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))' }}>
-                        {excluded ? '-' : `${a.budget.toLocaleString()}원`}
+                        {unsupported ? '-' : `${a.budget.toLocaleString()}원`}
                       </div>
                       {/* 예상 노출 */}
                       <div className="text-right">
@@ -283,20 +300,29 @@ export function BOReachCasterEasyCreateModal({
               <div className="mt-[10px] text-[11px] text-[hsl(var(--muted-foreground))] flex items-start gap-[5px] leading-[1.5]">
                 <AlertTriangle size={12} style={{ color: 'hsl(var(--destructive))', flexShrink: 0, marginTop: '1px' }} />
                 <span>
-                  <strong className="text-[hsl(var(--foreground))] font-semibold">미지원 제외</strong>는 해당 매체·상품이 Reach Caster의 이 업종에서 지원되지 않아 도달 예측 대상이 아니라는 의미입니다. 제외 항목은 전달되지 않으며, 나머지 항목만 예산·노출이 넘어갑니다.
+                  <strong className="text-[hsl(var(--foreground))] font-semibold">미지원 제외</strong> — 이 업종에서 Reach Caster가 지원하지 않는 매체·상품으로, 전달되지 않습니다.
+                </span>
+              </div>
+            )}
+            {/* 예산 0원 제외 안내 */}
+            {zeroBudget.length > 0 && !allUnmapped && (
+              <div className="mt-[6px] text-[11px] text-[hsl(var(--muted-foreground))] flex items-start gap-[5px] leading-[1.5]">
+                <Info size={12} style={{ flexShrink: 0, marginTop: '1px' }} />
+                <span>
+                  <strong className="text-[hsl(var(--foreground))] font-semibold">예산 0원 제외</strong> — 최적화가 예산을 배분하지 않은 상품으로, 전달되지 않습니다.
                 </span>
               </div>
             )}
             {allUnmapped && (
               <div className="mt-[10px] text-[12px] text-[hsl(var(--destructive))] flex items-start gap-[5px] leading-[1.5]">
                 <AlertTriangle size={12} style={{ flexShrink: 0, marginTop: '1px' }} />
-                <span>모든 항목이 Reach Caster의 이 업종에서 지원되지 않아, 전달할 항목이 없습니다. Reach Caster 시나리오를 생성할 수 없습니다.</span>
+                <span>Reach Caster로 전달할 항목이 없습니다. (미지원이거나 예산이 배분되지 않은 상품만 있음) Reach Caster 시나리오를 생성할 수 없습니다.</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="dialog-footer">
+        <div className="dialog-footer flex-shrink-0">
           <button onClick={onClose} className="btn btn-secondary btn-md">취소</button>
           <button
             onClick={() => onConfirm({ scenarioName: presetName, targetGrp: selectedTarget, mappedAllocations: mapped, impressionMode })}

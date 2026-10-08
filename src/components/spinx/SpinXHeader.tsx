@@ -13,7 +13,7 @@ interface SpinXHeaderProps {
 const SOLUTION_NAME: Record<string, string> = {
   ratioFinder: 'Reach Caster',
   reachPredictor: 'Reach Caster',
-  budgetOptimizer: 'Budget Optimizer'
+  budgetOptimizer: 'BudgetOpt 2.0'
 }
 
 export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand, analysisType = 'reachPredictor' }: SpinXHeaderProps) {

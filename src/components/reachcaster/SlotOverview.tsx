@@ -39,10 +39,10 @@ export function SlotOverview({ slotData, selectedScenarios }: SlotOverviewProps)
     },
     {
       id: 'budgetOptimizer',
-      name: 'Budget Optimizer',
+      name: 'BudgetOpt 2.0',
       icon: DollarSign,
       color: 'hsl(47.9 95.8% 53.1%)',
-      defaultPath: '/budgetoptimizer',
+      defaultPath: '/budgetopt',
       scenario: selectedScenarios.budgetOptimizer
     },
     {
