@@ -174,8 +174,11 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
   //   클릭 탭: clicks>0 → 반응=CTR, 단가=CPC / 조회 탭: views>0 → 반응=VTR, 단가=CPV
   const clickRows = rows.filter(r => r.clicks > 0)
   const viewRows = rows.filter(r => r.views > 0)
-  const clickTabEnabled = clickRows.length > 0
-  const viewTabEnabled = viewRows.length > 0
+  // §2.3 탭 활성 = 그 탭 지표를 가진 상품이 2개 이상(상대 비교 차트라 1개면 무의미).
+  //   기준은 '탭 지표만 가진 상품 수'(차트1 상위 집합으로 거르기 전).
+  const clickTabEnabled = clickRows.length >= 2
+  const viewTabEnabled = viewRows.length >= 2
+  // 두 탭 다 2개 미만이면 차트 2 전체를 안내 문구로 대체.
   const effDataAvailable = clickTabEnabled || viewTabEnabled
 
   // 비활성 탭이 선택돼 있으면 활성 탭으로 자동 전환 (§2.3)
@@ -221,14 +224,17 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
     ? (totalClk > 0 ? totalCostEff / totalClk : 0)
     : (totalView > 0 ? totalCostEff / totalView : 0)
 
-  // §2.6 효율 포인트: 반응·단가 0~1 정규화 → 이상점(반응1·단가0) 거리² 최소 1개. 대상 2개 이상일 때만.
+  // §2.6 효율 포인트: 반응·단가를 "좋을수록 높은" 0~100점으로 정규화(단가는 뒤집음) →
+  //   효율점수 = 0.5*반응점수 + 0.5*단가점수 의 최댓값 1개. 대상 2개 이상일 때만. (내부 계산 전용)
   const respLo = Math.min(...top6.map(resp)), respHi = Math.max(...top6.map(resp))
   const priceLo = Math.min(...top6.map(price)), priceHi = Math.max(...top6.map(price))
-  const nrm = (v: number, lo: number, hi: number) => (hi === lo ? 0.5 : (v - lo) / (hi - lo))
-  const effScore = (r: Row) => (1 - nrm(resp(r), respLo, respHi)) ** 2 + nrm(price(r), priceLo, priceHi) ** 2
-  // E1: 대상 1개 이하면 강조 생략. 동점(E3): 반응 높은 쪽 우선.
+  // 반응점수: 높을수록 100. 단가점수: 쌀수록 100(분자를 (hi - v)로 뒤집음). 분모 0이면 50.
+  const respScore = (r: Row) => (respHi === respLo ? 50 : ((resp(r) - respLo) / (respHi - respLo)) * 100)
+  const priceScore = (r: Row) => (priceHi === priceLo ? 50 : ((priceHi - price(r)) / (priceHi - priceLo)) * 100)
+  const effScore = (r: Row) => 0.5 * respScore(r) + 0.5 * priceScore(r)
+  // E1: 대상 1개 이하면 강조 생략. 효율점수 최댓값 1개. 동점(E3): 반응 높은 쪽 우선.
   const bestLabel = top6.length >= 2
-    ? [...top6].sort((a, b) => effScore(a) - effScore(b) || resp(b) - resp(a)).map(r => r.label)[0]
+    ? [...top6].sort((a, b) => effScore(b) - effScore(a) || resp(b) - resp(a)).map(r => r.label)[0]
     : null
 
   const scatterData = top6.map(r => ({
@@ -457,7 +463,7 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
                   key={key}
                   onClick={() => enabled && setEffTab(key)}
                   disabled={!enabled}
-                  title={enabled ? undefined : '데이터가 충분하지 않습니다'}
+                  title={enabled ? undefined : '차트 생성을 위한 데이터가 충분하지 않습니다.'}
                   style={{
                     padding: '6px 16px', fontSize: '12px', fontWeight: 500, border: 'none', transition: 'all 0.2s',
                     cursor: enabled ? 'pointer' : 'not-allowed',
@@ -485,7 +491,7 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
                     <strong style={{ color: 'hsl(var(--foreground))' }}>평균</strong>: 점선 십자선. 선택한 {unit}들의 반응률·단가를 집행 규모로 가중평균한 값입니다. (업종 전체가 아닌 선택 {unit} 기준)
                   </div>
                   <div style={{ marginTop: '6px' }}>
-                    <strong style={{ color: 'hsl(var(--bo-accent))' }}>효율 포인트</strong>: 선택 {unit} 중 반응이 높고 단가가 낮은, 가장 효율적인 지점에 가까운 1개(초록 점). 반응률과 단가를 동등 가중해 산출합니다.
+                    <strong style={{ color: 'hsl(var(--bo-accent))' }}>효율 포인트</strong>: 선택 {unit} 중 반응이 높고 단가가 낮은, 가장 효율적인 1개(초록 점). 반응 점수와 저렴함 점수를 반반(50:50) 더해 산출합니다.
                   </div>
                 </div>
               </>

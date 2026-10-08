@@ -144,7 +144,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
               ))
             ) : (
               <div style={{ padding: '32px', textAlign: 'center', color: 'hsl(var(--muted-foreground))', fontSize: '13px' }}>
-                {allProducts.length === 0 ? '등록된 상품이 없습니다' : '검색 결과가 없습니다'}
+                {allProducts.length === 0 ? '선택 가능한 광고상품이 없습니다' : '검색 결과가 없습니다'}
               </div>
             )}
           </div>
