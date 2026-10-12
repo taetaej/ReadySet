@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { ListPlus, X, Smartphone, Info } from 'lucide-react'
 import { mediaIconMap } from '../common/MediaIcons'
-import { ProductDialog, type ProductDialogState } from './ProductDialog'
+import { ProductDialog, type ProductDialogState, isLowSampleProduct, LowSampleBadge } from './ProductDialog'
 import type { MediaProductSelection } from './createDatasetTypes'
 
 // DataShot 매체 목록 (TVING·당근 제외 반영된 6종)
@@ -153,7 +153,10 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                         padding: '8px 0',
                         borderBottom: idx < selectedProducts.length - 1 ? '1px solid hsl(var(--border))' : 'none',
                       }}>
-                        <div style={{ fontSize: '12px', color: 'hsl(var(--foreground))' }}>{product}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'hsl(var(--foreground))' }}>
+                          <span>{product}</span>
+                          {isLowSampleProduct(media, product) && <LowSampleBadge />}
+                        </div>
                         {!readOnly && (
                           <button
                             onClick={() => removeProduct(media, product)}
