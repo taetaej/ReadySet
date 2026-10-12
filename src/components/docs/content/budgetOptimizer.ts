@@ -1,13 +1,13 @@
 import type { DocSection } from '../docsData'
 
 export const budgetOptimizerSection: DocSection = {
-  id: 'budget-optimizer',
+  id: 'budgetopt',
   title: 'BudgetOpt 2.0',
   pages: [
     {
-      id: 'budget-optimizer-overview',
+      id: 'budgetopt-overview',
       title: 'BudgetOpt 2.0 개요',
-      slug: 'budget-optimizer-overview',
+      slug: 'budgetopt-overview',
       updatedAt: '2026-09-29',
       content: `# BudgetOpt 2.0
 
@@ -72,9 +72,9 @@ BudgetOpt 2.0은 설정한 KPI 목표와 총 예산을 기준으로, 매체·상
 | Agency | O | X | X | O |`
     },
     {
-      id: 'budget-optimizer-principles',
+      id: 'budgetopt-principles',
       title: '원리와 개념',
-      slug: 'budget-optimizer-principles',
+      slug: 'budgetopt-principles',
       updatedAt: '2026-09-29',
       content: `# BudgetOpt 2.0 원리와 개념
 
@@ -104,21 +104,21 @@ BudgetOpt 2.0은 설정한 KPI 목표와 총 예산을 기준으로, 매체·상
 결과 화면의 수치는 실제 집행 성과가 아니라 **모델이 예측한 최적 배분안**입니다. 차트 제목이 전망형("늘어날까?")으로 쓰인 이유입니다. 집행 전 배분안을 다루므로 "배정·배분" 기준으로 읽어야 합니다.`
     },
     {
-      id: 'budget-optimizer-create',
+      id: 'budgetopt-create',
       title: '시나리오 생성',
-      slug: 'budget-optimizer-create',
+      slug: 'budgetopt-create',
       updatedAt: '2026-09-16',
       content: `# 시나리오 생성
 
 BudgetOpt 2.0 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나리오 생성 화면으로 진입합니다. 3단계 스텝 폼을 순서대로 완료하여 시나리오를 생성합니다.
 
-![시나리오 생성 버튼|30%](/docs/images/budget-optimizer/001.png)
+![시나리오 생성 버튼|30%](/docs/images/budgetopt/001.png)
 
 ## 화면 구성
 
 화면은 좌측 스텝 폼 영역과 우측 Configuration Summary 영역으로 나뉩니다. Configuration Summary는 현재까지 설정한 조건을 실시간으로 요약하여 보여줍니다.
 
-![시나리오 생성 화면 구성|100%](/docs/images/budget-optimizer/002.png)
+![시나리오 생성 화면 구성|100%](/docs/images/budgetopt/002.png)
 
 ---
 
@@ -152,7 +152,7 @@ BudgetOpt 2.0 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나�
 
 총 예산을 입력하고, 분석 대상 매체·상품을 추가한 뒤, 필요 시 예산을 잠급니다.
 
-![매체·예산 설정 화면|100%](/docs/images/budget-optimizer/003.png)
+![매체·예산 설정 화면|100%](/docs/images/budgetopt/003.png)
 
 | 항목 | 필수 | 설명 | 제한 |
 |---|---|---|---|
@@ -212,9 +212,9 @@ BudgetOpt 2.0 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나�
 - Marketer 역할만 시나리오를 생성할 수 있습니다.`
     },
     {
-      id: 'budget-optimizer-manage',
+      id: 'budgetopt-manage',
       title: '시나리오 관리',
-      slug: 'budget-optimizer-manage',
+      slug: 'budgetopt-manage',
       updatedAt: '2026-09-04',
       content: `# 시나리오 관리
 
@@ -309,9 +309,9 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 - Marketer 역할만 삭제 기능을 사용할 수 있습니다.`
     },
     {
-      id: 'budget-optimizer-result',
+      id: 'budgetopt-result',
       title: '시나리오 결과',
-      slug: 'budget-optimizer-result',
+      slug: 'budgetopt-result',
       updatedAt: '2026-09-29',
       content: `# 시나리오 결과
 
@@ -335,7 +335,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 예산 잠금이 1개 이상인 시나리오에서만 표시됩니다. 잠금이 반영된 결과와, 잠금 없이 모델이 자유롭게 최적화한 결과(순수 최적화)를 전환하며 비교할 수 있습니다.
 
-![결과 상태 띠배너|100%](/docs/images/budget-optimizer/004.png)
+![결과 상태 띠배너|100%](/docs/images/budgetopt/004.png)
 
 | 모드 | 설명 |
 |---|---|
@@ -364,7 +364,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 ## 스코어카드
 
-![스코어카드|100%](/docs/images/budget-optimizer/005.png)
+![스코어카드|100%](/docs/images/budgetopt/005.png)
 
 | 카드 | 내용 |
 |---|---|
@@ -379,7 +379,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 2×2 그리드로 구성되며, 상단 2개는 예산 투입 관점, 하단 2개는 성과 산출 관점입니다. 매체/상품 토글이 4개 차트에 동시 적용되고, 각 차트는 상위 5개 항목까지 표시합니다.
 
-![Optimization Analytics 차트 4종|100%](/docs/images/budget-optimizer/006.png)
+![Optimization Analytics 차트 4종|100%](/docs/images/budgetopt/006.png)
 
 | 차트 | 질문 제목 | 설명 |
 |---|---|---|
@@ -404,7 +404,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 매체별로 펼쳐 각 매체·상품의 배분 예산과 예상 성과를 확인합니다. 예산, 비중(Share), 보장 KPI, 노출·클릭·조회·도달, 단가(CPM/CPC/CPV) 등을 함께 제공합니다.
 
-![Budget Allocation Detail 테이블|100%](/docs/images/budget-optimizer/007.png)
+![Budget Allocation Detail 테이블|100%](/docs/images/budgetopt/007.png)
 
 - 예산을 잠근 항목에는 자물쇠 아이콘이 표시됩니다.
 - 순수 최적화 결과를 볼 때는 잠금 반영 결과와의 차이가 색상(증가 초록 / 감소 빨강)으로 표시됩니다.
@@ -421,7 +421,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 결과 화면 하단의 "Reach Caster로 이 예산안의 도달 성과 예측하기" 버튼으로, 최적화된 예산안을 Reach Caster 도달 예측까지 끊김 없이 연결합니다.
 
-![Reach Caster 간편 생성 설정 창|100%](/docs/images/budget-optimizer/008.png)
+![Reach Caster 간편 생성 설정 창|100%](/docs/images/budgetopt/008.png)
 
 - 설정 창에서 타겟 GRP와 예상 노출 전달 방식을 선택합니다.
 - 시나리오명은 원본과 연결되도록 "(BO-원본번호) 원본 시나리오명" 형식으로 자동 생성됩니다. (변경 불가)
