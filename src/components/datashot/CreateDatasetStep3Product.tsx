@@ -4,7 +4,6 @@
 import { Check, Maximize2, SearchX } from 'lucide-react'
 import type { FormData } from './createDatasetTypes'
 import { getMetricGroups } from './MetricSelect'
-import { isWithin2026H1, getBenchmarkMetricsFor, type BenchmarkMetricValues } from './benchmark2026H1'
 
 // 목 지표값 생성
 function mockMetricValue(id: string): { value: string; unit: string } {
@@ -18,21 +17,6 @@ function mockMetricValue(id: string): { value: string; unit: string } {
   if (id.includes('clicks')) return { value: rand(1000, 9000).toLocaleString(), unit: '회' }
   if (id.includes('views')) return { value: rand(5000, 80000).toLocaleString(), unit: '회' }
   return { value: rand(1000, 90000).toLocaleString(), unit: '' }
-}
-
-// 범위 내(2026 1~6월) 실데이터 셀값. 노출/클릭/비용/조회 + 파생지표(CPM/CPC/CPV/CTR/VTR)는 실데이터.
-// 그 외 지표(전환수 등)는 데이터에 없으므로 null → 호출부에서 mock으로 폴백.
-function benchMetricValue(id: string, m: BenchmarkMetricValues): { value: string; unit: string } | null {
-  if (id.includes('ctr')) return { value: m.ctr.toFixed(2), unit: '%' }
-  if (id.includes('vtr')) return { value: m.vtr.toFixed(2), unit: '%' }
-  if (id.includes('cpm')) return { value: m.cpm.toLocaleString(), unit: '원' }
-  if (id.includes('cpc')) return { value: m.cpc.toLocaleString(), unit: '원' }
-  if (id.includes('cpv')) return { value: m.cpv.toLocaleString(), unit: '원' }
-  if (id.includes('cost')) return { value: m.cost.toLocaleString(), unit: '원' }
-  if (id.includes('impressions')) return { value: m.impressions.toLocaleString(), unit: '회' }
-  if (id.includes('clicks')) return { value: m.clicks.toLocaleString(), unit: '회' }
-  if (id.includes('views')) return { value: m.views.toLocaleString(), unit: '회' }
-  return null
 }
 
 interface Props {
@@ -77,8 +61,6 @@ export function CreateDatasetStep3Product({ formData, onShowSampleData }: Props)
   )
 
   const hasData = rows.length > 0 && productMetrics.length > 0
-  // 조회기간이 2026 1~6월 범위면 미리보기 지표를 실데이터로 채운다
-  const useBenchmark = isWithin2026H1(formData.period)
 
   // 타겟팅·파트너사: 선택했으면 컬럼 추가
   const hasTargeting = !!(formData.targetingCategory && formData.targetingOptions.length > 0)
@@ -128,7 +110,7 @@ export function CreateDatasetStep3Product({ formData, onShowSampleData }: Props)
             </div>
 
             <div style={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'auto' }}>
-              <PreviewTable rows={rows.slice(0, 5)} metricLabels={metricLabels} productMetrics={productMetrics} periodStart={periodStart} showMidIndustry={showMidIndustry} targetingCategory={hasTargeting ? formData.targetingCategory : ''} targetingOptions={formData.targetingOptions} partners={hasPartners ? formData.productCollaborativePartners : []} useBenchmark={useBenchmark} />
+              <PreviewTable rows={rows.slice(0, 5)} metricLabels={metricLabels} productMetrics={productMetrics} periodStart={periodStart} showMidIndustry={showMidIndustry} targetingCategory={hasTargeting ? formData.targetingCategory : ''} targetingOptions={formData.targetingOptions} partners={hasPartners ? formData.productCollaborativePartners : []} />
             </div>
           </>
         )}
@@ -138,7 +120,7 @@ export function CreateDatasetStep3Product({ formData, onShowSampleData }: Props)
 }
 
 // 미리보기/모달 공용 표
-function PreviewTable({ rows, metricLabels, productMetrics, periodStart, showMidIndustry, targetingCategory, targetingOptions, partners, useBenchmark = false, zebra = false }: {
+function PreviewTable({ rows, metricLabels, productMetrics, periodStart, showMidIndustry, targetingCategory, targetingOptions, partners, zebra = false }: {
   rows: { media: string; product: string; major: string; mid: string }[]
   metricLabels: string[]
   productMetrics: string[]
@@ -147,7 +129,6 @@ function PreviewTable({ rows, metricLabels, productMetrics, periodStart, showMid
   targetingCategory: string
   targetingOptions: string[]
   partners: string[]
-  useBenchmark?: boolean
   zebra?: boolean
 }) {
   const showTargeting = !!(targetingCategory && targetingOptions.length > 0)
@@ -181,9 +162,7 @@ function PreviewTable({ rows, metricLabels, productMetrics, periodStart, showMid
               {showPartners && <td style={tdStyle}>{partners[i % partners.length]}</td>}
               {showTargeting && <td style={tdStyle}>{targetingOptions[i % targetingOptions.length]}</td>}
               {productMetrics.map(id => {
-                // 범위 내 + 매체·상품에 실데이터가 있으면 실값, 아니면(데이터 없는 지표 포함) mock
-                const bench = useBenchmark ? getBenchmarkMetricsFor(row.media, row.product) : null
-                const { value, unit } = (bench && benchMetricValue(id, bench)) || mockMetricValue(id)
+                const { value, unit } = mockMetricValue(id)
                 return (
                   <td key={id} style={{ ...tdStyle, textAlign: 'right', color: 'hsl(var(--foreground))' }}>
                     {value}{unit && <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: unit === '%' ? '2px' : '4px' }}>{unit}</span>}

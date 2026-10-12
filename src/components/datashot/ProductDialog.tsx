@@ -3,7 +3,6 @@
 // 사용자가 RatioFinder에서 학습한 인터랙션을 동일하게 유지하기 위함.
 import { Info } from 'lucide-react'
 import { mediaData } from '../scenario/constants'
-import { type PeriodLike, isWithin2026H1, getBenchmarkProductsForMedia } from './benchmark2026H1'
 
 export interface ProductDialogState {
   open: boolean
@@ -13,12 +12,8 @@ export interface ProductDialogState {
 
 // DataShot 매체명 → RatioFinder mediaData.DIGITAL 키 매핑 (표기 차이 보정)
 const DIGITAL = mediaData.DIGITAL as Record<string, string[]>
-// period가 2026 1~6월 범위면 "집행 데이터 있는 상품"(벤치마크)만, 아니면 전체 상품 목록.
-export function getProductsForMedia(media: string, period?: PeriodLike): string[] {
-  if (isWithin2026H1(period)) {
-    const bench = getBenchmarkProductsForMedia(media)
-    if (bench.length > 0) return bench
-  }
+// 매체별 전체 상품 목록(mediaData.DIGITAL)을 반환한다.
+export function getProductsForMedia(media: string): string[] {
   if (DIGITAL[media]) return DIGITAL[media]
   // kakao모먼트(붙임) vs 'kakao 모먼트'(띄움) 등 표기 차이 보정
   const normalized = media.replace(/\s+/g, '')
@@ -32,13 +27,12 @@ interface Props {
   searchQuery: string
   setSearchQuery: (q: string) => void
   onConfirm: (media: string, products: string[]) => void
-  period?: PeriodLike // 2026 1~6월 범위면 집행 데이터 있는 상품만 노출
 }
 
-export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, onConfirm, period }: Props) {
+export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, onConfirm }: Props) {
   if (!dialog.open) return null
 
-  const allProducts = getProductsForMedia(dialog.media, period)
+  const allProducts = getProductsForMedia(dialog.media)
   const filteredProducts = allProducts.filter(product =>
     product.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -57,8 +51,8 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
         style={{ height: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
-          <h3 className="dialog-title">{dialog.media} 상품 선택</h3>
-          <p className="dialog-description">추출에 포함할 상품을 선택하세요</p>
+          <h3 className="dialog-title">{dialog.media} 광고상품 선택</h3>
+          <p className="dialog-description">추출에 포함할 광고상품을 선택하세요</p>
           <div style={{
             marginTop: '12px', padding: '12px',
             backgroundColor: 'hsl(var(--muted) / 0.5)', border: '1px solid hsl(var(--border))',
@@ -66,7 +60,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
             display: 'flex', alignItems: 'center', gap: '8px',
           }}>
             <Info size={14} />
-            <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 상품만 표시됩니다.</span>
+            <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
           </div>
         </div>
 
@@ -77,7 +71,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="상품 검색..."
+              placeholder="광고상품 검색..."
               className="input"
               style={{ width: '100%', marginBottom: '12px' }}
             />
@@ -86,7 +80,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
               padding: '8px 12px', backgroundColor: 'hsl(var(--muted) / 0.5)', borderRadius: '6px',
             }}>
               <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                {filteredProducts.length}개 상품
+                {filteredProducts.length}개 광고상품
               </span>
               <button
                 onClick={() => {

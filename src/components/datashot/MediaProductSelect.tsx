@@ -6,7 +6,6 @@ import { ListPlus, X, Smartphone, Info } from 'lucide-react'
 import { mediaIconMap } from '../common/MediaIcons'
 import { ProductDialog, type ProductDialogState } from './ProductDialog'
 import type { MediaProductSelection } from './createDatasetTypes'
-import type { PeriodLike } from './benchmark2026H1'
 
 // DataShot 매체 목록 (TVING·당근 제외 반영된 6종)
 const MEDIA_LIST = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
@@ -16,10 +15,9 @@ interface Props {
   onChange: (next: MediaProductSelection) => void
   validationActive: boolean
   readOnly?: boolean // 조회(상세) 모달 재사용: 조작 요소 비활성 + 선택 매체만 노출
-  period?: PeriodLike // 2026 1~6월 범위면 상품 다이얼로그에 집행 데이터 있는 상품만 노출
 }
 
-export function MediaProductSelect({ value, onChange, validationActive, readOnly = false, period }: Props) {
+export function MediaProductSelect({ value, onChange, validationActive, readOnly = false }: Props) {
   const [dialog, setDialog] = useState<ProductDialogState>({ open: false, media: '', selectedProducts: [] })
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -124,7 +122,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                       }}
                     >
                       <ListPlus size={14} />
-                      상품 추가
+                      광고상품 추가
                       {selectedProducts.length > 0 && (
                         <span style={{
                           backgroundColor: 'hsl(var(--background) / 0.2)', padding: '2px 6px',
@@ -192,7 +190,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                   }}>
                     <ListPlus size={24} style={{ opacity: 0.5, color: 'hsl(var(--muted-foreground))' }} />
                     <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                      '상품 추가' 버튼을 클릭하여 상품을 추가하세요
+                      '광고상품 추가' 버튼을 클릭하여 광고상품을 추가하세요
                     </div>
                   </div>
                 )}
@@ -208,7 +206,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
               <div style={{ marginTop: '8px' }}>
                 <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', padding: '8px', borderRadius: '4px' }}>
                   {mediaWithoutProducts.map(media => (
-                    <div key={media}>• {media}: 최소 1개 이상의 상품을 선택해주세요.</div>
+                    <div key={media}>• {media}: 최소 1개 이상의 광고상품을 선택해주세요.</div>
                   ))}
                 </div>
               </div>
@@ -231,7 +229,6 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onConfirm={handleConfirm}
-          period={period}
         />
       )}
     </div>

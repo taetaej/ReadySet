@@ -14,7 +14,6 @@ import { IndustryModal, MetricsModal, ProductListModal } from './DatasetDetailMo
 import { ResultCharts } from './ResultCharts'
 import { ExtractedTable } from './ExtractedTable'
 import { type FormData, initialFormData } from './createDatasetTypes'
-import { type PeriodLike, isWithin2026H1, getBenchmarkMediaProducts, getBenchmarkIndustryList, getBenchmarkMetricGroups } from './benchmark2026H1'
 
 // 지표 데이터(모달 + 개수 공용). 광고상품 공통 지표 성격의 샘플.
 const metricsData = [
@@ -59,29 +58,14 @@ export function DatasetResult() {
   const datasetName = datasetData?.name || '다매체 통합 데이터'
   const periodValue = datasetData?.startDate ? `${datasetData.startDate} → ${datasetData.endDate}` : '—'
 
-  // 생성 플로우에서 넘어온 조회기간(2026 1~6월 범위면 차트·테이블이 실데이터로).
-  // 우선순위: location.state.period(생성 완료 시 전달) → datasetData.startDate/endDate 파싱.
-  const resultPeriod: PeriodLike | undefined = (() => {
-    const p = location.state?.period as PeriodLike | undefined
-    if (p?.startYear) return p
-    const [sy = '', sm = ''] = (datasetData?.startDate || '').split('-')
-    const [ey = '', em = ''] = (datasetData?.endDate || '').split('-')
-    if (!sy) return undefined
-    return { startYear: sy, startMonth: sm, endYear: ey, endMonth: em }
-  })()
+  // 헤더 요약(매체·광고상품·업종·지표)은 항상 기존 샘플을 사용한다.
+  const headerMediaProducts = mediaProductsData
+  const headerIndustries = industriesSample
+  const headerMetrics = metricsData
 
-  // 조회기간이 2026 1~6월 범위면 헤더 요약(매체·광고상품·업종)도 아래 차트와 동일한 실데이터로.
-  // 범위 밖이면 기존 샘플(mediaProductsData/industriesSample) 유지.
-  const useBenchmark = isWithin2026H1(resultPeriod)
-  const headerMediaProducts = useBenchmark ? getBenchmarkMediaProducts() : mediaProductsData
-  const headerIndustries = useBenchmark ? getBenchmarkIndustryList() : industriesSample
-  const headerMetrics = useBenchmark ? getBenchmarkMetricGroups() : metricsData
-
-  // 요약 개수 — 범위 내(실데이터)면 차트 데이터 기준, 아니면 목록행(datasetData)/샘플 기준
-  const mediaCount = useBenchmark ? headerMediaProducts.length : (datasetData?.mediaCount ?? mediaProductsData.length)
-  const industryValue = useBenchmark
-    ? `${headerIndustries.length}개`
-    : datasetData?.industryCount ? `${datasetData.industryCount}개` : `${industriesSample.length}개`
+  // 요약 개수 — 목록행(datasetData)/샘플 기준
+  const mediaCount = datasetData?.mediaCount ?? mediaProductsData.length
+  const industryValue = datasetData?.industryCount ? `${datasetData.industryCount}개` : `${industriesSample.length}개`
   const productCount = headerMediaProducts.reduce((s, m) => s + m.products.length, 0)
   const totalMetricsCount = headerMetrics.reduce((s, g) => s + g.metrics.length, 0)
 
@@ -264,10 +248,10 @@ export function DatasetResult() {
       {/* Content */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
         {/* 상단: 결과 차트 2종 */}
-        <ResultCharts period={resultPeriod} forceInsufficient={datasetData?.chartInsufficient} edgeDemo={datasetData?.chartEdgeDemo} />
+        <ResultCharts forceInsufficient={datasetData?.chartInsufficient} edgeDemo={datasetData?.chartEdgeDemo} spinxFail={datasetData?.spinxFailDemo} />
 
         {/* 하단: Extracted Data 테이블 */}
-        <ExtractedTable period={resultPeriod} />
+        <ExtractedTable />
       </div>
 
       {/* 상세 모달 (돋보기) */}

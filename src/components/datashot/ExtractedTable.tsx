@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react'
 import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Search, X, RefreshCcw, AlertTriangle, Info } from 'lucide-react'
 import { generateSampleData } from "./sampleData"
-import { type PeriodLike, isWithin2026H1, periodToMonths, getBenchmarkTableRows } from './benchmark2026H1'
 
 interface MetricFilter {
   operator: '>' | '<' | '=' | '≥' | '≤' | ''
@@ -20,7 +19,7 @@ function ChevronDown({ size = 16, ...props }: { size?: number; style?: React.CSS
   )
 }
 
-export function ExtractedTable({ period }: { period?: PeriodLike } = {}) {
+export function ExtractedTable() {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
@@ -51,14 +50,11 @@ export function ExtractedTable({ period }: { period?: PeriodLike } = {}) {
     { key: 'product', label: '상품' },
   ]
 
-  // 조회기간이 2026 1~6월 범위면 실데이터(benchmark) 행, 아니면 기존 Meta 샘플(캠페인목표+플랫폼 파생 상품명).
-  const useBenchmark = isWithin2026H1(period)
-  const sampleData = useBenchmark
-    ? getBenchmarkTableRows(periodToMonths(period!))
-    : generateSampleData().map((row: any) => ({
-        ...row,
-        product: `${row.objective}_${row.platform}`,
-      }))
+  // 하단 테이블은 항상 기존 Meta 샘플(캠페인목표+플랫폼 파생 상품명)을 사용한다.
+  const sampleData = generateSampleData().map((row: any) => ({
+    ...row,
+    product: `${row.objective}_${row.platform}`,
+  }))
 
   const metricToKey: { [key: string]: string } = {
     '노출수': 'impressions', '클릭수': 'clicks', '광고비': 'cost', 'CTR': 'ctr', 'CPC': 'cpc', 'CPM': 'cpm', 'VTR': 'vtr',
