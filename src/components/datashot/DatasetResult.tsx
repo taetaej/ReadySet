@@ -264,7 +264,7 @@ export function DatasetResult() {
       {/* Content */}
       <div className="workspace-content" style={{ maxWidth: '100%', overflow: 'hidden' }}>
         {/* 상단: 결과 차트 2종 */}
-        <ResultCharts period={resultPeriod} />
+        <ResultCharts period={resultPeriod} forceInsufficient={datasetData?.chartInsufficient} edgeDemo={datasetData?.chartEdgeDemo} />
 
         {/* 하단: Extracted Data 테이블 */}
         <ExtractedTable period={resultPeriod} />
