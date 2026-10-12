@@ -122,12 +122,33 @@ export function DatasetList() {
       // 상태 필터
       if (statusFilter.length > 0 && !statusFilter.includes(dataset.status)) return false
       
-      // 매체 필터
-      if (mediaFilter.length > 0 && !mediaFilter.includes(dataset.media)) return false
+      // 매체 필터: 데이터셋에 포함된 실제 매체 기준. 선택 매체 중 하나라도 포함되면 표시
+      if (mediaFilter.length > 0) {
+        const list = dataset.mediaList && dataset.mediaList.length > 0 ? dataset.mediaList : [dataset.media]
+        if (!list.some(m => mediaFilter.includes(m))) return false
+      }
       
       return true
     })
     .sort((a, b) => {
+      // 매체 정렬: 단일 매체 먼저(매체명순) → 복수 매체 뒤(매체 수 적은 순, 동률이면 데이터셋명순)
+      if (sortField === 'media') {
+        const modifier = sortOrder === 'asc' ? 1 : -1
+        const aCount = (a.mediaList && a.mediaList.length > 0 ? a.mediaList.length : (a.mediaCount ?? 1))
+        const bCount = (b.mediaList && b.mediaList.length > 0 ? b.mediaList.length : (b.mediaCount ?? 1))
+        const aMulti = aCount >= 2
+        const bMulti = bCount >= 2
+        // 단일 vs 복수: 단일을 앞에
+        if (aMulti !== bMulti) return (aMulti ? 1 : -1) * modifier
+        if (!aMulti) {
+          // 둘 다 단일: 매체명 오름차순
+          return a.media.localeCompare(b.media) * modifier
+        }
+        // 둘 다 복수: 매체 수 적은 순, 동률이면 데이터셋명 오름차순
+        if (aCount !== bCount) return (aCount - bCount) * modifier
+        return a.name.localeCompare(b.name) * modifier
+      }
+
       const aVal = a[sortField]
       const bVal = b[sortField]
       const modifier = sortOrder === 'asc' ? 1 : -1
@@ -159,10 +180,15 @@ export function DatasetList() {
   const getExtractModeLabel = (dataset: { extractMode?: 'product' | 'condition' }) =>
     dataset.extractMode === 'product' ? '광고상품' : '조건 조합'
 
-  // 매체 표시 함수: 광고상품(복수 매체)은 "N개 매체", 조건 조합은 단일 매체명
-  const getMediaDisplay = (dataset: { extractMode?: 'product' | 'condition'; media: string; mediaCount?: number }) => {
+  // 데이터셋에 포함된 실제 매체 목록 (필터·정렬 기준). 광고상품은 mediaList, 그 외는 [media]
+  const getMediaList = (dataset: { media: string; mediaList?: string[] }) =>
+    dataset.mediaList && dataset.mediaList.length > 0 ? dataset.mediaList : [dataset.media]
+
+  // 매체 표시 함수: 광고상품은 매체 1개면 매체명, 2개 이상이면 "N개 매체". 조건 조합은 단일 매체명
+  const getMediaDisplay = (dataset: { extractMode?: 'product' | 'condition'; media: string; mediaCount?: number; mediaList?: string[] }) => {
     if (dataset.extractMode === 'product') {
       const count = dataset.mediaCount ?? 1
+      if (count <= 1) return getMediaList(dataset)[0]
       return `${count}개 매체`
     }
     return dataset.media
