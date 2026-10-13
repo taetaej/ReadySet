@@ -1,4 +1,4 @@
-# Budget Optimizer 솔루션 정책서
+# BudgetOpt 2.0 솔루션 정책서
 
 ---
 
@@ -11,7 +11,7 @@
 
 ---
 
-📢 본 정책서는 ReadySet 플랫폼 내 Budget Optimizer 솔루션의 운영 원칙, 입출력 정의, 모델 정책, 연계 구조를 정의합니다.
+📢 본 정책서는 ReadySet 플랫폼 내 BudgetOpt 2.0 솔루션의 운영 원칙, 입출력 정의, 모델 정책, 연계 구조를 정의합니다.
 
 - 현재 버전: v0.2
 - 관리자: 신지아
@@ -19,11 +19,11 @@
 
 ---
 
-# 1. Budget Optimizer 정의
+# 1. BudgetOpt 2.0 정의
 
 ## 1.1 솔루션 개요
 
-Budget Optimizer는 사용자가 설정한 KPI 목표에 따라 선택된 매체/광고상품 간 **최적 예산 배분안**을 도출하는 솔루션이다.
+BudgetOpt 2.0는 사용자가 설정한 KPI 목표에 따라 선택된 매체/광고상품 간 **최적 예산 배분안**을 도출하는 솔루션이다.
 
 - 22개 업종별 Meridian(Media Mix Model) 기반 예측 모델 보유
 - 외생변수(Meridian 기본 기능) 적용으로 시장 환경 반영
@@ -87,13 +87,13 @@ Budget Optimizer는 사용자가 설정한 KPI 목표에 따라 선택된 매체
 
 ---
 
-# 3. 시나리오 정책 (Budget Optimizer 특화)
+# 3. 시나리오 정책 (BudgetOpt 2.0 특화)
 
 > 공통 시나리오 정책(CRUD, 상태, 비동기 처리, 이동, 비교, Export)은 `예측분석_고도화_프로젝트_정책서_v0.1.md` Section 4를 따름
 
 ## 3.1 시나리오 생성 진입
 
-- Slot 내 시나리오 생성 버튼 → 하위 메뉴에서 **Budget Optimizer** 선택 → 시나리오 생성 화면 진입
+- Slot 내 시나리오 생성 버튼 → 하위 메뉴에서 **BudgetOpt 2.0** 선택 → 시나리오 생성 화면 진입
 - 기존 Reach Caster와 동일 레벨의 메뉴로 제공
 
 ## 3.2 시나리오 속성 정의
@@ -263,16 +263,16 @@ Budget Optimizer는 사용자가 설정한 KPI 목표에 따라 선택된 매체
 
 ## 4.1 기능 정의
 
-Budget Optimizer 결과를 기반으로 Reach Caster 시나리오를 **간편 생성**하는 기능이다.
+BudgetOpt 2.0 결과를 기반으로 Reach Caster 시나리오를 **간편 생성**하는 기능이다.
 
 - 두 시나리오 간 **연결(Link) 관계를 표시하지 않음** — 의존성을 최소화하기 위함
 - 생성 완료 후 Reach Caster 시나리오는 완전히 독립적으로 존재
-- Budget Optimizer 결과 화면의 CTA를 통해 Reach Caster 시나리오 생성 프로세스를 빠르게 진입하는 **편의 기능** 수준으로 정의
+- BudgetOpt 2.0 결과 화면의 CTA를 통해 Reach Caster 시나리오 생성 프로세스를 빠르게 진입하는 **편의 기능** 수준으로 정의
 
 ## 4.2 진입 및 플로우
 
 ```
-Budget Optimizer 시나리오 결과 화면 (완료 상태)
+BudgetOpt 2.0 시나리오 결과 화면 (완료 상태)
     ↓ "Reach Caster로 분석하기" CTA
 중간 설정 레이어 (모달/바텀시트)
     → 타겟 GRP 선택
@@ -284,20 +284,20 @@ Reach Caster > Reach Predictor Step 2 화면 진입
 
 ## 4.3 중간 설정 레이어
 
-Budget Optimizer 결과에서 Reach Caster 생성으로 넘어가기 전, 중간 레이어를 통해 추가 설정을 수행한다.
+BudgetOpt 2.0 결과에서 Reach Caster 생성으로 넘어가기 전, 중간 레이어를 통해 추가 설정을 수행한다.
 
 ### 4.3.1 설정 항목
 
 | 항목 | 필수 | 설명 |
 |---|---|---|
 | 타겟 GRP | 필수 | Reach Caster에서 요구하는 타겟 GRP 선택 |
-| 매핑 불일치 안내 | 정보 표시 | Budget Optimizer 결과 매체/상품 중 Reach Caster 해당 업종에서 지원하지 않는 항목 표시 |
+| 매핑 불일치 안내 | 정보 표시 | BudgetOpt 2.0 결과 매체/상품 중 Reach Caster 해당 업종에서 지원하지 않는 항목 표시 |
 
 ### 4.3.2 매핑 불일치 처리
 
 | 규칙 | 설명 |
 |---|---|
-| 불일치 발생 조건 | Budget Optimizer 결과에 포함된 매체/광고상품이 Reach Caster 해당 업종에서 선택 불가한 경우 |
+| 불일치 발생 조건 | BudgetOpt 2.0 결과에 포함된 매체/광고상품이 Reach Caster 해당 업종에서 선택 불가한 경우 |
 | 안내 방식 | 중간 레이어에서 불일치 항목을 명시적으로 리스트 표시 (예: "⚠️ 다음 항목은 Reach Caster에서 지원하지 않아 제외됩니다: Kakao > OO상품") |
 | 처리 방식 | 불일치 항목은 Reach Caster 생성 시 자동 제외, 매핑 가능한 항목만 프리필 |
 | 전체 불일치 | 매핑 가능한 항목이 0개인 경우 생성 불가 안내 및 CTA 비활성화 |
@@ -306,10 +306,10 @@ Budget Optimizer 결과에서 Reach Caster 생성으로 넘어가기 전, 중간
 
 | 규칙 | 설명 |
 |---|---|
-| 진입 조건 | Budget Optimizer 시나리오 상태가 `완료(Completed)`인 경우에만 CTA 활성화 |
+| 진입 조건 | BudgetOpt 2.0 시나리오 상태가 `완료(Completed)`인 경우에만 CTA 활성화 |
 | 동일 Slot 원칙 | 생성되는 Reach Caster 시나리오는 동일 Slot 내에 위치 |
-| 업종 | Budget Optimizer와 동일 업종 자동 적용 |
-| 매체별 예산 | Budget Optimizer 결과의 매체별 배분 예산 → Reach Predictor Step 2 매체별 예산 입력에 프리필 |
+| 업종 | BudgetOpt 2.0와 동일 업종 자동 적용 |
+| 매체별 예산 | BudgetOpt 2.0 결과의 매체별 배분 예산 → Reach Predictor Step 2 매체별 예산 입력에 프리필 |
 | 수정 가능 | 프리필된 값은 사용자가 자유롭게 수정 가능 |
 | 진입 위치 | Reach Caster 시나리오 생성의 **Step 2**로 바로 진입 (Step 1 스킵) |
 
@@ -318,19 +318,19 @@ Budget Optimizer 결과에서 Reach Caster 생성으로 넘어가기 전, 중간
 | 규칙 | 설명 |
 |---|---|
 | 자동 네이밍 | `(BO-{시나리오ID}) {원본 시나리오명}` 형식으로 시나리오명 자동 생성 |
-| 예시 | Budget Optimizer 시나리오명이 "25년 3분기 최적화"인 경우 → `(BO-1234) 25년 3분기 최적화` |
+| 예시 | BudgetOpt 2.0 시나리오명이 "25년 3분기 최적화"인 경우 → `(BO-1234) 25년 3분기 최적화` |
 | 변경 불가 | 생성 레이어에서 시나리오명은 **수정 불가**(원본 추적 목적). 생성 이후 Reach Caster 시나리오에서의 리네이밍 정책은 공통 시나리오 정책을 따름 |
 
 ## 4.6 독립성 원칙
 
-- 생성된 Reach Caster 시나리오는 Budget Optimizer 시나리오와 **어떠한 연결 관계도 갖지 않음**
-- Budget Optimizer 시나리오가 삭제되어도 생성된 Reach Caster 시나리오에 영향 없음
+- 생성된 Reach Caster 시나리오는 BudgetOpt 2.0 시나리오와 **어떠한 연결 관계도 갖지 않음**
+- BudgetOpt 2.0 시나리오가 삭제되어도 생성된 Reach Caster 시나리오에 영향 없음
 - 연결 이력, 참조 메타데이터 등을 기록하지 않음
-- Reach Caster 시나리오에서 원본 Budget Optimizer로의 역추적 기능 미제공
+- Reach Caster 시나리오에서 원본 BudgetOpt 2.0로의 역추적 기능 미제공
 
 ---
 
-# 5. SpinX for Budget Optimizer
+# 5. SpinX for BudgetOpt 2.0
 
 ## 5.1 서비스 레벨
 
@@ -382,7 +382,7 @@ Budget Optimizer 결과에서 Reach Caster 생성으로 넘어가기 전, 중간
 
 ## 5.6 사용량 정책
 
-- 사용량은 플랫폼 단위로 관리됨 (Budget Optimizer 단독 정책 아님)
+- 사용량은 플랫폼 단위로 관리됨 (BudgetOpt 2.0 단독 정책 아님)
 - 사용자당 월 100건 대화 전송 제한
 - 상세 정책은 플랫폼 공통 정책 참조
 
@@ -420,7 +420,7 @@ Budget Optimizer 결과에서 Reach Caster 생성으로 넘어가기 전, 중간
 
 | 용어 | 정의 |
 |---|---|
-| Budget Optimizer | KPI 기반 매체 예산 최적 배분 솔루션 |
+| BudgetOpt 2.0 | KPI 기반 매체 예산 최적 배분 솔루션 |
 | Meridian | Google 개발 Bayesian Media Mix Model 프레임워크 |
 | 외생변수 | 모델 외부에서 영향을 미치는 환경 변수 (계절성, 시장 트렌드 등) |
 | 예산 고정(Fix) | 특정 매체/상품에 예산을 직접 지정하여 최적화 대상에서 제외하는 기능 |

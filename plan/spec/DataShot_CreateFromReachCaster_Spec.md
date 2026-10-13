@@ -85,7 +85,7 @@ Reach Caster 결과(도달·효율 분석)를 다 본 사용자가, **화면을 
 
 ### C.2 생성 모달 구성
 
-> UI 패턴: **Budget Optimizer 2.0 결과의 "최적화 예산으로 도달 예측하기" 모달**(`BOReachCasterEasyCreateModal.tsx`)을 차용한다. 껍데기(dialog-header 제목·설명 / 요약 박스 / 리스트 / dialog-footer 취소·생성)와 "매체별 전달 내역" 리스트·제외 뱃지·하단 안내 패턴을 그대로 따르되, 아래 DataShot 맥락으로 치환한다.
+> UI 패턴: **BudgetOpt 2.0 결과의 "최적화 예산으로 도달 예측하기" 모달**(`BOReachCasterEasyCreateModal.tsx`)을 차용한다. 껍데기(dialog-header 제목·설명 / 요약 박스 / 리스트 / dialog-footer 취소·생성)와 "매체별 전달 내역" 리스트·제외 뱃지·하단 안내 패턴을 그대로 따르되, 아래 DataShot 맥락으로 치환한다.
 
 모달 세로 구성(위→아래):
 
@@ -276,7 +276,7 @@ Reach Caster가 보유한 **매체·상품**을, 선택한 **기간·업종**에
 | 광고상품 소스(목업) | `scenario/constants`의 `mediaData.DIGITAL` 등으로 **목업 구성** | 매체 대조 기준 집합. 현 단계는 전달/미지원 제외/데이터 없음 제외 케이스를 보여주는 샘플(실데이터 연동 전) |
 
 - 생성 플로우 전체 규칙: `plan/spec/DataShot_Enhancement_Spec.md` §C.
-- CTA 존 패턴 참조: Budget Optimizer 결과 화면의 Reach Caster 유도 CTA(`BOResult.tsx`의 `bo-reach-cta`).
+- CTA 존 패턴 참조: BudgetOpt 2.0 결과 화면의 Reach Caster 유도 CTA(`BOResult.tsx`의 `bo-reach-cta`).
 - 모달 패턴 참조: BO 2.0 "최적화 예산으로 도달 예측하기" 모달(`BOReachCasterEasyCreateModal.tsx`).
 - 작성 가이드: `.kiro/steering/screen-specification-guide.md`.
 

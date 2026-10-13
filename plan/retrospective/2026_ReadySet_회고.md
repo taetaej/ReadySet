@@ -37,7 +37,7 @@
 ### 2-2. 구조 거버넌스 — 공통 뼈대(IA)
 
 - **4계층 IA** 확립: SlotBoard → Slot → 솔루션 → 시나리오.
-- **4솔루션을 하나의 흐름**으로: DataShot → Ad Curator → Budget Optimizer → Reach Caster.
+- **4솔루션을 하나의 흐름**으로: DataShot → Ad Curator → BudgetOpt 2.0 → Reach Caster.
 - **공통 패턴** 표준화: 3단계 생성 위자드, Configuration Summary, Breadcrumb 정책, 공통 컴포넌트.
 - 의미: 솔루션이 늘어도 사용자는 **같은 사용법**으로 쓴다. 학습 비용이 솔루션마다 리셋되지 않는다.
 
@@ -49,7 +49,7 @@
 
 ### 2-4. 경험 거버넌스 — 세션의 연속성
 
-- **맥락 승계**: Budget Optimizer 결과 → Reach Caster Easy Create로 업종·예산·기간·KPI 프리필.
+- **맥락 승계**: BudgetOpt 2.0 결과 → Reach Caster Easy Create로 업종·예산·기간·KPI 프리필.
 - **SpinX 통합**: 결과 화면마다 AI 챗을 얹어 수치를 서사로 해석.
 - 의미: 도구를 옮겨다녀도 **생각의 흐름이 끊기지 않는다.**
 
@@ -90,7 +90,7 @@
 |---|---|---|
 | **DataShot** | 구현 완료 | 업종 벤치마크 데이터셋 생성·조회 (3단계 위자드) |
 | **Reach Caster** | 구현 완료 | 크로스미디어 통합 도달 예측 (Ratio Finder / Reach Predictor), 시나리오 비교 |
-| **Budget Optimizer** | 구현 (Meridian 기반) | KPI 목표 기반 미디어믹스 예산 최적화, Easy Create로 RC 연계 |
+| **BudgetOpt 2.0** | 구현 (Meridian 기반) | KPI 목표 기반 미디어믹스 예산 최적화, Easy Create로 RC 연계 |
 | **Ad Curator** | 준비 중 | 캠페인 성과 기반 맞춤 상품 큐레이션 |
 | **SpinX** | 구현 완료 | 결과 해석 AI 챗, MCP 사용 정책 수립 |
 

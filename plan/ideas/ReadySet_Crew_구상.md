@@ -19,7 +19,7 @@
 
 ## 1. 정체 (What)
 
-- 기존 솔루션(Reach Caster / DataShot / Budget Optimizer)이 **특정 Slot(광고주·캠페인)에 종속된 작업 공간**이라면,
+- 기존 솔루션(Reach Caster / DataShot / BudgetOpt 2.0)이 **특정 Slot(광고주·캠페인)에 종속된 작업 공간**이라면,
   Crew는 **Slot에 종속되지 않는 크로스 공간**이다. 여기 사는 크루는 여러 캠페인을 넘나들며 일한다.
 - 핵심 단위 = **크루(Crew member)**. AI 에이전트일 수도, 사람 전문가(데싸)일 수도 있다.
   - 그래서 이름을 "Agent ~"로 못박지 않는다. **"에이전트 전용"이라 하면 사람(데싸)이 튕겨나간다.**
@@ -64,7 +64,7 @@
 ```
 GNB
 ├── 솔루션 (드롭다운)                 ← Slot 종속 작업 공간
-│   └── Reach Caster / DataShot / Budget Optimizer / Ad Curator
+│   └── Reach Caster / DataShot / BudgetOpt 2.0 / Ad Curator
 └── ReadySet Crew (독립 메뉴)         ← Slot 비종속. 나의 전략 크루 ★신규
     ├── 채용 보드 (Hire)              ← 에이전트·전문가 영입 [1단계]
     │   └── 크루 프로필 카드 (특기·이력·평판)

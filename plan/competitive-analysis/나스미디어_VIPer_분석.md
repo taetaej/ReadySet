@@ -34,9 +34,9 @@
 
 ---
 
-## 3. ReadySet Budget Optimizer vs VIPer 비교
+## 3. ReadySet BudgetOpt 2.0 vs VIPer 비교
 
-| 비교 축 | ReadySet Budget Optimizer | VIPer (나스미디어) |
+| 비교 축 | ReadySet BudgetOpt 2.0 | VIPer (나스미디어) |
 |---|---|---|
 | **모델 기반** | 업종별 벤치마크 모델 (22개 업종) | 광고주별 자사 데이터 모델 |
 | **모델 엔진** | Google Meridian | Google Meridian + Meta Robyn |
@@ -66,7 +66,7 @@
 |---|---|---|
 | 1 | 광고주별 데이터 수집/학습 필요 → 도입 허들 높음 | **즉시 활용형**: 업종 선택만으로 바로 분석 시작 |
 | 2 | 신규 광고주/데이터 부족 브랜드는 활용 불가 | **범용성**: 데이터 없는 브랜드도 업종 벤치마크로 커버 |
-| 3 | 단독 MMM 솔루션 (도달 예측 연계 미확인) | **End-to-End**: Budget Optimizer → Reach Caster 연속 분석 |
+| 3 | 단독 MMM 솔루션 (도달 예측 연계 미확인) | **End-to-End**: BudgetOpt 2.0 → Reach Caster 연속 분석 |
 | 4 | 렙사가 아닌 플랫폼 컴퍼니 포지션 (미디어 바잉 연계?) | **렙사 실무 밀착**: 실제 미디어 플래닝 워크플로우에 통합 |
 
 ### 4.3 경쟁 구도 정리
@@ -78,7 +78,7 @@
 │  광고주 데이터 기반       │  업종 벤치마크 기반            │
 │  (Custom Model)         │  (Industry Model)             │
 ├─────────────────────────┼───────────────────────────────┤
-│  VIPer (나스미디어)       │  Budget Optimizer (ReadySet)  │
+│  VIPer (나스미디어)       │  BudgetOpt 2.0 (ReadySet)  │
 │  - 정밀도 높음           │  - 즉시 활용 가능              │
 │  - 도입 허들 높음         │  - 도입 허들 낮음             │
 │  - 데이터 필요           │  - 데이터 불필요              │

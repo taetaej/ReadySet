@@ -1,10 +1,10 @@
-# Budget Optimizer 시나리오 목록 화면 정의서
+# BudgetOpt 2.0 시나리오 목록 화면 정의서
 
 ## 문서 정보
 - **작성일**: 2026-09-04
 - **최종 수정**: 2026-09-04
 - **버전**: v0.1 (초안)
-- **대상 화면**: 시나리오 목록 화면 (Slot 내 Budget Optimizer 진입점)
+- **대상 화면**: 시나리오 목록 화면 (Slot 내 BudgetOpt 2.0 진입점)
 - **관련 정책서**: Budget_Optimizer_정책서_v0.1.md, Budget_Optimizer_기능정의서_v0.1.md
 - **관련 스펙**: BudgetOptimizer_Scenario_Creation_Spec.md, BudgetOptimizer_Result_Spec.md, Scenario_List_Screen_Spec.md(Reach Caster)
 
@@ -23,7 +23,7 @@
 ## 1. 화면 개요
 
 ### 1.1 기능 정의
-특정 Slot에 속한 **Budget Optimizer 시나리오 목록**을 조회·관리하는 화면임. 시나리오를 검색·필터·정렬해 찾고, 완료된 시나리오는 결과 화면으로 진입하며, 복제·이동·삭제 같은 관리 작업을 수행함.
+특정 Slot에 속한 **BudgetOpt 2.0 시나리오 목록**을 조회·관리하는 화면임. 시나리오를 검색·필터·정렬해 찾고, 완료된 시나리오는 결과 화면으로 진입하며, 복제·이동·삭제 같은 관리 작업을 수행함.
 
 **기획 의도**: 한 Slot에서 생성한 여러 예산 최적화 시나리오를 한눈에 비교·관리하게 함. 완료 여부·KPI·예산·기간을 목록에서 바로 파악하고, 완료 시나리오는 클릭 한 번으로 결과로 진입하게 함. 관리 작업(이동/삭제)은 Reach Caster 시나리오 목록과 동일한 인터랙션을 제공해 학습 비용을 낮춤.
 
@@ -33,13 +33,13 @@
 - **AI 기반 TC 생성**: 검색·필터·정렬·선택·관리 작업 규칙(Section 4~7)이 테스트 케이스의 원천 데이터가 됨. 각 규칙은 조건 → 기대 결과로 검증 가능하게 작성함.
 
 ### 1.3 진입 경로
-- SNB(사이드바) Budget Optimizer 클릭, SlotHome 솔루션 카드, SlotBoard 등에서 진입함.
-- URL: /budgetoptimizer
-- Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer
+- SNB(사이드바) BudgetOpt 2.0 클릭, SlotHome 솔루션 카드, SlotBoard 등에서 진입함.
+- URL: /budgetopt
+- Breadcrumb: SlotBoard / {Slot명} / BudgetOpt 2.0
 
 ### 1.4 화면 구조 (세로 흐름)
 Slot 헤더(SlotHeader, Reach Caster 공용)
-→ 타이틀("Budget Optimizer") + New Scenario 버튼
+→ 타이틀("BudgetOpt 2.0") + New Scenario 버튼
 → 액션바(좌: 시나리오 개수 / 우: 선택 시 일괄작업 · 검색 · 필터)
 → 시나리오 테이블
 → 페이지네이션
@@ -50,7 +50,7 @@ Slot 헤더(SlotHeader, Reach Caster 공용)
 
 - 상단은 Reach Caster와 공용인 SlotHeader(광고주·Slot 정보)를 사용함.
 - 본문(workspace-content): 타이틀 라인 → 액션바 → 테이블 → 페이지네이션 순의 세로 흐름임.
-- 타이틀 라인 좌측에 "Budget Optimizer" 제목과 원형 New Scenario 버튼(＋)을 둠. 클릭 시 /budgetoptimizer/scenario/new로 이동함.
+- 타이틀 라인 좌측에 "BudgetOpt 2.0" 제목과 원형 New Scenario 버튼(＋)을 둠. 클릭 시 /budgetopt/scenario/new로 이동함.
 - 관리 작업 결과는 우상단 토스트로 안내함(성공/실패, 3초 자동 닫힘).
 
 ---
@@ -153,7 +153,7 @@ Slot 헤더(SlotHeader, Reach Caster 공용)
 
 | 상태 | 행 클릭 | 표시 |
 |---|---|---|
-| Completed | 결과 화면으로 이동(/budgetoptimizer/scenario/{id}/result) | 시나리오명 정상 강조, 커서 pointer |
+| Completed | 결과 화면으로 이동(/budgetopt/scenario/{id}/result) | 시나리오명 정상 강조, 커서 pointer |
 | Processing | 진입 불가 | 진행 단계 설명 + 진행률(5단계) 표시 |
 | Pending | 진입 불가 | 대기 상태 뱃지 |
 | Error | 진입 불가 | Error 뱃지 |
