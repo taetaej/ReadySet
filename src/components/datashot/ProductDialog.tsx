@@ -37,18 +37,17 @@ export function isLowSampleProduct(media: string, product: string): boolean {
 export function LowSampleBadge() {
   return (
     <span
-      title="집행 캠페인·브랜드 수가 적어 벤치마크가 특정 광고주에 치우쳐 있을 수 있어요."
       style={{
         display: 'inline-flex', alignItems: 'center', gap: '4px',
         padding: '2px 6px', borderRadius: '4px',
         backgroundColor: 'hsl(var(--muted) / 0.6)',
         color: 'hsl(var(--muted-foreground))',
         fontSize: '10px', fontWeight: 500, lineHeight: 1.4,
-        whiteSpace: 'nowrap', cursor: 'default', flexShrink: 0,
+        whiteSpace: 'nowrap', flexShrink: 0,
       }}
     >
       <Info size={10} />
-      표본 적음
+      데이터 적음
     </span>
   )
 }
@@ -76,6 +75,8 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
   const filteredProducts = allProducts.filter(product =>
     product.toLowerCase().includes(searchQuery.toLowerCase())
   )
+  // 이 매체 상품 중 "표본 적음"이 하나라도 있으면 안내에 뱃지 설명 노출
+  const hasLowSample = allProducts.some(p => isLowSampleProduct(dialog.media, p))
   const allSelected = filteredProducts.length > 0 && filteredProducts.every(p => dialog.selectedProducts.includes(p))
 
   const close = () => {
@@ -97,10 +98,18 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
             marginTop: '12px', padding: '12px',
             backgroundColor: 'hsl(var(--muted) / 0.5)', border: '1px solid hsl(var(--border))',
             borderRadius: '6px', fontSize: '12px', color: 'hsl(var(--muted-foreground))',
-            display: 'flex', alignItems: 'center', gap: '8px',
+            display: 'flex', alignItems: 'flex-start', gap: '8px',
           }}>
-            <Info size={14} />
-            <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+            <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.6' }}>
+              <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+              {hasLowSample && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <LowSampleBadge />
+                  벤치마크로 활용하기에는 데이터가 적은 광고상품입니다.
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -174,7 +183,9 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
                     className="checkbox-custom"
                   />
                   <span style={{ fontSize: '13px' }}>{product}</span>
-                  {isLowSampleProduct(dialog.media, product) && <LowSampleBadge />}
+                  {isLowSampleProduct(dialog.media, product) && (
+                    <span style={{ marginLeft: 'auto' }}><LowSampleBadge /></span>
+                  )}
                 </label>
               ))
             ) : (

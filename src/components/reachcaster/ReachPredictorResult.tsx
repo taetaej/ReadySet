@@ -961,6 +961,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
         industry={scenarioData?.industry || '여행'}
         mediaItems={scenarioData?.reachPredictorMedia || []}
+        slotShared={false} // TODO: 소속 예정 Slot scope 연동 시 Share 여부 전달
       />
 
       {/* 매체/상품 상세 다이얼로그 (읽기 전용) */}

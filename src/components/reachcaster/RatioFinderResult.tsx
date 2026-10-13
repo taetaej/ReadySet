@@ -1161,6 +1161,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
         scenarioName={scenarioData?.name || 'Ratio Finder 시나리오'}
         industry={scenarioData?.industry || '여행'}
         mediaItems={[]}
+        slotShared={false} // TODO: 소속 예정 Slot scope 연동 시 Share 여부 전달
       />
 
       {/* 타겟 GRP 다이얼로그 */}

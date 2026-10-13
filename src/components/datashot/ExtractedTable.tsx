@@ -47,7 +47,7 @@ export function ExtractedTable() {
   // 상세 옵션 컬럼(캠페인목표 등)·타겟팅 컬럼은 제거하고 '상품' 단일 컬럼으로 통합.
   const configData = { media: 'Meta', targetingCategory: null as string | null, metrics: ['광고비', '노출수', '클릭수', 'CPC', 'CPM', 'CTR', 'VTR'] }
   const adProductColumns = [
-    { key: 'product', label: '상품' },
+    { key: 'product', label: '광고상품' },
   ]
 
   // 하단 테이블은 항상 기존 Meta 샘플(캠페인목표+플랫폼 파생 상품명)을 사용한다.

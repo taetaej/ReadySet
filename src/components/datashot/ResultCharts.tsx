@@ -717,7 +717,7 @@ function ScatterTooltip({ active, payload, respLabel = '반응', priceLabel = '�
 // SpinX 분석 생성 상태(스펙 §C.3.1): generating(생성 중) → success(타이핑) | error(대체 텍스트).
 // 생성 API 연동 전까지는 프런트에서 짧은 '생성 중' 지연 후 성공으로 전이해 시뮬레이션하고,
 // forceError=true면 생성 실패 케이스를 재현한다(엣지/QA 확인용 — chartInsufficient 패턴과 동일).
-const SPINX_ERROR_TEXT = 'SpinX 분석을 생성하지 못했습니다. 페이지를 새로고침하거나 데이터 조회 화면을 다시 열면 분석을 다시 시도합니다.'
+const SPINX_ERROR_TEXT = '이 차트에 대한 SpinX 분석을 생성하지 못했습니다. 새로고침하거나 결과에 다시 들어오면 분석을 다시 시도합니다.'
 
 function SpinXInsight({ text, speed = 18, forceError = false }: { text: string; speed?: number; forceError?: boolean }) {
   const [phase, setPhase] = useState<'generating' | 'success' | 'error'>('generating')

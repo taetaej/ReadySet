@@ -34,7 +34,7 @@ export const initialFormData: FormData = {
   datasetName: '',
   description: '',
   purpose: '',
-  extractMode: '',
+  extractMode: 'product', // 추출 기준 기본값: 광고상품
   media: '',
   mediaProducts: {},
   productMetrics: [],

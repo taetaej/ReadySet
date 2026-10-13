@@ -23,6 +23,11 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
 
   const selectedMediaList = MEDIA_LIST.filter(m => value[m] !== undefined)
 
+  // 선택된 상품 중 "표본 적음"에 해당하는 상품이 하나라도 있는지 (뱃지 설명 노출 조건)
+  const hasLowSampleSelected = selectedMediaList.some(m =>
+    (value[m] || []).some(p => isLowSampleProduct(m, p))
+  )
+
   const toggleMedia = (media: string, checked: boolean) => {
     const next = { ...value }
     if (checked) next[media] = []
@@ -60,7 +65,15 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
           fontSize: '12px', color: 'hsl(var(--muted-foreground))',
         }}>
           <Info size={14} style={{ flexShrink: 0, marginTop: '4px' }} />
-          <span style={{ lineHeight: '1.8' }}>Step1에서 설정한 기간, 업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.6' }}>
+            <span>Step1에서 설정한 기간, 업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+            {hasLowSampleSelected && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                <LowSampleBadge />
+                벤치마크로 활용하기에는 데이터가 적은 광고상품입니다.
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -155,7 +168,9 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'hsl(var(--foreground))' }}>
                           <span>{product}</span>
-                          {isLowSampleProduct(media, product) && <LowSampleBadge />}
+                          {isLowSampleProduct(media, product) && (
+                            <span style={{ marginLeft: 'auto' }}><LowSampleBadge /></span>
+                          )}
                         </div>
                         {!readOnly && (
                           <button
