@@ -46,7 +46,7 @@ export function DatasetList() {
 
   // 이동 불가 안내 다이얼로그 상태
   const [showMoveBlockDialog, setShowMoveBlockDialog] = useState(false)
-  const [blockedDatasets, setBlockedDatasets] = useState<{ id: string; name: string }[]>([])
+  const [blockedDatasets, setBlockedDatasets] = useState<{ id: number; name: string }[]>([])
 
   // 복제 불가 안내 다이얼로그 상태
   const [showDuplicateBlockDialog, setShowDuplicateBlockDialog] = useState(false)  // 체크박스 전체 선택/해제
@@ -195,11 +195,11 @@ export function DatasetList() {
   }
 
   // 업종 표시 함수
-  const getIndustryDisplay = (dataset: { industry: string; industryLevel?: 'major' | 'mid' | 'minor' | null; industryCount?: number }) => {
+  const getIndustryDisplay = (dataset: { industry: string; industryLevel?: 'major' | 'mid' | null; industryCount?: number }) => {
     if (!dataset.industryLevel || dataset.industry === '전체') {
       return { icon: <Building2 size={14} />, text: '대분류 22개' }
     }
-    const levelLabel = { major: '대분류', mid: '중분류', minor: '소분류' }[dataset.industryLevel]
+    const levelLabel = { major: '대분류', mid: '중분류' }[dataset.industryLevel]
     const count = dataset.industryCount ?? 1
     return {
       icon: <Building2 size={14} />,
@@ -565,7 +565,7 @@ export function DatasetList() {
                     매체 {renderSortIcon('media')}
                   </button>
                 </th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', color: 'hsl(var(--foreground))' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', fontWeight: '500', width: '100px', whiteSpace: 'nowrap', color: 'hsl(var(--foreground))' }}>
                   <button onClick={() => handleSort('industry')} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '14px', padding: 0, color: 'hsl(var(--foreground))' }}>
                     업종 {renderSortIcon('industry')}
                   </button>
@@ -656,10 +656,10 @@ export function DatasetList() {
                     <td style={{ padding: '12px 16px', fontSize: '13px' }}>
                       {getMediaDisplay(dataset)}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '12px' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '12px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--muted-foreground))' }}>
-                        {getIndustryDisplay(dataset).icon}
-                        <span>{getIndustryDisplay(dataset).text}</span>
+                        <span style={{ flexShrink: 0, display: 'inline-flex' }}>{getIndustryDisplay(dataset).icon}</span>
+                        <span style={{ whiteSpace: 'nowrap' }}>{getIndustryDisplay(dataset).text}</span>
                       </div>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '13px' }} className="text-muted-foreground">

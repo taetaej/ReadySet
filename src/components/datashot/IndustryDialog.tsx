@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Plus, Minus, Search, Info, ChevronDown, Layers } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
-type IndustryLevel = 'major' | 'mid' | 'minor'
+type IndustryLevel = 'major' | 'mid'
 
 function buildBrandCountMap(): { [path: string]: number } {
   const map: { [path: string]: number } = {}
@@ -619,9 +619,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                         ? <div style={emptyStyle}>검색 결과가 없습니다</div>
                         : midItems.map(({ major, mid }) => renderRow(
                           `${major} > ${mid}`, mid,
-                          localLevel === 'minor',
+                          false,
                           activeMid === mid && activeMajor === major && !isIndustrySearchMode,
-                          () => { if (localLevel === 'minor') { if (isIndustrySearchMode) { setSearchQuery(''); setSearchInput('') } setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
+                          () => {},
                           isIndustrySearchMode ? `${major} >` : undefined,
                           false,
                           'mid'

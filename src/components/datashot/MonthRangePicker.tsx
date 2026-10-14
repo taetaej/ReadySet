@@ -16,6 +16,10 @@ interface MonthRangePickerProps {
     endMonth: string
   }) => void
   hasError?: boolean
+  /** 트리거 래퍼 너비. 기본 800px(생성 Step1). 모달 등 좁은 컨테이너에선 '100%' 전달 */
+  width?: string
+  /** 달력 레이어 열림/닫힘 변동 통지 (모달 등에서 스크롤 클리핑 회피용) */
+  onOpenChange?: (open: boolean) => void
 }
 
 const AVAILABLE_YEARS = [2024, 2025, 2026]
@@ -67,7 +71,7 @@ function YearSelectionView({ onYearClick }: { onYearClick: (year: number) => voi
   )
 }
 
-export function MonthRangePicker({ type, value, onChange, hasError }: MonthRangePickerProps) {
+export function MonthRangePicker({ type, value, onChange, hasError, width = '800px', onOpenChange }: MonthRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'months' | 'years'>('months')
   const [leftYear, setLeftYear] = useState(2025)
@@ -89,6 +93,11 @@ export function MonthRangePicker({ type, value, onChange, hasError }: MonthRange
     if (isOpen) document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isOpen])
+
+  // 열림/닫힘 변동을 부모에 통지 (모달 스크롤 클리핑 회피)
+  useEffect(() => {
+    onOpenChange?.(isOpen)
+  }, [isOpen, onOpenChange])
 
   // 드롭다운 열릴 때 phase 초기화
   const handleOpen = () => {
@@ -244,7 +253,7 @@ export function MonthRangePicker({ type, value, onChange, hasError }: MonthRange
   }
 
   return (
-    <div style={{ position: 'relative', width: '800px' }} ref={dropdownRef}>
+    <div style={{ position: 'relative', width }} ref={dropdownRef}>
       <button type="button" onClick={handleOpen} className="input"
         style={{
           width: '100%', height: '36px', display: 'flex', alignItems: 'center',
