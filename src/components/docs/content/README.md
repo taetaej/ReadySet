@@ -79,7 +79,7 @@ src/components/docs/
 │   ├── getStarted.ts        ← Get Started 섹션
 │   ├── slotboard.ts         ← SlotBoard 섹션
 │   ├── datashot.ts          ← DataShot 섹션
-│   ├── disabled.ts          ← Ad Curator + Budget Optimizer (준비중)
+│   ├── disabled.ts          ← Ad Curator + BudgetOpt 2.0 (준비중)
 │   ├── reachCaster.ts       ← Reach Caster 섹션
 │   ├── spinx.ts             ← SpinX 섹션
 │   ├── resources.ts         ← Resources 섹션

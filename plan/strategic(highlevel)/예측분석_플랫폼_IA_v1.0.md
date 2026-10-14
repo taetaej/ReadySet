@@ -12,7 +12,7 @@
 | 2026. 3. 05 | AI | 브레드크럼 네비게이션 구조 개선 | 솔루션 레이어 추가, 정책 문서화 | 1.5 |
 | 2026. 4. 16 | AI | 전체 구조 업데이트 | 실제 코드베이스 기반 기술스택·컴포넌트·프로젝트 구조 반영 | 1.6 |
 | 2026. 5. 27 | AI | DataShot + Reach Caster 전체 IA 재작성 | 실제 구현 코드 기반 완전 업데이트 | 2.0 |
-| 2026. 8. 25 | AI | Budget Optimizer 솔루션 IA 추가 | Section 5 신규 추가, 섹션 번호 재정리 | 2.1 |
+| 2026. 8. 25 | AI | BudgetOpt 2.0 솔루션 IA 추가 | Section 5 신규 추가, 섹션 번호 재정리 | 2.1 |
 
 ---
 
@@ -165,7 +165,7 @@
     │   │   ├── Reach Caster (구현 완료)
     │   │   ├── DataShot (구현 완료)
     │   │   ├── Ad Curator (준비중)
-    │   │   └── Budget Optimizer (준비중)
+    │   │   └── BudgetOpt 2.0 (준비중)
     │   ├── 알림 센터 (Bell 아이콘)
     │   │   ├── 알림 목록 (최근 30개)
     │   │   ├── 알림 타입: 작업 알림 / 사용자 공지 / 레벨 안내
@@ -196,7 +196,7 @@ SlotBoard (URL: / 또는 /slotboard)
 │       ├── Total Results
 │       ├── DataShot
 │       ├── Ad Curator
-│       ├── Budget Optimizer
+│       ├── BudgetOpt 2.0
 │       └── Reach Caster
 ├── 검색/필터/정렬 영역
 │   ├── 좌측: Slot 개수 표시 (예: "25 Slots")
@@ -254,12 +254,12 @@ Slot Home (URL: /slot/:slotId)
 │   │   └── 4열 그리드 (솔루션별 카드)
 │   │       ├── DataShot (Database 아이콘, primary 색상)
 │   │       ├── Ad Curator (Target 아이콘, green)
-│   │       ├── Budget Optimizer (DollarSign 아이콘, amber)
+│   │       ├── BudgetOpt 2.0 (DollarSign 아이콘, amber)
 │   │       └── Reach Caster (TrendingUp 아이콘, blue)
 │   │       └── 각 카드: 솔루션명 + 선택된 시나리오명 + "결과 보기" 링크
 │   ├── Slot Solutions (SlotSolutions)
 │   │   ├── 솔루션 플로우 카드 (순서대로)
-│   │   │   ├── 1. DataShot → 2. Ad Curator → 3. Budget Optimizer → 4. Reach Caster
+│   │   │   ├── 1. DataShot → 2. Ad Curator → 3. BudgetOpt 2.0 → 4. Reach Caster
 │   │   │   └── 각 카드: 상태 (completed/in-progress/empty/coming-soon)
 │   │   └── 결과물 선택 기능 (AVAILABLE_OUTPUTS에서 선택)
 │   ├── Feed Section (SlotFeedSection)
@@ -274,7 +274,7 @@ Slot Home (URL: /slot/:slotId)
 └── 솔루션 플로우 순서
     ├── 1. DataShot: 업종별 벤치마크 기반 광고 효율 분석
     ├── 2. Ad Curator: 캠페인 성과 기반 맞춤형 상품 큐레이션 (coming-soon)
-    ├── 3. Budget Optimizer: KPI 목표 기반 미디어믹스 예산 최적화 (coming-soon)
+    ├── 3. BudgetOpt 2.0: KPI 목표 기반 미디어믹스 예산 최적화 (coming-soon)
     └── 4. Reach Caster: 크로스미디어 통합 도달 예측 시뮬레이션
 ```
 
@@ -439,14 +439,14 @@ Reach Predictor 결과 (URL: /reachcaster/scenario/reach-predictor/result)
 
 ---
 
-## 5. Budget Optimizer 솔루션
+## 5. BudgetOpt 2.0 솔루션
 
 ### 5.1 Slot 상세 (시나리오 목록)
 
 ```
-Slot 상세 — Budget Optimizer (URL: /budget-optimizer)
+Slot 상세 — BudgetOpt 2.0 (URL: /budgetopt)
 ├── 컴포넌트: WorkspaceLayout (initialView="slotDetail", solution="budget-optimizer")
-├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer
+├── Breadcrumb: SlotBoard / {Slot명} / BudgetOpt 2.0
 ├── Slot 헤더 (컴팩트, Reach Caster 동일 구조)
 │   ├── 좌측
 │   │   ├── 가시성 뱃지
@@ -488,9 +488,9 @@ Slot 상세 — Budget Optimizer (URL: /budget-optimizer)
 ### 5.2 시나리오 생성 (위자드)
 
 ```
-시나리오 생성 (URL: /budget-optimizer/scenario/new)
+시나리오 생성 (URL: /budgetopt/scenario/new)
 ├── 컴포넌트: CreateBOScenario.tsx
-├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer / 새 시나리오 생성
+├── Breadcrumb: SlotBoard / {Slot명} / BudgetOpt 2.0 / 새 시나리오 생성
 ├── 레이아웃 (Reach Caster 동일 구조)
 │   ├── 좌측: 스테퍼 + 입력 폼 (800px)
 │   ├── 중앙: 세로 구분선
@@ -549,9 +549,9 @@ Slot 상세 — Budget Optimizer (URL: /budget-optimizer)
 ### 5.3 시나리오 결과
 
 ```
-시나리오 결과 (URL: /budget-optimizer/scenario/:id/result)
+시나리오 결과 (URL: /budgetopt/scenario/:id/result)
 ├── 컴포넌트: BudgetOptimizerResult.tsx
-├── Breadcrumb: SlotBoard / {Slot명} / Budget Optimizer / {시나리오명}
+├── Breadcrumb: SlotBoard / {Slot명} / BudgetOpt 2.0 / {시나리오명}
 ├── 결과 헤더
 │   ├── 시나리오 정보
 │   │   ├── 시나리오명
@@ -637,7 +637,7 @@ Easy Create (모달/바텀시트)
 ├── 진입 조건: 시나리오 상태 = Completed
 ├── 모달 구성
 │   ├── 타이틀: "Reach Caster 간편 생성"
-│   ├── 안내 텍스트: "Budget Optimizer 결과를 기반으로 Reach Caster 시나리오를 생성합니다."
+│   ├── 안내 텍스트: "BudgetOpt 2.0 결과를 기반으로 Reach Caster 시나리오를 생성합니다."
 │   ├── 자동 매핑 정보 표시
 │   │   ├── 업종: {자동 적용될 업종}
 │   │   ├── 매체/예산: 매핑될 항목 리스트
@@ -656,10 +656,10 @@ Easy Create (모달/바텀시트)
 │   ├── Reach Caster 시나리오 생성 (동일 Slot 내)
 │   ├── Step 2 화면 진입 (매체별 예산 프리필)
 │   └── 프리필된 값은 사용자 수정 가능
-└── 독립성: 생성 후 Budget Optimizer와 연결 관계 없음
+└── 독립성: 생성 후 BudgetOpt 2.0와 연결 관계 없음
 ```
 
-### 5.5 Budget Optimizer 데이터 구조
+### 5.5 BudgetOpt 2.0 데이터 구조
 
 ```typescript
 // 시나리오 생성 상태

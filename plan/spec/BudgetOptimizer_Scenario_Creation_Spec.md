@@ -1,4 +1,4 @@
-# Budget Optimizer 시나리오 생성 통합 정의서
+# BudgetOpt 2.0 시나리오 생성 통합 정의서
 
 ## 문서 정보
 - **작성일**: 2026-08-25
@@ -29,7 +29,7 @@
 ## 1. 화면 개요
 
 ### 1.1 기능 정의
-Budget Optimizer에서 새 시나리오를 생성하는 3단계 위자드 화면. 기본 정보 입력 → 상세 설정(매체/예산) → 검토 및 실행 순서로 진행한다.
+BudgetOpt 2.0에서 새 시나리오를 생성하는 3단계 위자드 화면. 기본 정보 입력 → 상세 설정(매체/예산) → 검토 및 실행 순서로 진행한다.
 
 **기획 의도**: 사용자가 KPI 목표와 총 예산, 분석 대상 매체/상품을 설정하면, 모델이 **매체·상품 간 최적 예산 배분안**을 도출한다. 일부 예산을 사용자가 직접 "잠금(고정)"하고 나머지만 최적화하는 부분 최적화를 지원하는 것이 이 화면의 핵심 가치다.
 
@@ -39,8 +39,8 @@ Budget Optimizer에서 새 시나리오를 생성하는 3단계 위자드 화면
 - **AI 기반 TC 생성**: 유효성 규칙(Section 5)과 인터랙션 규칙(Section 12)이 테스트 케이스의 원천 데이터가 된다. 각 규칙은 `조건 → 기대 결과`로 검증 가능하게 작성한다.
 
 ### 1.3 진입 경로
-- SlotBoard → Slot Home → "Budget Optimizer" 선택 → "New Scenario"
-- URL: `/budgetoptimizer/scenario/new`
+- SlotBoard → Slot Home → "BudgetOpt 2.0" 선택 → "New Scenario"
+- URL: `/budgetopt/scenario/new`
 
 ### 1.4 위자드 구조
 
@@ -86,7 +86,7 @@ Step 1: 기본 정보 → Step 2: 상세 설정 → Step 3: 검토 및 실행
 ### 2.3 Breadcrumb
 
 ```
-SlotBoard > [Slot명] > Budget Optimizer > 새 시나리오 생성
+SlotBoard > [Slot명] > BudgetOpt 2.0 > 새 시나리오 생성
 ```
 
 ---
@@ -651,7 +651,7 @@ Reach Caster 시나리오 생성(`CreateScenario.tsx`)의 Step 3 구성과 동�
 ### 12.1 정상 플로우
 
 ```
-1. SlotBoard → Slot Home → "Budget Optimizer" 선택 → "New Scenario" → 위자드 진입
+1. SlotBoard → Slot Home → "BudgetOpt 2.0" 선택 → "New Scenario" → 위자드 진입
 2. Step 1: 기본 정보 입력 → "다음" 클릭
 3. Step 2: 매체/상품 추가 → 예산 입력 → 잠금 설정 (선택) → "다음" 클릭
 4. Step 3: 설정 검토 → "시나리오 생성 요청" 클릭

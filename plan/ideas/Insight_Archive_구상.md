@@ -14,7 +14,7 @@
 
 ## 2. 프로덕트 내 위치 (Where)
 
-- **독립 IA 진입점**이 적합하다. 솔루션(DataShot / Budget Optimizer / Reach Caster)과 나란히 서는 콘텐츠 허브.
+- **독립 IA 진입점**이 적합하다. 솔루션(DataShot / BudgetOpt 2.0 / Reach Caster)과 나란히 서는 콘텐츠 허브.
 - 메뉴명 후보: "인사이트", "리서치랩" 등. ("뉴스레터"는 발송 채널명이라 제외.)
 - 부적합 후보와 이유:
   - Docs 하위 → Docs는 "사용법", 이건 "발견/주장"이라 성격이 다름.

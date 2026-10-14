@@ -6,7 +6,7 @@
 > 대상 화면: 광고상품 추출 기준 조회 화면(`DatasetResult`) 상단 차트 영역
 > 구현: `src/components/datashot/ResultCharts.tsx`
 > 상위 문서: `plan/spec/DataShot_Enhancement_Spec.md` (§D.3에서 이 문서를 참조). 배포 후 `DataShot_DatasetDetail_Spec.md`로 병합.
-> 차트 패턴 참조: Budget Optimizer 결과 화면(`plan/spec/BudgetOptimizer_Result_Spec.md`) — 색/축/툴팁 공유.
+> 차트 패턴 참조: BudgetOpt 2.0 결과 화면(`plan/spec/BudgetOptimizer_Result_Spec.md`) — 색/축/툴팁 공유.
 
 ---
 
