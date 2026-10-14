@@ -148,7 +148,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                   )}
                   {isSelected && readOnly && (
                     <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontWeight: '500' }}>
-                      상품 {selectedProducts.length}개
+                      광고상품 {selectedProducts.length}개
                     </span>
                   )}
                 </div>

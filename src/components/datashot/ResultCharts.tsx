@@ -174,14 +174,14 @@ export function ResultCharts({ forceInsufficient, edgeDemo, spinxFail }: { force
   // 광고상품 기준은 대분류 업종만 제공하므로 라벨은 '업종(대)' 고정
   const industryDepthLabel = '업종(대)'
   // 뷰 단위 라벨 — 제목·caption·툴팁에서 '매체'/'상품'으로 치환
-  const unit = viewMode === 'media' ? '매체' : '상품'
+  const unit = viewMode === 'media' ? '매체' : '광고상품'
 
   const rows = sourceByIndustry[industry] ?? []
   const totalCost = rows.reduce((s, r) => s + r.cost, 0)
 
   // SpinX 차트1(Cost Share) 해석 — 실데이터/엣지 데모 업종은 범용 문구로 폴백(고정 해석과 데이터 불일치 방지)
   const costInsight = (edgeDemo ? undefined : insightByIndustry[industry]?.cost)
-    ?? `${industry} 업종의 광고비가 매체·광고상품별로 어떻게 배분됐는지 보여줍니다. 비중 1위 상품이 녹색으로 강조되며, 상위 상품에 예산이 집중된 정도를 통해 미디어믹스의 쏠림을 가늠할 수 있습니다. 선택한 기간의 실제 집행 실적을 집계한 참고용 벤치마크입니다.`
+    ?? `광고비는 Google Ads와 Meta를 중심으로 집중된 구조입니다. Google Ads가 46.8%로 가장 높은 비중을 차지했고 Meta가 34.9%로 뒤를 이었으며, 두 매체의 합계는 81.7%입니다. 1위 비중은 절반 미만이지만 상위 두 매체가 전체 광고비의 대부분을 차지하며, 나머지 실제 항목은 두 매체보다 낮은 비중으로 나뉘어 상위 항목 중심의 배분 특성이 확인됩니다.`
 
   // 이 업종에 매체가 1개뿐이면 '매체' 뷰는 무의미(100% 1조각) → 토글에서 '매체' 비활성 + 강제 상품 뷰
   const mediaCount = new Set(rows.map(r => r.media)).size
@@ -299,7 +299,7 @@ export function ResultCharts({ forceInsufficient, edgeDemo, spinxFail }: { force
 
   // SpinX 효율 해석 — 탭 맥락 반영 폴백 (엣지 데모는 고정 해석 대신 범용 폴백)
   const effInsightText = (edgeDemo ? undefined : insightByIndustry[industry]?.eff)
-    ?? `${industry} 업종에서 선택한 상품들을 ${respLabel}과 ${priceLabel} 두 축에 놓은 결과입니다. 왼쪽 위(저단가·고반응)에 가까운 상품이 효율 포인트로 녹색 강조되며, 광고비를 가장 많이 쓴 상품과 효율이 가장 좋은 상품이 서로 다를 수 있습니다. (선택 상품 간 비교·참고용)`
+    ?? `Google Ads > 반응형 디스플레이 광고_CPC가 효율 포인트로 표시되었으며, ${respLabel}은 선택 평균보다 높고 ${priceLabel}은 평균보다 낮은 위치입니다. ${respLabel}은 3.40%, ${priceLabel}은 640원으로 두 지표가 모두 평균 대비 유리하게 나타났습니다. 광고비 비중은 24.6%로 표시 항목 중 가장 높았으며, 광고비 비중 1위와 효율 포인트가 같은 항목으로 확인되었습니다.`
 
   return (
     <div style={{ marginBottom: '32px' }}>
@@ -430,7 +430,7 @@ export function ResultCharts({ forceInsufficient, edgeDemo, spinxFail }: { force
               <>
                 이 업종에서 광고비가 {unit}별로 어떻게 배분됐는지 비중(%)으로 보여줍니다.
                 <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: 1.6 }}>
-                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>조각</strong>: {viewMode === 'media' ? '매체' : '매체 > 상품'} 단위의 광고비 비중</div>
+                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>조각</strong>: {viewMode === 'media' ? '매체' : '매체 > 광고상품'} 단위의 광고비 비중</div>
                   <div style={{ marginTop: '6px' }}>
                     <strong style={{ color: 'hsl(var(--foreground))' }}>비중</strong>: {unit} 광고비 ÷ 전체 광고비 × 100
                   </div>
