@@ -20,12 +20,14 @@ interface CreateDatasetProps {
 export function CreateDataset({ slotData }: CreateDatasetProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [currentStep, setCurrentStep] = useState(1)
+  // 복제/프리필 진입: location.state.prefillForm이 있으면 초기 폼으로 사용(이름 앞 "(복사)" 포함)
+  // startStep이 있으면 그 스텝으로 바로 진입(예: Reach Caster 모달 → Step2 광고상품 선택부터).
+  const navState = location.state as { prefillForm?: FormData; startStep?: number } | null
+  const prefillForm = navState?.prefillForm
+  const [currentStep, setCurrentStep] = useState(navState?.startStep ?? 1)
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
 
-  // 복제 진입: location.state.prefillForm이 있으면 초기 폼으로 사용(이름 앞 "(복사)" 포함)
-  const prefillForm = (location.state as { prefillForm?: FormData } | null)?.prefillForm
   const [formData, setFormData] = useState<FormData>(prefillForm ?? initialFormData)
 
   // 스텝별 유효성 검사 활성화 상태
@@ -33,10 +35,10 @@ export function CreateDataset({ slotData }: CreateDatasetProps) {
   const [validationStep2, setValidationStep2] = useState(false)
 
   // 스텝1: 뭐라도 입력/선택되면 유효성 활성화
+  // extractMode는 기본값('product')이 있어 "사용자 입력 신호"에서 제외(기본값만으론 검증 안 켬).
   useEffect(() => {
     if (!validationStep1) {
       const hasAnyInput = !!(
-        formData.extractMode ||
         formData.datasetName ||
         formData.description ||
         formData.period.startYear ||

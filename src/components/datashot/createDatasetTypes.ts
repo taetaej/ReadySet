@@ -16,7 +16,7 @@ export interface FormData {
   // 광고상품 기준 + Meta 단일 선택 시: 협력 광고 파트너사
   productCollaborativePartners: string[]
   industries: string[]
-  industryLevel: 'major' | 'mid' | 'minor' | null
+  industryLevel: 'major' | 'mid' | null
   period: {
     startYear: string
     startMonth: string
@@ -34,7 +34,7 @@ export const initialFormData: FormData = {
   datasetName: '',
   description: '',
   purpose: '',
-  extractMode: '',
+  extractMode: 'product', // 추출 기준 기본값: 광고상품
   media: '',
   mediaProducts: {},
   productMetrics: [],

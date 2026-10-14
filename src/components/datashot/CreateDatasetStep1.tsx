@@ -254,7 +254,7 @@ export function CreateDatasetStep1({ formData, setFormData, validationActive, in
           }}>
             {formData.industries.length === 0
               ? '업종을 선택하세요.'
-              : `${formData.industries.length}개 업종 선택됨 (${formData.industryLevel === 'major' ? '대분류' : formData.industryLevel === 'mid' ? '중분류' : '소분류'})`}
+              : `${formData.industries.length}개 업종 선택됨 (${formData.industryLevel === 'mid' ? '중분류' : '대분류'})`}
           </span>
           <ChevronRight size={16} style={{ flexShrink: 0, marginLeft: '8px' }} />
         </div>

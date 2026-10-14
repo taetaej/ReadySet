@@ -85,7 +85,6 @@ export function CreateDatasetStep2Product({ formData, setFormData, validationAct
         value={mediaProducts}
         onChange={setMediaProducts}
         validationActive={validationActive}
-        period={formData.period}
       />
 
       {/* 매체 · 광고상품 하단 구분선 (매체 선택 후) */}
