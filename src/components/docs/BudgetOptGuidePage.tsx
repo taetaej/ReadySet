@@ -342,11 +342,11 @@ function ReallocSimulator() {
   // 상태 메시지 (HTML VERBATIM)
   let msg: string
   if (aHot) {
-    msg = '매체 A의 100만원당 증가 KPI가 더 높습니다(강조 표시). 예산을 A 쪽으로 옮기면 총 성과가 늘어납니다.'
+    msg = '매체 A의 100만원당 증가 KPI가 더 높습니다(강조 표시). 예산을 A 쪽에 더 배분하면 총 성과가 늘어납니다.'
   } else if (bHot) {
-    msg = '매체 B의 100만원당 증가 KPI가 더 높습니다(강조 표시). 포화에 가까운 A의 여유 예산을 B로 옮기면 총 성과가 늘어납니다.'
+    msg = '매체 B의 100만원당 증가 KPI가 더 높습니다(강조 표시). 포화에 가까운 A의 여유 예산을 B에 배분하면 총 성과가 늘어납니다.'
   } else {
-    msg = '두 매체의 100만원당 증가 KPI가 비슷해졌습니다. 이 근처에서는 더 옮겨도 총 성과가 크게 늘지 않습니다.'
+    msg = '두 매체의 100만원당 증가 KPI가 비슷해졌습니다. 이 근처에서는 더 배분을 바꿔도 총 성과가 크게 늘지 않습니다.'
   }
 
   return (
@@ -700,6 +700,49 @@ function ExampleNote({ children }: { children: React.ReactNode }) {
   )
 }
 
+// 가로 플로우 도식: 데이터 → 학습 → 반응 곡선 → 배분안.
+// 마지막 '결과' 단계만 시그니처 그린(시스템이 내놓는 판단), 앞 단계는 무채색.
+function FlowDiagram({ steps }: { steps: { k: string; h: string; result?: boolean }[] }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'stretch',
+        gap: 8,
+        flexWrap: 'wrap',
+        margin: '4px 0 20px',
+      }}
+    >
+      {steps.map((s, i) => (
+        <React.Fragment key={i}>
+          <div
+            style={{
+              flex: '1 1 150px',
+              minWidth: 150,
+              background: s.result ? t.primary : t.card,
+              border: `1px solid ${s.result ? t.primary : t.border}`,
+              borderRadius: 10,
+              padding: '14px 16px',
+            }}
+          >
+            <p style={{ fontSize: 11, margin: '0 0 4px', color: s.result ? t.primaryFg : t.muted, opacity: s.result ? 0.8 : 1 }}>
+              {s.k}
+            </p>
+            <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, lineHeight: 1.45, color: s.result ? t.primaryFg : t.fg }}>
+              {s.h}
+            </p>
+          </div>
+          {i < steps.length - 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', color: t.muted, fontSize: 16, flexShrink: 0 }} aria-hidden="true">
+              →
+            </div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  )
+}
+
 function SubHead({ children }: { children: React.ReactNode }) {
   return <h3 style={{ fontSize: 15, fontWeight: 700, margin: '34px 0 12px', color: t.fg }}>{children}</h3>
 }
@@ -817,38 +860,27 @@ export function BudgetOptGuidePage() {
       {/* 1. 예산 배분 원리 */}
       <Section
         num="1. 예산 배분 원리"
-        title="예산은 한 매체씩 채워서 나누는 게 아닙니다"
-        lead={
-          <>
-            BudgetOpt 2.0은 아래 두 원리를 <b style={{ color: t.fg }}>동시에</b> 적용해 매체·상품별 예산을 배분합니다.
-          </>
-        }
+        title="BudgetOpt 2.0은 예산을 어떻게 나누나"
+        lead="CJ 메조미디어가 쌓은 업종별 실제 집행 데이터로 Meridian 모델을 학습해, 입력한 KPI 목표와 총 예산에 맞는 최적 배분안을 찾는 흐름입니다."
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12, marginBottom: 16 }}>
-          <Card k="원리 1" h="매체 우선 배분">
-            전체 예산의 거시적 효율성을 확보하기 위해, 상위 모델(Google Meridian)을 통해 매체별 최적 예산을 먼저 배분합니다.
-            시장 흐름과 매체 특성을 먼저 잡아야 최적화의 뼈대가 흔들리지 않기 때문에, 상품이 아니라 매체부터 배분합니다.
-          </Card>
-          <Card k="원리 2" h="효율 포화 지점 초과 방지">
-            각 매체의 응답 곡선(Response Curve)에서 한계 효율이 급감하는 포화 지점을 넘지 않도록 제어해, 저효율 구간의
-            예산 낭비를 막고 최적의 KPI를 도출합니다.
-          </Card>
-        </div>
-
-        <Callout>
-          <b style={{ color: t.fg }}>두 원리는 순차가 아니라 동시에 작동합니다.</b> 매체별 최적 예산을 함께 산출하되, 각
-          매체의 포화 곡선을 제약으로 반영하는 방식입니다. "한 매체를 최적 지점까지 채운 뒤 다음 매체로 넘어간다"는
-          방식이 아닙니다. 또한 포화 지점은 '여기까지 채운다'는 목표가 아니라, 넘으면 효율이 급감하는 상한 방지선입니다.
-        </Callout>
+        <FlowDiagram
+          steps={[
+            { k: '데이터', h: 'CJ 메조미디어 실제 집행 데이터' },
+            { k: '학습', h: 'Meridian 모델 학습' },
+            { k: '파악', h: '매체·상품별 반응 곡선' },
+            { k: '탐색', h: '수만 개 예산 조합 시뮬레이션' },
+            { k: '산출', h: 'KPI·예산 맞춤 최적 배분안', result: true },
+          ]}
+        />
       </Section>
 
       {/* 2. 효율 포화 */}
       <Section
         num="2. 효율 포화"
         title="예산을 2배로 늘려도 성과가 2배가 되지는 않습니다"
-        lead="예산을 늘릴수록 추가로 얻는 성과는 점점 줄어듭니다(체감 법칙, Diminishing Returns). 반응 곡선(Response Curve)은 이 법칙을 반영한 S-curve 또는 Hill curve 구조로, 과거 집행 데이터를 기반으로 산출됩니다."
+        lead="예산을 늘릴수록 추가로 얻는 성과는 점점 줄어듭니다(체감 법칙, Diminishing Returns). 모델은 매체부터 먼저 배분하되(매체 우선 배분), 이렇게 성과가 둔해지는 포화 지점을 넘지 않도록 제어합니다(효율 포화 초과 방지). 두 원리의 바탕이 되는 반응 곡선을 직접 움직여 봅니다."
       >
-        <ExampleNote>반응 곡선의 상세 수식과 모델 파라미터는 제공되지 않습니다.</ExampleNote>
+        <ExampleNote>반응 곡선(Response Curve)은 체감 법칙을 반영한 포화 곡선으로, Meridian 모델이 실제 집행 데이터를 기반으로 산출합니다. 상세 수식과 모델 파라미터는 제공되지 않습니다.</ExampleNote>
 
         <SaturationSimulator />
 
@@ -902,8 +934,8 @@ export function BudgetOptGuidePage() {
       {/* 3. 예산 재배분 */}
       <Section
         num="3. 예산 재배분"
-        title="포화에 가까운 매체의 예산은 여력이 큰 매체로 옮겨갑니다"
-        lead="A 매체에 1억 원을 넣었을 때와 2억 원을 넣었을 때의 증가분이 미미하다면, 알고리즘은 추가 예산을 효율 여력이 남은 B 매체나 다른 상품으로 옮깁니다. 총 예산은 같고 두 매체의 포화 속도만 다를 때 어떻게 달라지는지 직접 확인해 보세요."
+        title="포화에 가까운 매체의 여유 예산은 효율 높은 매체로 분산됩니다"
+        lead="A 매체에 1억 원을 넣었을 때와 2억 원을 넣었을 때의 증가분이 미미하다면, 증액 효율(100만원당 증가 KPI)이 더 높은 B 매체나 다른 상품에 상대적으로 더 많은 예산이 배분됩니다. 특정 매체를 다 채운 뒤 넘기는 순차 방식이 아니라, 매체별 최적 예산을 동시에 산출하는 과정의 결과입니다. 총 예산은 같고 두 매체의 포화 속도만 다를 때 어떻게 달라지는지 직접 확인해 보세요."
       >
         <ReallocSimulator />
         <ExampleNote>
@@ -931,9 +963,9 @@ export function BudgetOptGuidePage() {
 
         <SubHead>원인은 결과 화면의 데이터로 확인할 수 있습니다</SubHead>
         <p style={{ fontSize: 14, color: t.muted, margin: '0 0 16px', lineHeight: 1.7, maxWidth: 680 }}>
-          잠금으로 예산이 옮겨간 매체, 그리고 그 매체의 포화도와 100만원당 증가 KPI를 확인해 보세요. 예를 들어 순수
+          잠금으로 예산 배분이 달라진 매체, 그리고 그 매체의 포화도와 100만원당 증가 KPI를 확인해 보세요. 예를 들어 순수
           최적화가 특정 매체에 예산을 크게 몰아 그 매체가 포화 근접 구간에 있고, 잠금 반영에서는 그 예산 일부가 증액
-          효율이 높은 매체로 옮겨간 경우가 이에 해당합니다.
+          효율이 높은 매체로 분산된 경우가 이에 해당합니다.
         </p>
 
         <SubHead>두 결과는 이렇게 비교하세요</SubHead>
