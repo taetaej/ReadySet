@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { TrendingUp, ArrowRight, X } from 'lucide-react'
 
 /**
- * BudgetOpt 2.0 결과 화면 우하단에 상주하는 보조 CTA(B안 — confident card).
+ * BudgetOpt 2.0 결과 화면 우하단에 상주하는 보조 CTA 카드(B안 — confident card).
  * - 우하단 SpinX 버튼(bottom:32px, 64px 높이, ~72px 툴팁 = 약 110px 클러스터) 위에 쌓인다.
- * - 1px 테두리 + 미세 그림자의 카드. 세로 탭 아님.
+ * - 1px 테두리 + 미세 그림자의 카드. 세로 엣지 탭 아님.
  * - ✕: 이번 세션 동안 숨김(sessionStorage), 모달은 열지 않음.
- * 데스크톱 전용.
+ * 데스크톱 전용. (파일/export 이름 BOReachEdgeTab은 BOResult 연동 유지를 위해 보존)
  */
 export function BOReachEdgeTab({ onOpen }: { onOpen: () => void }) {
   const [dismissed, setDismissed] = useState(

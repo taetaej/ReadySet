@@ -208,7 +208,7 @@ export function BOResult() {
 
             {/* 우측: 액션 버튼들 */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Reach Caster 백업 버튼 (ghost — primary 강조는 하단 CTA/엣지탭에만) */}
+              {/* Reach Caster 백업 버튼 (ghost — primary 강조는 하단 CTA 카드에만) */}
               <button
                 onClick={() => setEasyCreateOpen(true)}
                 className="btn btn-ghost btn-sm inline-flex items-center gap-[6px] whitespace-nowrap"
@@ -422,7 +422,7 @@ export function BOResult() {
         </div>
       </div>
 
-      {/* Reach Caster 보조 CTA — 우측 가장자리 엣지 탭 (완료 상태에서만) */}
+      {/* Reach Caster 보조 CTA — 우하단 카드(SpinX 위에 스택, 완료 상태에서만) */}
       {result.status === 'Completed' && <BOReachEdgeTab onOpen={() => setEasyCreateOpen(true)} />}
 
       {/* SpinX */}
