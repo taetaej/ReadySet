@@ -827,6 +827,7 @@ export function BudgetOptGuidePage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12, marginBottom: 16 }}>
           <Card k="원리 1" h="매체 우선 배분">
             전체 예산의 거시적 효율성을 확보하기 위해, 상위 모델(Google Meridian)을 통해 매체별 최적 예산을 먼저 배분합니다.
+            시장 흐름과 매체 특성을 먼저 잡아야 최적화의 뼈대가 흔들리지 않기 때문에, 상품이 아니라 매체부터 배분합니다.
           </Card>
           <Card k="원리 2" h="효율 포화 지점 초과 방지">
             각 매체의 응답 곡선(Response Curve)에서 한계 효율이 급감하는 포화 지점을 넘지 않도록 제어해, 저효율 구간의
@@ -837,53 +838,8 @@ export function BudgetOptGuidePage() {
         <Callout>
           <b style={{ color: t.fg }}>두 원리는 순차가 아니라 동시에 작동합니다.</b> 매체별 최적 예산을 함께 산출하되, 각
           매체의 포화 곡선을 제약으로 반영하는 방식입니다. "한 매체를 최적 지점까지 채운 뒤 다음 매체로 넘어간다"는
-          방식이 아닙니다.
+          방식이 아닙니다. 또한 포화 지점은 '여기까지 채운다'는 목표가 아니라, 넘으면 효율이 급감하는 상한 방지선입니다.
         </Callout>
-
-        <SubHead>이렇게 이해하면 됩니다</SubHead>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
-          <Card k="포인트 1" h="포화 지점은 목표가 아니라 초과 방지선">
-            "여기까지 채운다"가 아니라 "이 지점을 넘으면 효율이 급감하므로 넘지 않게 제어한다"는 상한 개념입니다.
-          </Card>
-          <Card k="포인트 2" h="재배분은 효율 여력 비교의 결과">
-            포화에 가까운 매체의 여유 예산을, 100만원당 증가 KPI(증액 효율)가 더 높은 매체로 분산한 결과입니다.
-          </Card>
-          <Card k="포인트 3" h="곡선에 '단일 최적점'은 없습니다">
-            예산이 늘수록 단위 효율이 줄어드는 곡선이라, "채워야 할 가장 효율적인 한 지점"은 존재하지 않습니다.
-          </Card>
-        </div>
-
-        <SubHead>설명이 달라지는 지점</SubHead>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12, margin: '10px 0' }}>
-          <DoDont
-            variant="dont"
-            title="이렇게 이해하면 오해입니다"
-            items={[
-              '"곡선상 가장 효율적인 지점까지 채운 뒤, 나머지를 다음 매체에 분산했다"',
-              '"A 매체를 최적 지점까지 채우고 남은 예산을 B로 넘겼다"',
-            ]}
-          />
-          <DoDont
-            variant="do"
-            title="이렇게 이해하세요"
-            items={[
-              '"각 매체가 포화 지점을 넘지 않도록 제어하며, 포화에 가까운 매체의 여유 예산을 증액 효율이 더 높은 매체로 분산했다"',
-              '"매체별 최적 예산을 동시에 산출하는 과정에서, 포화 여력이 큰 매체에 상대적으로 더 많은 예산이 배분됐다"',
-            ]}
-          />
-        </div>
-
-        <SubHead>왜 상품이 아니라 매체부터 배분하나요?</SubHead>
-        <ul style={{ margin: '0 0 18px', paddingLeft: 20, fontSize: 13.5, color: t.muted, lineHeight: 1.7 }}>
-          <li style={{ marginBottom: 6 }}>
-            디지털 광고 시장의 거시적 예산 흐름과 매체별 반응 성향(채널 간 시너지, 매체 특성)을 먼저 파악해야 최적화의
-            뼈대가 흔들리지 않기 때문입니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            상품 단위로 곧바로 배분하면 데이터의 희소성과 노이즈로 인해, 매체 간 거시적 효율 배분 자체가 왜곡될 위험이
-            큽니다.
-          </li>
-        </ul>
       </Section>
 
       {/* 2. 효율 포화 */}
