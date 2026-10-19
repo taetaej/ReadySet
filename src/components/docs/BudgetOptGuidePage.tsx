@@ -296,7 +296,7 @@ function SaturationSimulator() {
         <GaugeRow
           label={
             <>
-              포화도 <span style={{ color: t.muted }}>(그린 눈금 = 포화 예산, 80%)</span>
+              포화도 <span style={{ color: t.muted }}>(그린 눈금 = 포화 예산 80% · 100%는 KPI 상한, 예산 천장 아님)</span>
             </>
           }
           barPct={Math.min(100, sat)}
@@ -813,35 +813,6 @@ function SimpleTable({ headers, rows }: { headers: string[]; rows: React.ReactNo
   )
 }
 
-function ReadCard({ title, q, children, warn }: { title: string; q: string; children: React.ReactNode; warn?: React.ReactNode }) {
-  return (
-    <div style={{ border: `1px solid ${t.border}`, borderRadius: 10, padding: 20, margin: '12px 0' }}>
-      <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 2px', color: t.fg }}>{title}</h4>
-      <p style={{ fontSize: 12.5, color: t.muted, margin: '0 0 12px' }}>{q}</p>
-      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: t.muted, lineHeight: 1.6 }}>{children}</ul>
-      {warn && (
-        <div style={{ marginTop: 10, fontSize: 12.5, background: t.mutedBg, borderRadius: 8, padding: '10px 14px', color: t.muted, lineHeight: 1.6 }}>
-          {warn}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function FormulaRow({ name, top, bottom, desc }: { name: string; top: string; bottom: string; desc: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', padding: '6px 0' }}>
-      <span style={{ fontWeight: 700, minWidth: 138, fontSize: 14 }}>{name}</span>
-      <span style={{ opacity: 0.6 }}>=</span>
-      <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', fontSize: 13.5 }}>
-        <span style={{ padding: '2px 6px', borderBottom: `1px solid ${t.primaryFg}`, opacity: 0.95 }}>{top}</span>
-        <span style={{ padding: '2px 6px' }}>{bottom}</span>
-      </span>
-      <span style={{ opacity: 0.7, fontSize: 12 }}>{desc}</span>
-    </div>
-  )
-}
-
 export function BudgetOptGuidePage() {
   return (
     <div style={{ width: '100%', margin: '0 auto', color: t.fg, wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
@@ -922,7 +893,8 @@ export function BudgetOptGuidePage() {
           <p style={{ margin: '0 0 10px' }}>
             <b style={{ color: t.fg }}>포화 예산은 투입 상한(천장)이 아닙니다.</b> 포화 예산을 넘어서도 예산을 더 투입할
             수 있고 KPI도 계속 늘어납니다. 다만 효율 체감으로 100만원당 증가 KPI가 급감할 뿐입니다. "포화라서 더 넣을 수
-            없다", "여기가 한계다"로 해석하지 않습니다.
+            없다", "여기가 한계다"로 해석하지 않습니다. 포화도 100%도 예산의 천장이 아니라, 예산을 무한히 늘렸을 때
+            KPI가 수렴하는 상한(포화 상한 KPI)을 뜻합니다.
           </p>
           <p style={{ margin: 0 }}>
             <b style={{ color: t.fg }}>같은 포화도라도 증액 효율은 다를 수 있습니다.</b> 증액 우선순위는 포화도가 아니라
@@ -1029,8 +1001,9 @@ export function BudgetOptGuidePage() {
 
         <SubHead>모델이 반영하는 변수: 공휴일</SubHead>
         <p style={{ fontSize: 14, color: t.muted, margin: '0 0 16px', lineHeight: 1.7, maxWidth: 680 }}>
-          Meridian 모델은 공휴일을 KPI 예측에 <b style={{ color: t.fg }}>직접 반영</b>합니다. KPI를 '기본 수준(baseline)
-          + 매체 효과 + 공휴일 효과'로 분리해 학습하므로, 연휴로 인한 성과 변동이 매체 효과로 잘못 섞이지 않습니다.
+          Meridian 모델은 공휴일을 <b style={{ color: t.fg }}>모델 학습에 직접 반영</b>합니다. 과거 데이터를 KPI =
+          '기본 수준(baseline) + 매체 효과 + 공휴일 효과'로 분리해 학습하므로, 연휴로 인한 성과 변동이 매체 효과로 잘못
+          섞이지 않습니다. 매체별 기여도를 더 깨끗하게 추정하기 위한 것입니다.
         </p>
         <SimpleTable
           headers={['구분', '내용']}
@@ -1041,123 +1014,6 @@ export function BudgetOptGuidePage() {
           ]}
         />
         <ExampleNote>공휴일 반영은 예측 정확도를 높이기 위한 것이며, 특정 시기의 실제 성과를 보장하지 않습니다.</ExampleNote>
-      </Section>
-
-      {/* 6. 차트에서 헷갈리기 쉬운 개념 */}
-      <Section
-        num="6. 차트에서 헷갈리기 쉬운 개념"
-        title="차트를 읽을 때 자주 생기는 오해"
-        lead="위에서 설명한 원리가 차트에서 어떻게 보이는지, 그리고 오해하기 쉬운 지점만 정리했습니다. 화면 구성은 '시나리오 결과' 문서를 참고해 주세요."
-      >
-        <ReadCard title="Budget Share" q="예산은 어디에 배분되었을까?">
-          <li style={{ marginBottom: 6 }}>
-            예산 비중이 높다고 KPI 기여도도 높은 것은 아닙니다. 테이블의 Estimated KPI와 함께 봐야 효율을 판단할 수
-            있습니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            잠금 반영 ↔ 순수 최적화를 전환하면, 비중 변화를 통해 잠금이 어떤 매체에 영향을 줬는지 알 수 있습니다.
-          </li>
-        </ReadCard>
-
-        <ReadCard
-          title="Response Curve"
-          q="예산을 더 넣으면 성과가 오를까?"
-          warn={
-            <>
-              <b style={{ color: t.fg }}>X축 끝 ≠ 포화.</b> X축 범위는 매체마다 다르고 예산 상한도 아닙니다. 곡선이 끝나
-              보여도 포화 예산이 차트 범위 밖에 있어 아직 포화 전일 수 있습니다.
-            </>
-          }
-        >
-          <li style={{ marginBottom: 6 }}>
-            Current Spend 마커(●) 왼쪽은 이미 투입된 구간의 성과, 오른쪽은 추가 투입 시 예상 성과입니다. 곡선이
-            완만할수록 효율이 포화에 가깝습니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            증액 우선순위는 포화도가 아니라 <b style={{ color: t.fg }}>100만원당 증가 KPI의 대소 비교</b>로 판단합니다.
-          </li>
-        </ReadCard>
-
-        <ReadCard title="Weekly Contribution" q="업종 내 매체별 기여는 어떤 흐름일까?">
-          <li style={{ marginBottom: 6 }}>
-            이 시나리오의 <b style={{ color: t.fg }}>미래 성과 예측이 아닙니다.</b> 업종 모델이 학습한 과거 기간의 주차별
-            KPI 기여 패턴입니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            차트에 보이는 계열은 이 시나리오에서 <b style={{ color: t.fg }}>선택한 매체·상품뿐</b>입니다. 비중은 "업종
-            전체에서 X%"가 아니라 "선택한 매체들 안에서의 비중"입니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            보라색 음영은 캠페인 기간의 전년·전전년 동기간으로, 같은 시기의 계절성을 참고할 수 있습니다.
-          </li>
-        </ReadCard>
-
-        <ReadCard
-          title="Incremental {KPI}"
-          q="최적화로 성과가 얼마나 늘어날까?"
-          warn={
-            <>
-              <b style={{ color: t.fg }}>− 값이 나온 매체는 '손해'가 아닙니다.</b> 전체 KPI 최대화를 위한 재배분
-              결과입니다.
-            </>
-          }
-        >
-          <li style={{ marginBottom: 6 }}>
-            기준점은 현재 플랜이 아니라 <b style={{ color: t.fg }}>균등 배분</b>(예산을 균등하게 나눴을 때의 총 KPI)입니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            채널별 + 값은 증액으로 창출한 KPI, − 값은 감액으로 줄어든 KPI입니다. 얻은 KPI가 잃은 KPI보다 크면 총 KPI가
-            순증합니다.
-          </li>
-        </ReadCard>
-      </Section>
-
-      {/* 7. 용어 정리 */}
-      <Section
-        num="7. 용어 정리"
-        title="KPI 4종과 Avg. 단가 한눈에 보기"
-        lead="앞에서 나온 지표와 단위를 한곳에 정리했습니다. 시나리오는 아래 4가지 KPI 중 1개를 선택해 최적화하며, 화면 전반의 라벨과 차트, 테이블이 선택한 KPI에 맞춰 바뀝니다."
-      >
-        <SimpleTable
-          headers={['KPI', '영문', '단위']}
-          rows={[
-            ['노출', <span style={{ fontVariantNumeric: 'tabular-nums' }}>Impression</span>, '회'],
-            ['클릭', <span style={{ fontVariantNumeric: 'tabular-nums' }}>Click</span>, '회'],
-            ['조회', <span style={{ fontVariantNumeric: 'tabular-nums' }}>View</span>, '회'],
-            ['도달', <span style={{ fontVariantNumeric: 'tabular-nums' }}>Reach</span>, '회'],
-          ]}
-        />
-        <ExampleNote>
-          모든 KPI 수량 단위는 '회'로 통일되어 있습니다. 도달도 비율(%)이 아닌 도달 수 개념이지만, 화면 표기는
-          '회'입니다.
-        </ExampleNote>
-
-        <SubHead>Estimated {'{KPI}'}는 예측값입니다</SubHead>
-        <p style={{ fontSize: 14, color: t.muted, margin: '0 0 16px', lineHeight: 1.7, maxWidth: 680 }}>
-          이 예산 배분으로 예측되는 KPI 총량이며, 실제 집행 성과를 보장하지 않습니다. 매체별 도달을 더한 값과 전체
-          도달은 다를 수 있는데, 전체 도달(Estimated Total의 Reach)은 매체 간 중복이 제거된 값이기 때문입니다.
-        </p>
-
-        <SubHead>Avg. 단가는 이렇게 계산됩니다</SubHead>
-        <p style={{ fontSize: 14, color: t.muted, margin: '0 0 16px', lineHeight: 1.7, maxWidth: 680 }}>
-          투입 예산 대비 KPI 1단위를 얻는 효율 지표입니다. 선택한 KPI에 따라 이름이 달라지며,{' '}
-          <b style={{ color: t.fg }}>값이 낮을수록 효율이 높습니다.</b>
-        </p>
-        <div
-          style={{
-            background: t.primary,
-            color: t.primaryFg,
-            borderRadius: 10,
-            padding: '20px 24px',
-            margin: '10px 0',
-          }}
-        >
-          <FormulaRow name="노출 → Avg. CPM" top="총예산" bottom="총노출 ÷ 1,000" desc="노출 1,000회당 비용" />
-          <FormulaRow name="클릭 → Avg. CPC" top="총예산" bottom="총클릭" desc="클릭 1회당 비용" />
-          <FormulaRow name="조회 → Avg. CPV" top="총예산" bottom="총조회" desc="조회 1회당 비용" />
-          <FormulaRow name="도달 → Avg. CPR" top="총예산" bottom="총도달" desc="도달 1회당 비용" />
-        </div>
-        <ExampleNote>분모(총 KPI)가 0이면 값은 0으로 표기됩니다.</ExampleNote>
       </Section>
     </div>
   )
