@@ -92,9 +92,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
       setHasSearched(false)
       setActiveMajor(null)
       setActiveMid(null)
-      setLocalLevel(industryLevel)
+      // 추출 기준이 광고상품이면 대분류만 허용되므로, 레벨 미선택 시 '대분류'로 기본 선택
+      const initialLevel = industryLevel ?? (extractMode === 'product' ? 'major' : null)
+      setLocalLevel(initialLevel)
       initialIndustriesRef.current = selectedIndustries
-      initialLevelRef.current = industryLevel
+      initialLevelRef.current = initialLevel
     }
   }, [isOpen])
 

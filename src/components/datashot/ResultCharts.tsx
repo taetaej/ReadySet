@@ -165,7 +165,7 @@ export function ResultCharts({ forceInsufficient, edgeDemo, spinxFail }: { force
           fontSize: '12px', color: 'hsl(var(--muted-foreground))',
         }}>
           <Info size={14} style={{ flexShrink: 0, marginTop: '4px' }} />
-          <span style={{ lineHeight: '1.8' }}>Benchmark Analytics는 한 업종에 광고상품이 3개 이상 집행된 경우에만 표시됩니다.</span>
+          <span style={{ lineHeight: '1.8' }}>Benchmark Analytics는 추출된 데이터 내 동일 업종의 광고상품이 3개 이상인 경우에만 표시됩니다.</span>
         </div>
       </div>
     )
