@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TrendingUp, ArrowRight, X } from 'lucide-react'
 
 /**
- * BudgetOpt 2.0 결과 화면 우측 가장자리에 상주하는 보조 CTA.
- * - 기본: 얇은 세로 탭(우측 끝에 살짝만 돌출)
- * - 호버/포커스: 왼쪽으로 슬라이드하며 펼쳐짐(가로 이동만, 들림/큰 그림자 없음)
- * - ✕: 이번 세션 동안 숨김(sessionStorage), 모달은 열지 않음
- * 데스크톱 전용. 우하단 SpinX 버튼과 겹치지 않도록 세로 중앙 고정.
+ * BudgetOpt 2.0 결과 화면 우하단에 상주하는 보조 CTA(B안 — confident card).
+ * - 우하단 SpinX 버튼(bottom:32px, 64px 높이, ~72px 툴팁 = 약 110px 클러스터) 위에 쌓인다.
+ * - 1px 테두리 + 미세 그림자의 카드. 세로 탭 아님.
+ * - ✕: 이번 세션 동안 숨김(sessionStorage), 모달은 열지 않음.
+ * 데스크톱 전용.
  */
 export function BOReachEdgeTab({ onOpen }: { onOpen: () => void }) {
   const [dismissed, setDismissed] = useState(
     () => sessionStorage.getItem('bo-reach-edgetab-dismissed') === '1'
   )
-  const [expanded, setExpanded] = useState(false)
+  // 마운트 직후 짧은 fade/slide-up (미세 모션)
+  const [entered, setEntered] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setEntered(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   if (dismissed) return null
 
@@ -22,65 +27,50 @@ export function BOReachEdgeTab({ onOpen }: { onOpen: () => void }) {
     sessionStorage.setItem('bo-reach-edgetab-dismissed', '1')
   }
 
-  // 가로 슬라이드만: 접힘 상태에선 패널을 오른쪽으로 밀어 세로 탭 sliver(36px)만 보이게 한다.
-  const SLIVER = 36
-
   return (
     <div
-      className="fixed right-0 top-1/2"
-      style={{ transform: 'translateY(-50%)', zIndex: 900 }}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
-      onFocus={() => setExpanded(true)}
-      onBlur={() => setExpanded(false)}
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
+      aria-label="이 예산안으로 도달 예측하기"
+      className="fixed bottom-[128px] right-8 w-[268px] cursor-pointer rounded-[14px] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-left shadow-[0_6px_20px_-8px_rgb(0_0_0_/_0.18)] transition-[opacity,transform] duration-200 ease-out"
+      style={{
+        zIndex: 900,
+        opacity: entered ? 1 : 0,
+        transform: entered ? 'translateY(0)' : 'translateY(8px)',
+      }}
     >
-      <div
-        className="flex items-stretch overflow-hidden rounded-l-lg border border-r-0 border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_4px_12px_-4px_rgb(0_0_0_/_0.15)] transition-transform duration-200 ease-out"
-        style={{ transform: expanded ? 'translateX(0)' : `translateX(calc(100% - ${SLIVER}px))` }}
+      {/* 닫기 ✕ (전파 중단, 모달 열지 않음) */}
+      <button
+        type="button"
+        onClick={handleDismiss}
+        aria-label="도달 예측 카드 닫기"
+        className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center bg-transparent border-none cursor-pointer text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors duration-200"
       >
-        {/* 접힘 상태 세로 탭 (항상 보이는 sliver) */}
-        <button
-          type="button"
-          onClick={onOpen}
-          aria-label="Reach Caster로 도달 예측"
-          className="flex w-9 flex-shrink-0 flex-col items-center justify-center gap-[6px] bg-transparent border-none cursor-pointer py-3"
-        >
-          <TrendingUp size={16} className="text-[hsl(var(--primary))]" style={{ flexShrink: 0 }} />
-          <span className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] [writing-mode:vertical-rl]">
-            도달 예측
-          </span>
-        </button>
+        <X size={14} />
+      </button>
 
-        {/* 펼침 본문 (클릭 시 모달 열기) */}
-        <button
-          type="button"
-          onClick={onOpen}
-          className="flex w-[260px] flex-shrink-0 items-center gap-3 border-l border-[hsl(var(--border))] bg-transparent cursor-pointer text-left px-4 py-[14px]"
-        >
-          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.12)]">
-            <TrendingUp size={18} className="text-[hsl(var(--primary))]" />
-          </span>
-          <span className="flex min-w-0 flex-col gap-[3px]">
-            <span className="text-[13px] font-semibold text-[hsl(var(--foreground))] leading-[1.35]">
-              이 예산안, 몇 명에게 닿을까요?
-            </span>
-            <span className="inline-flex items-center gap-1 text-[12px] text-[hsl(var(--muted-foreground))]">
-              Reach Caster로 도달 예측
-              <ArrowRight size={12} style={{ flexShrink: 0 }} />
-            </span>
-          </span>
-        </button>
+      <TrendingUp size={18} className="text-[hsl(var(--primary))]" style={{ flexShrink: 0 }} />
 
-        {/* 닫기 ✕ (전파 중단, 모달 열지 않음) */}
-        <button
-          type="button"
-          onClick={handleDismiss}
-          aria-label="도달 예측 탭 닫기"
-          className="flex w-8 flex-shrink-0 items-center justify-center border-l border-[hsl(var(--border))] bg-transparent cursor-pointer text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors duration-200"
-        >
-          <X size={14} />
-        </button>
+      <div className="mt-2 flex flex-col gap-1">
+        <span className="pr-5 text-[14px] font-semibold leading-[1.35] text-[hsl(var(--foreground))]">
+          이 예산안, 몇 명에게 닿을까요?
+        </span>
+        <span className="text-[11.5px] leading-[1.4] text-[hsl(var(--muted-foreground))]">
+          도달 · 프리퀀시 · 리치커브까지 이어보기
+        </span>
       </div>
+
+      <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-[hsl(var(--primary))] px-3 py-[6px] text-[12px] font-semibold text-[hsl(var(--primary-foreground))]">
+        도달 예측하기
+        <ArrowRight size={13} style={{ flexShrink: 0 }} />
+      </span>
     </div>
   )
 }
