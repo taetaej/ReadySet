@@ -8,7 +8,7 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-09-29',
+      updatedAt: '2026-10-26',
       content: `# Release Notes
 
 ## v1.2.0 (2026-10-26)
@@ -16,6 +16,10 @@ export const releaseNotesSection: DocSection = {
 ReadySet 플랫폼 신규 솔루션 BudgetOpt 2.0 출시 및 사용성 개선
 
 ---
+
+### SlotBoard
+
+- \`IMPROVED\` Slot명 입력 확대 — 최대 30자에서 50자로 확대
 
 ### BudgetOpt 2.0
 
@@ -26,7 +30,7 @@ ReadySet 플랫폼 신규 솔루션 BudgetOpt 2.0 출시 및 사용성 개선
 
 - \`IMPROVED\` 업종 직접 선택 — 브랜드 식별 외에 업종을 직접 선택해 시나리오를 생성할 수 있도록 지원
 - \`IMPROVED\` 시나리오명 입력 확대 — 최대 30자에서 50자로 확대
-- \`IMPROVED\` Slot명 입력 확대 — 최대 30자에서 50자로 확대
+- \`IMPROVED\` BudgetOpt 2.0 연계 예측 정합성 개선 — 연계 생성 시 노출·도달 예측값을 일관되게 제공
 
 ### DataShot
 

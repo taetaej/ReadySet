@@ -6,6 +6,7 @@ import { Avatar } from '../common/Avatar'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { DocsIntroPage } from './DocsIntroPage'
 import { ReachCasterGuidePage } from './ReachCasterGuidePage'
+import { BudgetOptGuidePage } from './BudgetOptGuidePage'
 
 interface DocsLayoutProps {
   isDarkMode?: boolean
@@ -557,6 +558,10 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
           ) : currentPage.slug === 'reach-caster-principles' ? (
             <article className="docs-article">
               <ReachCasterGuidePage />
+            </article>
+          ) : currentPage.slug === 'budgetopt-principles' ? (
+            <article className="docs-article">
+              <BudgetOptGuidePage />
             </article>
           ) : (
             <article className="docs-article">
