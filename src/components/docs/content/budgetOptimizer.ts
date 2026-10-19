@@ -312,7 +312,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
       id: 'budgetopt-result',
       title: '시나리오 결과',
       slug: 'budgetopt-result',
-      updatedAt: '2026-09-29',
+      updatedAt: '2026-10-26',
       content: `# 시나리오 결과
 
 시나리오 목록에서 Completed 상태의 시나리오를 클릭하면 결과 화면으로 진입합니다. 모델이 도출한 매체·상품별 예산 배분안과 예상 성과를 확인합니다.
@@ -349,14 +349,14 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 ## KPI 파생 표기
 
-생성 시 선택한 KPI(노출/클릭/조회/도달)에 따라 화면 곳곳의 라벨과 지표가 그 KPI에 맞게 바뀝니다. 예를 들어 KPI가 클릭이면 보장 성과는 "Guaranteed Click", 평균 단가는 "Avg. CPC"로 표시됩니다.
+생성 시 선택한 KPI(노출/클릭/조회/도달)에 따라 화면 곳곳의 라벨과 지표가 그 KPI에 맞게 바뀝니다. 예를 들어 KPI가 클릭이면 예상 성과는 "Estimated Click", 평균 단가는 "Avg. CPC"로 표시됩니다.
 
-| 선택 KPI | 보장 성과 | 평균 단가 |
+| 선택 KPI | 예상 성과 | 평균 단가 |
 |---|---|---|
-| 노출 (Impression) | Guaranteed Impression | Avg. CPM |
-| 클릭 (Click) | Guaranteed Click | Avg. CPC |
-| 조회 (View) | Guaranteed View | Avg. CPV |
-| 도달 (Reach) | Guaranteed Reach | Avg. CPR |
+| 노출 (Impression) | Estimated Impression | Avg. CPM |
+| 클릭 (Click) | Estimated Click | Avg. CPC |
+| 조회 (View) | Estimated View | Avg. CPV |
+| 도달 (Reach) | Estimated Reach | Avg. CPR |
 
 - 모든 KPI 수량은 정수 + "회"로 표기합니다. (도달도 비율이 아닌 도달 수 개념)
 
@@ -368,7 +368,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 | 카드 | 내용 |
 |---|---|
-| Guaranteed (선택 KPI) | 선택한 KPI의 예상 성과 합계 |
+| Estimated (선택 KPI) | 선택한 KPI의 예상 성과 합계 |
 | Total Budget | 총 예산 |
 | Avg. (평균 단가) | 선택 KPI에 맞는 평균 단가 (노출→CPM, 클릭→CPC, 조회→CPV, 도달→CPR) |
 | Locked Budget | 잠금한 예산 합계와 그 비중(%) |
@@ -402,7 +402,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 ## Budget Allocation Detail (테이블)
 
-매체별로 펼쳐 각 매체·상품의 배분 예산과 예상 성과를 확인합니다. 예산, 비중(Share), 보장 KPI, 노출·클릭·조회·도달, 단가(CPM/CPC/CPV) 등을 함께 제공합니다.
+매체별로 펼쳐 각 매체·상품의 배분 예산과 예상 성과를 확인합니다. 예산, 비중(Share), 예상 KPI 성과, 노출·클릭·조회·도달, 단가(CPM/CPC/CPV) 등을 함께 제공합니다.
 
 ![Budget Allocation Detail 테이블|100%](/docs/images/budgetopt/007.png)
 
@@ -421,7 +421,7 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 결과 화면 하단의 "Reach Caster로 이 예산안의 도달 성과 예측하기" 버튼으로, 최적화된 예산안을 Reach Caster 도달 예측까지 끊김 없이 연결합니다.
 
-![Reach Caster 간편 생성 설정 창|100%](/docs/images/budgetopt/008.png)
+![Reach Caster 간편 생성 설정 창|50%](/docs/images/budgetopt/008.png)
 
 - 설정 창에서 타겟 GRP와 예상 노출 전달 방식을 선택합니다.
 - 시나리오명은 원본과 연결되도록 "(BO-원본번호) 원본 시나리오명" 형식으로 자동 생성됩니다. (변경 불가)
@@ -437,7 +437,16 @@ BudgetOpt 2.0 목록 화면에서 생성된 시나리오를 조회하고 관리�
 
 - "이어서 질문하기"를 누르면 SpinX 대화창이 열리고, 해당 차트가 질문 대상으로 자동 입력됩니다.
 - Optimization Analytics 제목 옆 "최적화 원리 알아보기"에 마우스를 올리면 원리 요약이, 클릭하면 SpinX가 이 시나리오에 맞춘 상세 설명을 제공합니다.
-- 자세한 사용법은 SpinX 섹션을 참고하세요.
+
+### 차트를 컨텍스트로 첨부 (#)
+
+질문을 입력할 때 **#**를 입력하면, 이 결과 화면의 차트 목록이 나타납니다. 원하는 차트를 선택하면 그 차트가 질문의 컨텍스트로 첨부되어, 특정 차트를 짚어 질문할 수 있습니다.
+
+- 첨부할 수 있는 차트: Budget Share, Response Curve, Weekly Contribution, Incremental
+- 입력창 하단의 첨부 버튼을 눌러도 동일하게 차트 목록이 열립니다.
+- 예: "#Response Curve 차트 지금 배분이 효율 포화에 얼마나 가까운가요?"
+
+자세한 공통 사용법(모델 선택, 세션, 질문 한도 등)은 SpinX 섹션을 참고하세요.
 
 ---
 
