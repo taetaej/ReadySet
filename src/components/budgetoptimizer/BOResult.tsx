@@ -208,13 +208,6 @@ export function BOResult() {
 
             {/* 우측: 액션 버튼들 */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Reach Caster 백업 버튼 (ghost — primary 강조는 하단 CTA 카드에만) */}
-              <button
-                onClick={() => setEasyCreateOpen(true)}
-                className="btn btn-ghost btn-sm inline-flex items-center gap-[6px] whitespace-nowrap"
-              >
-                <TrendingUp size={14} style={{ flexShrink: 0 }} /> Reach Caster로 예측
-              </button>
               {/* Export 드롭다운 */}
               <div className="relative">
                 <button onClick={() => setExportMenuOpen(!exportMenuOpen)} className="btn btn-ghost btn-sm p-[6px]">
