@@ -19,7 +19,7 @@
 
 ### 1.2 적용 범위
 - 전체 플랫폼의 모든 페이지 (SlotBoard, Slot 상세, 시나리오 생성/결과 등)
-- 향후 추가될 솔루션 (Data Shot, Ad Curator, Budget Optimizer 등)
+- 향후 추가될 솔루션 (Data Shot, Ad Curator, BudgetOpt 2.0 등)
 
 ### 1.3 배경
 - Slot은 여러 솔루션(Reach Caster, Data Shot 등)의 컨테이너 역할
@@ -98,7 +98,7 @@ SlotBoard / Slot 수정
 SlotBoard / {Slot명} / Reach Caster
 SlotBoard / {Slot명} / Data Shot
 SlotBoard / {Slot명} / Ad Curator
-SlotBoard / {Slot명} / Budget Optimizer
+SlotBoard / {Slot명} / BudgetOpt 2.0
 ```
 
 **예시**:
@@ -147,7 +147,7 @@ SlotBoard / 2024 봄 시즌 캠페인 / Reach Caster / 주요 타겟층 공략 �
 | 솔루션 | 브레드크럼 표시명 | 라우트 (예정) |
 |---|---|---|
 | Ad Curator | Ad Curator | `/adcurator` |
-| Budget Optimizer | Budget Optimizer | `/budgetoptimizer` |
+| BudgetOpt 2.0 | BudgetOpt 2.0 | `/budgetopt` |
 
 ### 5.3 솔루션 아이콘 (향후 추가 예정)
 

@@ -30,7 +30,7 @@ AX팀 2027 전략보고(v1.3)에 대응하는 **프로덕트 PO의 방향성 정
 
 ```
 [전략 루틴 — 이미 있음]
-DataShot(벤치마크) → Ad Curator → Budget Optimizer → Reach Caster
+DataShot(벤치마크) → Ad Curator → BudgetOpt 2.0 → Reach Caster
 = "캠페인 시작 전, 이렇게 하면 이럴 것이다" (예측)
 ```
 
@@ -49,7 +49,7 @@ DataShot(벤치마크) → Ad Curator → Budget Optimizer → Reach Caster
         │                                                  │
         ▼                                                  │
   [전략 루틴]  DataShot 벤치마크 ─┐                          │
-             Budget Optimizer  ─┼─▶ 각자 예측을 남김         │
+             BudgetOpt 2.0  ─┼─▶ 각자 예측을 남김         │
              Reach Caster      ─┘        │                 │
                                          ▼                 │
                             [검증 루틴]  대조 ──▶ 편차 + 다음 액션
@@ -83,7 +83,7 @@ Performance Tracker는 특정 솔루션의 하위 기능이 **아니다.** 전�
 | 입력 | 사용자 설정(매체·예산·타겟·업종) | 매체 MCP가 가져온 집행 성과 |
 | 출력 | 벤치마크·예측 배분·도달·리치커브 | 예측 대비 편차 + 다음 액션 제안 |
 
-다른 솔루션들(DataShot / Ad Curator / Budget Optimizer / Reach Caster)과 나란히 놨을 때 "여러 예측의 성과를 추적·대조하는 곳"으로 한눈에 읽힌다.
+다른 솔루션들(DataShot / Ad Curator / BudgetOpt 2.0 / Reach Caster)과 나란히 놨을 때 "여러 예측의 성과를 추적·대조하는 곳"으로 한눈에 읽힌다.
 
 > 네이밍은 구상 단계 제안이다. 확정 전까지 치환 가능. (후보: Performance Review, Performance Monitor, Actuals)
 

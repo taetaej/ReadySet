@@ -13,6 +13,7 @@ import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 import { ScenarioComparisonPanel } from './ScenarioComparisonPanel'
 import { ScenarioComparisonResult } from './ScenarioComparisonResult'
+import { DataShotCreateModal } from '../datashot/DataShotCreateModal'
 
 interface ReachPredictorResultProps {
   scenarioData?: any
@@ -165,6 +166,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false)
+  const [dataShotModalOpen, setDataShotModalOpen] = useState(false)
   const [targetGrpTooltipOpen, setTargetGrpTooltipOpen] = useState(false)
   const [curveSettingsDialogOpen, setCurveSettingsDialogOpen] = useState(false)
   const [populationTooltipOpen, setPopulationTooltipOpen] = useState(false)
@@ -913,7 +915,7 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
 
           {/* 버튼: 프로덕트 primary(pill) 표준 — 텍스트 아래 좌측 정렬 */}
           <button
-            onClick={() => navigate('/datashot')}
+            onClick={() => setDataShotModalOpen(true)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -951,6 +953,16 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
           </button>
         </div>
       </div>
+
+      {/* DataShot 데이터셋 생성 모달 */}
+      <DataShotCreateModal
+        isOpen={dataShotModalOpen}
+        onClose={() => setDataShotModalOpen(false)}
+        scenarioName={scenarioData?.name || 'Reach Predictor 시나리오'}
+        industry={scenarioData?.industry || '여행'}
+        mediaItems={scenarioData?.reachPredictorMedia || []}
+        slotShared={false} // TODO: 소속 예정 Slot scope 연동 시 Share 여부 전달
+      />
 
       {/* 매체/상품 상세 다이얼로그 (읽기 전용) */}
       {mediaDialogOpen && (

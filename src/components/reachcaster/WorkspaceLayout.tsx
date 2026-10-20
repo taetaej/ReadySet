@@ -5,6 +5,7 @@ import { CreateFolder } from './CreateFolder'
 import { EditFolder } from './EditFolder'
 import { SlotCard } from './SlotCard'
 import { SlotListItem } from './SlotListItem'
+import { SlotBoardNoticeModal } from './SlotBoardNoticeModal'
 import { PageHeader } from './PageHeader'
 import { SlotDetail } from './SlotDetail'
 import { AppLayout } from '../layout/AppLayout'
@@ -553,6 +554,9 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
       {/* 워크스페이스 메인 화면 */}
       {currentView === 'workspace' && (
         <>
+          {/* SlotBoard 진입 공지 (BudgetOpt 2.0 오픈) — "오늘 하루 안 보기" 지원 */}
+          <SlotBoardNoticeModal />
+
           {/* Welcome Section */}
           <WelcomeSection userName="Jia Shin" />
 

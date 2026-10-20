@@ -285,7 +285,7 @@ ReadySet 플랫폼의 모든 화면에서 공통으로 사용되는 레이아웃
 
 **결과물 보유 개수 기준**
 - 완료(Completed) 상태의 시나리오 개수로 산정
-- 모든 솔루션의 결과물 합산 (Reach Caster, Data Shot, Ad Curator, Budget Optimizer 등)
+- 모든 솔루션의 결과물 합산 (Reach Caster, Data Shot, Ad Curator, BudgetOpt 2.0 등)
 - 삭제된 결과물은 개수에서 제외
 - 실시간 자동 산정 및 업데이트
 

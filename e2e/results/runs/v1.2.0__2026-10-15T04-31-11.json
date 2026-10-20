@@ -1,0 +1,278 @@
+{
+  "version": "v1.2.0",
+  "feature": "BudgetOpt 2.0 결과 화면",
+  "startedAt": "2026-10-15T04:31:11.704Z",
+  "durationMs": 32837.869,
+  "specs": [
+    {
+      "title": "BO-RESULT-001 @critical 결과 화면 핵심 영역이 렌더된다",
+      "status": "passed",
+      "duration": 737,
+      "error": null
+    },
+    {
+      "title": "BO-COMMON-003 @major 브레드크럼에 BudgetOpt 2.0 라벨이 있다",
+      "status": "passed",
+      "duration": 491,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-007 @major 결과 헤더에 시나리오명과 메타정보가 표시된다",
+      "status": "passed",
+      "duration": 510,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-009 @major 헤더에 구 솔루션명이 중복 표시되지 않는다",
+      "status": "passed",
+      "duration": 488,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-014 @major Info 버튼 hover 시 시나리오 상세 툴팁이 뜬다",
+      "status": "passed",
+      "duration": 625,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-010 @major Export 메뉴에 Copy Link / Excel / PDF가 있다",
+      "status": "passed",
+      "duration": 642,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-015 @major 컨텍스트 메뉴에 복제/이동/삭제 항목이 있다",
+      "status": "passed",
+      "duration": 744,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-019 @major 잠금 시나리오면 모드 띠배너가 노출된다",
+      "status": "passed",
+      "duration": 474,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-021 @major 잠금 반영 모드 문구가 맞다",
+      "status": "passed",
+      "duration": 521,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-022 @major 잠금 모드에 순수 최적화 전환 버튼이 있다",
+      "status": "passed",
+      "duration": 505,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-023 @major 모드 전환 버튼으로 순수 최적화로 바뀐다",
+      "status": "passed",
+      "duration": 645,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-024 @major 순수 최적화에서 다시 잠금 반영으로 되돌아온다",
+      "status": "passed",
+      "duration": 675,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-038 @major 스코어카드 4종 제목이 표시된다",
+      "status": "passed",
+      "duration": 493,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-039 @major Estimated 카드가 선택 KPI(노출) 라벨을 따른다",
+      "status": "passed",
+      "duration": 505,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-044 @major 평균 단가 카드가 노출 KPI에서 CPM으로 표기된다",
+      "status": "passed",
+      "duration": 527,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-046 @major 스코어카드 단위(회/원)가 표기된다",
+      "status": "passed",
+      "duration": 477,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-028 @major 노출 KPI 시 헤더·카드·테이블의 KPI 라벨이 노출로 치환된다",
+      "status": "passed",
+      "duration": 506,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-049 @major 차트 섹션 제목과 매체/상품 토글이 있다",
+      "status": "passed",
+      "duration": 511,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-050 @major 차트 섹션에 최적화 원리 알아보기 트리거가 있다",
+      "status": "passed",
+      "duration": 514,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-051 @major 매체/상품 토글이 전환된다",
+      "status": "passed",
+      "duration": 722,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-052 @major 최적화 원리 트리거 hover 시 원리 툴팁이 뜬다",
+      "status": "passed",
+      "duration": 628,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-057 @major Budget Share 차트 제목·설명이 있다",
+      "status": "passed",
+      "duration": 506,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-058 @major Budget Share Info 툴팁이 상위5+Others 규칙을 안내한다",
+      "status": "passed",
+      "duration": 589,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-065 @major Response Curve 차트 제목·설명이 있다",
+      "status": "passed",
+      "duration": 505,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-070 @major Response Curve Info 툴팁이 Current Spend를 안내한다",
+      "status": "passed",
+      "duration": 591,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-079 @major Weekly Contribution 차트 제목·설명이 있다",
+      "status": "passed",
+      "duration": 513,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-081 @minor Weekly Contribution 최근 1년/2년 범위 전환 버튼이 동작한다",
+      "status": "passed",
+      "duration": 701,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-087 @major Incremental 차트 제목·설명이 있다",
+      "status": "passed",
+      "duration": 542,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-097 @major 각 차트에 SpinX 인사이트 영역이 있다",
+      "status": "passed",
+      "duration": 514,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-100 @major 차트 인사이트의 \"이어서 질문하기\" 클릭 시 SpinX 패널이 열린다",
+      "status": "passed",
+      "duration": 6554,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-101 @major 헤더 \"최적화 원리 알아보기\" 클릭 시 SpinX 패널이 열린다",
+      "status": "passed",
+      "duration": 723,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-107 @major Budget Allocation Detail 테이블 섹션이 있다",
+      "status": "passed",
+      "duration": 513,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-108 @major 테이블 컬럼 헤더가 모두 표시된다",
+      "status": "passed",
+      "duration": 576,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-109 @major 합계 행(Estimated Total)이 표시된다",
+      "status": "passed",
+      "duration": 510,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-120 @major Expand/Collapse 토글이 동작한다",
+      "status": "passed",
+      "duration": 693,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-127 @major 0원 배분 셀에 Share 0.00%가 표시된다",
+      "status": "passed",
+      "duration": 509,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-128 @major 0원 배분 Share Info hover 시 사유 툴팁이 뜬다",
+      "status": "passed",
+      "duration": 611,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-135 @critical 완료 시나리오에 Reach Caster 연계 CTA가 있다",
+      "status": "passed",
+      "duration": 526,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-136 @major Reach Caster CTA 클릭 시 간편 생성 모달이 열린다",
+      "status": "passed",
+      "duration": 643,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-137 @major 컨텍스트 메뉴에서도 Reach Caster 간편 생성에 진입한다",
+      "status": "passed",
+      "duration": 805,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-139 @major 간편 생성 모달에 시나리오명 프리셋과 승계 정보가 표시된다",
+      "status": "passed",
+      "duration": 626,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-140 @major 간편 생성 모달에 예상 노출 전달 세그먼트가 있다",
+      "status": "passed",
+      "duration": 606,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-143 @major 간편 생성 모달 취소 시 닫힌다",
+      "status": "passed",
+      "duration": 658,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-148 @major 간편 생성 미리보기에 미지원/0원 제외 안내가 있다",
+      "status": "passed",
+      "duration": 611,
+      "error": null
+    },
+    {
+      "title": "BO-RESULT-162 @minor 완료 상태에서만 Reach Caster CTA가 노출된다",
+      "status": "passed",
+      "duration": 508,
+      "error": null
+    }
+  ]
+}

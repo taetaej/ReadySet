@@ -248,7 +248,7 @@ function ChipList({ items }: { items: string[] }) {
 }
 
 function IndustryItem({ industries, industryLevel }: { industries: string[]; industryLevel: string | null }) {
-  const levelLabel = industryLevel === 'major' ? '대분류' : industryLevel === 'mid' ? '중분류' : industryLevel === 'minor' ? '소분류' : null
+  const levelLabel = industryLevel === 'major' ? '대분류' : industryLevel === 'mid' ? '중분류' : null
 
   return (
     <div>

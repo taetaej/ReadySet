@@ -10,6 +10,7 @@ import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
+import { DataShotCreateModal } from '../datashot/DataShotCreateModal'
 
 interface RatioFinderResultProps {
   scenarioData?: any
@@ -71,6 +72,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [spinxOpen, setSpinxOpen] = useState(false)
   const [spinxInitialMessage, setSpinxInitialMessage] = useState<string | undefined>(undefined)
+  const [dataShotModalOpen, setDataShotModalOpen] = useState(false)
   
   const chartRef = useRef<any>(null)
   
@@ -1113,7 +1115,7 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
           {/* 버튼: 프로덕트 primary(pill) 표준 — 텍스트 아래 좌측 정렬 */}
           <button
-            onClick={() => navigate('/datashot')}
+            onClick={() => setDataShotModalOpen(true)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1151,6 +1153,16 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
           </button>
         </div>
       </div>
+
+      {/* DataShot 데이터셋 생성 모달 */}
+      <DataShotCreateModal
+        isOpen={dataShotModalOpen}
+        onClose={() => setDataShotModalOpen(false)}
+        scenarioName={scenarioData?.name || 'Ratio Finder 시나리오'}
+        industry={scenarioData?.industry || '여행'}
+        mediaItems={[]}
+        slotShared={false} // TODO: 소속 예정 Slot scope 연동 시 Share 여부 전달
+      />
 
       {/* 타겟 GRP 다이얼로그 */}
       {targetGrpTooltipOpen && (

@@ -7,10 +7,11 @@
 //   · 축 muted-foreground + axisLine/tickLine false, 커스텀 툴팁(card/border/8px/shadow)
 // DataShot은 인라인 스타일 모듈이므로 토큰 값을 인라인으로 사용.
 import { useState, useEffect } from 'react'
-import { ChevronDown, Info } from 'lucide-react'
+import { ChevronDown, Info, SearchCheck } from 'lucide-react'
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
+import { CommonMetricMappingTable } from './CommonMetricDialog'
 import { PieChart, Pie, Cell, ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ZAxis, ReferenceLine, ReferenceArea } from 'recharts'
-import { type PeriodLike, isWithin2026H1, getBenchmarkIndustries, getIndustryChartRows } from './benchmark2026H1'
+
 
 // label = 실제 광고상품명(mediaData.DIGITAL 기준), media = 매체(색상 그룹용)
 // 절대수(impressions/clicks/views/cost)는 내부 계산(가중평균·비중)에만 쓰고 화면엔 노출 안 함.
@@ -62,6 +63,45 @@ const dataByIndustry: Record<string, Row[]> = {
   ],
 }
 
+// ── 차트 엣지 케이스 데모 전용 소스 ──────────────────────────────────────────
+// 한 데이터셋(목록 id 17)에서 업종 드롭다운으로 전환하며 차트2 엣지들을 재현한다.
+// 모든 업종은 상품(고유 label) 3개 이상 → §B.1 제공 조건 통과(드롭다운에 노출)하고,
+// 매체 수 / 클릭(>0) 상품 수 / 조회(>0) 상품 수 분포만 달리해 각 엣지를 드러낸다.
+//   mkRow(label, media, cost, impressions, clicks, views) — clicks=0 → 클릭 탭 제외, views=0 → 조회 탭 제외.
+const edgeDemoByIndustry: Record<string, Row[]> = {
+  // (정상·기본) 상품 3개 · 매체 2개↑ · 클릭·조회 모두 2개↑ → 두 차트 다 정상.
+  '패션': [
+    mkRow('반응형 디스플레이 광고_CPC', 'Google Ads', 24000000, 3000000, 54000, 900000),
+    mkRow('경매_트래픽_링크 클릭수 극대화_instagram', 'Meta', 18000000, 2200000, 61600, 440000),
+    mkRow('판매_전환_TikTok_동영상', 'TikTok', 12000000, 2600000, 23400, 1300000),
+  ],
+  // (엣지1) 단일 매체 — 상품 3개 전부 Google Ads → '매체' 토글 비활성 + 상품 뷰 강제(V4·V5).
+  '식품': [
+    mkRow('디맨드젠 동영상 광고_CPA', 'Google Ads', 28000000, 3200000, 70400, 1600000),
+    mkRow('반응형 디스플레이 광고_CPC', 'Google Ads', 16000000, 2100000, 37800, 630000),
+    mkRow('YouTube 셀렉트_CPM', 'Google Ads', 11000000, 2500000, 30000, 1250000),
+  ],
+  // (엣지2) 클릭 부족 — 클릭(>0) 상품 1개뿐, 조회(>0) 2개↑ → 클릭 탭 비활성, 조회 탭 자동 선택(V7).
+  '화장품및보건용품': [
+    mkRow('비디오 뷰 캠페인(VVC)_CPV', 'Google Ads', 22000000, 2800000, 0, 1680000),  // 조회형(클릭 0)
+    mkRow('동영상 조회_6초_TikTok_동영상', 'TikTok', 15000000, 2400000, 0, 1200000),  // 조회형(클릭 0)
+    mkRow('반응형 디스플레이 광고_CPC', 'Google Ads', 9000000, 1500000, 27000, 300000),  // 유일한 클릭형
+  ],
+  // (엣지3) 조회 부족 — 조회(>0) 상품 1개뿐, 클릭(>0) 2개↑ → 조회 탭 비활성, 클릭 탭 자동 선택(V8).
+  '컴퓨터및정보통신': [
+    mkRow('검색_클릭_CPC', 'Google Ads', 20000000, 2600000, 78000, 0),  // 클릭형(조회 0)
+    mkRow('경매_트래픽_링크 클릭수 극대화_instagram', 'Meta', 14000000, 2000000, 56000, 0),  // 클릭형(조회 0)
+    mkRow('비디오 뷰 캠페인(VVC)_CPV', 'Google Ads', 10000000, 2200000, 15400, 1100000),  // 유일한 조회형
+  ],
+  // (엣지4) 둘 다 부족 — 클릭(>0) ≤1 그리고 조회(>0) ≤1 → 차트2 전체 "충분하지 않습니다"(E5).
+  //   A=클릭만, B=조회만, C=둘 다 0(노출·비용만 → 차트1 비중엔 등장). 클릭>0=1, 조회>0=1 각각 ≤1 충족.
+  '금융보험및증권': [
+    mkRow('검색_클릭_CPC', 'Google Ads', 18000000, 2400000, 60000, 0),  // 클릭만
+    mkRow('비디오 뷰 캠페인(VVC)_CPV', 'TikTok', 12000000, 2000000, 0, 1000000),  // 조회만
+    mkRow('CPM 마스트헤드_CPM', 'Google Ads', 9000000, 2600000, 0, 0),  // 둘 다 0(인지형)
+  ],
+}
+
 // BO 팔레트 규칙: 1위(강조 대상)만 시그니처 그린, 나머지는 무채색 opacity 단계
 const MONO_OPACITIES = [1, 0.7, 0.5, 0.35, 0.2, 0.12, 0.08]
 function colorByRank(rank: number, isTop: boolean): string {
@@ -86,13 +126,10 @@ const insightByIndustry: Record<string, { cost: string; eff: string }> = {
   },
 }
 
-export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
-  // 조회기간이 2026 1~6월 범위면 실데이터(benchmark) 집계로, 아니면 기존 샘플(dataByIndustry).
-  const useBenchmark = isWithin2026H1(period)
-  const sourceByIndustry: Record<string, Row[]> = useBenchmark
-    ? getBenchmarkIndustries().reduce<Record<string, Row[]>>((acc, ind) => {
-        acc[ind] = getIndustryChartRows(ind); return acc
-      }, {})
+export function ResultCharts({ forceInsufficient, edgeDemo, spinxFail }: { forceInsufficient?: boolean; edgeDemo?: boolean; spinxFail?: boolean } = {}) {
+  // edgeDemo면 엣지 전용 세트(차트2 엣지 재현용), 그 외엔 기존 샘플(dataByIndustry)을 쓴다.
+  const sourceByIndustry: Record<string, Row[]> = edgeDemo
+    ? edgeDemoByIndustry
     : dataByIndustry
 
   // 제공 기준: 업종 최소 단위 안에 매체 1개 이상 AND 상품(고유 label) 3개 이상. 충족 업종만 노출.
@@ -111,21 +148,24 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
   const [hovered, setHovered] = useState<number | null>(null)
   const [scHovered, setScHovered] = useState<number | null>(null)
   const [viewMode, setViewMode] = useState<'media' | 'product'>('product')
-  const [benchInfoOpen, setBenchInfoOpen] = useState(false)
+  const [chartInfoOpen, setChartInfoOpen] = useState(false)
   const [effTab, setEffTab] = useState<'click' | 'view'>('click')
 
-  // 충족 업종이 하나도 없으면 차트 대신 안내만 렌더
-  if (!hasAnyIndustry) {
+  // 충족 업종이 하나도 없거나(실데이터 기준) 강제 미달 플래그면 차트 대신 안내만 렌더
+  if (forceInsufficient || !hasAnyIndustry) {
     return (
       <div style={{ marginBottom: '32px' }}>
         <h3 style={{ fontSize: '20px', fontWeight: '500', margin: '0 0 14px', fontFamily: 'Paperlogy, sans-serif' }}>
           Benchmark Analytics
         </h3>
         <div style={{
-          padding: '40px 24px', textAlign: 'center', border: '1px solid hsl(var(--border))', borderRadius: '8px',
-          backgroundColor: 'hsl(var(--muted) / 0.2)', color: 'hsl(var(--muted-foreground))', fontSize: '13px', lineHeight: 1.6,
+          display: 'flex', alignItems: 'flex-start', gap: '8px',
+          padding: '12px', backgroundColor: 'hsl(var(--muted) / 0.5)',
+          border: '1px solid hsl(var(--border))', borderRadius: '6px',
+          fontSize: '12px', color: 'hsl(var(--muted-foreground))',
         }}>
-          차트 생성을 위한 데이터가 충분하지 않습니다.
+          <Info size={14} style={{ flexShrink: 0, marginTop: '4px' }} />
+          <span style={{ lineHeight: '1.8' }}>Benchmark Analytics는 추출된 데이터 내 동일 업종의 광고상품이 3개 이상인 경우에만 표시됩니다.</span>
         </div>
       </div>
     )
@@ -134,14 +174,14 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
   // 광고상품 기준은 대분류 업종만 제공하므로 라벨은 '업종(대)' 고정
   const industryDepthLabel = '업종(대)'
   // 뷰 단위 라벨 — 제목·caption·툴팁에서 '매체'/'상품'으로 치환
-  const unit = viewMode === 'media' ? '매체' : '상품'
+  const unit = viewMode === 'media' ? '매체' : '광고상품'
 
   const rows = sourceByIndustry[industry] ?? []
   const totalCost = rows.reduce((s, r) => s + r.cost, 0)
 
-  // SpinX 차트1(Cost Share) 해석 — 실데이터 업종은 범용 문구로 폴백
-  const costInsight = insightByIndustry[industry]?.cost
-    ?? `${industry} 업종의 광고비가 매체·상품별로 어떻게 배분됐는지 보여줍니다. 비중 1위 상품이 녹색으로 강조되며, 상위 상품에 예산이 집중된 정도를 통해 미디어믹스의 쏠림을 가늠할 수 있습니다. 선택한 기간의 실제 집행 실적을 집계한 참고용 벤치마크입니다.`
+  // SpinX 차트1(Cost Share) 해석 — 실데이터/엣지 데모 업종은 범용 문구로 폴백(고정 해석과 데이터 불일치 방지)
+  const costInsight = (edgeDemo ? undefined : insightByIndustry[industry]?.cost)
+    ?? `광고비는 Google Ads와 Meta를 중심으로 집중된 구조입니다. Google Ads가 46.8%로 가장 높은 비중을 차지했고 Meta가 34.9%로 뒤를 이었으며, 두 매체의 합계는 81.7%입니다. 1위 비중은 절반 미만이지만 상위 두 매체가 전체 광고비의 대부분을 차지하며, 나머지 실제 항목은 두 매체보다 낮은 비중으로 나뉘어 상위 항목 중심의 배분 특성이 확인됩니다.`
 
   // 이 업종에 매체가 1개뿐이면 '매체' 뷰는 무의미(100% 1조각) → 토글에서 '매체' 비활성 + 강제 상품 뷰
   const mediaCount = new Set(rows.map(r => r.media)).size
@@ -174,17 +214,25 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
   //   클릭 탭: clicks>0 → 반응=CTR, 단가=CPC / 조회 탭: views>0 → 반응=VTR, 단가=CPV
   const clickRows = rows.filter(r => r.clicks > 0)
   const viewRows = rows.filter(r => r.views > 0)
-  const clickTabEnabled = clickRows.length > 0
-  const viewTabEnabled = viewRows.length > 0
-  const effDataAvailable = clickTabEnabled || viewTabEnabled
+  // 탭별 데이터 충분 여부 = 그 탭 지표를 가진 상품이 2개 이상(상대 비교 차트라 1개면 무의미).
+  const clickTabHasData = clickRows.length >= 2
+  const viewTabHasData = viewRows.length >= 2
 
-  // 비활성 탭이 선택돼 있으면 활성 탭으로 자동 전환 (§2.3)
+  // 탭은 비활성화하지 않는다(항상 클릭 가능). 대신:
+  //  - 업종이 바뀔 때, 현재 탭이 그 업종에서 비었고 반대 탭엔 데이터가 있으면 '데이터 있는 탭'으로 1회 자동 보정
+  //    (진입 시 빈 탭을 먼저 보지 않게. 이후 사용자가 직접 빈 탭을 눌러보는 건 막지 않음)
   useEffect(() => {
-    if (effTab === 'click' && !clickTabEnabled && viewTabEnabled) setEffTab('view')
-    else if (effTab === 'view' && !viewTabEnabled && clickTabEnabled) setEffTab('click')
-  }, [effTab, clickTabEnabled, viewTabEnabled])
+    if (effTab === 'click' && !clickTabHasData && viewTabHasData) setEffTab('view')
+    else if (effTab === 'view' && !viewTabHasData && clickTabHasData) setEffTab('click')
+    // 업종 변경 시에만 보정 (effTab은 의존성에서 제외 → 사용자가 수동으로 빈 탭 선택한 건 유지)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [industry])
 
-  const activeEffTab: 'click' | 'view' = clickTabEnabled && viewTabEnabled ? effTab : (clickTabEnabled ? 'click' : 'view')
+  const activeEffTab: 'click' | 'view' = effTab
+  // 현재 선택된 탭에 비교 가능한 데이터가 있는지 → 없으면 그 탭 자리에 블러 플레이스홀더 노출
+  const currentTabHasData = activeEffTab === 'click' ? clickTabHasData : viewTabHasData
+  // 클릭·조회 두 탭 모두 비교 불가 → 탭 자체를 숨기고 "클릭·조회 성과" 통합 안내만 노출
+  const bothTabsEmpty = !clickTabHasData && !viewTabHasData
   // 현재 탭 기준 지표 접근자 (반응=높을수록 좋음, 단가=낮을수록 좋음)
   const resp = (r: Row) => (activeEffTab === 'click' ? r.ctr : r.vtr)
   const price = (r: Row) => (activeEffTab === 'click' ? r.cpc : r.cpv)
@@ -221,14 +269,17 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
     ? (totalClk > 0 ? totalCostEff / totalClk : 0)
     : (totalView > 0 ? totalCostEff / totalView : 0)
 
-  // §2.6 효율 포인트: 반응·단가 0~1 정규화 → 이상점(반응1·단가0) 거리² 최소 1개. 대상 2개 이상일 때만.
+  // §2.6 효율 포인트: 반응·단가를 "좋을수록 높은" 0~100점으로 정규화(단가는 뒤집음) →
+  //   효율점수 = 0.5*반응점수 + 0.5*단가점수 의 최댓값 1개. 대상 2개 이상일 때만. (내부 계산 전용)
   const respLo = Math.min(...top6.map(resp)), respHi = Math.max(...top6.map(resp))
   const priceLo = Math.min(...top6.map(price)), priceHi = Math.max(...top6.map(price))
-  const nrm = (v: number, lo: number, hi: number) => (hi === lo ? 0.5 : (v - lo) / (hi - lo))
-  const effScore = (r: Row) => (1 - nrm(resp(r), respLo, respHi)) ** 2 + nrm(price(r), priceLo, priceHi) ** 2
-  // E1: 대상 1개 이하면 강조 생략. 동점(E3): 반응 높은 쪽 우선.
+  // 반응점수: 높을수록 100. 단가점수: 쌀수록 100(분자를 (hi - v)로 뒤집음). 분모 0이면 50.
+  const respScore = (r: Row) => (respHi === respLo ? 50 : ((resp(r) - respLo) / (respHi - respLo)) * 100)
+  const priceScore = (r: Row) => (priceHi === priceLo ? 50 : ((priceHi - price(r)) / (priceHi - priceLo)) * 100)
+  const effScore = (r: Row) => 0.5 * respScore(r) + 0.5 * priceScore(r)
+  // E1: 대상 1개 이하면 강조 생략. 효율점수 최댓값 1개. 동점(E3): 반응 높은 쪽 우선.
   const bestLabel = top6.length >= 2
-    ? [...top6].sort((a, b) => effScore(a) - effScore(b) || resp(b) - resp(a)).map(r => r.label)[0]
+    ? [...top6].sort((a, b) => effScore(b) - effScore(a) || resp(b) - resp(a)).map(r => r.label)[0]
     : null
 
   const scatterData = top6.map(r => ({
@@ -246,40 +297,27 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
   const respFloor = 0  // 반응률(CTR/VTR) Y축 최소는 항상 0 고정
   const respCeil = Math.max(...respVals) + 0.4
 
-  // SpinX 효율 해석 — 탭 맥락 반영 폴백
-  const effInsightText = insightByIndustry[industry]?.eff
-    ?? `${industry} 업종에서 선택한 상품들을 ${respLabel}과 ${priceLabel} 두 축에 놓은 결과입니다. 왼쪽 위(저단가·고반응)에 가까운 상품이 효율 포인트로 녹색 강조되며, 광고비를 가장 많이 쓴 상품과 효율이 가장 좋은 상품이 서로 다를 수 있습니다. (선택 상품 간 비교·참고용)`
+  // SpinX 효율 해석 — 탭 맥락 반영 폴백 (엣지 데모는 고정 해석 대신 범용 폴백)
+  const effInsightText = (edgeDemo ? undefined : insightByIndustry[industry]?.eff)
+    ?? `Google Ads > 반응형 디스플레이 광고_CPC가 효율 포인트로 표시되었으며, ${respLabel}은 선택 평균보다 높고 ${priceLabel}은 평균보다 낮은 위치입니다. ${respLabel}은 3.40%, ${priceLabel}은 640원으로 두 지표가 모두 평균 대비 유리하게 나타났습니다. 광고비 비중은 24.6%로 표시 항목 중 가장 높았으며, 광고비 비중 1위와 효율 포인트가 같은 항목으로 확인되었습니다.`
 
   return (
     <div style={{ marginBottom: '32px' }}>
       {/* 헤더 (제목) → 아래 줄에 업종 필터 */}
       {/* 헤더 행: 제목(좌) + 매체/상품 토글(우) — BO Optimization Analytics 헤더와 동일 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', margin: '0 0 14px' }}>
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Paperlogy, sans-serif' }}>
             Benchmark Analytics
           </h3>
+          {/* 돋보기 → "분석 차트 제공 기준" 팝업 (제공 기준 + 공통 지표 매핑표 통합) */}
           <button
-            onMouseEnter={() => setBenchInfoOpen(true)}
-            onMouseLeave={() => setBenchInfoOpen(false)}
-            style={{ display: 'flex', alignItems: 'center', padding: '2px', background: 'transparent', border: 'none', cursor: 'help', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+            onClick={() => setChartInfoOpen(true)}
+            title="분석 차트 제공 기준"
+            style={{ display: 'flex', alignItems: 'center', padding: '2px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
           >
-            <Info size={15} />
+            <SearchCheck size={15} />
           </button>
-          {benchInfoOpen && (
-            <div style={{
-              position: 'absolute', top: '100%', left: 0, marginTop: '8px', width: '340px', zIndex: 100,
-              backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px',
-              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', lineHeight: 1.6, color: 'hsl(var(--muted-foreground))',
-            }}>
-              <div style={{ fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: '6px' }}>분석 차트 제공 기준</div>
-              아래 차트는 선택한 업종의 <strong style={{ color: 'hsl(var(--foreground))' }}>과거 집행 실적(벤치마크)</strong>을 집계한 결과입니다.
-              <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: 1.6 }}>
-                <div><strong style={{ color: 'hsl(var(--foreground))' }}>제공 조건</strong>: 데이터 추출 업종의 최소 단위 기준, 상품 3개 이상인 업종만 제공</div>
-                <div><strong style={{ color: 'hsl(var(--foreground))' }}>업종 목록</strong>: 조건을 충족하는 업종만 위 드롭다운에 표시됩니다</div>
-              </div>
-            </div>
-          )}
         </div>
         <div style={{ display: 'flex', border: '1px solid hsl(var(--border))', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
           {(['media', 'product'] as const).map(mode => {
@@ -305,7 +343,7 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
       </div>
 
       {/* 업종 필터 — "업종(대)" 라벨 + 밑줄 드롭다운 가로 나란히 (BO picker 스타일 이식) */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '24px', maxWidth: '360px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '24px', maxWidth: '288px' }}>
         <span style={{ fontSize: '13px', fontWeight: 500, color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
           {industryDepthLabel}
         </span>
@@ -348,20 +386,51 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
         </div>
       </div>
 
+      {/* 분석 차트 제공 기준 팝업: 제공 기준 안내 + 공통 지표 매핑표 통합 */}
+      {chartInfoOpen && (
+        <div className="dialog-overlay" onClick={() => setChartInfoOpen(false)}>
+          <div className="dialog-content dialog-lg" onClick={e => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">분석 차트 제공 기준</h3>
+              <p className="dialog-description">아래 차트는 선택한 업종의 과거 집행 실적(벤치마크)을 집계한 결과입니다.</p>
+            </div>
+            <div style={{ padding: '8px 24px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* 제공 기준 */}
+              <div style={{ fontSize: '13px', lineHeight: 1.7, color: 'hsl(var(--muted-foreground))' }}>
+                <div><strong style={{ color: 'hsl(var(--foreground))' }}>제공 조건</strong> · 업종 기준 광고상품 3개 이상</div>
+                <div><strong style={{ color: 'hsl(var(--foreground))' }}>업종 목록</strong> · 조건 충족 업종만 드롭다운에 표시</div>
+                <div><strong style={{ color: 'hsl(var(--foreground))' }}>지표 기준</strong> · 차트는 아래 공통 지표를 기준으로 구현</div>
+              </div>
+              {/* 공통 지표 매핑표 */}
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>공통 지표 기준</div>
+                <p style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', margin: '0 0 12px' }}>
+                  각 매체의 지표를 공통 기준으로 매핑해 매체 간 비교가 가능하도록 제공합니다.
+                </p>
+                <CommonMetricMappingTable />
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <button onClick={() => setChartInfoOpen(false)} className="btn btn-primary btn-md">확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 2열 배치 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '40px' }}>
         {/* 차트1: 광고비 비중 도넛 + 범례 */}
         <ChartCard
           title="광고비는 어디에 집중됐을까?"
           eng="Cost Share"
-          caption="매체·상품별 광고비 배분 비중"
+          caption="매체·광고상품별 광고비 배분 비중"
           info={{
             heading: 'Cost Share',
             body: (
               <>
                 이 업종에서 광고비가 {unit}별로 어떻게 배분됐는지 비중(%)으로 보여줍니다.
                 <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: 1.6 }}>
-                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>조각</strong>: {viewMode === 'media' ? '매체' : '매체 > 상품'} 단위의 광고비 비중</div>
+                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>조각</strong>: {viewMode === 'media' ? '매체' : '매체 > 광고상품'} 단위의 광고비 비중</div>
                   <div style={{ marginTop: '6px' }}>
                     <strong style={{ color: 'hsl(var(--foreground))' }}>비중</strong>: {unit} 광고비 ÷ 전체 광고비 × 100
                   </div>
@@ -389,10 +458,13 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
                     const x = p.cx + r * Math.cos(-p.midAngle * RAD)
                     const y = p.cy + r * Math.sin(-p.midAngle * RAD)
                     const top = p.index === 0 && !costData[0].isEtc
+                    // 라벨은 '조각 위에 얹히는' 글씨 → 조각 색이 항상 어두운(그린/무채색) 계열이라
+                    // 모드와 무관하게 라이트모드 기준 색을 고정한다(다크모드에서 토큰이 뒤집혀 대비가 깨지는 것 방지).
+                    // 1위(그린 조각) 글씨 = 라이트모드 --foreground, 나머지(어두운 무채색 조각) 글씨 = 흰색.
                     return (
                       <text x={x} y={y} textAnchor="middle" dominantBaseline="central"
                         style={{ fontSize: 11, fontWeight: 600 }}
-                        fill={top ? 'hsl(var(--foreground))' : 'hsl(var(--background))'}>
+                        fill={top ? 'hsl(0 0% 3.9%)' : 'hsl(0 0% 100%)'}>
                         {p.share}%
                       </text>
                     )
@@ -431,45 +503,35 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
               ))}
             </div>
           </div>
-          <SpinXInsight key={`cost-${industry}`} text={costInsight} />
+          <SpinXInsight key={`cost-${industry}`} text={costInsight} forceError={spinxFail} />
         </ChartCard>
 
         {/* 차트2: 단가(x, 왼쪽=저렴) × 반응(y) 포지셔닝 맵 — 좌상단=효율 영역 */}
-        {!effDataAvailable ? (
-          <ChartCard title="어떤 상품이 효율적이었을까?" eng="Efficiency Map" caption="매체·상품별 반응률·단가 비교">
-            <div style={{
-              height: '290px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-              border: '1px solid hsl(var(--border))', borderRadius: '8px', backgroundColor: 'hsl(var(--muted) / 0.2)',
-              color: 'hsl(var(--muted-foreground))', fontSize: '13px', lineHeight: 1.6,
-            }}>
-              차트 생성을 위한 데이터가 충분하지 않습니다.
-            </div>
-          </ChartCard>
-        ) : (
         <ChartCard
-          title="어떤 상품이 효율적이었을까?"
+          title={viewMode === 'media' ? '어떤 매체가 효율적이었을까?' : '어떤 광고상품이 효율적이었을까?'}
           eng="Efficiency Map"
-          caption="매체·상품별 반응률·단가 비교"
+          caption="매체·광고상품별 반응률·단가 비교"
           titleRight={
+            // 클릭·조회 두 탭 모두 비교 불가면 탭 자체를 숨긴다(통합 안내만 본문에 노출).
+            // 그 외엔 탭을 항상 노출(비활성화 안 함). 선택 탭에 데이터 없으면 본문에서 블러 플레이스홀더로 안내.
+            bothTabsEmpty ? undefined : (
             <div style={{ display: 'flex', border: '1px solid hsl(var(--border))', borderRadius: '6px', overflow: 'hidden' }}>
-              {([['click', '클릭', clickTabEnabled], ['view', '조회', viewTabEnabled]] as const).map(([key, label, enabled]) => (
+              {(['click', 'view'] as const).map(key => (
                 <button
                   key={key}
-                  onClick={() => enabled && setEffTab(key)}
-                  disabled={!enabled}
-                  title={enabled ? undefined : '데이터가 충분하지 않습니다'}
+                  onClick={() => setEffTab(key)}
                   style={{
                     padding: '6px 16px', fontSize: '12px', fontWeight: 500, border: 'none', transition: 'all 0.2s',
-                    cursor: enabled ? 'pointer' : 'not-allowed',
+                    cursor: 'pointer',
                     backgroundColor: activeEffTab === key ? 'hsl(var(--foreground))' : 'transparent',
                     color: activeEffTab === key ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
-                    opacity: enabled ? 1 : 0.4,
                   }}
                 >
-                  {label}
+                  {key === 'click' ? '클릭' : '조회'}
                 </button>
               ))}
             </div>
+            )
           }
           info={{
             heading: 'Efficiency Map',
@@ -477,21 +539,24 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
               <>
                 선택한 {unit}을 반응률·단가 두 축에 놓아, 어느 {unit}이 효율적인 자리에 있는지 보여줍니다. 왼쪽 위(저단가·고반응)로 갈수록 효율적입니다.
                 <div style={{ marginTop: '8px', fontSize: '11px', lineHeight: 1.6 }}>
-                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>탭(클릭·조회)</strong>: <strong>클릭</strong> 탭은 클릭률·클릭당 비용(CPC), <strong>조회</strong> 탭은 조회율·조회당 비용(CPV)으로 비교합니다. (해당 성과가 측정된 {unit}만 표시)</div>
-                  <div style={{ marginTop: '6px' }}><strong style={{ color: 'hsl(var(--foreground))' }}>가로축(단가)</strong>: 왼쪽일수록 저렴</div>
-                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>세로축(반응률)</strong>: 위일수록 반응 좋음</div>
-                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>버블 크기</strong>: 광고비 비중</div>
+                  <div><strong style={{ color: 'hsl(var(--foreground))' }}>탭(클릭·조회)</strong></div>
+                  <div style={{ paddingLeft: '8px' }}>- <strong style={{ color: 'hsl(var(--foreground))' }}>클릭 탭</strong> 클릭률·클릭당 비용(CPC)으로 비교</div>
+                  <div style={{ paddingLeft: '8px' }}>- <strong style={{ color: 'hsl(var(--foreground))' }}>조회 탭</strong> 조회율·조회당 비용(CPV)으로 비교</div>
                   <div style={{ marginTop: '6px' }}>
-                    <strong style={{ color: 'hsl(var(--foreground))' }}>평균</strong>: 점선 십자선. 선택한 {unit}들의 반응률·단가를 집행 규모로 가중평균한 값입니다. (업종 전체가 아닌 선택 {unit} 기준)
+                    <strong style={{ color: 'hsl(var(--foreground))' }}>평균</strong>: 선택한 {unit}들의 반응률·단가를 집행 규모로 가중평균한 값
                   </div>
                   <div style={{ marginTop: '6px' }}>
-                    <strong style={{ color: 'hsl(var(--bo-accent))' }}>효율 포인트</strong>: 선택 {unit} 중 반응이 높고 단가가 낮은, 가장 효율적인 지점에 가까운 1개(초록 점). 반응률과 단가를 동등 가중해 산출합니다.
+                    반응이 높고 단가가 낮을수록 효율적이며, 이를 점수화해 가장 높은 {unit}을 <strong style={{ color: 'hsl(var(--foreground))' }}>효율 포인트</strong>로 짚습니다.
                   </div>
                 </div>
               </>
             ),
           }}
         >
+          {!currentTabHasData ? (
+            <EfficiencyEmpty tab={activeEffTab} bothEmpty={bothTabsEmpty} />
+          ) : (
+          <>
           <ResponsiveContainer width="100%" height={250}>
             <ScatterChart margin={{ top: 16, right: 24, bottom: 28, left: 8 }}>
               <XAxis type="number" dataKey="price" name={priceLabel} stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} domain={[priceFloor, priceCeil]}
@@ -525,9 +590,10 @@ export function ResultCharts({ period }: { period?: PeriodLike } = {}) {
               />
             </ScatterChart>
           </ResponsiveContainer>
-          <SpinXInsight key={`eff-${industry}-${activeEffTab}`} text={effInsightText} />
+          <SpinXInsight key={`eff-${industry}-${activeEffTab}`} text={effInsightText} forceError={spinxFail} />
+          </>
+          )}
         </ChartCard>
-        )}
       </div>
     </div>
   )
@@ -576,6 +642,64 @@ function PieTooltip({ active, payload }: any) {
   )
 }
 
+// 차트2 데이터 부족 플레이스홀더: 그럴싸한 더미 포지셔닝 맵을 흐리게 깔고 위에 안내를 얹는다.
+//   (현재 선택 탭에 비교 가능한 항목이 2개 미만일 때 — 둘 다 부족 / 한쪽 탭만 부족 공통)
+//   실데이터 오해 방지: 더미 축은 숫자 없음. 하단 SpinX 자리도 정상 차트와 동일하게 유지.
+function EfficiencyEmpty({ tab, bothEmpty = false }: { tab: 'click' | 'view'; bothEmpty?: boolean }) {
+  // 둘 다 부족이면 탭이 숨겨지므로 '클릭·조회 성과' 통합 문구, 아니면 현재 탭 기준 문구.
+  const metricWord = bothEmpty ? '클릭·조회 성과' : tab === 'click' ? '클릭 성과' : '조회 성과'
+  return (
+    <>
+      {/* 정상 차트2(ResponsiveContainer height 250)와 동일 크기. overflow hidden으로 blur 번짐을 영역 안에 가둠. */}
+      <div style={{ position: 'relative', height: '250px', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, filter: 'blur(1.5px)', opacity: 0.95, pointerEvents: 'none' }} aria-hidden>
+          <ResponsiveContainer width="100%" height="100%">
+            {/* 더미는 축을 숨기므로 축용 여백 0 → 산점도가 영역을 꽉 채움(좌·하단 빈 여백 제거) */}
+            <ScatterChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+              <XAxis type="number" dataKey="price" domain={[0, 100]} tick={false} axisLine={false} tickLine={false} height={0} />
+              <YAxis type="number" dataKey="resp" domain={[0, 100]} tick={false} axisLine={false} tickLine={false} width={0} />
+              <ZAxis type="number" dataKey="share" range={[160, 620]} />
+              <ReferenceArea x1={0} y1={55} x2={48} y2={100} fill="hsl(var(--bo-accent))" fillOpacity={0.1} stroke="none" />
+              <ReferenceArea x1={48} y1={0} x2={100} y2={55} fill="hsl(var(--foreground))" fillOpacity={0.05} stroke="none" />
+              <ReferenceLine x={48} stroke="hsl(var(--border))" strokeDasharray="4 4" />
+              <ReferenceLine y={55} stroke="hsl(var(--border))" strokeDasharray="4 4" />
+              <Scatter data={[
+                { price: 22, resp: 72, share: 30, top: true },
+                { price: 60, resp: 44, share: 55 },
+                { price: 76, resp: 58, share: 22 },
+                { price: 38, resp: 30, share: 40 },
+                { price: 72, resp: 22, share: 18 },
+              ]} isAnimationActive={false}
+                shape={(p: any) => (
+                  <circle cx={p.cx} cy={p.cy} r={Math.max(8, (p.payload.share ?? 20) / 2.4)}
+                    fill={p.payload.top ? 'hsl(var(--bo-accent))' : 'hsl(var(--foreground) / 0.4)'} />
+                )}
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+        {/* 가독성용 옅은 베일 */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'hsl(var(--card) / 0.45)' }} aria-hidden />
+        {/* 안내 오버레이 (선명) */}
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: '8px', textAlign: 'center', padding: '0 24px',
+        }}>
+          <Info size={20} style={{ color: 'hsl(var(--muted-foreground))' }} />
+          <span style={{ fontSize: '12.5px', lineHeight: 1.65, color: 'hsl(var(--foreground))' }}>
+            매체·광고상품별 반응률·단가 비교 차트는<br />{metricWord}가 있는 항목이 2개 이상일 때 표시됩니다.
+          </span>
+        </div>
+      </div>
+      {/* 정상 차트2와 동일하게 하단 SpinX 자리 유지(업종 무관 공통 1문장). */}
+      <SpinXInsight
+        key="eff-empty"
+        text="이 차트는 비교 항목이 부족해 SpinX 분석을 제공하지 않습니다."
+      />
+    </>
+  )
+}
+
 function ScatterTooltip({ active, payload, respLabel = '반응', priceLabel = '단가' }: any) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
@@ -590,31 +714,48 @@ function ScatterTooltip({ active, payload, respLabel = '반응', priceLabel = '�
 }
 
 // BO(BOSpinXInsight) 이식: 심볼 + 워드마크 + 타이핑 해석. 벤치마크 성격이라 액션 제안은 없음. datashot이라 인라인.
-function SpinXInsight({ text, speed = 18 }: { text: string; speed?: number }) {
-  const [displayText, setDisplayText] = useState('')
-  const [isTyping, setIsTyping] = useState(true)
+// SpinX 분석 생성 상태(스펙 §C.3.1): generating(생성 중) → success(타이핑) | error(대체 텍스트).
+// 생성 API 연동 전까지는 프런트에서 짧은 '생성 중' 지연 후 성공으로 전이해 시뮬레이션하고,
+// forceError=true면 생성 실패 케이스를 재현한다(엣지/QA 확인용 — chartInsufficient 패턴과 동일).
+const SPINX_ERROR_TEXT = '이 차트에 대한 SpinX 분석을 생성하지 못했습니다. 새로고침하거나 결과에 다시 들어오면 분석을 다시 시도합니다.'
 
+function SpinXInsight({ text, speed = 18, forceError = false }: { text: string; speed?: number; forceError?: boolean }) {
+  const [phase, setPhase] = useState<'generating' | 'success' | 'error'>('generating')
+  const [displayText, setDisplayText] = useState('')
+
+  // 1) 생성 단계: 짧은 '생성 중' 지연 후 성공/실패 결정 (생성 API 연동 시 이 지연을 실제 요청으로 교체)
   useEffect(() => {
+    setPhase('generating')
     setDisplayText('')
-    setIsTyping(true)
+    const t = setTimeout(() => setPhase(forceError ? 'error' : 'success'), 700)
+    return () => clearTimeout(t)
+  }, [text, forceError])
+
+  // 2) 성공 시: 분석 텍스트 타이핑
+  useEffect(() => {
+    if (phase !== 'success') return
     let i = 0
     const timer = setInterval(() => {
       i++
-      if (i >= text.length) { setDisplayText(text); setIsTyping(false); clearInterval(timer) }
+      if (i >= text.length) { setDisplayText(text); clearInterval(timer) }
       else setDisplayText(text.slice(0, i))
     }, speed)
     return () => clearInterval(timer)
-  }, [text, speed])
+  }, [phase, text, speed])
+
+  const isGenerating = phase === 'generating'
+  const isTyping = phase === 'success' && displayText.length < text.length
+  const isError = phase === 'error'
 
   return (
     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid hsl(var(--border))' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-        <SpinXSymbol size={13} motion={isTyping ? 'active' : 'idle'} title="" style={{ transform: 'rotate(45deg)', flexShrink: 0 }} />
+        <SpinXSymbol size={13} motion={isGenerating || isTyping ? 'active' : 'idle'} title="" style={{ transform: 'rotate(45deg)', flexShrink: 0 }} />
         <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.02em', color: 'hsl(var(--muted-foreground))' }}>SpinX for DataShot</span>
-        {isTyping && <span style={{ fontSize: '10px', opacity: 0.6, color: 'hsl(var(--muted-foreground))' }}>analyzing…</span>}
+        {isGenerating && <span style={{ fontSize: '10px', opacity: 0.6, color: 'hsl(var(--muted-foreground))' }}>analyzing…</span>}
       </div>
-      <p style={{ fontSize: '12.5px', lineHeight: 1.65, margin: 0, opacity: 0.9, color: 'hsl(var(--foreground))' }}>
-        {displayText}
+      <p style={{ fontSize: '12.5px', lineHeight: 1.65, margin: 0, opacity: isError ? 0.75 : 0.9, color: 'hsl(var(--foreground))' }}>
+        {isError ? SPINX_ERROR_TEXT : displayText}
         {isTyping && <span style={{ animation: 'spinx-cursor-blink 0.8s step-end infinite' }}>|</span>}
       </p>
     </div>

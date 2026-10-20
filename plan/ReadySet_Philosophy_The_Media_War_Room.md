@@ -2,7 +2,7 @@
 
 > **"우리는 흩어진 광고 도구의 집합이 아니라, 미디어 전략을 다루는 하나의 상황실(War Room)이다."**
 >
-> 데이터 분석(DataShot), 예산 배분(Budget Optimizer), 도달 예측(Reach Caster),
+> 데이터 분석(DataShot), 예산 배분(BudgetOpt 2.0), 도달 예측(Reach Caster),
 > 그리고 곧 합류할 Ad Curator까지 — 개별 기능이 아니라 하나의 캠페인 전략을 관통하는 지휘 본부다.
 > 복잡한 최적화 엔진은 날렵한 표면 뒤로 숨기고, 고밀도의 전략 데이터를 장인 수준의 마감으로
 > 정제해 사용자에게 **'압도적인 통제감과 발견의 희열'**을 선사한다.
@@ -35,7 +35,7 @@ ReadySet은 **"어려운 걸 똑똑하게 정리해 쉽게 이해시키는 제�
 
 ### ② 경계 없는 단 하나의 전략 세션 (Ubiquitous Context)
 
-- **도구를 넘어선 흐름**: DataShot, Budget Optimizer, Reach Caster, Ad Curator(예정)는 개별 툴이 아니다.
+- **도구를 넘어선 흐름**: DataShot, BudgetOpt 2.0, Reach Caster, Ad Curator(예정)는 개별 툴이 아니다.
   하나의 캠페인을 관통하는 **'단 하나의 연속된 전략 세션'**이다.
 - **맥락의 무손실 전달**: 다음 단계로 이동할 때 사용자가 입력한 예산·기간·업종·KPI 맥락을
   온전히 계승한다. 화면이 바뀌어도 생각의 흐름(Flow)이 끊기지 않는다.
@@ -83,7 +83,7 @@ ReadySet은 **"어려운 걸 똑똑하게 정리해 쉽게 이해시키는 제�
 
 ## 한 장 요약 (책상용)
 
-- **한 문장**: DataShot·Budget Optimizer·Reach Caster·Ad Curator를 하나의 War Room으로 묶어 다룬다. 복잡함은 숨기고, 사용자는 판단만 내린다.
+- **한 문장**: DataShot·BudgetOpt 2.0·Reach Caster·Ad Curator를 하나의 War Room으로 묶어 다룬다. 복잡함은 숨기고, 사용자는 판단만 내린다.
 - **4대 철학**: ① 복잡함의 추상화 ② 하나의 전략 세션 ③ SpinX = 전략 파트너 ④ 모델에 대한 존중
 - **충돌 시 우선순위**: 이해 용이성 > 전문성 / 절제 > 전문성 / **있어 보임 = 근거 + 크래프트맨십**
 - **즉시 실격**: 아이콘 뱃지 · uppercase 라벨 · 회색 칩 나열 · 겹친 틴트 · translateY 부양 · HEX 하드코딩 · 숫자만 던지기

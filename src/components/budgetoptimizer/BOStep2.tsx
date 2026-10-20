@@ -10,6 +10,236 @@ interface BOStep2Props {
   validationActive: boolean
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 순수 함수: 예산 배분 상태 판정 (TDD 대상, 모듈 스코프 export)
+//
+// 두 개념을 분리한다:
+//  (A) 매체 몫 확정(shareConfirmed): 라벨용. 매체가 받는 '몫'이 수학적으로 하나로
+//      정해지는가. 토글 비잠금이 전체 1개면 확정. 2개 이상이어도 "실질 자유 매체"가
+//      1개로 좁혀지면 그 매체는 확정.
+//  (B) 잔여 수령처(R6): 전역 잔여를 실제로 받을 수 있는 비잠금 상품이 있는 매체.
+//      하위가 전부 잠긴 매체는 몫이 커도 초과분을 받을 상품이 없어 수령처가 아니다.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MediaFixedInput = { mediaId: string; isFixed: boolean; fixedAmount: number }
+export type ProductInput = { mediaId: string; productName: string; isFixed: boolean; fixedAmount: number }
+
+export type AllocStatus = 'fixed' | 'auto-confirmed' | 'optimize'
+
+export interface MediaAllocation {
+  mediaId: string
+  status: AllocStatus
+  amount: number | null
+  shareConfirmed: boolean
+  share: number | null
+}
+
+export interface ProductAllocation {
+  mediaId: string
+  productName: string
+  status: AllocStatus
+  amount: number | null
+}
+
+export interface AllocationError {
+  rule: 'R4' | 'R5' | 'R6'
+  message: string
+}
+
+export interface AllocationResult {
+  media: MediaAllocation[]
+  products: ProductAllocation[]
+  remainingBudget: number
+  fixedTotal: number
+  optimizeProductCount: number
+  errors: AllocationError[]
+}
+
+export function computeAllocation(
+  totalBudget: number,
+  mediaFixed: MediaFixedInput[],
+  products: ProductInput[]
+): AllocationResult {
+  // 1. 매체 그룹 구성 (입력 등장 순서 보존, 테이블은 상품 기준 렌더)
+  const mediaOrder: string[] = []
+  const childrenByMedia = new Map<string, ProductInput[]>()
+  for (const p of products) {
+    if (!childrenByMedia.has(p.mediaId)) {
+      childrenByMedia.set(p.mediaId, [])
+      mediaOrder.push(p.mediaId)
+    }
+    childrenByMedia.get(p.mediaId)!.push(p)
+  }
+
+  const mediaFixedOf = (mediaId: string) => mediaFixed.find(m => m.mediaId === mediaId)
+  const isMediaLocked = (mediaId: string) => !!mediaFixedOf(mediaId)?.isFixed
+  const mediaLockAmount = (mediaId: string) => mediaFixedOf(mediaId)?.fixedAmount ?? 0
+  const childrenOf = (mediaId: string) => childrenByMedia.get(mediaId) ?? []
+  const childLockedSumOf = (mediaId: string) =>
+    childrenOf(mediaId).filter(c => c.isFixed).reduce((s, c) => s + c.fixedAmount, 0)
+  const unlockedChildrenOf = (mediaId: string) => childrenOf(mediaId).filter(c => !c.isFixed)
+  const allChildrenLockedOf = (mediaId: string) => {
+    const ch = childrenOf(mediaId)
+    return ch.length > 0 && ch.every(c => c.isFixed)
+  }
+
+  // 3. fixedTotal / remainingBudget (R4 중복 차감 방지)
+  //    매체 잠금액 합 + (매체 비잠금 매체의) 하위 상품 잠금액 합
+  let fixedTotal = 0
+  for (const mediaId of mediaOrder) {
+    if (isMediaLocked(mediaId)) {
+      fixedTotal += mediaLockAmount(mediaId)
+    } else {
+      fixedTotal += childLockedSumOf(mediaId)
+    }
+  }
+  // mediaFixed에만 있고 상품이 없는 잠금 매체도 합산 (방어적)
+  for (const mf of mediaFixed) {
+    if (mf.isFixed && !childrenByMedia.has(mf.mediaId)) {
+      fixedTotal += mf.fixedAmount
+    }
+  }
+  const remainingBudget = totalBudget - fixedTotal
+
+  // 4. 토글 기준 비잠금 매체 (하위 잠금 여부 무관)
+  const freeMediaByToggle = mediaOrder.filter(mediaId => !isMediaLocked(mediaId))
+  const freeByToggleCount = freeMediaByToggle.length
+
+  // 6. 실질 자유 매체: 토글 비잠금 중 하위 전부 잠긴 매체 제외
+  const realFreeMedia = freeMediaByToggle.filter(mediaId => !allChildrenLockedOf(mediaId))
+  const realFreeCount = realFreeMedia.length
+
+  // 토글 비잠금 + 하위 전부 잠금 매체들의 childLockedSum 합 (실질 자유 매체 몫 계산용)
+  const allMediaLockSum = mediaFixed.filter(m => m.isFixed).reduce((s, m) => s + m.fixedAmount, 0)
+  const confirmedToggleFreeChildLockSum = freeMediaByToggle
+    .filter(mediaId => allChildrenLockedOf(mediaId))
+    .reduce((s, mediaId) => s + childLockedSumOf(mediaId), 0)
+
+  // 5~6. 매체 몫 확정 판정
+  const mediaShare = new Map<string, number | null>()
+  const shareConfirmed = new Map<string, boolean>()
+  for (const mediaId of mediaOrder) {
+    if (isMediaLocked(mediaId)) {
+      mediaShare.set(mediaId, mediaLockAmount(mediaId))
+      shareConfirmed.set(mediaId, true)
+      continue
+    }
+    // 토글 비잠금
+    if (allChildrenLockedOf(mediaId)) {
+      if (freeByToggleCount === 1) {
+        // 유일한 토글-비잠금 매체: 몫 = 총예산 − 모든 매체잠금액 합 (Q1 Meta 900만)
+        mediaShare.set(mediaId, totalBudget - allMediaLockSum)
+      } else {
+        // 하위 전부 잠김 → 몫 = 하위 잠금 합으로 확정
+        mediaShare.set(mediaId, childLockedSumOf(mediaId))
+      }
+      shareConfirmed.set(mediaId, true)
+      continue
+    }
+    // 토글 비잠금 + 하위에 비잠금 상품 존재 (realFree 후보)
+    if (freeByToggleCount === 1) {
+      mediaShare.set(mediaId, totalBudget - allMediaLockSum)
+      shareConfirmed.set(mediaId, true)
+    } else if (realFreeCount === 1) {
+      // 유일한 실질 자유 매체: 나머지 확정분을 모두 뺀 몫 (C1 TT = 1000 − 0 − 200 = 800)
+      mediaShare.set(mediaId, totalBudget - allMediaLockSum - confirmedToggleFreeChildLockSum)
+      shareConfirmed.set(mediaId, true)
+    } else {
+      mediaShare.set(mediaId, null)
+      shareConfirmed.set(mediaId, false)
+    }
+  }
+
+  // 7. 상품 레벨 판정
+  const productAllocs: ProductAllocation[] = []
+  for (const p of products) {
+    if (p.isFixed) {
+      productAllocs.push({ mediaId: p.mediaId, productName: p.productName, status: 'fixed', amount: p.fixedAmount })
+      continue
+    }
+    const confirmed = shareConfirmed.get(p.mediaId) === true
+    const share = mediaShare.get(p.mediaId)
+    const unlockedCount = unlockedChildrenOf(p.mediaId).length
+    if (confirmed && share !== null && share !== undefined && unlockedCount === 1) {
+      const amount = Math.max(0, share - childLockedSumOf(p.mediaId))
+      productAllocs.push({ mediaId: p.mediaId, productName: p.productName, status: 'auto-confirmed', amount })
+    } else {
+      // 매체 몫 미정 or 비잠금 상품 2개 이상 → 모델이 나눔
+      productAllocs.push({ mediaId: p.mediaId, productName: p.productName, status: 'optimize', amount: null })
+    }
+  }
+
+  // 8. 매체 행 라벨 상태/금액 (토글 비잠금일 때만 의미, 잠금은 input 렌더)
+  const mediaAllocs: MediaAllocation[] = mediaOrder.map(mediaId => {
+    const confirmed = shareConfirmed.get(mediaId) === true
+    const share = mediaShare.get(mediaId) ?? null
+    if (isMediaLocked(mediaId)) {
+      return { mediaId, status: 'fixed', amount: share, shareConfirmed: confirmed, share }
+    }
+    // 매체 '몫'이 확정되면, 하위 비잠금 상품 개수와 무관하게 매체 행은 자동 확정.
+    // (매체 총액은 정해지고, 그 안의 상품 배분만 모델이 나눌 뿐이다.)
+    if (confirmed && share !== null) {
+      return { mediaId, status: 'auto-confirmed', amount: share, shareConfirmed: true, share }
+    }
+    return { mediaId, status: 'optimize', amount: null, shareConfirmed: confirmed, share }
+  })
+
+  // 9. 에러 수집 (순서 R4 → R5 → R6)
+  const errors: AllocationError[] = []
+
+  // R4: 전체 잠금 합 > 총예산
+  if (remainingBudget < 0) {
+    errors.push({ rule: 'R4', message: '잠금 예산 합계가 총 예산을 초과합니다.' })
+  } else {
+    // R5: 최적화 대상 상품이 배분받을 돈이 0원인 경우. 두 레벨에서 발생한다.
+    let r5 = false
+    // ① 매체 내부: 매체 몫이 확정됐는데 그 안 미잠금 상품에게 남는 돈 ≤ 0
+    for (const mediaId of mediaOrder) {
+      const confirmed = shareConfirmed.get(mediaId) === true
+      const share = mediaShare.get(mediaId)
+      const unlocked = unlockedChildrenOf(mediaId)
+      if (confirmed && share !== null && share !== undefined && unlocked.length > 0) {
+        const available = share - childLockedSumOf(mediaId)
+        if (available <= 0) {
+          r5 = true
+          break
+        }
+      }
+    }
+    // ② 매체 간: 매체 몫이 미정인 '최적화 매체'(실질 자유 매체 2개 이상)가 있는데,
+    //    그들이 나눠 가질 전역 잔여가 0 이하 → 배분할 돈이 없다.
+    //    (realFreeCount === 1 은 M3로 몫이 확정돼 ①에서 판정되므로 여기선 2개 이상만.)
+    if (!r5 && realFreeCount >= 2 && remainingBudget <= 0) {
+      r5 = true
+    }
+    if (r5) {
+      errors.push({
+        rule: 'R5',
+        message: '최적화 대상 상품의 배분 가능 예산이 0원입니다. 총 예산을 늘리거나 일부 잠금을 해제해 주세요.'
+      })
+    }
+
+    // R6: 전역 잔여 > 0 인데 그 잔여를 받을 수령처(실질 자유 매체)가 없음
+    if (remainingBudget > 0 && realFreeCount === 0) {
+      errors.push({
+        rule: 'R6',
+        message: `남은 예산(${remainingBudget.toLocaleString()}원)을 배분할 대상이 없습니다. 잠금 금액을 늘리거나 일부 잠금을 해제해 주세요.`
+      })
+    }
+  }
+
+  const optimizeProductCount = productAllocs.filter(p => p.status === 'optimize').length
+
+  return {
+    media: mediaAllocs,
+    products: productAllocs,
+    remainingBudget,
+    fixedTotal,
+    optimizeProductCount,
+    errors
+  }
+}
+
 export function BOStep2({ formData, setFormData, validationActive }: BOStep2Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [expandedMedia, setExpandedMedia] = useState<Set<string>>(new Set())
@@ -26,16 +256,6 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
 
   // 유효성 계산 (스펙 R1~R10)
   const totalProductCount = formData.products.length
-
-  // 매체별 그룹 (유효성용)
-  const mediaGroupsForValidation = useMemo(() => {
-    const map = new Map<string, BOProductEntry[]>()
-    for (const p of formData.products) {
-      if (!map.has(p.mediaId)) map.set(p.mediaId, [])
-      map.get(p.mediaId)!.push(p)
-    }
-    return map
-  }, [formData.products])
 
   // R1: 매체-상품 계층 제약
   const rule1Errors = useMemo(() => {
@@ -83,61 +303,33 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
     return errors
   }, [formData.mediaFixed, formData.products])
 
-  // R4: 배분 가능 예산 (중복 차감 방지)
-  const lockedMediaIds = useMemo(() => new Set(formData.mediaFixed.filter(m => m.isFixed).map(m => m.mediaId)), [formData.mediaFixed])
-  const remainingBudget = useMemo(() => {
-    let lockedTotal = 0
-    for (const mf of formData.mediaFixed) {
-      if (mf.isFixed) lockedTotal += mf.fixedAmount
-    }
-    for (const p of formData.products) {
-      if (p.isFixed && !lockedMediaIds.has(p.mediaId)) {
-        lockedTotal += p.fixedAmount
-      }
-    }
-    return formData.totalBudget - lockedTotal
-  }, [formData.totalBudget, formData.mediaFixed, formData.products, lockedMediaIds])
+  // R4/R5/R6 + 매체·상품별 상태/금액 — 순수 함수로 일원화 (자유도 0 → '자동 확정')
+  const alloc = useMemo(
+    () => computeAllocation(formData.totalBudget, formData.mediaFixed, formData.products),
+    [formData.totalBudget, formData.mediaFixed, formData.products]
+  )
 
-  const rule4Error = remainingBudget < 0 ? '잠금 예산 합계가 총 예산을 초과합니다.' : null
+  const remainingBudget = alloc.remainingBudget
+  const fixedTotal = alloc.fixedTotal
 
-  // R5: 최적화 대상은 있으나 배분할 예산이 없음 (비잠금 상품 존재 + 잔여 예산 0)
-  const rule5Error = useMemo(() => {
-    const hasOptimizationTarget = formData.products.some(p => !p.isFixed)
-    if (hasOptimizationTarget && remainingBudget === 0) {
-      return '최적화 대상 상품의 배분 가능 예산이 0원입니다. 총 예산을 늘리거나 일부 잠금을 해제해 주세요.'
-    }
-    return null
-  }, [formData.products, remainingBudget])
-
-  // R6: 잔여 예산 수령처 부재 (전부 잠금인데 합계가 총예산에 못 미쳐 잔여가 뜨는 경우)
-  const rule6Error = useMemo(() => {
-    if (remainingBudget <= 0) return null
-    const hasUnlockedMedia = Array.from(mediaGroupsForValidation.keys()).some(mediaId => {
-      const mf = formData.mediaFixed.find(m => m.mediaId === mediaId)
-      return !mf?.isFixed
-    })
-    // 비잠금 항목이 없으면(전부 잠금) 잔여 예산을 배분할 대상이 없음 → 합계를 총예산과 일치시켜야 함
-    if (!hasUnlockedMedia) return `모든 항목을 잠근 경우 잠금 금액 합계가 총 예산과 같아야 합니다. 남은 예산(${remainingBudget.toLocaleString()}원)만큼 잠금 금액을 늘리거나 일부 잠금을 해제해 주세요.`
-    return null
-  }, [remainingBudget, mediaGroupsForValidation, formData.mediaFixed])
-
-  // 고정 합계 (Summary 표시용)
-  const fixedTotal = useMemo(() => {
-    let total = 0
-    for (const mf of formData.mediaFixed) {
-      if (mf.isFixed) total += mf.fixedAmount
-    }
-    for (const p of formData.products) {
-      if (p.isFixed && !lockedMediaIds.has(p.mediaId)) {
-        total += p.fixedAmount
-      }
-    }
-    return total
-  }, [formData.mediaFixed, formData.products, lockedMediaIds])
-
-  const unfixedCount = formData.products.filter(p => !p.isFixed).length
+  // 매체/상품별 배분 상태 조회 헬퍼
+  const mediaAllocOf = (mediaId: string) => alloc.media.find(m => m.mediaId === mediaId)
+  const productAllocOf = (mediaId: string, productName: string) =>
+    alloc.products.find(p => p.mediaId === mediaId && p.productName === productName)
 
   const formatNumber = (num: number) => num.toLocaleString()
+
+  // 비잠금 항목 라벨 렌더: '자동 확정 N원'(N 강조) 또는 '최적화 대상'
+  const renderAllocLabel = (status: 'fixed' | 'auto-confirmed' | 'optimize', amount: number | null) => {
+    if (status === 'auto-confirmed' && amount !== null) {
+      return (
+        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">
+          자동 확정 <span className="text-[hsl(var(--foreground))] font-medium">{amount.toLocaleString()}</span>원
+        </span>
+      )
+    }
+    return <span className="text-[11px] text-[hsl(var(--muted-foreground))]">최적화 대상</span>
+  }
 
   // 매체 토글 (테이블 내 접기/펼치기)
   const toggleMediaExpand = (mediaId: string) => {
@@ -301,8 +493,11 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
           <label className="block text-sm font-medium mb-2">
             예산 잠금 설정 <span className="text-xs text-[hsl(var(--muted-foreground))] font-normal">(선택)</span>
           </label>
-          <div className="text-xs text-[hsl(var(--muted-foreground))] mb-4">
+          <div className="text-xs text-[hsl(var(--muted-foreground))] mb-1">
             특정 상품에 예산을 잠금하면, 잔여 예산만 최적화 대상이 됩니다.
+          </div>
+          <div className="text-xs text-[hsl(var(--muted-foreground))] mb-4">
+            다른 잠금으로 배분 금액이 하나로 정해지는 항목은 '자동 확정'으로 표시됩니다.
           </div>
 
           <div className="border border-[hsl(var(--border))] rounded-lg overflow-hidden">
@@ -359,7 +554,10 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                           <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[hsl(var(--muted-foreground))]">원</span>
                         </div>
                       ) : (
-                        <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{unfixedCount <= 1 ? '잔여 배정' : '최적화 대상'}</span>
+                        (() => {
+                          const ma = mediaAllocOf(mediaId)
+                          return renderAllocLabel(ma?.status ?? 'optimize', ma?.amount ?? null)
+                        })()
                       )}
                     </div>
                     <button onClick={() => removeMedia(mediaId)} className="bg-none border-none cursor-pointer p-1 flex">
@@ -413,7 +611,10 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
                               <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[hsl(var(--muted-foreground))]">원</span>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{unfixedCount <= 1 ? '잔여 배정' : '최적화 대상'}</span>
+                            (() => {
+                              const pa = productAllocOf(mediaId, product.productName)
+                              return renderAllocLabel(pa?.status ?? 'optimize', pa?.amount ?? null)
+                            })()
                           )}
                         </div>
                         <button onClick={() => removeProduct(mediaId, product.productName)} className="bg-none border-none cursor-pointer p-1 flex">
@@ -445,7 +646,7 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
             </div>
             <div className="border-t border-[hsl(var(--border))] pt-2 flex justify-between text-sm">
               <span className="text-[hsl(var(--muted-foreground))]">
-                잔여 예산 <span className="text-xs">(최적화 대상 {unfixedCount}개 상품)</span>
+                잔여 예산 <span className="text-xs">(최적화 대상 {alloc.optimizeProductCount}개 상품)</span>
               </span>
               <span className="font-bold" style={{ color: remainingBudget < 0 ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
                 {formatNumber(remainingBudget)} 원
@@ -453,22 +654,12 @@ export function BOStep2({ formData, setFormData, validationActive }: BOStep2Prop
             </div>
           </div>
 
-          {/* Validation Messages */}
-          {rule4Error && (
-            <div className="text-[11px] text-[hsl(var(--destructive))] mt-2">
-              {rule4Error}
+          {/* Validation Messages (R4 → R5 → R6 순서) */}
+          {alloc.errors.map((err, i) => (
+            <div key={err.rule} className={`text-[11px] text-[hsl(var(--destructive))] ${i === 0 ? 'mt-2' : 'mt-1'}`}>
+              {err.message}
             </div>
-          )}
-          {rule5Error && (
-            <div className="text-[11px] text-[hsl(var(--destructive))] mt-1">
-              {rule5Error}
-            </div>
-          )}
-          {rule6Error && (
-            <div className="text-[11px] text-[hsl(var(--destructive))] mt-1">
-              {rule6Error}
-            </div>
-          )}
+          ))}
         </div>
       )}
 

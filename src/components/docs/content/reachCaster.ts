@@ -103,7 +103,7 @@ TVC(TV 광고)와 Digital 매체 간 최적 예산 배분 비율을 탐색합니
       id: 'reach-caster-create',
       title: '시나리오 생성',
       slug: 'reach-caster-create',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-10-26',
       content: `# 시나리오 생성
 
 Reach Caster 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나리오 생성 화면으로 진입합니다. 3단계 스텝 폼을 순서대로 완료하여 시나리오를 생성합니다.
@@ -124,7 +124,7 @@ Reach Caster 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나리
 
 | 항목 | 필수 | 설명 | 제한 |
 |---|---|---|---|
-| 시나리오명 | O | 분석 목적을 알 수 있는 이름 | 최대 30자 |
+| 시나리오명 | O | 분석 목적을 알 수 있는 이름 | 최대 50자 |
 | 설명 | X | 시나리오에 대한 부가 설명 | 최대 200자 |
 | 분석 모듈 | O | Ratio Finder 또는 Reach Predictor 선택 | 단일 선택 |
 | 브랜드 | O | 분석 대상 브랜드 (업종 자동 매핑) | 드롭다운 검색 |

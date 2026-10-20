@@ -3,7 +3,6 @@
 // 사용자가 RatioFinder에서 학습한 인터랙션을 동일하게 유지하기 위함.
 import { Info } from 'lucide-react'
 import { mediaData } from '../scenario/constants'
-import { type PeriodLike, isWithin2026H1, getBenchmarkProductsForMedia } from './benchmark2026H1'
 
 export interface ProductDialogState {
   open: boolean
@@ -13,12 +12,47 @@ export interface ProductDialogState {
 
 // DataShot 매체명 → RatioFinder mediaData.DIGITAL 키 매핑 (표기 차이 보정)
 const DIGITAL = mediaData.DIGITAL as Record<string, string[]>
-// period가 2026 1~6월 범위면 "집행 데이터 있는 상품"(벤치마크)만, 아니면 전체 상품 목록.
-export function getProductsForMedia(media: string, period?: PeriodLike): string[] {
-  if (isWithin2026H1(period)) {
-    const bench = getBenchmarkProductsForMedia(media)
-    if (bench.length > 0) return bench
-  }
+
+// ─────────────────────────────────────────────────────────────
+// "표본 적음" 판정 (벤치마크 신뢰도 참고 — Spec §C.2.2.1)
+// 조건 A: 집행 캠페인 수 ≤ 2  OR  브랜드(광고주) 수 = 1 → 표본 적음.
+// 캠페인 수·브랜드 수는 프론트가 알 수 없는 값으로, 백엔드가 광고그룹을
+// 집계해 상품 단위 플래그(lowSample)로 내려줘야 함. 현 단계는 목업으로,
+// 각 매체 상품 목록의 앞 5개를 "표본 적음"으로 지정해 UI를 확인함.
+// 백엔드 연동 시 이 함수의 반환을 응답 플래그로 교체할 것.
+// ─────────────────────────────────────────────────────────────
+const LOW_SAMPLE_COUNT_PER_MEDIA = 5
+
+/** 해당 (매체, 상품)이 "표본 적음"에 해당하는지 (목업: 매체별 앞 5개). */
+export function isLowSampleProduct(media: string, product: string): boolean {
+  const products = getProductsForMedia(media)
+  const idx = products.indexOf(product)
+  return idx >= 0 && idx < LOW_SAMPLE_COUNT_PER_MEDIA
+}
+
+/**
+ * "표본 적음" 참고 뱃지 — 중립 회색(muted) 톤. 선택을 막는 경고가 아닌 참고 정보.
+ * 상품명 바로 옆(같은 줄)에 작게 둠. hover 시 근거 툴팁 노출.
+ */
+export function LowSampleBadge() {
+  return (
+    <span
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '4px',
+        padding: '2px 6px', borderRadius: '4px',
+        backgroundColor: 'hsl(var(--muted) / 0.6)',
+        color: 'hsl(var(--muted-foreground))',
+        fontSize: '10px', fontWeight: 500, lineHeight: 1.4,
+        whiteSpace: 'nowrap', flexShrink: 0,
+      }}
+    >
+      <Info size={10} />
+      데이터 적음
+    </span>
+  )
+}
+// 매체별 전체 상품 목록(mediaData.DIGITAL)을 반환한다.
+export function getProductsForMedia(media: string): string[] {
   if (DIGITAL[media]) return DIGITAL[media]
   // kakao모먼트(붙임) vs 'kakao 모먼트'(띄움) 등 표기 차이 보정
   const normalized = media.replace(/\s+/g, '')
@@ -32,16 +66,17 @@ interface Props {
   searchQuery: string
   setSearchQuery: (q: string) => void
   onConfirm: (media: string, products: string[]) => void
-  period?: PeriodLike // 2026 1~6월 범위면 집행 데이터 있는 상품만 노출
 }
 
-export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, onConfirm, period }: Props) {
+export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, onConfirm }: Props) {
   if (!dialog.open) return null
 
-  const allProducts = getProductsForMedia(dialog.media, period)
+  const allProducts = getProductsForMedia(dialog.media)
   const filteredProducts = allProducts.filter(product =>
     product.toLowerCase().includes(searchQuery.toLowerCase())
   )
+  // 이 매체 상품 중 "표본 적음"이 하나라도 있으면 안내에 뱃지 설명 노출
+  const hasLowSample = allProducts.some(p => isLowSampleProduct(dialog.media, p))
   const allSelected = filteredProducts.length > 0 && filteredProducts.every(p => dialog.selectedProducts.includes(p))
 
   const close = () => {
@@ -57,16 +92,24 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
         style={{ height: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="dialog-header">
-          <h3 className="dialog-title">{dialog.media} 상품 선택</h3>
-          <p className="dialog-description">추출에 포함할 상품을 선택하세요</p>
+          <h3 className="dialog-title">{dialog.media} 광고상품 선택</h3>
+          <p className="dialog-description">추출에 포함할 광고상품을 선택하세요</p>
           <div style={{
             marginTop: '12px', padding: '12px',
             backgroundColor: 'hsl(var(--muted) / 0.5)', border: '1px solid hsl(var(--border))',
             borderRadius: '6px', fontSize: '12px', color: 'hsl(var(--muted-foreground))',
-            display: 'flex', alignItems: 'center', gap: '8px',
+            display: 'flex', alignItems: 'flex-start', gap: '8px',
           }}>
-            <Info size={14} />
-            <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 상품만 표시됩니다.</span>
+            <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.6' }}>
+              <span>Step1에서 선택한 기간·업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+              {hasLowSample && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <LowSampleBadge />
+                  벤치마크로 활용하기에는 데이터가 적은 광고상품입니다.
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -77,7 +120,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="상품 검색..."
+              placeholder="광고상품 검색..."
               className="input"
               style={{ width: '100%', marginBottom: '12px' }}
             />
@@ -86,7 +129,7 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
               padding: '8px 12px', backgroundColor: 'hsl(var(--muted) / 0.5)', borderRadius: '6px',
             }}>
               <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                {filteredProducts.length}개 상품
+                {filteredProducts.length}개 광고상품
               </span>
               <button
                 onClick={() => {
@@ -140,11 +183,14 @@ export function ProductDialog({ dialog, setDialog, searchQuery, setSearchQuery, 
                     className="checkbox-custom"
                   />
                   <span style={{ fontSize: '13px' }}>{product}</span>
+                  {isLowSampleProduct(dialog.media, product) && (
+                    <span style={{ marginLeft: 'auto' }}><LowSampleBadge /></span>
+                  )}
                 </label>
               ))
             ) : (
               <div style={{ padding: '32px', textAlign: 'center', color: 'hsl(var(--muted-foreground))', fontSize: '13px' }}>
-                {allProducts.length === 0 ? '등록된 상품이 없습니다' : '검색 결과가 없습니다'}
+                {allProducts.length === 0 ? '선택 가능한 광고상품이 없습니다' : '검색 결과가 없습니다'}
               </div>
             )}
           </div>

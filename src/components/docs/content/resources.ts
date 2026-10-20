@@ -17,7 +17,7 @@ export const resourcesSection: DocSection = {
       id: 'resources-glossary',
       title: '용어 사전',
       slug: 'resources-glossary',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-10-26',
       content: `# 용어 사전
 
 ## 플랫폼 용어
@@ -28,8 +28,8 @@ export const resourcesSection: DocSection = {
 - **DataShot** — 업종별 광고 성과 벤치마크 데이터를 추출하는 솔루션
 - **Reach Caster** — 광고 캠페인의 도달률을 예측하고 최적 매체 배분을 찾는 솔루션
 - **SpinX** — AI 기반 인사이트 어시스턴트. 분석 결과를 자연어로 해석
+- **BudgetOpt 2.0** — KPI 목표와 총 예산을 기준으로 매체·상품 간 최적 예산 배분안을 도출하는 솔루션
 - **Ad Curator** — 광고 소재 최적화 솔루션 (준비중)
-- **BudgetOpt 2.0** — 예산 최적화 솔루션 (준비중)
 
 ## Reach Caster 용어
 
@@ -40,6 +40,21 @@ export const resourcesSection: DocSection = {
 - **리치커브** — 예산 변화에 따른 도달률 변화와 한계 효율점을 시각화한 차트
 - **Optimal Point** — 리치커브에서 비용 대비 도달률 효율이 가장 높은 지점
 - **Efficiency Peak** — 예산 증액 대비 도달률 증가가 체감되기 시작하는 변곡점
+
+## BudgetOpt 2.0 용어
+
+- **시나리오** — 특정 조건(KPI, 총 예산, 매체/상품, 예산 잠금)으로 실행한 하나의 최적 예산 배분 분석 단위
+- **부분 최적화** — 일부 예산을 사용자가 직접 고정하고, 남은 예산만 모델이 최적화하는 방식
+- **예산 잠금** — 꼭 집행해야 하는 매체·상품의 예산을 직접 고정하는 기능
+- **잔여 예산** — 총 예산에서 잠금 금액을 뺀, 모델이 최적화해 배분하는 예산
+- **순수 최적화 (Fully Optimized Allocation)** — 예산 잠금 없이 모델이 전체 예산을 자유롭게 배분한 결과
+- **잠금 반영 (Locked Budget Allocation)** — 시나리오 생성 시 설정한 예산 잠금이 반영된 결과
+- **효율 포화 (Response Curve)** — 예산을 더 투입해도 성과 증가가 둔화되는 반응 곡선. 포화 지점을 넘지 않는 선에서 배분
+- **Current Spend** — 반응 곡선 위에서 이 배분안에 배정된 예산 지점
+- **Incremental** — 예산을 균등하게 나눴을 때 대비, 최적화로 늘어나는 성과
+- **Estimated (선택 KPI)** — 선택한 KPI 기준으로 모델이 예측한 예상 성과 (예: Estimated Click)
+- **CPV (Cost Per View)** — 조회당 비용
+- **CPR (Cost Per Reach)** — 도달당 비용
 
 ## DataShot 용어
 

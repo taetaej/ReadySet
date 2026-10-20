@@ -4,9 +4,8 @@
 import { useState } from 'react'
 import { ListPlus, X, Smartphone, Info } from 'lucide-react'
 import { mediaIconMap } from '../common/MediaIcons'
-import { ProductDialog, type ProductDialogState } from './ProductDialog'
+import { ProductDialog, type ProductDialogState, isLowSampleProduct, LowSampleBadge } from './ProductDialog'
 import type { MediaProductSelection } from './createDatasetTypes'
-import type { PeriodLike } from './benchmark2026H1'
 
 // DataShot 매체 목록 (TVING·당근 제외 반영된 6종)
 const MEDIA_LIST = ['Google Ads', 'Meta', 'kakao모먼트', 'NAVER 성과형 DA', 'NAVER 보장형 DA', 'TikTok']
@@ -16,14 +15,18 @@ interface Props {
   onChange: (next: MediaProductSelection) => void
   validationActive: boolean
   readOnly?: boolean // 조회(상세) 모달 재사용: 조작 요소 비활성 + 선택 매체만 노출
-  period?: PeriodLike // 2026 1~6월 범위면 상품 다이얼로그에 집행 데이터 있는 상품만 노출
 }
 
-export function MediaProductSelect({ value, onChange, validationActive, readOnly = false, period }: Props) {
+export function MediaProductSelect({ value, onChange, validationActive, readOnly = false }: Props) {
   const [dialog, setDialog] = useState<ProductDialogState>({ open: false, media: '', selectedProducts: [] })
   const [searchQuery, setSearchQuery] = useState('')
 
   const selectedMediaList = MEDIA_LIST.filter(m => value[m] !== undefined)
+
+  // 선택된 상품 중 "표본 적음"에 해당하는 상품이 하나라도 있는지 (뱃지 설명 노출 조건)
+  const hasLowSampleSelected = selectedMediaList.some(m =>
+    (value[m] || []).some(p => isLowSampleProduct(m, p))
+  )
 
   const toggleMedia = (media: string, checked: boolean) => {
     const next = { ...value }
@@ -62,7 +65,15 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
           fontSize: '12px', color: 'hsl(var(--muted-foreground))',
         }}>
           <Info size={14} style={{ flexShrink: 0, marginTop: '4px' }} />
-          <span style={{ lineHeight: '1.8' }}>Step1에서 설정한 기간, 업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.6' }}>
+            <span>Step1에서 설정한 기간, 업종의 집행 데이터가 있는 광고상품만 표시됩니다.</span>
+            {hasLowSampleSelected && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                <LowSampleBadge />
+                벤치마크로 활용하기에는 데이터가 적은 광고상품입니다.
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -124,7 +135,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                       }}
                     >
                       <ListPlus size={14} />
-                      상품 추가
+                      광고상품 추가
                       {selectedProducts.length > 0 && (
                         <span style={{
                           backgroundColor: 'hsl(var(--background) / 0.2)', padding: '2px 6px',
@@ -137,7 +148,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                   )}
                   {isSelected && readOnly && (
                     <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', fontWeight: '500' }}>
-                      상품 {selectedProducts.length}개
+                      광고상품 {selectedProducts.length}개
                     </span>
                   )}
                 </div>
@@ -155,7 +166,12 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                         padding: '8px 0',
                         borderBottom: idx < selectedProducts.length - 1 ? '1px solid hsl(var(--border))' : 'none',
                       }}>
-                        <div style={{ fontSize: '12px', color: 'hsl(var(--foreground))' }}>{product}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'hsl(var(--foreground))' }}>
+                          <span>{product}</span>
+                          {isLowSampleProduct(media, product) && (
+                            <span style={{ marginLeft: 'auto' }}><LowSampleBadge /></span>
+                          )}
+                        </div>
                         {!readOnly && (
                           <button
                             onClick={() => removeProduct(media, product)}
@@ -192,7 +208,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
                   }}>
                     <ListPlus size={24} style={{ opacity: 0.5, color: 'hsl(var(--muted-foreground))' }} />
                     <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
-                      '상품 추가' 버튼을 클릭하여 상품을 추가하세요
+                      '광고상품 추가' 버튼을 클릭하여 광고상품을 추가하세요
                     </div>
                   </div>
                 )}
@@ -208,7 +224,7 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
               <div style={{ marginTop: '8px' }}>
                 <div style={{ fontSize: '11px', color: 'hsl(var(--destructive))', padding: '8px', borderRadius: '4px' }}>
                   {mediaWithoutProducts.map(media => (
-                    <div key={media}>• {media}: 최소 1개 이상의 상품을 선택해주세요.</div>
+                    <div key={media}>• {media}: 최소 1개 이상의 광고상품을 선택해주세요.</div>
                   ))}
                 </div>
               </div>
@@ -231,7 +247,6 @@ export function MediaProductSelect({ value, onChange, validationActive, readOnly
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onConfirm={handleConfirm}
-          period={period}
         />
       )}
     </div>

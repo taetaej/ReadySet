@@ -218,7 +218,7 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
           KPI <span className="text-[hsl(var(--destructive))]">*</span>
         </label>
         <div className="text-xs mb-3 text-[hsl(var(--muted-foreground))]">
-          최적화할 KPI를 1개 선택하세요. 선택한 KPI를 극대화하는 방향으로 예산이 배분됩니다.
+          최적화할 KPI를 1개 선택하세요. 매체·상품별 효율 구간을 고려하여 선택한 KPI 성과를 가장 많이 얻을 수 있는 예산 배분을 찾습니다.
         </div>
         <div className="grid grid-cols-4 gap-3">
           {Object.entries(KPI_LABELS).map(([key, label]) => {
@@ -233,12 +233,6 @@ export function BOStep1({ formData, setFormData, validationActive }: BOStep1Prop
                 }}
               >
                 <div className="text-sm font-semibold text-[hsl(var(--foreground))]">{label}</div>
-                <div className="text-[11px] mt-1 text-[hsl(var(--muted-foreground))]">
-                  {key === 'impression' && '노출 수 최대화'}
-                  {key === 'click' && '클릭 수 최대화'}
-                  {key === 'view' && '조회 수 최대화'}
-                  {key === 'reach' && '도달률 최대화'}
-                </div>
               </button>
             )
           })}

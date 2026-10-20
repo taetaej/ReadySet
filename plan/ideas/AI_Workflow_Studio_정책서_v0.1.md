@@ -24,7 +24,7 @@
 
 AI Workflow Studio는 사용자가 **노드(Node)를 캔버스 위에 배치하고 연결하여, 광고 데이터 수집·가공·분석·리포팅을 자동화하는 워크플로우를 시각적으로 설계하고 실행**하는 솔루션임.
 
-기존 솔루션(Reach Caster, Budget Optimizer 등)이 정해진 분석 로직을 실행하는 것과 달리, AI Workflow Studio는 **사용자가 분석/자동화 흐름 자체를 조립**한다는 점에서 구분됨.
+기존 솔루션(Reach Caster, BudgetOpt 2.0 등)이 정해진 분석 로직을 실행하는 것과 달리, AI Workflow Studio는 **사용자가 분석/자동화 흐름 자체를 조립**한다는 점에서 구분됨.
 
 외부 서비스는 **MCP(Model Context Protocol)** 규격을 통해 노드 형태로 연결되며, 광고 매체·분석·리포팅 도구를 코드 수정 없이 확장할 수 있음.
 
@@ -248,7 +248,7 @@ MCP(Model Context Protocol)는 외부 서비스를 워크플로우 노드로 연
 |---|---|---|
 | 1 | 통합 성과 리포트 자동화 | [스케줄] → [Google/Meta/TikTok Ads] → [Normalizer] → [집계] → [Sheets/Slack] |
 | 2 | 매체 데이터 기반 AI 요약 | [매체 MCP] → [Normalizer] → [LLM 요약] → [리포트] |
-| 3 | 예측 솔루션 입력 자동화 | [매체 실적 MCP] → [Normalizer] → [Budget Optimizer 연계] |
+| 3 | 예측 솔루션 입력 자동화 | [매체 실적 MCP] → [Normalizer] → [BudgetOpt 2.0 연계] |
 
 ---
 

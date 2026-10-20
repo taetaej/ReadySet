@@ -88,7 +88,7 @@ READY TO FINAL SET · {n}/4 COMPLETED  ⚙️(관리자만)
 |--------|------|------|
 | DataShot | active | 업종별 벤치마크 기반 광고 효율 분석 |
 | Ad Curator | coming-soon | 캠페인 성과 기반 맞춤형 상품 큐레이션 |
-| Budget Optimizer | coming-soon | KPI 목표 기반 미디어믹스 예산 최적화 |
+| BudgetOpt 2.0 | coming-soon | KPI 목표 기반 미디어믹스 예산 최적화 |
 | Reach Caster | active | 크로스미디어 통합 도달 예측 시뮬레이션 |
 
 ### 4.3 각 솔루션 컬럼 구조
@@ -196,7 +196,7 @@ RP · 68.5%
 |--------|----------------|
 | DataShot | purple |
 | Reach Caster | cyan |
-| Budget Optimizer | pink |
+| BudgetOpt 2.0 | pink |
 | Ad Curator | emerald |
 | Resources | muted-foreground(무채색) |
 

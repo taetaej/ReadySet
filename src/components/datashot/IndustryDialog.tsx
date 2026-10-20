@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Plus, Minus, Search, Info, ChevronDown, Layers } from 'lucide-react'
 import { industryCategories, brandIndustryMap } from './types'
 
-type IndustryLevel = 'major' | 'mid' | 'minor'
+type IndustryLevel = 'major' | 'mid'
 
 function buildBrandCountMap(): { [path: string]: number } {
   const map: { [path: string]: number } = {}
@@ -92,9 +92,11 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
       setHasSearched(false)
       setActiveMajor(null)
       setActiveMid(null)
-      setLocalLevel(industryLevel)
+      // 추출 기준이 광고상품이면 대분류만 허용되므로, 레벨 미선택 시 '대분류'로 기본 선택
+      const initialLevel = industryLevel ?? (extractMode === 'product' ? 'major' : null)
+      setLocalLevel(initialLevel)
       initialIndustriesRef.current = selectedIndustries
-      initialLevelRef.current = industryLevel
+      initialLevelRef.current = initialLevel
     }
   }, [isOpen])
 
@@ -619,9 +621,9 @@ export function IndustryDialog({ isOpen, onClose, selectedIndustries, onUpdate, 
                         ? <div style={emptyStyle}>검색 결과가 없습니다</div>
                         : midItems.map(({ major, mid }) => renderRow(
                           `${major} > ${mid}`, mid,
-                          localLevel === 'minor',
+                          false,
                           activeMid === mid && activeMajor === major && !isIndustrySearchMode,
-                          () => { if (localLevel === 'minor') { if (isIndustrySearchMode) { setSearchQuery(''); setSearchInput('') } setActiveMajor(major); setActiveMid(activeMid === mid ? null : mid) } },
+                          () => {},
                           isIndustrySearchMode ? `${major} >` : undefined,
                           false,
                           'mid'
