@@ -75,7 +75,7 @@ BudgetOpt 2.0은 설정한 KPI 목표와 총 예산을 기준으로, 매체·상
       id: 'budgetopt-principles',
       title: '원리와 개념',
       slug: 'budgetopt-principles',
-      updatedAt: '2026-09-29',
+      updatedAt: '2026-10-26',
       content: `# BudgetOpt 2.0 원리와 개념
 
 예산을 어떻게 나눠야 성과가 가장 좋을까요? BudgetOpt 2.0이 어떤 원리로 예산을 배분하는지, 그 결과를 어떻게 읽어야 하는지 이해합니다.
