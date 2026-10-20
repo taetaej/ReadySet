@@ -75,7 +75,7 @@ BudgetOpt 2.0은 설정한 KPI 목표와 총 예산을 기준으로, 매체·상
       id: 'budgetopt-principles',
       title: '원리와 개념',
       slug: 'budgetopt-principles',
-      updatedAt: '2026-09-29',
+      updatedAt: '2026-10-26',
       content: `# BudgetOpt 2.0 원리와 개념
 
 예산을 어떻게 나눠야 성과가 가장 좋을까요? BudgetOpt 2.0이 어떤 원리로 예산을 배분하는지, 그 결과를 어떻게 읽어야 하는지 이해합니다.
@@ -107,7 +107,7 @@ BudgetOpt 2.0은 설정한 KPI 목표와 총 예산을 기준으로, 매체·상
       id: 'budgetopt-create',
       title: '시나리오 생성',
       slug: 'budgetopt-create',
-      updatedAt: '2026-10-12',
+      updatedAt: '2026-10-26',
       content: `# 시나리오 생성
 
 BudgetOpt 2.0 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나리오 생성 화면으로 진입합니다. 3단계 스텝 폼을 순서대로 완료하여 시나리오를 생성합니다.
@@ -128,7 +128,7 @@ BudgetOpt 2.0 목록 화면에서 "New Scenario" 버튼을 클릭하면 시나�
 
 | 항목 | 필수 | 설명 | 제한 |
 |---|---|---|---|
-| 시나리오명 | O | 분석 목적을 알 수 있는 이름 | 최대 30자 |
+| 시나리오명 | O | 분석 목적을 알 수 있는 이름 | 최대 50자 |
 | 설명 | X | 시나리오에 대한 부가 설명 | 최대 200자 |
 | 업종 선택 방식 | O | 브랜드 선택 또는 업종 직접 선택 | 단일 선택 |
 | 브랜드 | 조건부 | 브랜드 선택 시 필수 (업종 자동 매핑) | 드롭다운 검색 |

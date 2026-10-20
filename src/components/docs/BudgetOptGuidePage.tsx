@@ -655,16 +655,6 @@ function Stat({ n, l, highlight, small }: { n: string; l: string; highlight?: bo
   )
 }
 
-function Card({ k, h, children }: { k: string; h: string; children: React.ReactNode }) {
-  return (
-    <div style={{ border: `1px solid ${t.border}`, background: t.card, borderRadius: 10, padding: '18px 18px 16px' }}>
-      <p style={{ fontSize: 11.5, color: t.muted, margin: '0 0 6px' }}>{k}</p>
-      <p style={{ fontSize: 14.5, fontWeight: 700, margin: '0 0 6px', lineHeight: 1.5, color: t.fg }}>{h}</p>
-      <p style={{ fontSize: 13, color: t.muted, margin: 0, lineHeight: 1.6 }}>{children}</p>
-    </div>
-  )
-}
-
 function Callout({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -702,7 +692,7 @@ function ExampleNote({ children }: { children: React.ReactNode }) {
 
 // 가로 플로우 도식: 데이터 → 학습 → 반응 곡선 → 배분안.
 // 마지막 '결과' 단계만 시그니처 그린(시스템이 내놓는 판단), 앞 단계는 무채색.
-function FlowDiagram({ steps }: { steps: { k: string; h: string; result?: boolean }[] }) {
+function FlowDiagram({ steps }: { steps: { k: string; h: string; sub?: string; result?: boolean }[] }) {
   return (
     <div
       style={{
@@ -710,7 +700,7 @@ function FlowDiagram({ steps }: { steps: { k: string; h: string; result?: boolea
         alignItems: 'stretch',
         gap: 8,
         flexWrap: 'wrap',
-        margin: '4px 0 20px',
+        margin: '4px 0 12px',
       }}
     >
       {steps.map((s, i) => (
@@ -719,6 +709,8 @@ function FlowDiagram({ steps }: { steps: { k: string; h: string; result?: boolea
             style={{
               flex: '1 1 150px',
               minWidth: 150,
+              display: 'flex',
+              flexDirection: 'column',
               background: s.result ? t.primary : t.card,
               border: `1px solid ${s.result ? t.primary : t.border}`,
               borderRadius: 10,
@@ -731,6 +723,19 @@ function FlowDiagram({ steps }: { steps: { k: string; h: string; result?: boolea
             <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, lineHeight: 1.45, color: s.result ? t.primaryFg : t.fg }}>
               {s.h}
             </p>
+            {s.sub && (
+              <p
+                style={{
+                  fontSize: 11.5,
+                  margin: '8px 0 0',
+                  lineHeight: 1.5,
+                  color: s.result ? t.primaryFg : t.muted,
+                  opacity: s.result ? 0.85 : 1,
+                }}
+              >
+                {s.sub}
+              </p>
+            )}
           </div>
           {i < steps.length - 1 && (
             <div style={{ display: 'flex', alignItems: 'center', color: t.muted, fontSize: 16, flexShrink: 0 }} aria-hidden="true">
@@ -832,24 +837,28 @@ export function BudgetOptGuidePage() {
       <Section
         num="1. 예산 배분 원리"
         title="BudgetOpt 2.0은 예산을 어떻게 나누나"
-        lead="CJ 메조미디어가 쌓은 업종별 실제 집행 데이터로 Meridian 모델을 학습해, 입력한 KPI 목표와 총 예산에 맞는 최적 배분안을 찾는 흐름입니다."
+        lead="CJ 메조미디어가 쌓은 업종별 실제 집행 데이터로 모델을 학습해, 입력한 KPI 목표와 총 예산에 맞는 최적 배분안을 찾는 흐름입니다. 최적화는 매체 → 상품 두 단계(2-tier)로 이어집니다."
       >
         <FlowDiagram
           steps={[
-            { k: '데이터', h: 'CJ 메조미디어 실제 집행 데이터' },
-            { k: '학습', h: 'Meridian 모델 학습' },
-            { k: '파악', h: '매체·상품별 반응 곡선' },
-            { k: '탐색', h: '수만 개 예산 조합 시뮬레이션' },
-            { k: '산출', h: 'KPI·예산 맞춤 최적 배분안', result: true },
+            { k: '1단계', h: '학습 데이터', sub: 'CJ 메조미디어 실제 집행 데이터' },
+            { k: '2단계', h: '모델 학습', sub: '매체: Meridian 미디어믹스 모델 · 상품: GBRT 예측 모델' },
+            { k: '3단계', h: '시뮬레이션', sub: '반응 곡선으로 수만 개 예산 조합 탐색' },
+            { k: '4단계', h: '최적화', sub: '매체 → 상품 2계층 배분' },
+            { k: '5단계', h: '결과 산출', sub: 'KPI·예산 맞춤 최적 배분안', result: true },
           ]}
         />
+        <ExampleNote>
+          매체와 상품에 각각 다른 모델을 쓰고(매체 Meridian · 상품 GBRT), 최적화는 매체에서 상품 순으로 이어집니다.
+          최적화 로직은 ReadySet의 핵심 기술 자산으로, 상세 방식은 공개하지 않습니다.
+        </ExampleNote>
       </Section>
 
       {/* 2. 효율 포화 */}
       <Section
         num="2. 효율 포화"
         title="예산을 2배로 늘려도 성과가 2배가 되지는 않습니다"
-        lead="예산을 늘릴수록 추가로 얻는 성과는 점점 줄어듭니다(체감 법칙, Diminishing Returns). 모델은 매체부터 먼저 배분하되(매체 우선 배분), 이렇게 성과가 둔해지는 포화 지점을 넘지 않도록 제어합니다(효율 포화 초과 방지). 두 원리의 바탕이 되는 반응 곡선을 직접 움직여 봅니다."
+        lead="예산을 늘릴수록 추가로 얻는 성과는 점점 줄어듭니다(체감 법칙, Diminishing Returns). 모델은 매체부터 먼저 배분하고(매체 우선 배분), 이렇게 성과가 둔해지는 포화 지점을 넘지 않는 선에서 예산을 배분합니다(효율 포화 초과 방지). 두 원리의 바탕이 되는 반응 곡선을 직접 움직여 봅니다."
       >
         <ExampleNote>반응 곡선(Response Curve)은 체감 법칙을 반영한 포화 곡선으로, Meridian 모델이 실제 집행 데이터를 기반으로 산출합니다. 상세 수식과 모델 파라미터는 제공되지 않습니다.</ExampleNote>
 
@@ -878,17 +887,6 @@ export function BudgetOptGuidePage() {
           내내 유지되지는 않습니다.
         </ExampleNote>
 
-        <SubHead>포화도 구간 읽는 법</SubHead>
-        <SimpleTable
-          headers={['포화도', '의미']}
-          rows={[
-            [<span style={{ fontVariantNumeric: 'tabular-nums' }}>~40% 이하</span>, '곡선 앞쪽. 여력이 큼'],
-            [<span style={{ fontVariantNumeric: 'tabular-nums' }}>40~65%</span>, '중반'],
-            [<span style={{ fontVariantNumeric: 'tabular-nums' }}>65~80%</span>, '포화 근접'],
-            [<span style={{ fontVariantNumeric: 'tabular-nums' }}>80% 이상</span>, '포화 예산을 넘어선 구간'],
-          ]}
-        />
-
         <Callout>
           <p style={{ margin: '0 0 10px' }}>
             <b style={{ color: t.fg }}>포화 예산은 투입 상한(천장)이 아닙니다.</b> 포화 예산을 넘어서도 예산을 더 투입할
@@ -903,11 +901,11 @@ export function BudgetOptGuidePage() {
         </Callout>
       </Section>
 
-      {/* 3. 예산 재배분 */}
+      {/* 3. 효율 기반 배분 */}
       <Section
-        num="3. 예산 재배분"
-        title="포화에 가까운 매체의 여유 예산은 효율 높은 매체로 분산됩니다"
-        lead="A 매체에 1억 원을 넣었을 때와 2억 원을 넣었을 때의 증가분이 미미하다면, 증액 효율(100만원당 증가 KPI)이 더 높은 B 매체나 다른 상품에 상대적으로 더 많은 예산이 배분됩니다. 특정 매체를 다 채운 뒤 넘기는 순차 방식이 아니라, 매체별 최적 예산을 동시에 산출하는 과정의 결과입니다. 총 예산은 같고 두 매체의 포화 속도만 다를 때 어떻게 달라지는지 직접 확인해 보세요."
+        num="3. 효율 기반 배분"
+        title="반응 곡선을 비교해, 증액 효율이 높은 매체에 예산을 더 배분합니다"
+        lead="같은 100만원이라도 매체마다 더 버는 성과가 다릅니다. 모델은 각 매체의 반응 곡선 기울기(증액 효율, 100만원당 증가 KPI)를 비교해, 효율이 높은 쪽에 더 많은 예산을 배분합니다. 한 매체를 다 채운 뒤 남는 걸 넘기는 순차 방식이 아니라, 매체별 최적 예산을 동시에 산출하는 과정의 결과입니다. 아래 슬라이더로 두 매체의 포화 속도가 다를 때 총 성과가 어떻게 달라지는지 확인해 보세요."
       >
         <ReallocSimulator />
         <ExampleNote>
@@ -916,60 +914,9 @@ export function BudgetOptGuidePage() {
         </ExampleNote>
       </Section>
 
-      {/* 4. 잠금과 KPI 역전 */}
+      {/* 4. 예측값의 의미 */}
       <Section
-        num="4. 잠금과 KPI 역전"
-        title="내가 잠근 배분이 더 높게 예측될 수도 있습니다"
-        lead={
-          <>
-            잠금 반영 결과의 Estimated KPI가 순수 최적화 결과보다 <b style={{ color: t.fg }}>더 높게 예측되는 경우</b>가
-            있습니다. "모델이 자유롭게 배분한 쪽이 더 좋아야 하는 것 아닌가?" 싶은 지점이지만, 이를 알고리즘 오류로
-            단정할 필요는 없습니다.
-          </>
-        }
-      >
-        <Callout>
-          <b style={{ color: t.fg }}>이렇게 읽으세요.</b> "이 시나리오에서는 설정하신 잠금 배분이 순수 최적화보다 높은
-          성과로 예측됩니다." — 설정하신 잠금이 이 시나리오에서 유효했다는 뜻입니다.
-        </Callout>
-
-        <SubHead>원인은 결과 화면의 데이터로 확인할 수 있습니다</SubHead>
-        <p style={{ fontSize: 14, color: t.muted, margin: '0 0 16px', lineHeight: 1.7, maxWidth: 680 }}>
-          잠금으로 예산 배분이 달라진 매체, 그리고 그 매체의 포화도와 100만원당 증가 KPI를 확인해 보세요. 예를 들어 순수
-          최적화가 특정 매체에 예산을 크게 몰아 그 매체가 포화 근접 구간에 있고, 잠금 반영에서는 그 예산 일부가 증액
-          효율이 높은 매체로 분산된 경우가 이에 해당합니다.
-        </p>
-
-        <SubHead>두 결과는 이렇게 비교하세요</SubHead>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
-          <Card k="STEP 1" h="Estimated KPI 총량">
-            어느 결과가 더 높게 예측되는지 확인합니다.
-          </Card>
-          <Card k="STEP 2" h="Avg. 단가">
-            어느 결과가 비용 효율적인지 확인합니다. 총 예산이 다르면 단가로 효율을 비교합니다.
-          </Card>
-          <Card k="STEP 3" h="delta (잠금 반영 대비 증감)">
-            잠금이 어떤 매체의 예산과 성과에 영향을 줬는지 확인합니다.
-          </Card>
-        </div>
-
-        <SubHead>함께 알아두면 좋은 점</SubHead>
-        <ul style={{ margin: '0 0 18px', paddingLeft: 20, fontSize: 13.5, color: t.muted, lineHeight: 1.7 }}>
-          <li style={{ marginBottom: 6 }}>
-            <b style={{ color: t.fg }}>총 예산이 같다면</b> Estimated KPI가 높은 쪽이 Avg. 단가도 반드시
-            낮습니다(단가 = 총예산 ÷ KPI). 따라서 "KPI는 높지만 단가는 나쁘다"는 해석은 성립하지 않습니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            <b style={{ color: t.fg }}>delta가 마이너스인 매체는 '손해'가 아닙니다.</b> 전체 KPI를 최대화하기 위한
-            재배분 결과입니다.
-          </li>
-          <li style={{ marginBottom: 6 }}>두 결과의 격차가 작을 때는 "차이가 미미하다"로 읽으면 됩니다.</li>
-        </ul>
-      </Section>
-
-      {/* 5. 예측값의 의미 */}
-      <Section
-        num="5. 예측값의 의미"
+        num="4. 예측값의 의미"
         title="최적화 결과이지만, 집행 성과를 보장하지는 않습니다"
         lead={
           <>
@@ -1013,7 +960,6 @@ export function BudgetOptGuidePage() {
             ['반영 시점', '과거 집행 데이터 학습에 반영됩니다. 이번 캠페인 집행 기간의 공휴일을 예측에 직접 적용하지는 않습니다.'],
           ]}
         />
-        <ExampleNote>공휴일 반영은 예측 정확도를 높이기 위한 것이며, 특정 시기의 실제 성과를 보장하지 않습니다.</ExampleNote>
       </Section>
     </div>
   )

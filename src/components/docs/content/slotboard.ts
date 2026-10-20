@@ -51,7 +51,7 @@ Slot은 특정 목적을 위한 독립된 작업 공간입니다. 캠페인 단�
       id: 'slotboard-create',
       title: 'Slot 생성',
       slug: 'slotboard-create',
-      updatedAt: '2026-06-29',
+      updatedAt: '2026-10-26',
       content: `# Slot 생성
 
 SlotBoard 메인 화면에서 "+ New Slot" 버튼을 클릭하면 Slot 생성 다이얼로그가 열립니다. 필수 정보를 입력하고 공개 범위를 설정하면 새로운 작업 공간이 만들어집니다.
@@ -62,7 +62,7 @@ SlotBoard 메인 화면에서 "+ New Slot" 버튼을 클릭하면 Slot 생성 �
 
 | 항목 | 필수 | 설명 | 제한 |
 |---|---|---|---|
-| Slot 이름 | O | 작업 공간의 이름 (목적·프로젝트명 권장) | 최대 30자 |
+| Slot 이름 | O | 작업 공간의 이름 (목적·프로젝트명 권장) | 최대 50자 |
 | 광고주 | O | 매핑할 광고주 선택 | 권한 보유 광고주만 표시 |
 | 설명 | X | 목적, 기간, 담당자 등 부가 설명 | 최대 200자 |
 | 공개 범위 | O | Private / Internal / Shared 중 선택 | 단일 선택 |
@@ -187,7 +187,7 @@ Slot Home 헤더의 더보기(⋮) 메뉴에서 "수정"을 선택합니다.
       id: 'slotboard-slot-home',
       title: 'Slot Home',
       slug: 'slotboard-slot-home',
-      updatedAt: '2026-08-06',
+      updatedAt: '2026-10-26',
       content: `# Slot Home
 
 개별 Slot에 진입하면 표시되는 홈 화면입니다. 각 솔루션의 최종 결과물을 한눈에 확인하고, Final Set을 구성하며, 활동 이력과 참고 자료를 관리합니다.
@@ -228,7 +228,7 @@ Slot Home은 크게 3개 영역으로 구성됩니다.
 |---|---|---|
 | DataShot | 사용 가능 | 업종별 벤치마크 기반 광고 효율 분석 |
 | Ad Curator | 준비 중 | 캠페인 성과 기반 맞춤형 상품 큐레이션 |
-| BudgetOpt 2.0 | 준비 중 | KPI 목표 기반 미디어믹스 예산 최적화 |
+| BudgetOpt 2.0 | 사용 가능 | KPI 목표 기반 미디어믹스 예산 최적화 |
 | Reach Caster | 사용 가능 | 크로스미디어 통합 도달 예측 시뮬레이션 |
 
 ### 결과물 표시
