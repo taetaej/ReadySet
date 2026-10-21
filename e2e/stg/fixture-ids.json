@@ -1,0 +1,13 @@
+{
+  "slotId": "148",
+  "slotName": "test_fixture_slot",
+  "createdAt": "2026-10-21T06:07:19.851Z",
+  "qaVersion": "v1.2.0",
+  "counts": {
+    "dataset": 24,
+    "bo": 25,
+    "rcrf": 24,
+    "rcrp": 25
+  },
+  "note": "completed ids collected 15min+ later"
+}

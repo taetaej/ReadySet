@@ -1,4 +1,10 @@
 import { test as base, expect, chromium, Page, BrowserContext } from '@playwright/test'
+import * as fs from 'fs'
+import * as path from 'path'
+import { fileURLToPath } from 'url'
+
+// ESM 환경: __dirname 미정의 → import.meta.url로 이 파일의 디렉터리를 산출.
+const FIXTURE_DIR = path.dirname(fileURLToPath(import.meta.url))
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STG Sanity QA 공용 fixture / 유틸 / 상수
@@ -111,9 +117,12 @@ export async function closeDeleteModal(page: Page): Promise<void> {
  */
 export async function createPrivateSlot(
   page: Page,
-  suffix = 'slot'
+  suffixOrName = 'slot',
+  opts?: { literalName?: boolean }
 ): Promise<{ name: string; slotId: string | null }> {
-  const name = testName(suffix)
+  // literalName:true → 문자열을 그대로 슬롯명으로(고정 식별자 'test_fixture_slot' 용).
+  // 기본 → testName(suffix)로 test_${QA_VERSION}_ prefix를 단다(create-flow 거동 유지).
+  const name = opts?.literalName ? suffixOrName : testName(suffixOrName)
 
   await gotoStable(page, '/slotboard')
   await dismissLaunchPopup(page)
@@ -179,6 +188,317 @@ export async function pickDateRange(page: Page, triggerName: RegExp, startDay = 
   await page.waitForTimeout(300)
   await page.getByRole('button', { name: endDay, exact: true }).first().click()
   await page.waitForTimeout(400)
+}
+
+// ── fixture-ids.json read/write ──────────────────────────────────────────────
+/** 고정 픽스처 슬롯 메타데이터. 커밋에 포함(비밀정보 없음). */
+export type FixtureIds = {
+  slotId: string
+  slotName: 'test_fixture_slot'
+  createdAt: string
+  qaVersion: string
+  counts: { dataset: number; bo: number; rcrf: number; rcrp: number }
+  note?: string
+}
+
+const FIXTURE_IDS_PATH = path.join(FIXTURE_DIR, 'fixture-ids.json')
+
+/** fixture-ids.json을 읽는다. 파일이 없거나 JSON이 깨졌으면 null(→ 생성으로 폴백). */
+export function readFixtureIds(): FixtureIds | null {
+  try {
+    const raw = fs.readFileSync(FIXTURE_IDS_PATH, 'utf8')
+    return JSON.parse(raw) as FixtureIds
+  } catch {
+    return null
+  }
+}
+
+/** fixture-ids.json을 2-space 들여쓰기 + 끝 개행으로 저장한다. */
+export function writeFixtureIds(data: FixtureIds): void {
+  fs.writeFileSync(FIXTURE_IDS_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8')
+}
+
+// ── 고정 픽스처 슬롯 확보 ─────────────────────────────────────────────────────
+/**
+ * 테스트 전용 고정 슬롯('test_fixture_slot')을 확보한다.
+ * (a) fixture-ids.json에 유효한 slotId가 있고 그 슬롯이 STG에 아직 있으면 재사용.
+ * (b) 없으면 createPrivateSlot(literalName)로 새로 만든다(고정명·(주)세정·Private).
+ * 삭제/cleanup 없음. 슬롯명은 고정 식별자이므로 testName()을 거치지 않는다(DECIDED DESIGN 1).
+ */
+export async function ensureFixtureSlot(
+  page: Page
+): Promise<{ slotId: string; slotName: 'test_fixture_slot'; reused: boolean }> {
+  const SLOT_NAME = 'test_fixture_slot' as const
+  const existing = readFixtureIds()
+  if (existing && existing.slotId) {
+    // 아직 존재하는지 확인: 상세로 이동 후 URL이 /slotboard/{id}로 유지되면 존재.
+    await gotoStable(page, '/slotboard/' + existing.slotId)
+    await dismissLaunchPopup(page)
+    const m = page.url().match(/\/slotboard\/(\d+)/)
+    if (m && m[1] === existing.slotId) {
+      return { slotId: existing.slotId, slotName: SLOT_NAME, reused: true }
+    }
+    // 리다이렉트됨 → 슬롯이 사라진 것. 아래에서 재생성.
+  }
+  const r = await createPrivateSlot(page, SLOT_NAME, { literalName: true })
+  if (!r.slotId) {
+    throw new Error('[STG QA] 고정 픽스처 슬롯 생성 후 slotId를 캡처하지 못했습니다.')
+  }
+  return { slotId: r.slotId, slotName: SLOT_NAME, reused: false }
+}
+
+// ── 모듈별 생성 헬퍼 (create-flow.spec.ts에서 추출, 거동 동일) ────────────────
+// 각 헬퍼는 "이미 testName(...)으로 해석된 전체 객체명"을 받는다. create-flow는
+// testName('dataset') 식으로, setup 루프는 testName('dataset_01') 식으로 같은 본문을 공유한다.
+
+/** DataShot 데이터셋 생성(즉시 생성). 본문은 CREATE-FLOW-002와 동일. */
+export async function createDataset(page: Page, slotId: string, name: string): Promise<void> {
+  await gotoStable(page, '/slots/' + slotId + '/datashot')
+  await dismissLaunchPopup(page)
+  await page.getByRole('button', { name: 'New Dataset' }).click()
+  await expect(page.getByRole('heading', { name: '새 데이터셋 생성' })).toBeVisible()
+
+  // ── Step1: 기본 정보 ──
+  await page.locator('input[placeholder="데이터셋명을 입력하세요."]').fill(name)
+  // 지표 구성: '성과 지표'(external) 선택 — 후속 입력이 더 단순한 쪽. 최소 통과값.
+  await page.getByRole('button', { name: /성과 지표/ }).click()
+  // 조회기간(MonthRangePicker): 좌측 패널(2025) 3월→5월. 유효 조회기간 중 가장 단순한 범위.
+  await page.getByRole('button', { name: /시작월/ }).click()
+  await page.waitForTimeout(700)
+  await page.getByRole('button', { name: '3월', exact: true }).first().click()
+  await page.waitForTimeout(300)
+  await page.getByRole('button', { name: '5월', exact: true }).first().click()
+  await page.waitForTimeout(400)
+  // 업종: 커스텀 div → IndustryDialog → 대분류 → '식품' → 선택 완료. 최소 선택.
+  await page.getByText('업종을 선택하세요.').click()
+  await page.waitForTimeout(800)
+  await page.getByRole('button', { name: '대분류', exact: true }).click()
+  await page.waitForTimeout(600)
+  await page.getByText(/^식품 \(\d+\)/).click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: /선택 완료/ }).click()
+  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step2: 상세 설정(매체 · 상품 · 지표) ──
+  await page.getByRole('button', { name: 'Google Ads', exact: true }).click()
+  await page.waitForTimeout(800)
+  await page.getByText('실적 최대화', { exact: true }).click()
+  await page.waitForTimeout(300)
+  await page.getByText(/클릭당 비용\(CPC\)/).click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step3: 검토 및 추출 → 최종 생성 요청(실제 클릭) ──
+  await page.getByRole('button', { name: /데이터셋 생성 요청/ }).click()
+  await page.waitForTimeout(3500)
+
+  await expect
+    .poll(() => page.url(), { timeout: 8000 })
+    .toContain('/slots/' + slotId + '/datashot')
+}
+
+/** BudgetOpt 2.0 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-003과 동일. */
+export async function createBoScenario(page: Page, slotId: string, name: string): Promise<void> {
+  await gotoStable(page, '/slots/' + slotId + '/budgetopt/scenarios/new')
+  await dismissLaunchPopup(page)
+  if (!page.url().includes('/scenarios/new')) {
+    await gotoStable(page, '/slots/' + slotId + '/budgetopt')
+    await dismissLaunchPopup(page)
+    await page.getByRole('button', { name: 'New Scenario' }).click()
+  }
+  await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
+
+  // ── Step1: 기본 정보 ──
+  await page.locator('input[placeholder="시나리오명을 입력하세요."]').fill(name)
+  await page.getByRole('button', { name: '브랜드를 선택하세요' }).click()
+  await page.waitForTimeout(500)
+  await page.locator('.dropdown-item, .dropdown button').first().click()
+  await page.waitForTimeout(500)
+  await pickDateRange(page, /시작일/)
+  await page.getByRole('button', { name: /노출 \(Impression\)/ }).click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step2: 매체 선택 및 예산 ──
+  await page.locator('input[placeholder="총 예산을 입력하세요"]').fill('100000000')
+  await page.waitForTimeout(500)
+  await page.getByRole('button', { name: /매체 · 상품 추가/ }).click()
+  await page.waitForTimeout(1200)
+  await page.getByRole('button', { name: '전체 선택', exact: true }).first().click()
+  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: /확인 \(\d+개 선택\)/ }).click()
+  await page.waitForTimeout(1000)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step3: 검토 및 실행 → 최종 생성 요청(실제 클릭, 완료 대기 안 함) ──
+  await page.getByRole('button', { name: /시나리오 생성 요청/ }).click()
+  await page.waitForTimeout(3500)
+
+  await expect
+    .poll(() => page.url(), { timeout: 8000 })
+    .toContain('/slots/' + slotId + '/budgetopt')
+}
+
+/** Reach Caster Ratio Finder 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-004와 동일. */
+export async function createRcRatioFinder(page: Page, slotId: string, name: string): Promise<void> {
+  await gotoStable(page, '/slots/' + slotId + '/reachcaster/scenarios/new')
+  await dismissLaunchPopup(page)
+  if (!page.url().includes('/scenarios/new')) {
+    await gotoStable(page, '/slots/' + slotId + '/reachcaster')
+    await dismissLaunchPopup(page)
+    await page.getByRole('button', { name: 'New Scenario' }).click()
+  }
+  await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
+
+  // ── Step1: 기본 정보 (Ratio Finder) ──
+  await page.locator('input[placeholder="시나리오명을 입력하세요."]').fill(name)
+  await page.getByRole('button', { name: /Ratio Finder/ }).click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: '브랜드를 선택하세요' }).click()
+  await page.waitForTimeout(500)
+  await page.locator('.dropdown-item, .dropdown button').first().click()
+  await page.waitForTimeout(500)
+  await pickDateRange(page, /시작일/)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step2: 상세 설정(예산·시뮬레이션 단위·매체비중) ──
+  await page.locator('input[placeholder="예산을 입력하세요"]').fill('100000000')
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: '10%', exact: true }).click()
+  await page.waitForTimeout(400)
+  // DIGITAL: 첫 매체 체크 → 상품 추가 → 상품 1개(단일=비중 100% 자동)
+  await page.getByRole('button', { name: 'DIGITAL', exact: true }).click()
+  await page.waitForTimeout(400)
+  await page.locator('input[type="checkbox"]:visible').first().check()
+  await page.waitForTimeout(500)
+  await page.getByRole('button', { name: /상품 추가/ }).first().click()
+  await page.waitForTimeout(1000)
+  await page.locator('.dialog-content label, [class*="dialog"] label').first().click()
+  await page.waitForTimeout(300)
+  await page.getByRole('button', { name: /확인 \(\d+개 선택\)/ }).click()
+  await page.waitForTimeout(700)
+  // TVC: 첫 매체 체크 → 채널 추가 → 채널 1개
+  await page.getByRole('button', { name: 'TVC', exact: true }).click()
+  await page.waitForTimeout(500)
+  await page.locator('input[type="checkbox"]:visible').first().check()
+  await page.waitForTimeout(500)
+  await page.getByRole('button', { name: /채널 추가/ }).first().click()
+  await page.waitForTimeout(1000)
+  await page.locator('.dialog-content label, [class*="dialog"] label').first().click()
+  await page.waitForTimeout(300)
+  await page.getByRole('button', { name: /확인 \(\d+개 선택\)/ }).click()
+  await page.waitForTimeout(700)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step3: 검토 및 실행 → 최종 생성 요청(실제 클릭, 완료 대기 안 함) ──
+  await page.getByRole('button', { name: /시나리오 생성 요청/ }).click()
+  await page.waitForTimeout(3500)
+
+  await expect
+    .poll(() => page.url(), { timeout: 8000 })
+    .toContain('/slots/' + slotId + '/reachcaster')
+}
+
+/** Reach Caster Reach Predictor 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-005와 동일. */
+export async function createRcReachPredictor(page: Page, slotId: string, name: string): Promise<void> {
+  await gotoStable(page, '/slots/' + slotId + '/reachcaster/scenarios/new')
+  await dismissLaunchPopup(page)
+  if (!page.url().includes('/scenarios/new')) {
+    await gotoStable(page, '/slots/' + slotId + '/reachcaster')
+    await dismissLaunchPopup(page)
+    await page.getByRole('button', { name: 'New Scenario' }).click()
+  }
+  await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
+
+  // ── Step1: 기본 정보 (Reach Predictor) ──
+  await page.locator('input[placeholder="시나리오명을 입력하세요."]').fill(name)
+  await page.getByRole('button', { name: /Reach Predictor/ }).click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: '브랜드를 선택하세요' }).click()
+  await page.waitForTimeout(500)
+  await page.locator('.dropdown-item, .dropdown button').first().click()
+  await page.waitForTimeout(500)
+  await pickDateRange(page, /시작일/)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step2: 분석 대상 매체 + 리치커브 ──
+  await page.getByRole('button', { name: /매체 · 상품\(채널\) 추가/ }).click()
+  await page.waitForTimeout(1200)
+  await page.getByRole('button', { name: '전체 선택', exact: true }).first().click()
+  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: /확인 \(\d+개 선택\)/ }).click()
+  await page.waitForTimeout(1000)
+  const budgets = page.locator('input[placeholder="0"]:visible')
+  const bn = await budgets.count()
+  for (let i = 0; i < bn; i++) {
+    await budgets.nth(i).fill('10000000')
+    await page.waitForTimeout(120)
+  }
+  await page.locator('input[placeholder="최소값"]').fill('10000000')
+  await page.waitForTimeout(200)
+  await page.locator('input[placeholder="최대값"]').fill('100000000')
+  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.waitForTimeout(1500)
+
+  // ── Step3: 검토 및 실행 → 최종 생성 요청(실제 클릭, 완료 대기 안 함) ──
+  await page.getByRole('button', { name: /시나리오 생성 요청/ }).click()
+  await page.waitForTimeout(3500)
+
+  await expect
+    .poll(() => page.url(), { timeout: 8000 })
+    .toContain('/slots/' + slotId + '/reachcaster')
+}
+
+// ── 리스트 멱등 카운트 ────────────────────────────────────────────────────────
+/** 정규식 특수문자 이스케이프(이름 prefix를 안전하게 RegExp로 쓰기 위함). */
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * 모듈 리스트에서 namePrefix로 시작하는 기존 객체 수를 센다(멱등 재실행의 부족분 계산용).
+ * 검색 버튼 → 노출된 입력에 prefix 입력 → 필터된 목록에서 텍스트 매칭 개수 반환.
+ * DataShot/RC는 .card(h3) 텍스트, BO는 table <tr> 셀 텍스트 — getByText(RegExp)가 둘 다 커버.
+ * 검색이 불가하거나 목록이 비면 0 반환(루프가 target까지 채우려 시도; 삭제는 절대 없음).
+ */
+export async function countListMatches(
+  page: Page,
+  slotId: string,
+  module: 'datashot' | 'budgetopt' | 'reachcaster',
+  namePrefix: string
+): Promise<number> {
+  const placeholder =
+    module === 'datashot'
+      ? '데이터셋명, 생성자'
+      : module === 'budgetopt'
+      ? '시나리오명, 생성자 검색'
+      : '시나리오명, 생성자'
+
+  await gotoStable(page, '/slots/' + slotId + '/' + module)
+  await dismissLaunchPopup(page)
+
+  const searchBtn = page.getByRole('button', { name: '검색' })
+  if (!(await searchBtn.count())) return 0
+  await searchBtn.first().click().catch(() => {})
+  await page.waitForTimeout(500)
+
+  const input = page.locator(`input[placeholder="${placeholder}"]`)
+  if (!(await input.count())) return 0
+  await input.first().fill(namePrefix)
+  await page.waitForTimeout(1200)
+
+  // 필터된 목록에서 prefix로 시작하는 텍스트 노드 수. 카드/테이블 공통.
+  const matches = page.getByText(new RegExp(escapeRegExp(namePrefix)))
+  return await matches.count().catch(() => 0)
 }
 
 // ── CDP fixture ──────────────────────────────────────────────────────────────

@@ -48,7 +48,35 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts 
 
 # 로드/파싱만 확인(브라우저 미기동)
 npx playwright test --list --config=playwright.stg.config.ts
+
+# 라우틴 whole-dir 런에서 무거운 셋업 제외
+QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
 ```
+
+---
+
+## 2.5. 테스트 전용 고정 픽스처 슬롯 셋업 (수동 1회)
+
+매번 생성하고 완료까지 기다리면 느리다. 그래서 재사용 가능한 영속 슬롯
+`test_fixture_slot`((주)세정, Private) **하나**를 만들어 두고, 그 안에 솔루션별 객체를
+"생성 요청"으로 대량(목표 25, 최소 20)으로 채워 둔다. 이후 목록/결과/비교/SpinX 테스트는
+매번 생성+완료대기 대신 이 슬롯을 재사용한다.
+
+```bash
+QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config playwright.stg.config.ts --workers=1
+```
+
+- **수동 1회 실행.** 무거우므로 모든 제목에 `@setup` 태그를 달아 라우틴 whole-dir 런에서
+  제외한다(라우틴은 `--grep-invert @setup`). 이 셋업은 위 명령처럼 경로로 직접 지정해 돌린다.
+- **멱등 재실행.** 다시 돌리면 각 리스트의 기존 `test_v*` 행 수를 세고 **부족분만** 25까지
+  채운다(최소 20). 안전하게 반복 실행 가능.
+- **완료 대기 없음(타이밍).** DataShot 데이터셋은 거의 즉시 생성된다. BO/RC 시나리오는
+  "생성 요청"까지만 수행하며 완료(Completed)는 15분+ 걸린다 — 셋업은 **기다리지 않는다.**
+  완료 시나리오 id 수집·결과/SpinX/비교 검증은 이후 단계에서 처리한다.
+  (Reach Predictor 2건+가 이후 "시나리오 비교" fixture가 된다.)
+- **fixture-ids.json** 은 커밋/재사용된다(`{ slotId, slotName, createdAt, qaVersion, counts }`).
+  슬롯 재생성을 강제하려면 이 파일을 지우거나 `slotId`를 비운다.
+- **삭제/cleanup/로그아웃/public 생성 없음** — HARD RULES 그대로.
 
 ---
 
