@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, excluded, skipReason } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 공통 부가 + DOCS — AREA=MISC-COMMON
@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
   await dismissLaunchPopup(page)
 })
 
-test('MISC-COMMON-001 @major DOCS로 진입한다', async ({ page }) => {
+test('MISC-COMMON-001 @major DOCS로 진입한다', skipReason('사이드바 펼침 후에도 Docs 버튼 미노출 시 skip — 슬롯 레이아웃 상태 의존'), async ({ page }) => {
   // 라이브 확정: 사이드바가 접힘(width 60px, 'ReadySet Docs'는 {!isCollapsed} 가드로 숨김)일 수 있다.
   // 접힘 상태면 '사이드바 펼치기' 토글로 먼저 펼친 뒤 Docs 버튼을 누른다(실제 사용자 플로우).
   const expandBtn = page.locator('button[title="사이드바 펼치기"]')
@@ -35,15 +35,15 @@ test('MISC-COMMON-001 @major DOCS로 진입한다', async ({ page }) => {
   expect(shown).toBeTruthy()
 })
 
-test('MISC-COMMON-002 @minor 생성 알림', async () => {
+test('MISC-COMMON-002 @minor 생성 알림', excluded('알림 FAB 미노출(GNB>FAB와 동일) — 특정 계정 전용 추정. 자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, '알림 FAB 미발견(GNB>FAB 미노출과 동일 사유)')
 })
-test('MISC-COMMON-003 @minor 등급 알림', async () => {
+test('MISC-COMMON-003 @minor 등급 알림', excluded('에이전시/클라이언트 계정 의존 — 단일 Admin 세션에서 자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, '에이전시/클라이언트 계정 의존(단일 Admin 세션) — 이번 라운드 skip')
 })
-test('MISC-COMMON-004 @minor 등급 결과물 카운트', async () => {
+test('MISC-COMMON-004 @minor 등급 결과물 카운트', excluded('등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, '등급 UI(FAB 경로) 미탐색')
 })
-test('MISC-COMMON-005 @minor 등급 사용 솔루션 체크', async () => {
+test('MISC-COMMON-005 @minor 등급 사용 솔루션 체크', excluded('등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, '등급 UI(FAB 경로) 미탐색')
 })

@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup, absUrl } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, absUrl, excluded, skipReason } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 공통 / GNB + 레이어(런치) 팝업 — AREA=GNB-COMMON
@@ -45,7 +45,7 @@ test('GNB-COMMON-005 @critical 로그아웃 메뉴가 노출된다(클릭 금지
   await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible()
 })
 
-test('GNB-COMMON-009 @major 레이어 팝업이 표시되고 닫기로 사라진다', async ({ page }) => {
+test('GNB-COMMON-009 @major 레이어 팝업이 표시되고 닫기로 사라진다', skipReason('런치 팝업이 세션 상태상 이번 진입에서 안 뜨면 skip'), async ({ page }) => {
   // beforeEach에서 이미 닫으므로, 이 TC는 직접 재진입해 닫기 전 상태를 검증한다.
   await page.goto(absUrl('/slotboard'), { waitUntil: 'domcontentloaded' })
   await page.waitForTimeout(2500)
@@ -62,14 +62,14 @@ test('GNB-COMMON-009 @major 레이어 팝업이 표시되고 닫기로 사라진
 })
 
 // ── GNB > FAB (Client 표시 / 알림 / 등급) — dom-evidence §1: FAB 미발견 ──────────
-test('GNB-COMMON-006 @minor GNB>FAB Client 표시', async () => {
+test('GNB-COMMON-006 @minor GNB>FAB Client 표시', excluded('GNB>FAB(Client 표시) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, 'FAB 미발견: 리스트 화면에 우하단 고정 FAB 없음(결과/특정 계정 전용 추정)')
 })
 
-test('GNB-COMMON-007 @minor GNB>FAB 알림', async () => {
+test('GNB-COMMON-007 @minor GNB>FAB 알림', excluded('GNB>FAB(알림) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, 'FAB 미발견: 동일 사유(결과/특정 계정 전용 추정)')
 })
 
-test('GNB-COMMON-008 @minor GNB>FAB 등급', async () => {
+test('GNB-COMMON-008 @minor GNB>FAB 등급', excluded('GNB>FAB(등급) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상'), async () => {
   test.skip(true, 'FAB 미발견: 동일 사유(결과/특정 계정 전용 추정)')
 })

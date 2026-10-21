@@ -53,10 +53,28 @@ npx playwright test --list --config=playwright.stg.config.ts
 QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
 ```
 
-> **전수 실행 소요 ≈ 8분 (리포트 생성까지 포함).** 위 `--grep-invert @setup` 커맨드 기준 벽시계
-> `real 481s`(≈8.0분)에 80건 중 61 pass / 19 skip / 0 fail. 이어서
+> **전수 실행 소요 ≈ 6.6분 (리포트 생성까지 포함).** 위 `--grep-invert @setup` 커맨드 기준 벽시계
+> `real 396s`(≈6.6분)에 **80건 중 66 pass / 14 skip / 0 fail**. 이어서
 > `QA_VERSION=v1.2.0 QA_FEATURE="STG Sanity QA" node e2e/report.mjs`로 대시보드 재생성까지 수 초 내 완료.
-> (완료 fixture 기반이라 시나리오 생성 완료를 기다리지 않음. SpinX는 '중단' 버튼 등장까지만 = 경량.)
+> (완료 fixture 기반이라 시나리오 생성 완료를 기다리지 않음. SpinX는 '중단' 버튼 등장까지만 = 경량.
+> 복제/이동/다운로드 결과계열 반복 진입을 결과 헤더 메뉴 셀렉터 안정화로 줄여 직전 8.0분 → 6.6분.)
+>
+> **통계 분모 교정(요청1).** 리포트 '자동화 대상 통과율'은 `passed / (total − excluded)`로 센다.
+> 의도적 제외(excluded)는 권한(AUTH)·계정 의존(GNB>FAB, 등급/알림) 등 **자동화가 구조적으로 불가**한
+> 10건으로, 통과율 분모에서 빠지고 '수동 QA 대상'으로 따로 표기된다. 이번 라운드 기준
+> **자동화 대상 통과율 94% (의도적 제외 10건 통계 제외, 분모 70)**. 전체 total/pass/skip 숫자는 그대로 보존.
+>
+> **skip 사유 노출(요청2).** 각 건너뜀 행 옆에 사유가 함께 표시된다(제외 사유/미완 사유/건너뜀 사유).
+> 사유는 선언형 annotation(`excluded`/`blocked`/`skip-reason`) 우선, 없으면 `report.mjs`의 정적
+> 분류맵 폴백 — 전부 실제 skip 조건 기반이며 지어내지 않는다. 남은 blocked 4건:
+> REACH-CASTER-004(리스트 모드 토글 셀렉터 미확보), DATA-SHOT-006(이동 미지원)/008(다운로드 미지원), SLOT-HOME-007(파일 보유 fixture 미확보).
+>
+> **생성물 네이밍(타임스탬프).** CREATE-FLOW가 만드는 슬롯/모듈 등 "생성-검증용" 객체명은
+> `test_${QA_VERSION}_<base>_<MMDD-HHMM>` 형식으로 **실행 회차 타임스탬프**가 붙는다
+> (예: `test_v1.2.0_slot_1021-2333`, `test_v1.2.0_dataset_1021-2333_01`). 한 전수 실행 = 한 타임스탬프
+> (실행 시작 시 1회 계산해 공유)라 보드에서 "언제/몇 회차 건지" 바로 구분된다. 복제본은 앱이 `(복제)`
+> 접두를 붙여 원본의 타임스탬프가 뒤따른다. **단, 고정 픽스처 슬롯 `test_fixture_slot`(id=148)은
+> 재사용 목적이라 타임스탬프 없이 이름 고정.**
 
 ---
 
@@ -89,7 +107,7 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 
 | env | 역할 | 기본값 |
 |---|---|---|
-| `QA_VERSION` | 생성 객체명 prefix(`test_${QA_VERSION}_`) · 리포트 버전 태그 | (없으면 `test_vLOCAL_` + 경고) |
+| `QA_VERSION` | 생성 객체명 prefix(`test_${QA_VERSION}_<base>_<MMDD-HHMM>`) · 리포트 버전 태그 | (없으면 `test_vLOCAL_` + 경고) |
 | `QA_TARGET` | `stg` \| `prd` | `stg` |
 | `QA_BASE_URL` | baseURL 직접 지정(최우선) | — |
 | `QA_CDP_PORT` | 디버그 Chrome 포트 | `9222` |

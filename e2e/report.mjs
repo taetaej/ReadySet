@@ -35,7 +35,10 @@ function flatten(json) {
         title: sp.title,
         status: result?.status || (sp.ok ? 'passed' : 'failed'),
         duration: result?.duration || 0,
-        error: result?.error?.message || null
+        error: result?.error?.message || null,
+        // 선언형 annotation(excluded/blocked/skip-reason)을 함께 보관(요청1·2).
+        // 실행 여부와 무관하게 tests[0].annotations에 직렬화된다(조건부 skip/fixme 포함).
+        annotations: sp.tests?.[0]?.annotations || []
       })
     }
     for (const s of suite.suites || []) walk(s)
@@ -88,6 +91,54 @@ function parse(title) {
   return { id, priority, area, name }
 }
 const esc = (s) => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
+
+// ── 통계 분류 / skip 사유 (요청1·2) ───────────────────────────────────────────
+// 우선순위: run JSON의 선언형 annotation(spec.annotations) → 없으면 아래 정적 분류맵(폴백).
+// 정적 맵의 사유는 전부 각 테스트의 "실제 skip 조건/주석" 기반이며 지어내지 않는다
+// (스펙 파일의 test.skip/test.fixme 메시지와 일치). annotation 미보유 구버전 run JSON
+// (예: annotations 필드 없이 저장된 회차)도 동일한 통계·사유를 재현하도록 한다.
+//
+//  excluded : 통계 분모 제외(권한·계정 의존 — 영구·의도적, '수동 QA 대상')
+//  blocked  : 분모 포함, 미완 자동화 과제(skip일 때만 사유 표시)
+//  skip-reason: 분모 포함, 조건부 skip 사유(skip일 때만 사유 표시)
+const STATIC_EXCLUDED = {
+  'AUTH-001': '권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상',
+  'AUTH-002': '권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상',
+  'AUTH-003': '권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상',
+  'GNB-COMMON-006': 'GNB>FAB(Client 표시) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상',
+  'GNB-COMMON-007': 'GNB>FAB(알림) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상',
+  'GNB-COMMON-008': 'GNB>FAB(등급) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상',
+  'MISC-COMMON-002': '알림 FAB 미노출(GNB>FAB와 동일) — 특정 계정 전용 추정. 자동화 불가. 수동 QA 대상',
+  'MISC-COMMON-003': '에이전시/클라이언트 계정 의존 — 단일 Admin 세션에서 자동화 불가. 수동 QA 대상',
+  'MISC-COMMON-004': '등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상',
+  'MISC-COMMON-005': '등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상',
+}
+const STATIC_BLOCKED = {
+  'REACH-CASTER-004': '리스트 모드 토글 셀렉터 미확보 — 라이브 DOM 재확인 필요. 셀렉터를 지어내지 않고 보류(자동화 대상)',
+  'REACH-CASTER-008': '완료 RC fixture id 미확보 시 skip. 복제 submit은 BO가 대표로 수행하므로 RC는 메뉴 열림까지만(솔루션당 복제 1건 규칙)',
+  'REACH-CASTER-009': '완료 RC fixture id 미확보 시 skip — fixture 수집 시 메뉴 열림까지 자동화 대상',
+  'REACH-CASTER-013': '완료 RC fixture id 미확보 또는 RC 결과에 Export to Excel 미노출 시 skip — fixture/Export 확보 시 다운로드 이벤트 검증 대상',
+  'BUDGET-OPT-007': '완료 BO fixture id 미확보 시 skip. fixture 확보 시 BO가 대표로 실제 복제 submit(목록 +1 검증, 솔루션당 복제 1건)',
+  'BUDGET-OPT-008': '완료 BO fixture id 미확보 시 skip — fixture 확보 시 이동 메뉴 열림까지 자동화 대상(이동 확정 금지)',
+  'DATA-SHOT-006': 'DataShot 이동 미지원 — 결과 헤더·리스트 카드 메뉴에 이동 항목 없음(라이브 DOM 확인). 셀렉터를 지어내지 않고 보류',
+  'DATA-SHOT-008': 'DataShot 다운로드 계약 없음 — 결과 화면에 Export/다운로드 트리거 미노출(라이브 DOM 확인). 지어내지 않고 보류',
+  'SLOT-HOME-007': '파일이 이미 업로드된 슬롯에서만 노출 — 파일 보유 fixture 미확보(자동화 대상)',
+}
+
+/** spec의 annotation(우선) 또는 정적 맵(폴백)에서 분류/사유를 뽑는다. */
+function classify(spec) {
+  const id = parse(spec.title).id
+  const annos = spec.annotations || []
+  const byType = (t) => annos.find(a => a.type === t)
+  // 1) 선언형 annotation 우선
+  if (byType('excluded')) return { kind: 'excluded', reason: byType('excluded').description || '' }
+  if (byType('blocked')) return { kind: 'blocked', reason: byType('blocked').description || '' }
+  if (byType('skip-reason')) return { kind: 'skip-reason', reason: byType('skip-reason').description || '' }
+  // 2) 정적 맵 폴백(annotation 미보유 run JSON)
+  if (STATIC_EXCLUDED[id]) return { kind: 'excluded', reason: STATIC_EXCLUDED[id] }
+  if (STATIC_BLOCKED[id]) return { kind: 'blocked', reason: STATIC_BLOCKED[id] }
+  return { kind: 'none', reason: '' }
+}
 const fmtDate = (iso) => {
   const d = new Date(iso)
   const p = (n) => String(n).padStart(2, '0')
@@ -103,8 +154,13 @@ function summarize(specs) {
   const passed = specs.filter(s => s.status === 'passed').length
   const failed = specs.filter(s => s.status === 'failed').length
   const skipped = specs.filter(s => s.status === 'skipped').length
-  const rate = total ? Math.round((passed / total) * 100) : 0
-  return { total, passed, failed, skipped, rate }
+  // 의도적 제외(excluded)는 통과율 분모에서 뺀다(요청1 — % 왜곡 제거).
+  // 분류(classify)는 annotation 우선·정적맵 폴백이라 신규/구버전 run JSON 모두 동일 산출.
+  const excluded = specs.filter(s => classify(s).kind === 'excluded').length
+  const denom = total - excluded
+  // '자동화 대상 통과율' = passed / (total − excluded).
+  const rate = denom ? Math.round((passed / denom) * 100) : 0
+  return { total, passed, failed, skipped, excluded, denom, rate }
 }
 
 // 한 회차(run)의 본문(카드/영역별/상세)만 렌더 — 회차 전환 시 서버가 미리 구운 HTML 조각을 토글한다.
@@ -113,47 +169,87 @@ function renderRunBody(run) {
   const rows = run.specs.map(s => ({ ...s, ...parse(s.title) }))
   const sum = summarize(run.specs)
 
+  // 각 행에 분류(excluded/blocked/skip-reason)와 사유를 붙인다.
+  const detailRows = rows.map(r => ({ ...r, cls: classify(r) }))
+
+  // 영역별 통과율도 분모에서 excluded를 뺀다(동일 교정).
   const byArea = {}
-  for (const r of rows) {
-    byArea[r.area] ??= { total: 0, passed: 0, failed: 0 }
+  for (const r of detailRows) {
+    byArea[r.area] ??= { total: 0, passed: 0, failed: 0, excluded: 0 }
     byArea[r.area].total++
     if (r.status === 'passed') byArea[r.area].passed++
     if (r.status === 'failed') byArea[r.area].failed++
+    if (r.cls.kind === 'excluded') byArea[r.area].excluded++
   }
   const areaRows = Object.entries(byArea).map(([area, s]) => {
-    const rate = Math.round((s.passed / s.total) * 100)
+    const denom = s.total - s.excluded
+    const rate = denom ? Math.round((s.passed / denom) * 100) : 0
     return `<tr>
       <td class="mono">${esc(area)}</td>
       <td class="num">${s.total}</td>
       <td class="num ok">${s.passed}</td>
       <td class="num ${s.failed ? 'bad' : 'dim'}">${s.failed}</td>
+      <td class="num dim">${s.excluded || '-'}</td>
       <td><div class="bar"><div class="bar-fill" style="width:${rate}%;--rate:${rate}"></div></div></td>
       <td class="num pct">${rate}%</td>
     </tr>`
   }).join('')
 
-  const detail = rows.map(r => `<tr class="row-${r.status}">
+  // 상세 행: excluded는 '수동 QA'(muted 배지)로, 그 외 건너뜀은 '건너뜀'으로 표기.
+  // 건너뜀 행(excluded/blocked/skip-reason)에 사유가 있으면 바로 아래 muted 소형 행으로 노출(요청2).
+  // 지어낸 사유 금지 — classify()가 annotation/정적맵에서 가져온 description만 출력. 통과 건은 사유 숨김.
+  const detail = detailRows.map(r => {
+    const resultCell =
+      r.status === 'passed'
+        ? '<span class="ok b">통과</span>'
+        : r.status === 'failed'
+        ? '<span class="bad b">실패</span>'
+        : r.cls.kind === 'excluded'
+        ? '<span class="dim b manualqa">수동 QA</span>'
+        : '<span class="dim">건너뜀</span>'
+    const showReason = r.status === 'skipped' && r.cls.reason
+    const reasonLabel = r.cls.kind === 'excluded' ? '제외 사유' : r.cls.kind === 'blocked' ? '미완 사유' : '건너뜀 사유'
+    const reasonRow = showReason
+      ? `<tr class="skiprow"><td></td><td colspan="4"><span class="skip-tag">${reasonLabel}</span> ${esc(r.cls.reason)}</td></tr>`
+      : ''
+    return `<tr class="row-${r.status}">
     <td class="mono small nowrap">${esc(r.id)}</td>
     <td>${prBadge(r.priority)}</td>
     <td>${esc(r.name)}</td>
-    <td class="center">${r.status === 'passed' ? '<span class="ok b">통과</span>' : r.status === 'failed' ? '<span class="bad b">실패</span>' : '<span class="dim">건너뜀</span>'}</td>
+    <td class="center">${resultCell}</td>
     <td class="num dim small">${Math.round(r.duration)}ms</td>
-  </tr>${r.error ? `<tr class="errrow"><td></td><td colspan="4"><pre>${esc(r.error)}</pre></td></tr>` : ''}`).join('')
+  </tr>${r.error ? `<tr class="errrow"><td></td><td colspan="4"><pre>${esc(r.error)}</pre></td></tr>` : ''}${reasonRow}`
+  }).join('')
+
+  // 수동 QA 대상(의도적 제외) 별도 블록 — ID + 사유(요청1).
+  const excludedList = detailRows.filter(r => r.cls.kind === 'excluded')
+  const manualQaBlock = excludedList.length
+    ? `<h3 class="sub-h">수동 QA 대상 <span class="sub-note">의도적 제외 ${excludedList.length}건 · 통과율 분모에서 제외</span></h3>
+    <table class="manualqa-tbl">
+      <tbody>${excludedList.map(r => `<tr>
+        <td class="mono small nowrap">${esc(r.id)}</td>
+        <td class="dim small">${esc(r.cls.reason || r.name)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`
+    : ''
 
   return `<div class="cards">
       <div class="metric"><div class="m-label">전체</div><div class="m-value">${sum.total}</div></div>
       <div class="metric"><div class="m-label">통과</div><div class="m-value ok">${sum.passed}</div></div>
       <div class="metric"><div class="m-label">실패</div><div class="m-value ${sum.failed ? 'bad' : 'dim'}">${sum.failed}</div></div>
-      <div class="metric"><div class="m-label">통과율</div><div class="m-value ${sum.rate === 100 ? 'rate100' : 'amber'}">${sum.rate}%</div></div>
+      <div class="metric"><div class="m-label">자동화 대상 통과율</div><div class="m-value ${sum.rate === 100 ? 'rate100' : 'amber'}">${sum.rate}%</div>
+        <div class="m-sub">의도적 제외 ${sum.excluded}건 통계 제외 · 분모 ${sum.denom}</div></div>
     </div>
 
-    <h3 class="sub-h">영역별 결과 <span class="sub-note">어디를 얼마나 테스트했나</span></h3>
+    <h3 class="sub-h">영역별 결과 <span class="sub-note">어디를 얼마나 테스트했나 · 통과율 분모는 제외 건 제외</span></h3>
     <table class="area">
-      <thead><tr><th>영역</th><th class="num">전체</th><th class="num">통과</th><th class="num">실패</th><th>통과율</th><th class="num"></th></tr></thead>
+      <thead><tr><th>영역</th><th class="num">전체</th><th class="num">통과</th><th class="num">실패</th><th class="num">제외</th><th>통과율</th><th class="num"></th></tr></thead>
       <tbody>${areaRows}</tbody>
     </table>
 
-    <h3 class="sub-h">테스트 상세 <span class="sub-note">무엇을 테스트했나</span></h3>
+    ${manualQaBlock}
+
+    <h3 class="sub-h">테스트 상세 <span class="sub-note">무엇을 테스트했나 · 건너뜀엔 사유를 함께 표시</span></h3>
     <table class="detail">
       <thead><tr><th>TC ID</th><th>우선순위</th><th>테스트 내용</th><th class="center">결과</th><th class="num">소요</th></tr></thead>
       <tbody>${detail}</tbody>
@@ -249,6 +345,8 @@ const html = `<!doctype html>
   .metric{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
   .m-label{font-size:12px;color:var(--muted-fg);margin-bottom:8px}
   .m-value{font-size:30px;font-weight:800;line-height:1;letter-spacing:-0.02em}
+  /* 분모 보조문구: muted 1줄(요청1 — '의도적 제외 N건 통계 제외 · 분모 M'). 강조색 없음. */
+  .m-sub{font-size:11px;color:var(--muted-fg);margin-top:8px;line-height:1.4}
 
   .history{color:var(--muted-fg);font-size:12px;margin-bottom:18px}
   .hist-item{color:var(--fg);font-weight:600}
@@ -277,6 +375,14 @@ const html = `<!doctype html>
   .row-failed td{background:#2a0f16}
   .errrow pre{margin:0;white-space:pre-wrap;color:var(--rose);font-size:12px;
     background:#2a0f16;padding:10px;border-radius:8px}
+  /* 건너뜀 사유 행(요청2): 무채색 muted 소형. 강조색·배경 틴트 없음(절제). */
+  .skiprow td{color:var(--muted-fg);font-size:12px;padding-top:0;padding-bottom:12px}
+  .skip-tag{color:var(--muted-fg);border:1px solid var(--border);border-radius:999px;
+    padding:1px 8px;font-size:10px;margin-right:8px;white-space:nowrap}
+  .manualqa{font-weight:600}
+  /* 수동 QA 대상 블록(요청1): 1px 구분선 + muted. 강조색 없음. */
+  .manualqa-tbl td{padding:7px 10px;border-bottom:1px solid var(--panel-2)}
+  .manualqa-tbl tr:last-child td{border-bottom:none}
 
   .foot{color:var(--muted-fg);font-size:12px;margin-top:28px;line-height:1.8}
   .foot code{background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px}

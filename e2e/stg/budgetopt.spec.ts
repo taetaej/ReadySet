@@ -10,6 +10,8 @@ import {
   openHeaderMenu,
   countBoRows,
   fixtureSlotId,
+  blocked,
+  skipReason,
 } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +48,7 @@ test('BUDGET-OPT-002 @major 검색 — 입력 시 목록이 필터링된다', as
   expect(after).toBeLessThan(before)
 })
 
-test('BUDGET-OPT-003 @major 필터 — 상태 필터 적용 시 목록이 변한다', async ({ page }) => {
+test('BUDGET-OPT-003 @major 필터 — 상태 필터 적용 시 목록이 변한다', skipReason('상태 필터 컨트롤(Processing)이 패널에 미노출이면 skip — 패널 구조/데이터 상태 의존'), async ({ page }) => {
   const before = await page.locator('tbody tr').count()
   await page.getByRole('button', { name: '필터' }).click()
   await expect(page.getByRole('button', { name: '필터 초기화' })).toBeVisible()
@@ -62,7 +64,7 @@ test('BUDGET-OPT-003 @major 필터 — 상태 필터 적용 시 목록이 변한
   await page.getByRole('button', { name: '필터 초기화' }).click().catch(() => {})
 })
 
-test('BUDGET-OPT-012 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다', async ({ page }) => {
+test('BUDGET-OPT-012 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다', skipReason('2페이지 버튼이 없으면(항목이 한 페이지 이내) skip — 목록 건수 의존'), async ({ page }) => {
   // 고정 슬롯 148은 ~25행이라 페이지가 나뉜다.
   const page2 = page.getByRole('button', { name: '2', exact: true })
   test.skip((await page2.count()) === 0, '페이지가 1개뿐 — 페이징 미노출')
@@ -76,7 +78,7 @@ test('BUDGET-OPT-012 @minor 페이징 — 2페이지 이동 시 행 집합이 �
   expect(firstIdP2).not.toBe(firstIdP1)
 })
 
-test('BUDGET-OPT-004 @major 정렬 — 테이블 컬럼 헤더 클릭', async ({ page }) => {
+test('BUDGET-OPT-004 @major 정렬 — 테이블 컬럼 헤더 클릭', skipReason('BO 리스트 테이블 헤더 미발견 시 skip(테이블 뷰 아님) — 컨트롤 생기면 자동 실행(EXCLUDE 아님)'), async ({ page }) => {
   // 사용자 명시: "정렬은 테이블 헤더를 클릭하면 됨". BO 리스트는 카드가 아니라 테이블(<th>)이다.
   // 실제 DOM 확인(런타임): 헤더 th는 cursor-pointer이고 aria-sort는 없으며, 클릭하면 th 안에
   // 정렬 방향 아이콘(lucide-chevron-down/up svg)이 나타난다. 그 아이콘 등장을 관찰 가능한 변화로 assert.
@@ -95,7 +97,7 @@ test('BUDGET-OPT-005 @critical 생성 진입', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
 })
 
-test('BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)', async ({ page }) => {
+test('BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)', skipReason('시나리오 카드가 없으면 skip — 고정 픽스처 슬롯에 BO 시나리오 존재 시 실행됨'), async ({ page }) => {
   const menu = page.locator('button[data-context-menu]')
   test.skip((await menu.count()) === 0, '시나리오 카드 없음 — create-flow 선행 시 카드 존재해 실행됨')
   await menu.first().click()
@@ -108,7 +110,7 @@ test('BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)', async ({
 // 결과 라우트(라이브 DOM 확정): /slots/148/budgetopt/scenarios/{id}/result
 // 헤더 셀렉터는 budgetopt-result.spec.ts의 role/text 재사용(STG DOM과 일치 확인).
 
-test('BUDGET-OPT-009 @critical 결과 — 핵심 섹션 렌더', async ({ page }) => {
+test('BUDGET-OPT-009 @critical 결과 — 핵심 섹션 렌더', skipReason('완료 BO fixture id(fixture-ids.json completed.bo) 미확보 시 skip'), async ({ page }) => {
   const id = await enterResult(page, 'bo')
   test.skip(!id, '완료 BO fixture id 미확보(fixture-ids.json completed.bo 비어있음)')
   // 결과 핵심 섹션 제목 렌더(열림만으로 판정하지 않음)
@@ -118,7 +120,7 @@ test('BUDGET-OPT-009 @critical 결과 — 핵심 섹션 렌더', async ({ page }
   await expect(page.getByText('SpinX for BudgetOpt 2.0').first()).toBeVisible()
 })
 
-test('BUDGET-OPT-007 @major 복제 — 실제 복제 실행 후 목록 1건 증가', async ({ page }) => {
+test('BUDGET-OPT-007 @major 복제 — 실제 복제 실행 후 목록 1건 증가', blocked('완료 BO fixture id 미확보 시 skip. fixture 확보 시 BO가 대표로 실제 복제 submit(목록 +1 검증, 솔루션당 복제 1건)'), async ({ page }) => {
   const id = completedIds('bo')[0]
   test.skip(!id, '완료 BO fixture id 미확보')
   // 복제본 이름 prefix: STG가 '(복제)' 접미 없이 '(복제)test_v1.2.0_bo_NN' 형태로 prefill.
@@ -154,7 +156,7 @@ test('BUDGET-OPT-007 @major 복제 — 실제 복제 실행 후 목록 1건 증�
   expect(after).toBeGreaterThanOrEqual(before + 1)
 })
 
-test('BUDGET-OPT-008 @major 이동 — 헤더 메뉴 레이어 열림까지', async ({ page }) => {
+test('BUDGET-OPT-008 @major 이동 — 헤더 메뉴 레이어 열림까지', blocked('완료 BO fixture id 미확보 시 skip — fixture 확보 시 이동 메뉴 열림까지 자동화 대상(이동 확정 금지)'), async ({ page }) => {
   const id = await enterResult(page, 'bo')
   test.skip(!id, '완료 BO fixture id 미확보')
   // '이동'은 부작용(슬롯 이동) 방지 위해 메뉴/레이어 열림까지만. 실제 이동 확정 클릭 없음.
@@ -164,7 +166,7 @@ test('BUDGET-OPT-008 @major 이동 — 헤더 메뉴 레이어 열림까지', as
   await page.keyboard.press('Escape').catch(() => {})
 })
 
-test('BUDGET-OPT-010 @major 다운로드 — Export to Excel 다운로드 이벤트 수신', async ({ page }) => {
+test('BUDGET-OPT-010 @major 다운로드 — Export to Excel 다운로드 이벤트 수신', skipReason('완료 BO fixture id 미확보 시 skip — fixture 확보 시 실제 download 이벤트 수신 + .xlsx 검증'), async ({ page }) => {
   const id = await enterResult(page, 'bo')
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openHeaderMenu(page, 'Copy Link')
@@ -179,7 +181,7 @@ test('BUDGET-OPT-010 @major 다운로드 — Export to Excel 다운로드 이벤
   expect(download.suggestedFilename()).toMatch(/\.xlsx$/)
 })
 
-test('BUDGET-OPT-011 @major CTA(Reach Caster 연계) — 간편 생성 진입', async ({ page }) => {
+test('BUDGET-OPT-011 @major CTA(Reach Caster 연계) — 간편 생성 진입', skipReason('완료 BO fixture id 또는 Reach Caster CTA 미노출 시 skip'), async ({ page }) => {
   const id = await enterResult(page, 'bo')
   test.skip(!id, '완료 BO fixture id 미확보')
   const cta = page.getByText('Reach Caster로 예측하기').first()

@@ -30,6 +30,34 @@ export const VISIBILITY_LABEL = /Private \(비공개\)/
 
 export const CDP_PORT = process.env.QA_CDP_PORT || '9222'
 
+// ── 통계 분류 / skip 사유 annotation (요청1·요청2) ────────────────────────────
+// Playwright 선언형 annotation은 테스트 실행 여부와 무관하게 리포트 JSON의
+// tests[0].annotations에 직렬화된다(조건부 skip/fixme여도 보존). 이 메커니즘으로
+//  - excluded : 통계 분모에서 제외(권한·계정 의존 — 영구·의도적 제외, '수동 QA 대상')
+//  - blocked  : 분모 포함, 아직 자동화되지 않은 미완 과제(사유 표시)
+//  - skip-reason : 조건부 skip의 사유 표시(분모 포함)
+// 세 가지를 모두 선언형 annotation 하나로 해결한다.
+// (report.mjs는 이 annotation을 우선 읽고, 구버전 run JSON처럼 annotation이 없으면
+//  정적 분류맵으로 폴백한다 — 사유는 실제 skip 조건 기반이며 지어내지 않는다.)
+export const ANNO = {
+  EXCLUDED: 'excluded',
+  BLOCKED: 'blocked',
+  SKIP_REASON: 'skip-reason',
+} as const
+
+/** 통계 분모에서 제외(권한·계정 의존). 리포트에 '수동 QA 대상'으로 노출 + 사유 표시. */
+export function excluded(description: string) {
+  return { annotation: [{ type: ANNO.EXCLUDED, description }] }
+}
+/** 분모 포함, 미완 자동화 과제. 실제 skip될 때만 리포트에 사유 표시(통과 전환 시 자동 숨김). */
+export function blocked(description: string) {
+  return { annotation: [{ type: ANNO.BLOCKED, description }] }
+}
+/** 분모 포함, 조건부 skip의 사유. 실제 skip될 때만 리포트에 사유 표시. */
+export function skipReason(description: string) {
+  return { annotation: [{ type: ANNO.SKIP_REASON, description }] }
+}
+
 /** config와 동일한 baseURL 산출 규칙(스펙에서 직접 참조할 때 사용). */
 export const BASE_URL =
   process.env.QA_BASE_URL ||
@@ -39,20 +67,39 @@ export const BASE_URL =
 
 // ── 이름 헬퍼 ────────────────────────────────────────────────────────────────
 /**
- * 생성 객체명 생성기. 모든 생성명은 이 헬퍼를 거쳐 그날 배포 버전 prefix를 단다.
- * QA_VERSION이 있으면 `test_${QA_VERSION}_${suffix}`,
- * 없으면 안전 기본값 `test_vLOCAL_${suffix}` + 명확한 경고.
+ * 실행(회차) 타임스탬프. 한 전수 실행(한 Node 프로세스) 동안 1회만 계산해 공유한다
+ * → 그 실행이 만든 모든 생성물이 같은 MMDD-HHMM을 달아 "언제/몇 회차 건지" 보드에서 바로 구분된다.
+ * 형식: MMDD-HHMM (로컬 시간, 예: 1022-0806).
+ */
+export const RUN_STAMP = (() => {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`
+})()
+
+/**
+ * 생성 객체명 생성기. 모든 생성명은 이 헬퍼를 거쳐 그날 배포 버전 prefix + 실행 타임스탬프를 단다.
+ * 형식: `test_${QA_VERSION}_${base}_${RUN_STAMP}` (예: test_v1.2.0_slot_1022-0806).
+ *  - suffix에 말미 숫자 인덱스(_01 등)가 있으면 타임스탬프를 그 앞에 끼운다
+ *    (예: testName('dataset_01') → test_v1.2.0_dataset_1022-0806_01) — 회차 구분 + 인덱스 보존.
+ * QA_VERSION 미설정 시 안전 기본값 `test_vLOCAL_...` + 경고.
+ * (주의: 고정 픽스처 슬롯 'test_fixture_slot'은 이 헬퍼를 거치지 않는다 — literalName 경로로 이름 고정 유지.)
  */
 export function testName(suffix: string): string {
   const version = process.env.QA_VERSION
+  const prefix = version ? `test_${version}_` : 'test_vLOCAL_'
   if (!version) {
     console.warn(
       '[STG QA] QA_VERSION 미설정 → 생성명에 안전 기본값 test_vLOCAL_ 사용. ' +
         '실제 배포 검증에서는 QA_VERSION=v1.2.0 식으로 반드시 지정하세요.'
     )
-    return `test_vLOCAL_${suffix}`
   }
-  return `test_${version}_${suffix}`
+  // 말미 숫자 인덱스가 있으면 타임스탬프를 인덱스 앞에 끼운다(base_STAMP_NN).
+  const m = suffix.match(/^(.*)_(\d+)$/)
+  if (m) {
+    return `${prefix}${m[1]}_${RUN_STAMP}_${m[2]}`
+  }
+  return `${prefix}${suffix}_${RUN_STAMP}`
 }
 
 // ── 레이어(런치) 팝업 닫기 ───────────────────────────────────────────────────
@@ -661,13 +708,47 @@ export async function countListMatches(
 export async function openHeaderMenu(page: Page, probeText: string | RegExp): Promise<boolean> {
   const headerButtons = page.locator('.slot-detail-header button')
   const count = await headerButtons.count()
-  for (let i = 0; i < count; i++) {
-    await headerButtons.nth(i).click().catch(() => {})
-    const probe = page.getByText(probeText)
-    if (await probe.first().isVisible().catch(() => false)) return true
+
+  // 한 버튼을 클린 상태에서 눌러 probeText가 뜨는지 확인하는 공통 헬퍼.
+  const tryButton = async (i: number): Promise<boolean> => {
+    // 직전 버튼이 연 드롭다운/모달 오버레이를 먼저 확실히 닫는다(2회 Escape + 대기).
+    // RC 결과 헤더의 '상세 보기' 버튼은 모달을 열어 이후 클릭을 가로채므로, 정리가 필수다(실측).
     await page.keyboard.press('Escape').catch(() => {})
     await page.waitForTimeout(150)
+    await page.keyboard.press('Escape').catch(() => {})
+    await page.waitForTimeout(150)
+    await headerButtons.nth(i).click().catch(() => {})
+    // 드롭다운/메뉴가 렌더될 시간을 준다(클릭 직후 즉시 isVisible은 메뉴 미등장 → 오탐).
+    await page.waitForTimeout(500)
+    return page.getByText(probeText).first().isVisible({ timeout: 1000 }).catch(() => false)
   }
+
+  // 한 locator 버튼을 클린 상태에서 눌러 probeText가 뜨는지 확인.
+  const tryLocator = async (loc: ReturnType<Page['locator']>): Promise<boolean> => {
+    if (!(await loc.count())) return false
+    await page.keyboard.press('Escape').catch(() => {})
+    await page.waitForTimeout(150)
+    await page.keyboard.press('Escape').catch(() => {})
+    await page.waitForTimeout(150)
+    await loc.first().click().catch(() => {})
+    await page.waitForTimeout(500)
+    return page.getByText(probeText).first().isVisible({ timeout: 1000 }).catch(() => false)
+  }
+
+  // 메뉴가 달린 아이콘 버튼을 먼저 직접 노린다. 결과 헤더엔 '상세 보기' 모달을 여는 버튼이 섞여 있어
+  // (특히 RC) 전체 순회 중 그 모달이 이후 클릭을 가로챈다. 메뉴는 항상 아래 두 아이콘에만 있다:
+  //  - ellipsis(more-vertical): 컨텍스트 메뉴(복제/이동/삭제)
+  //  - share-2: Export 메뉴(Copy Link/Export to Excel/PDF)
+  const ellipsis = page.locator('.slot-detail-header button:has(svg.lucide-ellipsis-vertical), .slot-detail-header button:has(svg.lucide-more-vertical)')
+  const share = page.locator('.slot-detail-header button:has(svg.lucide-share-2)')
+  if (await tryLocator(ellipsis)) return true
+  if (await tryLocator(share)) return true
+
+  // 폴백: 위 두 아이콘으로 못 찾으면 전체 버튼을 클린-순회.
+  for (let i = 0; i < count; i++) {
+    if (await tryButton(i)) return true
+  }
+  await page.keyboard.press('Escape').catch(() => {})
   return false
 }
 

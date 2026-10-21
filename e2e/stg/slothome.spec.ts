@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, blocked, skipReason } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotHome — AREA=SLOT-HOME
@@ -22,7 +22,7 @@ test('SLOT-HOME-001 @major FinalSet 영역이 표시된다', async ({ page }) =>
   // 보류: 상태별(설정/미설정) fixture 분리 검증.
 })
 
-test('SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다', async ({ page }) => {
+test('SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다', skipReason('FinalSet 관리 버튼 미노출 시 skip — 슬롯 FinalSet 설정 상태 의존'), async ({ page }) => {
   const manageBtn = page.getByRole('button', { name: 'Ready to Final Set 관리' })
   test.skip((await manageBtn.count()) === 0, 'FinalSet 관리 버튼 미노출(슬롯 상태 의존)')
   await manageBtn.click()
@@ -33,7 +33,7 @@ test('SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다', async ({ pag
   await expect(page.getByRole('button', { name: '적용' })).toBeVisible()
 })
 
-test('SLOT-HOME-003 @major FinalSet 설정 레이어에서 적용 버튼이 노출된다', async ({ page }) => {
+test('SLOT-HOME-003 @major FinalSet 설정 레이어에서 적용 버튼이 노출된다', skipReason('FinalSet 관리 버튼 미노출 시 skip — 슬롯 FinalSet 설정 상태 의존'), async ({ page }) => {
   const manageBtn = page.getByRole('button', { name: 'Ready to Final Set 관리' })
   test.skip((await manageBtn.count()) === 0, 'FinalSet 관리 버튼 미노출(슬롯 상태 의존)')
   await manageBtn.click()
@@ -50,7 +50,7 @@ test('SLOT-HOME-005 @major Resource 섹션이 표시된다', async ({ page }) =>
   await expect(page.getByText('RESOURCES', { exact: true })).toBeVisible()
 })
 
-test('SLOT-HOME-006 @major 파일 추가 레이어가 열린다', async ({ page }) => {
+test('SLOT-HOME-006 @major 파일 추가 레이어가 열린다', skipReason('문서 관리 버튼 미노출 시 skip — 슬롯 상태 의존'), async ({ page }) => {
   const docBtn = page.getByRole('button', { name: '문서 관리' })
   test.skip((await docBtn.count()) === 0, '문서 관리 버튼 미노출(슬롯 상태 의존)')
   await docBtn.click()
@@ -61,6 +61,6 @@ test('SLOT-HOME-006 @major 파일 추가 레이어가 열린다', async ({ page 
   await page.keyboard.press('Escape')
 })
 
-test('SLOT-HOME-007 @minor 파일 변경', async () => {
+test('SLOT-HOME-007 @minor 파일 변경', blocked('파일이 이미 업로드된 슬롯에서만 노출 — 파일 보유 fixture 미확보(자동화 대상)'), async () => {
   test.skip(true, '파일이 존재하는 슬롯에서만 노출 — fixture 미확보')
 })

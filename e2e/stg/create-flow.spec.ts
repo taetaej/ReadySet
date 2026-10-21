@@ -8,7 +8,11 @@ import {
   createRcRatioFinder,
   createRcReachPredictor,
   testName,
+  skipReason,
 } from './fixtures'
+
+// CREATE-FLOW-002~005는 선행 CREATE-FLOW-001의 slotId 캡처에 의존한다.
+const CF_DEP = skipReason('선행 CREATE-FLOW-001 슬롯 생성/슬롯id 캡처 실패 시 skip — serial 의존')
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CREATE-FLOW — AREA=CREATE-FLOW  (실제 생성 플로우, serial)
@@ -46,7 +50,7 @@ test.describe.serial('CREATE-FLOW', () => {
     }
   })
 
-  test('CREATE-FLOW-002 @critical DataShot 데이터셋 실제 생성 (슬롯 내부)', async ({ page }) => {
+  test('CREATE-FLOW-002 @critical DataShot 데이터셋 실제 생성 (슬롯 내부)', CF_DEP, async ({ page }) => {
     test.skip(!slotId && !slotName, 'CREATE-FLOW-001에서 슬롯 생성 실패 — 선행 의존')
     await enterSlot(page, slotId, slotName)
     // 슬롯 안에서만 모듈 진입 가능. slotId 없으면 폴백 불가하므로 가드.
@@ -55,17 +59,17 @@ test.describe.serial('CREATE-FLOW', () => {
     await createDataset(page, slotId!, testName('dataset'))
   })
 
-  test('CREATE-FLOW-003 @critical BudgetOpt 2.0 시나리오 실제 생성 (슬롯 내부)', async ({ page }) => {
+  test('CREATE-FLOW-003 @critical BudgetOpt 2.0 시나리오 실제 생성 (슬롯 내부)', CF_DEP, async ({ page }) => {
     test.skip(!slotId, 'slotId 미캡처 — 모듈 진입 불가')
     await createBoScenario(page, slotId!, testName('bo'))
   })
 
-  test('CREATE-FLOW-004 @critical Reach Caster Ratio Finder 실제 생성 (슬롯 내부)', async ({ page }) => {
+  test('CREATE-FLOW-004 @critical Reach Caster Ratio Finder 실제 생성 (슬롯 내부)', CF_DEP, async ({ page }) => {
     test.skip(!slotId, 'slotId 미캡처 — 모듈 진입 불가')
     await createRcRatioFinder(page, slotId!, testName('rc-rf'))
   })
 
-  test('CREATE-FLOW-005 @critical Reach Caster Reach Predictor 실제 생성 (슬롯 내부)', async ({ page }) => {
+  test('CREATE-FLOW-005 @critical Reach Caster Reach Predictor 실제 생성 (슬롯 내부)', CF_DEP, async ({ page }) => {
     test.skip(!slotId, 'slotId 미캡처 — 모듈 진입 불가')
     await createRcReachPredictor(page, slotId!, testName('rc-rp'))
   })
