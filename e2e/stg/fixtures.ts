@@ -94,6 +94,93 @@ export async function closeDeleteModal(page: Page): Promise<void> {
   }
 }
 
+// ── 실제 슬롯 생성 헬퍼 (교정 핵심) ───────────────────────────────────────────
+/**
+ * 슬롯을 실제로 생성한다(최종 '생성' 버튼까지 클릭). 교정 핵심:
+ * 선행 구현은 폼만 채우고 생성 버튼을 안 눌렀는데, 사용자는 실제 생성을 원한다.
+ *
+ * 반드시 지키는 조건(HARD RULE):
+ *  - 이름: testName(suffix) → test_${QA_VERSION}_ prefix
+ *  - 광고주: (주)세정
+ *  - 가시성: Private(비공개). public 슬롯 생성 금지.
+ *  - 삭제/cleanup 없음. 생성 객체는 STG에 남긴다.
+ *
+ * 성공 판정: 실제 STG는 생성 후 슬롯 상세(/slotboard/{id})로 이동한다(런타임 확인).
+ *  → URL이 /slotboard/{id}로 바뀌면 그 id를 slotId로 캡처.
+ *  → 혹시 리스트로 돌아오면 방금 만든 이름의 카드 존재로 성공 판정하고 slotId=null.
+ */
+export async function createPrivateSlot(
+  page: Page,
+  suffix = 'slot'
+): Promise<{ name: string; slotId: string | null }> {
+  const name = testName(suffix)
+
+  await gotoStable(page, '/slotboard')
+  await dismissLaunchPopup(page)
+
+  await page.getByRole('button', { name: 'New Slot' }).click()
+  await expect(page.getByRole('heading', { name: '새 Slot 생성' })).toBeVisible()
+
+  // 이름(반드시 test_v* prefix)
+  await page.locator('input[placeholder="Slot명을 입력하세요"]').fill(name)
+
+  // 광고주 (주)세정 — 커스텀 드롭다운. 검색 후 첫 옵션 클릭.
+  await page.getByRole('button', { name: /광고주를 선택하세요/ }).click()
+  await page.locator('input[placeholder="광고주 검색..."]').fill(ADVERTISER)
+  await page.waitForTimeout(500)
+  await page.getByRole('button', { name: /\(주\)세정/ }).first().click()
+
+  // 가시성 Private(비공개) — 공개 슬롯 금지
+  await page.getByRole('button', { name: VISIBILITY_LABEL }).click()
+
+  // 실제 '생성' 클릭(교정 핵심). '생성' 은 가시성 버튼 텍스트와 겹치므로 exact.
+  await page.getByRole('button', { name: '생성', exact: true }).click()
+  await page.waitForLoadState('domcontentloaded').catch(() => {})
+  await page.waitForTimeout(3000)
+
+  // 성공 판정 + slotId 캡처
+  const m = page.url().match(/\/slotboard\/(\d+)/)
+  if (m) {
+    return { name, slotId: m[1] }
+  }
+  // 리스트로 돌아온 경우: 방금 만든 카드 존재로 성공 판정(폴백)
+  await expect(page.getByRole('heading', { name }).first()).toBeVisible()
+  return { name, slotId: null }
+}
+
+/**
+ * 생성한 슬롯 내부로 진입한다. slotId가 있으면 상세로 직행, 없으면
+ * /slotboard에서 이름 카드 클릭으로 진입(폴백). dismissLaunchPopup 포함.
+ */
+export async function enterSlot(page: Page, slotId: string | null, slotName?: string): Promise<void> {
+  if (slotId) {
+    await gotoStable(page, '/slotboard/' + slotId)
+    await dismissLaunchPopup(page)
+    return
+  }
+  await gotoStable(page, '/slotboard')
+  await dismissLaunchPopup(page)
+  if (slotName) {
+    await page.getByRole('heading', { name: slotName }).first().click()
+    await page.waitForTimeout(2000)
+  }
+}
+
+/**
+ * 리치커브/캠페인 기간 등 CustomDateRangePicker(react 캘린더)를 연 뒤
+ * 첫 번째 보이는 달의 유효 범위(startDay→endDay)를 클릭한다.
+ * 같은 숫자가 두 달에 모두 있으므로 .first()로 첫 달을 고른다.
+ * 값 선택 이유: 당월 내 10~20일(유효·현재월·BO 90일 제한 이내)로 최소 통과.
+ */
+export async function pickDateRange(page: Page, triggerName: RegExp, startDay = '10', endDay = '20'): Promise<void> {
+  await page.getByRole('button', { name: triggerName }).click()
+  await page.waitForTimeout(700)
+  await page.getByRole('button', { name: startDay, exact: true }).first().click()
+  await page.waitForTimeout(300)
+  await page.getByRole('button', { name: endDay, exact: true }).first().click()
+  await page.waitForTimeout(400)
+}
+
 // ── CDP fixture ──────────────────────────────────────────────────────────────
 /**
  * context/page를 오버라이드해 CDP로 붙은 기존 로그인 컨텍스트/페이지를 재사용한다.

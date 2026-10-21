@@ -33,8 +33,11 @@ curl -s http://localhost:9222/json/version   # Chrome/... 가 나오면 OK
 ## 2. 실행
 
 ```bash
-# 전체
-QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts
+# 전체 (공유 Chrome이라 --workers=1 권장)
+QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1
+
+# 실생성 플로우만 단독 (serial — 반드시 --workers=1)
+QA_VERSION=v1.2.0 npx playwright test e2e/stg/create-flow.spec.ts --config=playwright.stg.config.ts --workers=1
 
 # 영역별 (경로를 스펙 파일로)
 QA_VERSION=v1.2.0 npx playwright test e2e/stg/common-gnb.spec.ts --config=playwright.stg.config.ts
@@ -65,8 +68,9 @@ npx playwright test --list --config=playwright.stg.config.ts
 - **실제 삭제 안 함.** '삭제' 항목은 삭제 확인 모달이 뜨는지만 확인하고 Escape/취소로
   닫는다. 확정 버튼 클릭 코드는 어디에도 없다. `afterEach/afterAll` 자동 cleanup도 없다.
 - **로그아웃 클릭 안 함.** 메뉴 노출만 확인(세션 유지).
-- **생성 객체명은 전부 `test_${QA_VERSION}_`**, 광고주 `(주)세정`, 가시성 `Private`. 공개 슬롯 금지.
-  (실생성은 부작용/flaky 우려로 기본 `test.fixme` — 폼 채움·검증까지만.)
+- **생성은 실제로 끝까지 수행한다** (`create-flow.spec.ts` — 슬롯 1개 + 모듈별 객체 실생성).
+  생성 객체명은 전부 `test_${QA_VERSION}_`, 광고주 `(주)세정`, 가시성 `Private`. 공개 슬롯 금지.
+  오직 **DELETE만** 모달 오픈까지(확정 금지). 자동 cleanup 없음 → `test_v*` 객체는 STG에 남고 수동 정리(재실행 시 누적 허용).
 - **권한 테스트(admin/marketer/agency/client)는 전부 skip**(단일 Admin 세션).
 - **셀렉터는 실제 DOM 증거에서만.** 지어낸 testid 금지. 증거 미확보 항목은 `test.fixme`/`test.skip` + 사유.
 

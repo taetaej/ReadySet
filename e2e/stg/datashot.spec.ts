@@ -31,15 +31,16 @@ test('DATA-SHOT-003 @major 필터 패널이 노출된다', async ({ page }) => {
   await expect(page.getByRole('button', { name: '필터 초기화' })).toBeVisible()
 })
 
-test.fixme('DATA-SHOT-004 @critical 생성 진입', async ({ page }) => {
-  // 실제 생성 시 데이터셋명 testName('ds'). 상세 플로우 미탐색 → 확정 금지.
+// 실제 최종 생성은 create-flow.spec.ts(CREATE-FLOW-002)가 소유한다. 여기서는 생성 화면 진입까지만 검증.
+test('DATA-SHOT-004 @critical 생성 진입', async ({ page }) => {
   await page.getByRole('button', { name: 'New Dataset' }).click()
-  // 생성 화면 진입 확인(헤딩/브레드크럼 셀렉터는 상세 탐색 후 확정 필요).
+  // 생성 화면 진입 확인. 최종 생성은 create-flow가 담당(중복 생성 방지).
+  await expect(page.getByRole('heading', { name: '새 데이터셋 생성' })).toBeVisible()
 })
 
 test('DATA-SHOT-005 @critical 삭제 모달만 확인(확정 금지)', async ({ page }) => {
   const menu = page.locator('button[data-context-menu]')
-  test.skip((await menu.count()) === 0, '데이터셋 카드 없음(STG 데이터 상태 의존)')
+  test.skip((await menu.count()) === 0, '데이터셋 카드 없음 — create-flow 선행 시 카드 존재해 실행됨')
   await menu.first().click()
   await page.getByRole('button', { name: '삭제' }).click()
   await expect(page.locator('.dialog-overlay, [role="dialog"]').first()).toBeVisible()

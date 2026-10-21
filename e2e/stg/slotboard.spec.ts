@@ -1,11 +1,11 @@
-import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal, testName, ADVERTISER, VISIBILITY_LABEL } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal, createPrivateSlot } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotBoard / Slot — AREA=SLOT-BOARD
 // 근거: dom-evidence §2. 정렬은 개선 대기 건 → 제외(TC 미작성).
 //
 // HARD RULES:
-//  - 생성: (주)세정 + Private + test_v* 강제. 실제 생성 확정은 부작용/flaky 우려로 fixme.
+//  - 생성: (주)세정 + Private + test_v* 강제. SLOT-BOARD-001은 실제 '생성'까지 클릭한다(교정).
 //  - 삭제: 삭제 확인 모달 노출까지만. 확정 버튼 클릭 코드 없음(Escape/취소로 닫음).
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -14,33 +14,22 @@ test.beforeEach(async ({ page }) => {
   await dismissLaunchPopup(page)
 })
 
-// 실제 생성은 STG에 객체를 남기고 공유 Chrome에서 flaky하므로 폼 채움·검증까지만.
-// 실생성 전환 시에도 반드시 testName()(test_v* prefix) + (주)세정 + Private 조건을 지킨다.
-test.fixme('SLOT-BOARD-001 @critical 슬롯 생성 — (주)세정 + Private + test_v*', async ({ page }) => {
-  await page.getByRole('button', { name: 'New Slot' }).click()
-  await expect(page.getByRole('heading', { name: '새 Slot 생성' })).toBeVisible()
-
-  // 이름: 반드시 test_v* prefix
-  await page.locator('input[placeholder="Slot명을 입력하세요"]').fill(testName('slot'))
-
-  // 광고주: (주)세정
-  await page.getByRole('button', { name: /광고주를 선택하세요/ }).click()
-  await page.locator('input[placeholder="광고주 검색..."]').fill(ADVERTISER)
-  await page.getByRole('button', { name: /\(주\)세정/ }).first().click()
-
-  // 가시성: Private(비공개) — 공개 슬롯 금지
-  await page.getByRole('button', { name: VISIBILITY_LABEL }).click()
-
-  // 폼 값 검증(실제 '생성' 클릭은 하지 않음 — 부작용 방지)
-  await expect(page.locator('input[placeholder="Slot명을 입력하세요"]')).toHaveValue(/^test_/)
-  await expect(page.getByText(/\(주\)세정/)).toBeVisible()
-  // '생성' 버튼은 존재 확인만. 클릭 코드 없음.
-  await expect(page.getByRole('button', { name: '생성', exact: true })).toBeVisible()
+// 실제 슬롯을 생성한다(교정 핵심). createPrivateSlot이 (주)세정 + Private + test_v*를 강제하고
+// 최종 '생성' 버튼까지 누른다. 삭제/cleanup는 하지 않는다(생성 객체는 STG에 남긴다).
+test('SLOT-BOARD-001 @critical 슬롯 생성 — (주)세정 + Private + test_v*', async ({ page }) => {
+  const { name, slotId } = await createPrivateSlot(page, 'slot')
+  // 성공 판정: 상세 URL(/slotboard/{id}) 이동 OR 리스트에 방금 만든 카드 등장
+  if (slotId) {
+    expect(page.url()).toMatch(/\/slotboard\/\d+/)
+  } else {
+    await expect(page.getByRole('heading', { name }).first()).toBeVisible()
+  }
 })
 
 test('SLOT-BOARD-002 @major 카드 메뉴에서 수정 진입 UI가 노출된다', async ({ page }) => {
+  // create-flow(또는 SLOT-BOARD-001)가 선행되면 카드가 존재해 실제로 실행된다.
   const menu = page.locator('button[data-context-menu="true"]')
-  test.skip((await menu.count()) === 0, '슬롯 카드 없음(STG 데이터 상태 의존) — 생성 후 재확인')
+  test.skip((await menu.count()) === 0, '슬롯 카드 없음 — 생성 플로우 선행 시 카드 존재해 실행됨')
   await menu.first().click()
   await expect(page.getByRole('button', { name: '수정' })).toBeVisible()
   await page.keyboard.press('Escape')
@@ -48,7 +37,7 @@ test('SLOT-BOARD-002 @major 카드 메뉴에서 수정 진입 UI가 노출된다
 
 test('SLOT-BOARD-003 @critical 삭제 모달만 확인(확정 금지)', async ({ page }) => {
   const menu = page.locator('button[data-context-menu="true"]')
-  test.skip((await menu.count()) === 0, '슬롯 카드 없음(STG 데이터 상태 의존)')
+  test.skip((await menu.count()) === 0, '슬롯 카드 없음 — 생성 플로우 선행 시 카드 존재해 실행됨')
   await menu.first().click()
   await page.getByRole('button', { name: '삭제' }).click()
   // 삭제 확인 모달/다이얼로그 노출만 확인. HARD RULE: 확정 버튼 클릭 코드 없음.
@@ -69,7 +58,7 @@ test('SLOT-BOARD-005 @major 필터 패널이 노출된다', async ({ page }) => 
 
 test('SLOT-BOARD-006 @minor 페이징 컨트롤이 노출된다', async ({ page }) => {
   const pager = page.getByRole('button', { name: '1', exact: true })
-  test.skip((await pager.count()) === 0, '항목 수가 적어 페이징 미노출 — 데이터 충분 시 재확인')
+  test.skip((await pager.count()) === 0, '항목 수가 적어 페이징 미노출 — 생성 누적 시 노출될 수 있음')
   await expect(pager.first()).toBeVisible()
 })
 

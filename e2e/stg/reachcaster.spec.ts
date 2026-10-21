@@ -36,16 +36,17 @@ test('REACH-CASTER-004 @minor 리스트 모드 토글', async () => {
   test.fixme(true, '리스트 모드 토글 셀렉터 미확보(실제 DOM 재확인 필요) — 증거 확보 시 작성')
 })
 
-test.fixme('REACH-CASTER-005 @critical 생성 R/F 플로우', async ({ page }) => {
-  // 실제 생성 시 시나리오명 testName('rc-rf') 사용. 확정은 하지 않음(flaky/부작용).
+// 실제 최종 생성은 create-flow.spec.ts(CREATE-FLOW-004/005)가 소유한다(중복 생성 방지).
+// 여기서는 생성 진입·모드 선택·필수 영역 노출까지의 read-only 검증만 한다.
+test('REACH-CASTER-005 @critical 생성 R/F 진입·모드 선택', async ({ page }) => {
   await page.getByRole('button', { name: 'New Scenario' }).click()
   await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
   await page.getByRole('button', { name: /Ratio Finder/ }).click()
+  // Ratio Finder 선택 시 브랜드 선택 필드 노출(필수 영역 노출 확인). 최종 생성은 create-flow가 담당.
   await expect(page.getByRole('button', { name: /브랜드를 선택하세요/ })).toBeVisible()
 })
 
-test.fixme('REACH-CASTER-006 @critical 생성 R/P 플로우', async ({ page }) => {
-  // 실제 생성 시 시나리오명 testName('rc-rp') 사용. 확정은 하지 않음.
+test('REACH-CASTER-006 @critical 생성 R/P 진입·모드 선택', async ({ page }) => {
   await page.getByRole('button', { name: 'New Scenario' }).click()
   await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
   await page.getByRole('button', { name: /Reach Predictor/ }).click()
@@ -54,14 +55,14 @@ test.fixme('REACH-CASTER-006 @critical 생성 R/P 플로우', async ({ page }) =
 
 test('REACH-CASTER-007 @critical 삭제 모달만 확인(확정 금지)', async ({ page }) => {
   const menu = page.locator('button[data-context-menu]')
-  test.skip((await menu.count()) === 0, '시나리오 카드 없음(STG 데이터 상태 의존)')
+  test.skip((await menu.count()) === 0, '시나리오 카드 없음 — create-flow 선행 시 카드 존재해 실행됨')
   await menu.first().click()
   await page.getByRole('button', { name: '삭제' }).click()
   await expect(page.locator('.dialog-overlay, [role="dialog"]').first()).toBeVisible()
   await closeDeleteModal(page)
 })
 
-// 완료 시나리오 fixture 미확보 → fixme.
+// 완료 시나리오 fixture 미확보 → fixme. (create-flow가 R/C 시나리오를 생성하므로 추후 결과 진입으로 un-fixme 가능)
 test.fixme('REACH-CASTER-008 @major 복제', async () => {
   // 복제 메뉴는 결과/상세 헤더에만 존재. 완료 시나리오 fixture 필요.
 })
