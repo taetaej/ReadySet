@@ -5,11 +5,9 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
-import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
-// 우하단 액션 독(SpinX 입력 바 + ＋ 런처)은 작업 중이라 보류. 아래 ActionDock 사용부 참고.
-// import { ActionDock, type DockAction } from '../common/ActionDock'
+import { ActionDock, type DockAction } from '../common/ActionDock'
 import { KPI_LABELS } from './types'
 import { getBOResult, KPI_META } from './resultSampleData'
 import { BOResultTable } from './BOResultTable'
@@ -104,10 +102,9 @@ export function BOResult() {
   const fmtWon = (v: number) => `₩${v.toLocaleString('ko-KR')}`
 
   // 액션 독에 주입하는 컨텍스트 액션 (현재 1개 — 확장 대비 배열 설계)
-  // 액션 독 작업 보류로 주석 처리. 재개 시 아래 + ActionDock 렌더부를 함께 살린다.
-  // const dockActions: DockAction[] = [
-  //   { id: 'reach-predict', label: '도달 예측하기', icon: <TrendingUp size={16} />, onSelect: () => setEasyCreateOpen(true) }
-  // ]
+  const dockActions: DockAction[] = [
+    { id: 'reach-predict', label: '도달 예측하기', icon: <TrendingUp size={16} />, onSelect: () => setEasyCreateOpen(true) }
+  ]
 
   // SpinX에게 최적화 원리 물어보기 트리거 (Reach Caster Effective Impression 패턴)
   // 호버: 최적화 원리 요약 툴팁(B) / 클릭: SpinX 원리 설명 자동 전송(C)
@@ -422,13 +419,9 @@ export function BOResult() {
         </div>
       </div>
 
-      {/* 우하단 SpinX 플로팅 버튼 (기본) */}
-      <SpinXButton isDarkMode={isDarkMode} onClick={() => setSpinXOpen(true)} isOpen={spinXOpen} />
-
-      {/* [보류] 우하단 액션 독 (SpinX 입력 바 + ＋ 액션 런처) — 작업 중이라 비활성화.
-          재개 시 위 SpinXButton을 제거하고 아래 블록 + 관련 import/dockActions를 함께 살린다.
+      {/* 우하단 액션 독 (SpinX 입력 바 + ＋ 액션 런처).
           패널이 열려있는 동안은 숨겨 400px 패널과의 겹침을 피한다. */}
-      {/* {!spinXOpen && (
+      {!spinXOpen && (
         <ActionDock
           actions={dockActions}
           spinx={{
@@ -443,7 +436,7 @@ export function BOResult() {
           }}
           isDarkMode={isDarkMode}
         />
-      )} */}
+      )}
 
       {/* SpinX */}
       <SpinXPanel
