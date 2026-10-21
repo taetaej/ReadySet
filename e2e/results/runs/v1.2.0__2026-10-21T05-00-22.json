@@ -1,0 +1,440 @@
+{
+  "version": "v1.2.0",
+  "feature": "STG Sanity QA",
+  "startedAt": "2026-10-21T05:00:22.057Z",
+  "durationMs": 118518.63900000001,
+  "specs": [
+    {
+      "title": "AUTH-001 @minor admin/marketer 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "AUTH-002 @minor agency 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "AUTH-003 @minor client 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-001 @major 시나리오 목록이 표시된다",
+      "status": "passed",
+      "duration": 2667,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-002 @major 검색 입력이 노출된다",
+      "status": "passed",
+      "duration": 2619,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-003 @major 필터 패널이 노출된다",
+      "status": "passed",
+      "duration": 2631,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-004 @major 정렬 컨트롤이 동작한다",
+      "status": "skipped",
+      "duration": 2587,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-005 @critical 생성 진입",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3116,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-007 @major 복제",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-008 @major 이동",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-009 @critical 결과",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-010 @major 다운로드",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "BUDGET-OPT-011 @major CTA(Reach Caster 연계)",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-001 @critical 로고가 헤더에 노출된다",
+      "status": "passed",
+      "duration": 2946,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-002 @major 라이트/다크 테마 토글 버튼이 동작한다",
+      "status": "passed",
+      "duration": 3015,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-003 @major 유저 프로필을 열면 계정 정보가 표시된다",
+      "status": "passed",
+      "duration": 3007,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-004 @major 프로필 드롭다운에 접속 이력이 표시된다",
+      "status": "passed",
+      "duration": 3009,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-005 @critical 로그아웃 메뉴가 노출된다(클릭 금지)",
+      "status": "passed",
+      "duration": 2991,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-009 @major 레이어 팝업이 표시되고 닫기로 사라진다",
+      "status": "passed",
+      "duration": 5585,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-006 @minor GNB>FAB Client 표시",
+      "status": "skipped",
+      "duration": 2948,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-007 @minor GNB>FAB 알림",
+      "status": "skipped",
+      "duration": 2950,
+      "error": null
+    },
+    {
+      "title": "GNB-COMMON-008 @minor GNB>FAB 등급",
+      "status": "skipped",
+      "duration": 2977,
+      "error": null
+    },
+    {
+      "title": "MISC-COMMON-001 @major DOCS로 진입한다",
+      "status": "passed",
+      "duration": 4527,
+      "error": null
+    },
+    {
+      "title": "MISC-COMMON-002 @minor 생성 알림",
+      "status": "skipped",
+      "duration": 2936,
+      "error": null
+    },
+    {
+      "title": "MISC-COMMON-003 @minor 등급 알림",
+      "status": "skipped",
+      "duration": 2938,
+      "error": null
+    },
+    {
+      "title": "MISC-COMMON-004 @minor 등급 결과물 카운트",
+      "status": "skipped",
+      "duration": 2929,
+      "error": null
+    },
+    {
+      "title": "MISC-COMMON-005 @minor 등급 사용 솔루션 체크",
+      "status": "skipped",
+      "duration": 2942,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-001 @major 데이터셋 목록이 표시된다",
+      "status": "passed",
+      "duration": 2600,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-002 @major 검색 입력이 노출된다",
+      "status": "passed",
+      "duration": 2626,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-003 @major 필터 패널이 노출된다",
+      "status": "passed",
+      "duration": 2610,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-004 @critical 생성 진입",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-005 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3117,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-006 @major 이동",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-007 @critical 결과",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "DATA-SHOT-008 @major 다운로드",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-001 @major 시나리오 목록이 표시된다",
+      "status": "passed",
+      "duration": 2602,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-002 @major 검색 입력이 노출된다",
+      "status": "passed",
+      "duration": 2619,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-003 @major 필터 패널이 노출된다",
+      "status": "passed",
+      "duration": 2628,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-004 @minor 리스트 모드 토글",
+      "status": "skipped",
+      "duration": 2585,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-005 @critical 생성 R/F 플로우",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-006 @critical 생성 R/P 플로우",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-007 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3120,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-008 @major 복제",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-009 @major 이동",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-010 @critical 결과 R/F",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-011 @critical 결과 R/P",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-012 @major 시나리오 비교",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "REACH-CASTER-013 @major 다운로드",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-001 @critical 슬롯 생성 — (주)세정 + Private + test_v*",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-002 @major 카드 메뉴에서 수정 진입 UI가 노출된다",
+      "status": "passed",
+      "duration": 3016,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-003 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3620,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-004 @major 검색 입력이 노출된다",
+      "status": "passed",
+      "duration": 2986,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-005 @major 필터 패널이 노출된다",
+      "status": "passed",
+      "duration": 3020,
+      "error": null
+    },
+    {
+      "title": "SLOT-BOARD-006 @minor 페이징 컨트롤이 노출된다",
+      "status": "passed",
+      "duration": 2949,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-001 @major FinalSet 영역이 표시된다",
+      "status": "passed",
+      "duration": 2695,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다",
+      "status": "passed",
+      "duration": 2641,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-003 @major FinalSet 설정 레이어에서 적용 버튼이 노출된다",
+      "status": "passed",
+      "duration": 2621,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-004 @major Activity Log 섹션이 표시된다",
+      "status": "passed",
+      "duration": 2588,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-005 @major Resource 섹션이 표시된다",
+      "status": "passed",
+      "duration": 2595,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-006 @major 파일 추가 레이어가 열린다",
+      "status": "passed",
+      "duration": 2679,
+      "error": null
+    },
+    {
+      "title": "SLOT-HOME-007 @minor 파일 변경",
+      "status": "skipped",
+      "duration": 2581,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-001 @major FAB",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-002 @major 요약·질문",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-003 @major 질문답변",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-004 @minor 모델 변경",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-005 @major R/C Effective Impression",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-006 @major B/O 최적화 원리",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-007 @minor B/O 세션",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-008 @minor B/O 초기화",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-009 @minor B/O 사이징",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    },
+    {
+      "title": "SPINX-COMMON-010 @minor B/O usage",
+      "status": "skipped",
+      "duration": 0,
+      "error": null
+    }
+  ]
+}
