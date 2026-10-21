@@ -1,4 +1,16 @@
-import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal } from './fixtures'
+import {
+  test,
+  expect,
+  gotoStable,
+  dismissLaunchPopup,
+  closeDeleteModal,
+  completedIds,
+  resultPath,
+  enterResult,
+  openHeaderMenu,
+  countBoRows,
+  fixtureSlotId,
+} from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BudgetOpt 2.0 — AREA=BUDGET-OPT
@@ -10,8 +22,9 @@ import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal } from '
 // 삭제 TC: 모달 노출까지만. 확정 금지.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// 데이터가 있는 고정 픽스처 슬롯(148)에서 목록 테스트를 실제 수행(검색/정렬/필터/페이징 실동작).
 test.beforeEach(async ({ page }) => {
-  await gotoStable(page, '/slots/1/budgetopt')
+  await gotoStable(page, '/slots/' + fixtureSlotId() + '/budgetopt')
   await dismissLaunchPopup(page)
 })
 
@@ -21,14 +34,46 @@ test('BUDGET-OPT-001 @major 시나리오 목록이 표시된다', async ({ page 
   await expect(page.getByRole('button', { name: '필터' })).toBeVisible()
 })
 
-test('BUDGET-OPT-002 @major 검색 입력이 노출된다', async ({ page }) => {
+test('BUDGET-OPT-002 @major 검색 — 입력 시 목록이 필터링된다', async ({ page }) => {
+  const before = await page.locator('tbody tr').count()
   await page.getByRole('button', { name: '검색' }).click()
-  await expect(page.locator('input[placeholder="시나리오명, 생성자 검색"]')).toBeVisible()
+  const input = page.locator('input[placeholder="시나리오명, 생성자 검색"]')
+  await expect(input).toBeVisible()
+  // 특정 순번(test_v1.2.0_bo_01)으로 검색 → 결과가 줄어드는 변화 확인(노출만이 아니라 실제 필터링).
+  await input.fill('test_v1.2.0_bo_01')
+  await page.waitForTimeout(1500)
+  const after = await page.locator('tbody tr').count()
+  expect(after).toBeLessThan(before)
 })
 
-test('BUDGET-OPT-003 @major 필터 패널이 노출된다', async ({ page }) => {
+test('BUDGET-OPT-003 @major 필터 — 상태 필터 적용 시 목록이 변한다', async ({ page }) => {
+  const before = await page.locator('tbody tr').count()
   await page.getByRole('button', { name: '필터' }).click()
   await expect(page.getByRole('button', { name: '필터 초기화' })).toBeVisible()
+  // 상태 필터는 체크박스 드롭다운(Completed/Processing/Pending/Error). 픽스처는 전부 Completed라
+  // 'Processing' 체크 시 결과 집합이 바뀐다(적용+변화 검증).
+  const processing = page.getByText('Processing', { exact: true }).first()
+  test.skip((await processing.count()) === 0, '상태 필터 컨트롤 미노출(패널 구조 변경 가능)')
+  await processing.click()
+  await page.waitForTimeout(1500)
+  const after = await page.locator('tbody tr').count()
+  expect(after).not.toBe(before)
+  // 초기화로 원복(부작용 없음).
+  await page.getByRole('button', { name: '필터 초기화' }).click().catch(() => {})
+})
+
+test('BUDGET-OPT-012 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다', async ({ page }) => {
+  // 고정 슬롯 148은 ~25행이라 페이지가 나뉜다.
+  const page2 = page.getByRole('button', { name: '2', exact: true })
+  test.skip((await page2.count()) === 0, '페이지가 1개뿐 — 페이징 미노출')
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  // 1페이지 첫 행 id
+  const firstIdP1 = (await page.locator('tbody tr td').nth(1).textContent())?.trim()
+  await page2.first().click()
+  await page.waitForTimeout(1500)
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  const firstIdP2 = (await page.locator('tbody tr td').nth(1).textContent())?.trim()
+  expect(firstIdP2).not.toBe(firstIdP1)
 })
 
 test('BUDGET-OPT-004 @major 정렬 — 테이블 컬럼 헤더 클릭', async ({ page }) => {
@@ -59,23 +104,90 @@ test('BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)', async ({
   await closeDeleteModal(page)
 })
 
-// 결과 화면 기반 — STG 완료 시나리오 id 미확보 → fixme.
-// 진입 가능해지면 기존 budgetopt-result.spec.ts 셀렉터 재사용:
-//   헤더 메뉴 복제/이동/삭제, Optimization Analytics / Budget Allocation Detail,
-//   Export(Copy Link/Excel/PDF), CTA 'Reach Caster로 예측하기'.
-test.fixme('BUDGET-OPT-007 @major 복제', async () => {
-  // 결과 헤더 메뉴(복제/이동/삭제)·완료 시나리오 fixture 필요.
+// 결과 화면 기반 — 고정 슬롯 148의 완료(Completed) BO 시나리오 fixture로 실활성화.
+// 결과 라우트(라이브 DOM 확정): /slots/148/budgetopt/scenarios/{id}/result
+// 헤더 셀렉터는 budgetopt-result.spec.ts의 role/text 재사용(STG DOM과 일치 확인).
+
+test('BUDGET-OPT-009 @critical 결과 — 핵심 섹션 렌더', async ({ page }) => {
+  const id = await enterResult(page, 'bo')
+  test.skip(!id, '완료 BO fixture id 미확보(fixture-ids.json completed.bo 비어있음)')
+  // 결과 핵심 섹션 제목 렌더(열림만으로 판정하지 않음)
+  await expect(page.getByRole('heading', { name: 'Optimization Analytics' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Budget Allocation Detail' })).toBeVisible()
+  // 차트 인사이트 SpinX 헤더 존재(결과가 실제로 그려졌다는 신호)
+  await expect(page.getByText('SpinX for BudgetOpt 2.0').first()).toBeVisible()
 })
-test.fixme('BUDGET-OPT-008 @major 이동', async () => {
-  // 결과 헤더 메뉴·완료 시나리오 fixture 필요.
+
+test('BUDGET-OPT-007 @major 복제 — 실제 복제 실행 후 목록 1건 증가', async ({ page }) => {
+  const id = completedIds('bo')[0]
+  test.skip(!id, '완료 BO fixture id 미확보')
+  // 복제본 이름 prefix: STG가 '(복제)' 접미 없이 '(복제)test_v1.2.0_bo_NN' 형태로 prefill.
+  const clonePrefix = '(복제)test_v1.2.0_bo'
+  const before = await countBoRows(page, clonePrefix)
+
+  // 결과 진입 → 헤더 컨텍스트 메뉴 '복제' → 복제 위저드(copyScenarioId)로 이동(이름 prefill)
+  await gotoStable(page, resultPath('bo', id))
+  await dismissLaunchPopup(page)
+  await page.waitForTimeout(1500)
+  const opened = await openHeaderMenu(page, /^복제$/)
+  test.skip(!opened, '결과 헤더에서 복제 메뉴를 열지 못함(헤더 구조 변경 가능)')
+  await page.getByText('복제', { exact: true }).first().click()
+  await page.waitForTimeout(2500)
+  // 복제=생성 위저드가 열리며 이름이 test_v* 포함으로 prefill됨(앱이 '(복제)' 접두 부여 — 수용)
+  await expect(page.getByRole('heading', { name: '새 시나리오 생성' })).toBeVisible()
+  const nameVal = await page.locator('input[placeholder="시나리오명을 입력하세요."]').inputValue()
+  expect(nameVal).toMatch(/test_v/)
+
+  // 위저드는 전부 prefill → '다음' 2회로 Step3 도달 후 '시나리오 생성 요청'(생성 허용, 완료 대기 안 함)
+  for (let s = 0; s < 2; s++) {
+    const next = page.getByRole('button', { name: '다음' }).first()
+    if ((await next.count()) && !(await next.isDisabled().catch(() => true))) {
+      await next.click()
+      await page.waitForTimeout(1500)
+    }
+  }
+  await page.getByRole('button', { name: /시나리오 생성 요청/ }).click()
+  await page.waitForTimeout(3500)
+
+  // 목록에서 복제본이 1건 늘었는지 검증(복제=생성, 삭제 아님)
+  const after = await countBoRows(page, clonePrefix)
+  expect(after).toBeGreaterThanOrEqual(before + 1)
 })
-test.fixme('BUDGET-OPT-009 @critical 결과', async () => {
-  // STG 완료 시나리오 id 미확보. 진입 시 Optimization Analytics/Budget Allocation Detail 재사용.
+
+test('BUDGET-OPT-008 @major 이동 — 헤더 메뉴 레이어 열림까지', async ({ page }) => {
+  const id = await enterResult(page, 'bo')
+  test.skip(!id, '완료 BO fixture id 미확보')
+  // '이동'은 부작용(슬롯 이동) 방지 위해 메뉴/레이어 열림까지만. 실제 이동 확정 클릭 없음.
+  const opened = await openHeaderMenu(page, /^이동$/)
+  test.skip(!opened, '결과 헤더에서 이동 메뉴를 열지 못함')
+  await expect(page.getByText('이동', { exact: true }).first()).toBeVisible()
+  await page.keyboard.press('Escape').catch(() => {})
 })
-test.fixme('BUDGET-OPT-010 @major 다운로드', async () => {
-  // Export 메뉴(Copy Link/Excel/PDF) 트리거는 기존 셀렉터로 가능하나 완료 시나리오 진입 필요.
-  // 다운로드 계약은 // 보류:.
+
+test('BUDGET-OPT-010 @major 다운로드 — Export to Excel 다운로드 이벤트 수신', async ({ page }) => {
+  const id = await enterResult(page, 'bo')
+  test.skip(!id, '완료 BO fixture id 미확보')
+  const opened = await openHeaderMenu(page, 'Copy Link')
+  test.skip(!opened, '결과 헤더에서 Export 메뉴를 열지 못함')
+  await expect(page.getByText('Export to Excel')).toBeVisible()
+  // 실제 다운로드 이벤트 수신(수신만, 생성물 삭제 안 함). 내용 심층검증은 보류.
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 15_000 }),
+    page.getByText('Export to Excel').first().click(),
+  ])
+  // 파일명/확장자 확인(.xlsx)
+  expect(download.suggestedFilename()).toMatch(/\.xlsx$/)
 })
-test.fixme('BUDGET-OPT-011 @major CTA(Reach Caster 연계)', async () => {
-  // 결과 화면 'Reach Caster로 예측하기' CTA — 완료 시나리오 진입 필요.
+
+test('BUDGET-OPT-011 @major CTA(Reach Caster 연계) — 간편 생성 진입', async ({ page }) => {
+  const id = await enterResult(page, 'bo')
+  test.skip(!id, '완료 BO fixture id 미확보')
+  const cta = page.getByText('Reach Caster로 예측하기').first()
+  test.skip((await cta.count()) === 0, '결과 화면에 Reach Caster CTA 미노출')
+  await cta.click()
+  await page.waitForTimeout(1500)
+  // 간편 생성 모달 heading 노출(실제 생성은 하지 않음 — CTA 연계 진입만 검증)
+  await expect(
+    page.getByRole('heading', { name: /최적화 예산으로 도달 예측하기/ })
+  ).toBeVisible()
 })

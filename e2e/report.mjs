@@ -107,14 +107,12 @@ function summarize(specs) {
   return { total, passed, failed, skipped, rate }
 }
 
-// ── 버전 섹션 렌더 ───────────────────────────────────────────
-function renderVersion([version, list]) {
-  const latest = list[list.length - 1]
-  const rows = latest.specs.map(s => ({ ...s, ...parse(s.title) }))
-  const sum = summarize(latest.specs)
-  const durSec = (latest.durationMs / 1000).toFixed(1)
+// 한 회차(run)의 본문(카드/영역별/상세)만 렌더 — 회차 전환 시 서버가 미리 구운 HTML 조각을 토글한다.
+// (클라이언트 재집계 대신 회차별 조각을 숨겨두고 바꿔끼움 = 외부 의존 0, 산출 동일 보장)
+function renderRunBody(run) {
+  const rows = run.specs.map(s => ({ ...s, ...parse(s.title) }))
+  const sum = summarize(run.specs)
 
-  // 영역별
   const byArea = {}
   for (const r of rows) {
     byArea[r.area] ??= { total: 0, passed: 0, failed: 0 }
@@ -134,11 +132,6 @@ function renderVersion([version, list]) {
     </tr>`
   }).join('')
 
-  // 회차 이력 (2건 이상일 때)
-  const history = list.length > 1
-    ? `<div class="history">회차 이력: ${list.map(r => { const su = summarize(r.specs); return `<span class="hist-item" title="${esc(fmtDate(r.startedAt))}">${su.passed}/${su.total}</span>` }).join(' → ')}</div>`
-    : ''
-
   const detail = rows.map(r => `<tr class="row-${r.status}">
     <td class="mono small nowrap">${esc(r.id)}</td>
     <td>${prBadge(r.priority)}</td>
@@ -147,22 +140,12 @@ function renderVersion([version, list]) {
     <td class="num dim small">${Math.round(r.duration)}ms</td>
   </tr>${r.error ? `<tr class="errrow"><td></td><td colspan="4"><pre>${esc(r.error)}</pre></td></tr>` : ''}`).join('')
 
-  return `<section class="ver">
-    <div class="ver-head">
-      <div class="ver-left">
-        <span class="ver-tag">${esc(version)}</span>
-        <span class="ver-feature">${esc(latest.feature)}</span>
-      </div>
-      <div class="ver-meta">${esc(fmtDate(latest.startedAt))} · ${durSec}초</div>
-    </div>
-
-    <div class="cards">
+  return `<div class="cards">
       <div class="metric"><div class="m-label">전체</div><div class="m-value">${sum.total}</div></div>
       <div class="metric"><div class="m-label">통과</div><div class="m-value ok">${sum.passed}</div></div>
       <div class="metric"><div class="m-label">실패</div><div class="m-value ${sum.failed ? 'bad' : 'dim'}">${sum.failed}</div></div>
       <div class="metric"><div class="m-label">통과율</div><div class="m-value ${sum.rate === 100 ? 'rate100' : 'amber'}">${sum.rate}%</div></div>
     </div>
-    ${history}
 
     <h3 class="sub-h">영역별 결과 <span class="sub-note">어디를 얼마나 테스트했나</span></h3>
     <table class="area">
@@ -174,7 +157,47 @@ function renderVersion([version, list]) {
     <table class="detail">
       <thead><tr><th>TC ID</th><th>우선순위</th><th>테스트 내용</th><th class="center">결과</th><th class="num">소요</th></tr></thead>
       <tbody>${detail}</tbody>
-    </table>
+    </table>`
+}
+
+// ── 버전 섹션 렌더 ───────────────────────────────────────────
+function renderVersion([version, list], verIdx) {
+  // list는 오래된→최신 순. 회차 선택은 최신이 기본.
+  const lastIdx = list.length - 1
+  const latest = list[lastIdx]
+
+  // 회차 선택 UI (회차 2건 이상일 때만). 라벨 = 날짜 + passed/total + 통과율.
+  const roundSelect = list.length > 1
+    ? `<label class="round-pick">
+        <span class="round-label">회차</span>
+        <select class="round-select" data-ver="${verIdx}" aria-label="${esc(version)} 회차 선택">
+          ${list.map((r, i) => {
+            const su = summarize(r.specs)
+            const isLatest = i === lastIdx
+            return `<option value="${i}"${isLatest ? ' selected' : ''}>${esc(fmtDate(r.startedAt))} · ${su.passed}/${su.total} (${su.rate}%)${isLatest ? ' · 최신' : ''}</option>`
+          }).reverse().join('')}
+        </select>
+      </label>`
+    : ''
+
+  // 각 회차의 본문 조각을 모두 구워 숨겨두고, 선택된 회차만 표시한다.
+  const bodies = list.map((r, i) => {
+    const durSec = (r.durationMs / 1000).toFixed(1)
+    return `<div class="run-body" data-ver="${verIdx}" data-run="${i}"${i === lastIdx ? '' : ' hidden'}>
+      <div class="run-meta">${esc(fmtDate(r.startedAt))} · ${durSec}초</div>
+      ${renderRunBody(r)}
+    </div>`
+  }).join('')
+
+  return `<section class="ver">
+    <div class="ver-head">
+      <div class="ver-left">
+        <span class="ver-tag">${esc(version)}</span>
+        <span class="ver-feature">${esc(latest.feature)}</span>
+      </div>
+      ${roundSelect}
+    </div>
+    ${bodies}
   </section>`
 }
 
@@ -211,6 +234,16 @@ const html = `<!doctype html>
     border-radius:999px;padding:3px 14px;letter-spacing:0.01em}
   .ver-feature{color:var(--fg);font-size:14px}
   .ver-meta{color:var(--muted-fg);font-size:12px;white-space:nowrap}
+  /* 회차 선택: 무채색 베이스, 강조 없음(1px 구분선만). 시그니처 그린은 버전태그·통과율100%에만. */
+  .round-pick{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .round-label{font-size:11px;color:var(--muted-fg)}
+  .round-select{appearance:none;background:var(--panel-2);color:var(--fg);
+    border:1px solid var(--border);border-radius:8px;padding:6px 28px 6px 12px;font-size:12px;
+    font-family:inherit;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%239a9a9f' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center}
+  .round-select:hover{border-color:var(--muted-fg)}
+  .run-meta{color:var(--muted-fg);font-size:12px;margin:-4px 0 14px}
 
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
   .metric{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
@@ -254,13 +287,26 @@ const html = `<!doctype html>
   </div>
   <div class="lead">마지막 실행 <b>${esc(fmtDate(latestOverall))}</b> · 버전 ${versions.length}개 · 자동화 범위: ${esc(FEATURE)}</div>
 
-  ${versions.map(renderVersion).join('')}
+  ${versions.map((v, i) => renderVersion(v, i)).join('')}
 
   <div class="foot">
     원본 TC: <code>e2e/tc/ReadySet_BO_Result_TC_Playwright.md</code> · 자동/수동 분류: <code>e2e/tc/자동화_분류.md</code><br>
     실행: <code>npx playwright test</code> · 리포트 생성: <code>QA_VERSION=v1.2.0 node e2e/report.mjs</code> · 상세 로그: <code>npx playwright show-report</code>
   </div>
-</div></body></html>`
+</div>
+<script>
+  // 회차 선택 → 해당 회차 본문 조각만 표시(서버가 구운 조각 토글). 외부 의존 0.
+  document.querySelectorAll('.round-select').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      var ver = sel.getAttribute('data-ver')
+      var run = sel.value
+      document.querySelectorAll('.run-body[data-ver="' + ver + '"]').forEach(function (body) {
+        body.hidden = body.getAttribute('data-run') !== run
+      })
+    })
+  })
+</script>
+</body></html>`
 
 writeFileSync(OUT_PATH, html, 'utf-8')
 console.log('대시보드 생성:', OUT_PATH)

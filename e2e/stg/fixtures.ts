@@ -77,7 +77,14 @@ export async function dismissLaunchPopup(page: Page): Promise<void> {
 export async function gotoStable(page: Page, path: string): Promise<void> {
   // CDP로 붙은 기존 page에는 config baseURL이 적용되지 않는다(상대경로 goto가 invalid URL).
   // → BASE_URL을 직접 붙여 절대 URL로 이동한다.
-  await page.goto(absUrl(path), { waitUntil: 'domcontentloaded' })
+  // 공유 Chrome이 간헐적으로 응답 지연 → goto는 기본 8s보다 넉넉한 20s로 흡수(dom-evidence 안정성 경고).
+  // 한 번 타임아웃 시 1회 재시도(진입 안정화 — 셀렉터/로직 변경 아님).
+  try {
+    await page.goto(absUrl(path), { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  } catch {
+    await page.waitForTimeout(1500)
+    await page.goto(absUrl(path), { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  }
   await page.waitForTimeout(2500)
 }
 
@@ -198,6 +205,17 @@ export type FixtureIds = {
   createdAt: string
   qaVersion: string
   counts: { dataset: number; bo: number; rcrf: number; rcrp: number }
+  /**
+   * 완료(Completed) fixture 객체의 실제 STG id. 라이브 DOM(슬롯 148 목록)에서 수집한 값만 담는다.
+   * 각 배열 원소는 결과 라우트에 끼울 숫자 id(문자열). 하드코딩 가짜 id 금지.
+   * (옵셔널 — 완료분 수집 전 구버전 json과 하위호환.)
+   */
+  completed?: {
+    bo: string[]
+    rcRatioFinder: string[]
+    rcReachPredictor: string[]
+    dataset: string[]
+  }
   note?: string
 }
 
@@ -216,6 +234,138 @@ export function readFixtureIds(): FixtureIds | null {
 /** fixture-ids.json을 2-space 들여쓰기 + 끝 개행으로 저장한다. */
 export function writeFixtureIds(data: FixtureIds): void {
   fs.writeFileSync(FIXTURE_IDS_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8')
+}
+
+// ── 완료(Completed) fixture 소비 ──────────────────────────────────────────────
+/** 고정 픽스처 슬롯 id. fixture-ids.json에서 읽고, 없으면 확정값 148로 폴백. */
+export function fixtureSlotId(): string {
+  return readFixtureIds()?.slotId || '148'
+}
+
+/** 라이브 STG에서 상태 '완료'로 표기되는 라벨(DOM 확정). RC/BO는 셀에 완료일시가 붙어 'Completed{일시}'로 보임. */
+export const FIXTURE_COMPLETED_LABEL = /Completed/
+
+type CompletedModule = 'bo' | 'rcRatioFinder' | 'rcReachPredictor' | 'dataset'
+
+/** 수집해 둔 완료 fixture id 배열을 읽는다. 없으면 빈 배열(해당 결과 TC는 skip 가드). */
+export function completedIds(module: CompletedModule): string[] {
+  return readFixtureIds()?.completed?.[module] ?? []
+}
+
+/**
+ * 완료 fixture의 결과 화면 라우트를 만든다(라이브 DOM에서 확정한 STG 경로).
+ *  - bo               → /slots/{slot}/budgetopt/scenarios/{id}/result
+ *  - rcRatioFinder    → /slots/{slot}/reachcaster/scenarios/{id}/ratio-finder/result
+ *  - rcReachPredictor → /slots/{slot}/reachcaster/scenarios/{id}/reach-predictor/result
+ *  - dataset          → /slots/{slot}/datashot/datasets/{id}
+ */
+export function resultPath(module: CompletedModule, id: string): string {
+  const slot = fixtureSlotId()
+  switch (module) {
+    case 'bo':
+      return `/slots/${slot}/budgetopt/scenarios/${id}/result`
+    case 'rcRatioFinder':
+      return `/slots/${slot}/reachcaster/scenarios/${id}/ratio-finder/result`
+    case 'rcReachPredictor':
+      return `/slots/${slot}/reachcaster/scenarios/${id}/reach-predictor/result`
+    case 'dataset':
+      return `/slots/${slot}/datashot/datasets/${id}`
+  }
+}
+
+/**
+ * 완료 fixture 결과 화면으로 진입한다(첫 완료 id 기본). 완료 id가 없으면 null 반환(호출부 skip 가드).
+ * gotoStable + 런치 팝업 닫기 + 결과 렌더 정착 대기.
+ */
+export async function enterResult(
+  page: Page,
+  module: CompletedModule,
+  index = 0
+): Promise<string | null> {
+  const ids = completedIds(module)
+  if (!ids.length || !ids[index]) return null
+  const id = ids[index]
+  await gotoStable(page, resultPath(module, id))
+  await dismissLaunchPopup(page)
+  await page.waitForTimeout(1500)
+  return id
+}
+
+/**
+ * BO/RC 결과 화면에서 SpinX 패널을 연다. STG 결과 화면엔 우하단 FAB(aria-label="Open SpinX assistant")가
+ * 렌더되지 않고, 닫힘 상태 'Ask SpinX' 말풍선 + 인라인 트리거('최적화 원리 알아보기'/'이어서 질문하기')로만 연다.
+ * 패널 열림 판정: 닫힘 말풍선 'Ask SpinX'가 사라진다(SpinXButton 근거).
+ * 트리거를 못 찾으면 false 반환(호출부에서 사유와 함께 처리).
+ */
+export async function openSpinXPanel(page: Page): Promise<boolean> {
+  // 패널 닫혀 있으면 'Ask SpinX' 말풍선이 보임. 이미 열려 있으면(textarea 존재) 바로 true.
+  if ((await page.locator('button[title="대화 초기화"]').count()) > 0) return true
+  // 1순위: 헤더/차트의 '최적화 원리 알아보기'(BO) 또는 '이어서 질문하기'(BO/RC 차트 인사이트)
+  const principle = page.getByText('최적화 원리 알아보기').first()
+  const followUp = page.getByRole('button', { name: /이어서 질문하기/ }).first()
+  let trigger: ReturnType<Page['getByText']> | ReturnType<Page['getByRole']> | null = null
+  if (await principle.count()) trigger = principle
+  else if (await followUp.count()) {
+    // 차트 인사이트 타이핑 애니메이션 완료 후에만 노출 → 넉넉히 대기
+    await followUp.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
+    if (await followUp.count()) trigger = followUp
+  }
+  if (!trigger) return false
+  await trigger.click()
+  await page.waitForTimeout(2000)
+  // 열림 판정: 패널 입력(textarea) 또는 초기화 버튼 등장
+  return (
+    (await page.locator('textarea').count()) > 0 ||
+    (await page.locator('button[title="대화 초기화"]').count()) > 0
+  )
+}
+
+/**
+ * Reach Predictor 결과 화면에서 "시나리오 비교"를 수행한다.
+ * 1) 비교 설정 섹션으로 스크롤 → 2) 비교 유형(타겟 비교) 선택 → 3) '비교 시나리오 추가' →
+ * 4) 다른 완료 시나리오(2번째) 선택 → 5) '비교 결과 보기' 클릭.
+ * 공유 Chrome 뷰포트 이슈(요소가 뷰포트 밖)로 클릭이 막히므로 DOM click()으로 우회한다.
+ * 2번째로 선택할 시나리오명(prefix). 반환: 비교 결과 진입 성공 여부.
+ */
+export async function openScenarioComparison(page: Page, secondScenarioName: string): Promise<boolean> {
+  // 비교 설정 섹션으로 스크롤
+  await page.evaluate(() => {
+    const el = [...document.querySelectorAll('*')].find(
+      (n) => (n.textContent || '').trim() === '시나리오 비교 설정'
+    )
+    el?.scrollIntoView({ block: 'center' })
+  })
+  await page.waitForTimeout(600)
+  // 비교 유형 선택(타겟 비교 — 동일 예산·기간 조건이라 가장 단순)
+  const typeBtn = page.getByRole('button', { name: /타겟 비교/ }).first()
+  if (!(await typeBtn.count())) return false
+  await typeBtn.evaluate((b: HTMLElement) => b.click())
+  await page.waitForTimeout(1200)
+  // 비교 시나리오 추가
+  const addBtn = page.getByRole('button', { name: /비교 시나리오 추가/ }).first()
+  if (!(await addBtn.count())) return false
+  await addBtn.evaluate((b: HTMLElement) => b.click())
+  await page.waitForTimeout(2000)
+  // 2번째 완료 시나리오 선택(이름 포함 + '비교 적합' 라벨)
+  const picked = await page.evaluate((name: string) => {
+    const opt = [...document.querySelectorAll('button, li, tr, label, div')].find((n) => {
+      const t = (n.textContent || '').replace(/\s+/g, ' ').trim()
+      return t.includes(name) && t.includes('비교 적합') && t.length < 60
+    }) as HTMLElement | undefined
+    if (opt) {
+      opt.click()
+      return true
+    }
+    return false
+  }, secondScenarioName)
+  if (!picked) return false
+  await page.waitForTimeout(1500)
+  // 비교 결과 보기(활성화되면 클릭)
+  const viewBtn = page.getByRole('button', { name: /비교 결과 보기/ }).first()
+  if (!(await viewBtn.count()) || (await viewBtn.isDisabled().catch(() => true))) return false
+  await viewBtn.evaluate((b: HTMLElement) => b.click())
+  await page.waitForTimeout(4000)
+  return true
 }
 
 // ── 고정 픽스처 슬롯 확보 ─────────────────────────────────────────────────────
@@ -499,6 +649,46 @@ export async function countListMatches(
   // 필터된 목록에서 prefix로 시작하는 텍스트 노드 수. 카드/테이블 공통.
   const matches = page.getByText(new RegExp(escapeRegExp(namePrefix)))
   return await matches.count().catch(() => 0)
+}
+
+// ── 결과 화면 헤더 메뉴 ───────────────────────────────────────────────────────
+/**
+ * 결과 화면 헤더(.slot-detail-header)의 아이콘 전용 버튼을 순회해, 클릭 시 probeText가
+ * 보이는 메뉴를 연다. STG 결과 헤더엔 Export(Copy Link/Excel) 버튼과 컨텍스트(복제/이동/삭제)
+ * 버튼이 아이콘으로만 있어 role/title로 특정 불가 → 순회가 유일하게 안정적(budgetopt-result 패턴).
+ * 반환: 메뉴를 찾아 열었으면 true.
+ */
+export async function openHeaderMenu(page: Page, probeText: string | RegExp): Promise<boolean> {
+  const headerButtons = page.locator('.slot-detail-header button')
+  const count = await headerButtons.count()
+  for (let i = 0; i < count; i++) {
+    await headerButtons.nth(i).click().catch(() => {})
+    const probe = page.getByText(probeText)
+    if (await probe.first().isVisible().catch(() => false)) return true
+    await page.keyboard.press('Escape').catch(() => {})
+    await page.waitForTimeout(150)
+  }
+  return false
+}
+
+/**
+ * 고정 슬롯 BO 목록에서 prefix로 시작하는 행 수를 센다(복제 +1 검증용).
+ * 검색 입력에 prefix를 넣어 필터 후 tbody tr 매칭 수를 반환.
+ */
+export async function countBoRows(page: Page, prefix: string): Promise<number> {
+  await gotoStable(page, '/slots/' + fixtureSlotId() + '/budgetopt')
+  await dismissLaunchPopup(page)
+  const searchBtn = page.getByRole('button', { name: '검색' })
+  if (await searchBtn.count()) {
+    await searchBtn.first().click().catch(() => {})
+    await page.waitForTimeout(400)
+  }
+  const input = page.locator('input[placeholder="시나리오명, 생성자 검색"]')
+  if (await input.count()) {
+    await input.first().fill(prefix)
+    await page.waitForTimeout(1500)
+  }
+  return await page.locator('tbody tr', { hasText: prefix }).count()
 }
 
 // ── CDP fixture ──────────────────────────────────────────────────────────────

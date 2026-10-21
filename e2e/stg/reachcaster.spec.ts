@@ -1,4 +1,15 @@
-import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal } from './fixtures'
+import {
+  test,
+  expect,
+  gotoStable,
+  dismissLaunchPopup,
+  closeDeleteModal,
+  completedIds,
+  enterResult,
+  openHeaderMenu,
+  openScenarioComparison,
+  fixtureSlotId,
+} from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reach Caster — AREA=REACH-CASTER
@@ -10,8 +21,9 @@ import { test, expect, gotoStable, dismissLaunchPopup, closeDeleteModal } from '
 // 삭제 TC: 모달 노출까지만. 확정 금지.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// 데이터가 있는 고정 픽스처 슬롯(148)에서 목록 테스트를 실제 수행.
 test.beforeEach(async ({ page }) => {
-  await gotoStable(page, '/slots/1/reachcaster')
+  await gotoStable(page, '/slots/' + fixtureSlotId() + '/reachcaster')
   await dismissLaunchPopup(page)
 })
 
@@ -21,14 +33,40 @@ test('REACH-CASTER-001 @major 시나리오 목록이 표시된다', async ({ pag
   await expect(page.getByRole('button', { name: '필터' })).toBeVisible()
 })
 
-test('REACH-CASTER-002 @major 검색 입력이 노출된다', async ({ page }) => {
+test('REACH-CASTER-002 @major 검색 — 입력 시 목록이 필터링된다', async ({ page }) => {
+  const before = await page.locator('tbody tr').count()
   await page.getByRole('button', { name: '검색' }).click()
-  await expect(page.locator('input[placeholder="시나리오명, 생성자"]')).toBeVisible()
+  const input = page.locator('input[placeholder="시나리오명, 생성자"]')
+  await expect(input).toBeVisible()
+  await input.fill('test_v1.2.0_rcrp_01')
+  await page.waitForTimeout(1500)
+  const after = await page.locator('tbody tr').count()
+  expect(after).toBeLessThan(before)
 })
 
-test('REACH-CASTER-003 @major 필터 패널이 노출된다', async ({ page }) => {
+test('REACH-CASTER-003 @major 필터 — 상태 필터 적용 시 목록이 변한다', async ({ page }) => {
+  const before = await page.locator('tbody tr').count()
   await page.getByRole('button', { name: '필터' }).click()
   await expect(page.getByRole('button', { name: '필터 초기화' })).toBeVisible()
+  const processing = page.getByText('Processing', { exact: true }).first()
+  test.skip((await processing.count()) === 0, '상태 필터 컨트롤 미노출')
+  await processing.click()
+  await page.waitForTimeout(1500)
+  const after = await page.locator('tbody tr').count()
+  expect(after).not.toBe(before)
+  await page.getByRole('button', { name: '필터 초기화' }).click().catch(() => {})
+})
+
+test('REACH-CASTER-014 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다', async ({ page }) => {
+  const page2 = page.getByRole('button', { name: '2', exact: true })
+  test.skip((await page2.count()) === 0, '페이지가 1개뿐 — 페이징 미노출')
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  const firstIdP1 = (await page.locator('tbody tr td').nth(1).textContent())?.trim()
+  await page2.first().click()
+  await page.waitForTimeout(1500)
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  const firstIdP2 = (await page.locator('tbody tr td').nth(1).textContent())?.trim()
+  expect(firstIdP2).not.toBe(firstIdP1)
 })
 
 test('REACH-CASTER-004 @minor 리스트 모드 토글', async () => {
@@ -62,24 +100,74 @@ test('REACH-CASTER-007 @critical 삭제 모달만 확인(확정 금지)', async 
   await closeDeleteModal(page)
 })
 
-// 완료 시나리오 fixture 미확보 → fixme. (create-flow가 R/C 시나리오를 생성하므로 추후 결과 진입으로 un-fixme 가능)
-test.fixme('REACH-CASTER-008 @major 복제', async () => {
-  // 복제 메뉴는 결과/상세 헤더에만 존재. 완료 시나리오 fixture 필요.
+// 완료(Completed) 시나리오 fixture로 실활성화. 결과 라우트(라이브 DOM 확정):
+//   Ratio Finder    → /slots/148/reachcaster/scenarios/{id}/ratio-finder/result
+//   Reach Predictor → /slots/148/reachcaster/scenarios/{id}/reach-predictor/result
+
+test('REACH-CASTER-010 @critical 결과 R/F — 핵심 섹션 렌더', async ({ page }) => {
+  const id = await enterResult(page, 'rcRatioFinder')
+  test.skip(!id, '완료 Ratio Finder fixture id 미확보')
+  // R/F 결과 핵심 섹션(Digital-TVC 비율 분석 + 예상 성과 + SpinX 인사이트)
+  await expect(page.getByRole('heading', { name: /Ratio Analysis/ }).first()).toBeVisible()
+  await expect(page.getByText('SpinX for Reach Caster').first()).toBeVisible()
 })
-test.fixme('REACH-CASTER-009 @major 이동', async () => {
-  // 상세 헤더 메뉴·완료 시나리오 fixture 필요.
+
+test('REACH-CASTER-011 @critical 결과 R/P — 핵심 섹션 렌더', async ({ page }) => {
+  const id = await enterResult(page, 'rcReachPredictor')
+  test.skip(!id, '완료 Reach Predictor fixture id 미확보')
+  // R/P 결과 핵심 섹션
+  await expect(page.getByRole('heading', { name: 'Key Metrics Summary' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Reach Curve Analysis' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Estimated Performance' })).toBeVisible()
 })
-test.fixme('REACH-CASTER-010 @critical 결과 R/F', async () => {
-  // 완료 시나리오 fixture·결과 라우트 미확보.
+
+test('REACH-CASTER-012 @major 시나리오 비교 — 완료 R/P 2건 비교 결과 렌더', async ({ page }) => {
+  const ids = completedIds('rcReachPredictor')
+  test.skip(ids.length < 2, '비교용 완료 Reach Predictor fixture 2건 미확보')
+  // 공유 Chrome 뷰포트가 작으면 비교 섹션 요소가 뷰포트 밖 → 넉넉한 뷰포트 지정.
+  await page.setViewportSize({ width: 1440, height: 1200 }).catch(() => {})
+  // 1번째 완료 R/P 결과로 진입 → 비교 UI에서 다른 완료 R/P(prefix 매칭)를 2번째로 선택해 비교.
+  await enterResult(page, 'rcReachPredictor', 0)
+  const ok = await openScenarioComparison(page, 'test_v1.2.0_rcrp')
+  test.skip(!ok, '비교 UI를 완료하지 못함(비교 유형/추가/선택/결과보기 중 일부 미노출)')
+  // 비교 결과 렌더: 비교 전용 섹션 제목 노출
+  await expect(
+    page.getByRole('heading', { name: /Key Metrics Comparison|Performance Comparison|Reach x CPRP Matrix/ }).first()
+  ).toBeVisible()
 })
-test.fixme('REACH-CASTER-011 @critical 결과 R/P', async () => {
-  // 완료 시나리오 fixture·결과 라우트 미확보.
+
+test('REACH-CASTER-008 @major 복제 — 결과 헤더 복제 메뉴', async ({ page }) => {
+  const id = await enterResult(page, 'rcReachPredictor')
+  test.skip(!id, '완료 Reach Predictor fixture id 미확보')
+  // RC 복제는 BO와 동일하게 복제 위저드로 이동 → 부작용(완료 대기 생성) 방지 위해
+  // 복제 메뉴가 열리는 것까지만 검증(실제 복제 submit은 BUDGET-OPT-007에서 대표 수행).
+  const opened = await openHeaderMenu(page, /^복제$/)
+  test.skip(!opened, '결과 헤더에서 복제 메뉴를 열지 못함(헤더 구조 차이 가능)')
+  await expect(page.getByText('복제', { exact: true }).first()).toBeVisible()
+  await page.keyboard.press('Escape').catch(() => {})
 })
-test.fixme('REACH-CASTER-012 @major 시나리오 비교', async () => {
-  // 완료 시나리오 2건 이상 fixture 필요.
+
+test('REACH-CASTER-009 @major 이동 — 결과 헤더 이동 메뉴', async ({ page }) => {
+  const id = await enterResult(page, 'rcReachPredictor')
+  test.skip(!id, '완료 Reach Predictor fixture id 미확보')
+  const opened = await openHeaderMenu(page, /^이동$/)
+  test.skip(!opened, '결과 헤더에서 이동 메뉴를 열지 못함')
+  await expect(page.getByText('이동', { exact: true }).first()).toBeVisible()
+  await page.keyboard.press('Escape').catch(() => {})
 })
-test.fixme('REACH-CASTER-013 @major 다운로드', async () => {
-  // 다운로드 계약 미확보. 진입 가능해지면 트리거만이라도 검증.
+
+test('REACH-CASTER-013 @major 다운로드 — Export to Excel 이벤트 수신', async ({ page }) => {
+  const id = await enterResult(page, 'rcReachPredictor')
+  test.skip(!id, '완료 Reach Predictor fixture id 미확보')
+  const opened = await openHeaderMenu(page, /Copy Link|Export to Excel/)
+  test.skip(!opened, '결과 헤더에서 Export 메뉴를 열지 못함(RC는 Export 미제공일 수 있음)')
+  const excel = page.getByText('Export to Excel').first()
+  test.skip((await excel.count()) === 0, 'RC 결과에 Export to Excel 미노출')
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 15_000 }),
+    excel.click(),
+  ])
+  expect(download.suggestedFilename()).toMatch(/\.(xlsx|pdf|csv)$/)
 })
 
 // Reach Caster 정렬: 개선 대기 건 → TC 제외(미작성).

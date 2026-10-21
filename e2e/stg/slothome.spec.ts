@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotHome — AREA=SLOT-HOME
@@ -7,8 +7,9 @@ import { test, expect, gotoStable, dismissLaunchPopup } from './fixtures'
 //   빈 슬롯에선 확인 불가 → "관리 레이어가 열린다"까지로 한정, 실제 저장은 // 보류:.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// 데이터가 들어있는 고정 픽스처 슬롯(148, (주)세정/Private)으로 진입 — FinalSet/솔루션 데이터 존재.
 test.beforeEach(async ({ page }) => {
-  await gotoStable(page, '/slotboard/1')
+  await gotoStable(page, '/slotboard/' + fixtureSlotId())
   await dismissLaunchPopup(page)
 })
 

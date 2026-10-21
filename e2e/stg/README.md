@@ -53,6 +53,11 @@ npx playwright test --list --config=playwright.stg.config.ts
 QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
 ```
 
+> **전수 실행 소요 ≈ 8분 (리포트 생성까지 포함).** 위 `--grep-invert @setup` 커맨드 기준 벽시계
+> `real 481s`(≈8.0분)에 80건 중 61 pass / 19 skip / 0 fail. 이어서
+> `QA_VERSION=v1.2.0 QA_FEATURE="STG Sanity QA" node e2e/report.mjs`로 대시보드 재생성까지 수 초 내 완료.
+> (완료 fixture 기반이라 시나리오 생성 완료를 기다리지 않음. SpinX는 '중단' 버튼 등장까지만 = 경량.)
+
 ---
 
 ## 2.5. 테스트 전용 고정 픽스처 슬롯 셋업 (수동 1회)
@@ -113,6 +118,11 @@ open e2e/results/dashboard.html
 
 `report.mjs`는 `e2e/results/last-run.json`을 읽어 버전 섹션으로 누적한다. 제목 형식
 `AREA-NNN @priority 한글설명`을 지켜야 영역별로 묶인다.
+
+**회차 선택:** 같은 버전을 여러 번 돌리면 각 회차가 `e2e/results/runs/`에 타임스탬프로 쌓인다.
+대시보드의 버전 헤더 우측 **회차 드롭다운**(최신 회차 기본 선택)에서 과거 회차를 고르면 그 회차의
+카드·영역별·상세 테이블이 바로 바뀐다. 각 회차 본문은 서버가 미리 구워 숨겨두고 인라인 바닐라 JS로
+토글하므로 외부 의존(스크립트/CSS CDN)이 없다. 동일 버전·시점 구분이 필요할 때 사용한다.
 
 ---
 
