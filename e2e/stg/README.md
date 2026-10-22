@@ -78,6 +78,39 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts 
 
 ---
 
+## 2.2. 실행 레시피 — 전수만이 아니라 "부분 실행"도 된다
+
+전수로만 돌릴 필요 없다. Playwright가 **파일(솔루션) 단위**·**제목(grep) 단위**로 선택 실행을
+기본 지원한다. 용도별로 아래를 골라 쓴다. (공유 Chrome이라 전부 `--workers=1` 권장)
+
+> 공통 접두: `QA_VERSION=v1.2.0 npx playwright test ... --config=playwright.stg.config.ts --workers=1`
+> 아래는 뒤에 붙이는 **대상 지정부**만 보여준다.
+
+| 용도 | 대상 지정 | 비고 |
+|---|---|---|
+| **전수 sanity** (배포 후 전체) | `e2e/stg --grep-invert @setup` | 플랫폼 전체 정상 확인. ≈6.6분. 리포트 대표값은 이걸로. |
+| **빠른 스모크** (핵심만) | `e2e/stg --grep @critical` | critical만. 가장 빠름. "최소한 안 깨졌나" 확인용. |
+| **솔루션 1개** (파일) | `e2e/stg/budgetopt.spec.ts` | 그 솔루션만 배포했을 때. 파일명만 바꾸면 됨. |
+| **솔루션 여러 개** | `e2e/stg/budgetopt.spec.ts e2e/stg/datashot.spec.ts` | 경로를 공백으로 나열. |
+| **영역 ID로** | `e2e/stg --grep "BUDGET-OPT"` | 파일 대신 TC ID 접두로. 여러 영역은 `--grep "BUDGET-OPT\|REACH-CASTER"`. |
+| **TC 1개** (핀포인트) | `e2e/stg --grep "DATA-SHOT-008"` | 방금 고친 것만 재확인할 때. |
+| **느린 것 제외** | `e2e/stg --grep-invert "SPINX\|@setup"` | SpinX(외부 LLM 호출) 빼고 더 빠르게. |
+| **로드/파싱만** (브라우저 X) | `--list` (QA_VERSION 불필요) | 문법·셀렉터 로드만 확인. 즉시. |
+
+스펙 파일 목록(솔루션 ↔ 파일):
+`common-gnb.spec.ts`(공통/GNB) · `common-misc.spec.ts`(DOCS·알림·등급) · `slotboard.spec.ts` ·
+`slothome.spec.ts` · `reachcaster.spec.ts` · `datashot.spec.ts` · `budgetopt.spec.ts` ·
+`spinx.spec.ts` · `create-flow.spec.ts`(실생성, serial) · `setup-fixture-slot.spec.ts`(`@setup`, 수동 1회) · `auth.spec.ts`(권한, 전부 skip).
+
+**주의 2가지**
+- **리포트 통계는 "그 실행에 포함된 TC만" 반영된다.** BudgetOpt만 돌리면 대시보드엔 BudgetOpt만
+  찍힌다. → "전체 플랫폼 정상 확인"이 목적이면 **전수**, "특정 부분 빠르게"면 **부분 실행**으로 용도를 나눈다.
+  부분 실행 후 `node e2e/report.mjs`를 돌리면 그 부분만 담긴 회차가 누적되니, 전체 통과율을 남기려면 전수로 돌린 뒤 리포트를 생성한다.
+- **결과/비교/SpinX 계열은 고정 픽스처 슬롯(2.5)에 완료 데이터가 있어야** 실행된다. 부분 실행이어도
+  그 슬롯을 재사용하므로 별도 준비는 불필요하다(셋업이 한 번 돼 있으면 됨).
+
+---
+
 ## 2.5. 테스트 전용 고정 픽스처 슬롯 셋업 (수동 1회)
 
 매번 생성하고 완료까지 기다리면 느리다. 그래서 재사용 가능한 영속 슬롯
