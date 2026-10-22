@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, blocked, skipReason } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, blocked, skipReason, IS_PRD } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotHome — AREA=SLOT-HOME
@@ -28,7 +28,10 @@ test('SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다', skipReason('
   await manageBtn.click()
   // 솔루션명은 레이어/보드에 중복 등장할 수 있어 first()로 한정.
   await expect(page.getByText('DataShot').first()).toBeVisible()
-  await expect(page.getByText('BudgetOpt 2.0').first()).toBeVisible()
+  // BudgetOpt 2.0 PRD 미배포 — 해당 단언만 제외(PRD). STG에선 계속 실행(회귀 금지).
+  if (!IS_PRD) {
+    await expect(page.getByText('BudgetOpt 2.0').first()).toBeVisible()
+  }
   await expect(page.getByText('Reach Caster').first()).toBeVisible()
   await expect(page.getByRole('button', { name: '적용' })).toBeVisible()
 })

@@ -115,8 +115,8 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts 
 
 매번 생성하고 완료까지 기다리면 느리다. 그래서 재사용 가능한 영속 슬롯
 `test_fixture_slot`((주)세정, Private) **하나**를 만들어 두고, 그 안에 솔루션별 객체를
-"생성 요청"으로 대량(목표 25, 최소 20)으로 채워 둔다. 이후 목록/결과/비교/SpinX 테스트는
-매번 생성+완료대기 대신 이 슬롯을 재사용한다.
+"생성 요청"으로 **다양화해**(목표 13, 최소 11) 채워 둔다. 이후 목록/결과/비교/SpinX 테스트는
+매번 생성+완료대기 대신 이 슬롯을 재사용한다. (개수·다양화 규칙은 아래 **2.6**.)
 
 ```bash
 QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config playwright.stg.config.ts --workers=1
@@ -124,8 +124,9 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 
 - **수동 1회 실행.** 무거우므로 모든 제목에 `@setup` 태그를 달아 라우틴 whole-dir 런에서
   제외한다(라우틴은 `--grep-invert @setup`). 이 셋업은 위 명령처럼 경로로 직접 지정해 돌린다.
-- **멱등 재실행.** 다시 돌리면 각 리스트의 기존 `test_v*` 행 수를 세고 **부족분만** 25까지
-  채운다(최소 20). 안전하게 반복 실행 가능.
+- **멱등 재실행.** 다시 돌리면 각 리스트의 기존 `test_v*` 행 수를 세고 **부족분만** 13까지
+  채운다(최소 11). 안전하게 반복 실행 가능. 다양화는 "앞으로 만들 것"에만 적용 —
+  기존 동일-옵션 생성물은 cleanup/삭제 없이 그대로 둔다.
 - **완료 대기 없음(타이밍).** DataShot 데이터셋은 거의 즉시 생성된다. BO/RC 시나리오는
   "생성 요청"까지만 수행하며 완료(Completed)는 15분+ 걸린다 — 셋업은 **기다리지 않는다.**
   완료 시나리오 id 수집·결과/SpinX/비교 검증은 이후 단계에서 처리한다.
@@ -133,6 +134,35 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 - **fixture-ids.json** 은 커밋/재사용된다(`{ slotId, slotName, createdAt, qaVersion, counts }`).
   슬롯 재생성을 강제하려면 이 파일을 지우거나 `slotId`를 비운다.
 - **삭제/cleanup/로그아웃/public 생성 없음** — HARD RULES 그대로.
+
+---
+
+## 2.6. 생성물 다양화 규칙 (개수 · 후보풀 · 시드)
+
+생성물이 "이름만 다르고 옵션은 전부 동일"하면 보드에서 검색/필터/정렬/페이징이
+의미 없어진다("똑같은 것만 생성된다" 지적). 그래서 각 객체의 **기간·예산**을
+결정적 랜덤으로 다르게 골라 채운다. 목적은 **보기 다양**(sanity 수준)이지 커버리지가 아니다.
+
+- **개수 = 목표 13 / 최소 11** (`setup-fixture-slot.spec.ts`의 `TARGET=13`, `MIN=11`).
+  - 근거: 세 리스트 모두 **페이지당 10개 고정**(`DatasetList`/`SlotDetail`/`BOScenarioList`의
+    `itemsPerPage=10`). 2페이지 성립 최소 = 11개. 13개면 2페이지에 3개가 남아 페이징·페이지
+    이동 테스트가 안정적으로 성립한다(생성 1건 실패해도 12 ≥ 11 > 10).
+  - 기존 PRD 슬롯 1142에는 이미 dataset 25개가 있으므로 `25 ≥ 13` → dataset은 추가 생성 0
+    (기존 유지). RC 2종은 0개라 13개까지 다양하게 신규 생성.
+- **다양화 차원(1차) = 기간 · 예산만.** 폼 분기가 없는 안전 차원이라 유효 생성이 깨지지 않는다.
+  - DataShot 조회기간: `DS_PERIODS`(2025년 월 범위 4종, 모두 `validateDateRange` 만족).
+  - BO/RC 캠페인 기간: `DAY_RANGES`(당월 내 일 범위 4종, BO 90일 제한 이내).
+  - BO 총예산 `BO_BUDGETS`, RC 예산 `RC_BUDGETS`(양수 숫자, 폼 제약 없음).
+  - 업종/매체/지표/KPI는 **1차 고정**(폼 분기 유발 → dom-evidence 보강 probe 후 2차 확장 대상).
+    현재 라이브 실증값은 식품 · Google Ads · CPC · 노출(Impression)뿐이라 보수적으로 고정한다.
+  - 폼 불변식 유지: BO 상품 ≥2('전체 선택'), RC DIGITAL/TVC 각 단일=비중 100% 자동.
+- **후보풀 정의 위치**: `e2e/stg/fixtures.ts`의 `DS_PERIODS`/`DAY_RANGES`/`BO_BUDGETS`/`RC_BUDGETS`.
+  각 원소는 단독으로 폼 제약을 통과하며, 빈 풀이면 `pickDeterministic`가 throw한다.
+- **시드 고정(재현성)**: 환경변수 `QA_SEED`(미설정 시 기본 `readyset`). 같은 시드 → 같은
+  `(차원, 시퀀스index)` → 같은 조합. 다른 분포가 필요하면 `QA_SEED=<임의문자열>`로 실행한다.
+  선택은 `(QA_SEED | salt | index)` 해시(FNV-1a) → mulberry32 PRNG로 결정적으로 이뤄진다.
+- **create-flow 회귀 안전**: 단건 생성 헬퍼는 `index`를 생략(기본 1) → 항상 "1번 조합"을 써서
+  STG 유효 생성 거동이 바뀌지 않는다. 다양화는 setup 루프(시퀀스 1..13)에서만 분산된다.
 
 ---
 
@@ -144,6 +174,7 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 | `QA_TARGET` | `stg` \| `prd` | `stg` |
 | `QA_BASE_URL` | baseURL 직접 지정(최우선) | — |
 | `QA_CDP_PORT` | 디버그 Chrome 포트 | `9222` |
+| `QA_SEED` | 생성물 다양화(기간·예산) 결정적 랜덤 시드. 같은 시드 → 같은 조합 재현(2.6) | `readyset` |
 
 ---
 
@@ -203,6 +234,17 @@ prd에는 아직 BudgetOpt 2.0이 배포되지 않았다. `QA_TARGET=prd`면 `fi
 - **fixture-ids 파일 분리**: STG는 `fixture-ids.stg.json`(슬롯 148 + completed), prd는
   `fixture-ids.prd.json`(prd 라이브 셋업이 채우는 스텁)을 쓴다. `QA_TARGET`에 따라 자동으로 갈린다
   (서로 덮어쓰지 않음). prd엔 148 슬롯이 없으므로 `fixtureSlotId()`는 prd에서 148로 폴백하지 않는다.
+
+#### prd 전용 추가 규칙 (상용 부하 최소화 · BO 미배포)
+
+- **rcrp 상한 2 (`PRD_RCRP_CAP`)**: prd는 상용이라 대량 생성이 부담이다. `setup-fixture-slot.spec.ts`의
+  `targetFor()`가 `IS_PRD && suffix==='rcrp'`일 때 목표치를 **2**로 낮춘다(STG는 그대로 13). 비교
+  테스트는 완료 2건이면 충분하므로 Reach Predictor만 2개로 제한한다. 나머지(dataset·rcrf)는 13 목표 유지,
+  bo는 PRD 제외. **이 상한은 "이후 재실행 시 추가 생성 0"을 보장하는 재발 방지 장치** — 이미 존재하는
+  객체는 삭제하지 않는다(삭제확정 0).
+- **SLOT-HOME-002 BO 단언 prd skip**: `slothome.spec.ts`의 FinalSet 설정 레이어 검증은 `BudgetOpt 2.0`
+  노출을 단언한다. prd는 BO 미배포라 레이어에 해당 솔루션이 없으므로, `IS_PRD`면 **그 단언만 skip**한다
+  (DataShot·Reach Caster·적용 단언은 유지). STG에선 BO 단언이 계속 실행된다(회귀 금지).
 
 prd 라운드 명령(순서대로):
 

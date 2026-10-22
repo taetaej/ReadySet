@@ -119,6 +119,87 @@ export function testName(suffix: string): string {
   return `${prefix}${suffix}_${RUN_STAMP}`
 }
 
+// ── 결정적 랜덤(시드고정) ─────────────────────────────────────────────────────
+// 목적: 생성물이 "이름만 다르고 옵션은 전부 동일" → "똑같은 것만 생성된다"는 지적 해소.
+// 기간·예산 같은 안전 차원(폼 분기 없음·제약 단순)을 객체마다 다르게 선택해 보드에서
+// 검색/필터/정렬/페이징이 실제로 의미 있게 동작하도록 한다(커버리지 목적 아님, sanity 수준).
+// 재현성: 같은 QA_SEED → 같은 (salt,index) → 같은 조합. 완전 무작위 금지.
+/**
+ * 다양화 시드. QA_SEED 미설정 시 기본 'readyset'(결정성 보장, 회차 간 동일 조합 재현).
+ * 다른 분포를 원하면 QA_SEED=<임의문자열>로 실행(같은 시드 → 같은 결과).
+ */
+export const QA_SEED: string = process.env.QA_SEED || 'readyset'
+
+/** 문자열 → 32bit 해시(FNV-1a). 시드/salt/index 혼합용. */
+function hashStr(s: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return h >>> 0
+}
+
+/** mulberry32 PRNG. 같은 seed(uint32) → 같은 수열. [0,1) 반환. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0
+  return () => {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * 결정적 선택기. (QA_SEED + salt + index)로 PRNG를 만들어 pool에서 1개를 고른다.
+ *  - salt: 차원 구분(예: 'dataset.period'). 같은 index라도 차원마다 독립적으로 분산되게.
+ *  - index: 생성 시퀀스 번호(1-based). 같은 차원 안에서 객체마다 다른 값.
+ * pool이 비었으면 throw(후보풀 누락/범위 역전 조기 발견).
+ */
+export function pickDeterministic<T>(pool: readonly T[], salt: string, index: number): T {
+  if (!pool.length) {
+    throw new Error(`[STG QA] pickDeterministic: 빈 후보풀(salt=${salt}). 풀 구성 확인 필요.`)
+  }
+  const seed = hashStr(`${QA_SEED}|${salt}|${index}`)
+  const rnd = mulberry32(seed)()
+  const k = Math.floor(rnd * pool.length) % pool.length
+  return pool[k]
+}
+
+// ── 다양화 후보풀 (DOM 실증 기반, 보수적) ──────────────────────────────────────
+// 각 원소는 단독으로 폼 제약을 통과해야 한다. 라이브 미검증 값은 넣지 않는다.
+// 1차 다양화는 "기간·예산"(폼 분기 없는 안전 차원)만 변주한다. 업종/매체/지표/KPI는
+// 폼 분기를 유발하므로 확정값 고정(dom-evidence 보강 probe 후 2차 확장 대상).
+/**
+ * DataShot 조회기간(월 범위, 2025 좌측 패널). [시작월, 종료월].
+ * 제약: validateDateRange(≤24개월·시작≤종료)를 모든 쌍이 만족. 전부 2025년 동일 패널 내.
+ */
+export const DS_PERIODS: readonly [string, string][] = [
+  ['3월', '5월'],
+  ['1월', '3월'],
+  ['6월', '8월'],
+  ['9월', '11월'],
+]
+
+/**
+ * BO/RC 캠페인 기간(일 범위, 당월 내). [시작일, 종료일] 문자열.
+ * 제약: 당월 내·시작<종료·폭 10일 이내 → BO 90일 제한 이내. pickDateRange(trigger, s, e)에 전달.
+ */
+export const DAY_RANGES: readonly [string, string][] = [
+  ['10', '20'],
+  ['5', '15'],
+  ['12', '22'],
+  ['1', '10'],
+]
+
+/** BO 총예산 후보(양수 숫자 입력, 폼 제약 없음 — 안전한 다양화 차원). */
+export const BO_BUDGETS: readonly number[] = [100000000, 150000000, 200000000, 80000000]
+
+/** RC(Ratio Finder/Reach Predictor) 예산 후보(양수 숫자 입력). */
+export const RC_BUDGETS: readonly number[] = [100000000, 120000000, 80000000]
+
 // ── 레이어(런치) 팝업 닫기 ───────────────────────────────────────────────────
 /**
  * /slotboard 진입 시 뜨는 "BudgetOpt 2.0 신규 오픈!" 런치 팝업이 .dialog-overlay로
@@ -479,8 +560,13 @@ export async function ensureFixtureSlot(
 // 각 헬퍼는 "이미 testName(...)으로 해석된 전체 객체명"을 받는다. create-flow는
 // testName('dataset') 식으로, setup 루프는 testName('dataset_01') 식으로 같은 본문을 공유한다.
 
-/** DataShot 데이터셋 생성(즉시 생성). 본문은 CREATE-FLOW-002와 동일. */
-export async function createDataset(page: Page, slotId: string, name: string): Promise<void> {
+/**
+ * DataShot 데이터셋 생성(즉시 생성). 본문은 CREATE-FLOW-002와 동일.
+ * index(1-based 시퀀스): 조회기간을 DS_PERIODS에서 결정적으로 골라 객체마다 다르게 한다
+ * (기본 1 → create-flow 단건은 "1번 조합"으로 회귀 재현). 업종/매체/지표는 1차 고정.
+ */
+export async function createDataset(page: Page, slotId: string, name: string, index = 1): Promise<void> {
+  const [startMonth, endMonth] = pickDeterministic(DS_PERIODS, 'dataset.period', index)
   await gotoStable(page, '/slots/' + slotId + '/datashot')
   await dismissLaunchPopup(page)
   await page.getByRole('button', { name: 'New Dataset' }).click()
@@ -490,12 +576,12 @@ export async function createDataset(page: Page, slotId: string, name: string): P
   await page.locator('input[placeholder="데이터셋명을 입력하세요."]').fill(name)
   // 지표 구성: '성과 지표'(external) 선택 — 후속 입력이 더 단순한 쪽. 최소 통과값.
   await page.getByRole('button', { name: /성과 지표/ }).click()
-  // 조회기간(MonthRangePicker): 좌측 패널(2025) 3월→5월. 유효 조회기간 중 가장 단순한 범위.
+  // 조회기간(MonthRangePicker): 좌측 패널(2025)에서 DS_PERIODS 조합을 결정적으로 선택(다양화 차원).
   await page.getByRole('button', { name: /시작월/ }).click()
   await page.waitForTimeout(700)
-  await page.getByRole('button', { name: '3월', exact: true }).first().click()
+  await page.getByRole('button', { name: startMonth, exact: true }).first().click()
   await page.waitForTimeout(300)
-  await page.getByRole('button', { name: '5월', exact: true }).first().click()
+  await page.getByRole('button', { name: endMonth, exact: true }).first().click()
   await page.waitForTimeout(400)
   // 업종: 커스텀 div → IndustryDialog → 대분류 → '식품' → 선택 완료. 최소 선택.
   await page.getByText('업종을 선택하세요.').click()
@@ -528,8 +614,13 @@ export async function createDataset(page: Page, slotId: string, name: string): P
     .toContain('/slots/' + slotId + '/datashot')
 }
 
-/** BudgetOpt 2.0 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-003과 동일. */
-export async function createBoScenario(page: Page, slotId: string, name: string): Promise<void> {
+/**
+ * BudgetOpt 2.0 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-003과 동일.
+ * index: 기간(DAY_RANGES)·총예산(BO_BUDGETS)을 결정적으로 골라 다양화. KPI·매체는 고정.
+ */
+export async function createBoScenario(page: Page, slotId: string, name: string, index = 1): Promise<void> {
+  const [boStart, boEnd] = pickDeterministic(DAY_RANGES, 'bo.period', index)
+  const boBudget = pickDeterministic(BO_BUDGETS, 'bo.budget', index)
   await gotoStable(page, '/slots/' + slotId + '/budgetopt/scenarios/new')
   await dismissLaunchPopup(page)
   if (!page.url().includes('/scenarios/new')) {
@@ -545,14 +636,14 @@ export async function createBoScenario(page: Page, slotId: string, name: string)
   await page.waitForTimeout(500)
   await page.locator('.dropdown-item, .dropdown button').first().click()
   await page.waitForTimeout(500)
-  await pickDateRange(page, /시작일/)
+  await pickDateRange(page, /시작일/, boStart, boEnd)
   await page.getByRole('button', { name: /노출 \(Impression\)/ }).click()
   await page.waitForTimeout(400)
   await page.getByRole('button', { name: '다음' }).click()
   await page.waitForTimeout(1500)
 
   // ── Step2: 매체 선택 및 예산 ──
-  await page.locator('input[placeholder="총 예산을 입력하세요"]').fill('100000000')
+  await page.locator('input[placeholder="총 예산을 입력하세요"]').fill(String(boBudget))
   await page.waitForTimeout(500)
   await page.getByRole('button', { name: /매체 · 상품 추가/ }).click()
   await page.waitForTimeout(1200)
@@ -572,8 +663,13 @@ export async function createBoScenario(page: Page, slotId: string, name: string)
     .toContain('/slots/' + slotId + '/budgetopt')
 }
 
-/** Reach Caster Ratio Finder 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-004와 동일. */
-export async function createRcRatioFinder(page: Page, slotId: string, name: string): Promise<void> {
+/**
+ * Reach Caster Ratio Finder 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-004와 동일.
+ * index: 기간(DAY_RANGES)·예산(RC_BUDGETS)을 결정적으로 골라 다양화. 시뮬 단위·매체(DIGITAL/TVC 각 1개)는 고정.
+ */
+export async function createRcRatioFinder(page: Page, slotId: string, name: string, index = 1): Promise<void> {
+  const [rcStart, rcEnd] = pickDeterministic(DAY_RANGES, 'rcrf.period', index)
+  const rcBudget = pickDeterministic(RC_BUDGETS, 'rcrf.budget', index)
   await gotoStable(page, '/slots/' + slotId + '/reachcaster/scenarios/new')
   await dismissLaunchPopup(page)
   if (!page.url().includes('/scenarios/new')) {
@@ -591,12 +687,12 @@ export async function createRcRatioFinder(page: Page, slotId: string, name: stri
   await page.waitForTimeout(500)
   await page.locator('.dropdown-item, .dropdown button').first().click()
   await page.waitForTimeout(500)
-  await pickDateRange(page, /시작일/)
+  await pickDateRange(page, /시작일/, rcStart, rcEnd)
   await page.getByRole('button', { name: '다음' }).click()
   await page.waitForTimeout(1500)
 
   // ── Step2: 상세 설정(예산·시뮬레이션 단위·매체비중) ──
-  await page.locator('input[placeholder="예산을 입력하세요"]').fill('100000000')
+  await page.locator('input[placeholder="예산을 입력하세요"]').fill(String(rcBudget))
   await page.waitForTimeout(400)
   await page.getByRole('button', { name: '10%', exact: true }).click()
   await page.waitForTimeout(400)
@@ -634,8 +730,14 @@ export async function createRcRatioFinder(page: Page, slotId: string, name: stri
     .toContain('/slots/' + slotId + '/reachcaster')
 }
 
-/** Reach Caster Reach Predictor 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-005와 동일. */
-export async function createRcReachPredictor(page: Page, slotId: string, name: string): Promise<void> {
+/**
+ * Reach Caster Reach Predictor 시나리오 생성 요청(완료 대기 안 함). 본문은 CREATE-FLOW-005와 동일.
+ * index: 기간(DAY_RANGES)·매체별 예산(RC_BUDGETS)을 결정적으로 골라 다양화. 매체 '전체 선택'은 고정.
+ * 리치커브 범위는 min<max 불변식을 보장하는 고정 쌍(10,000,000~100,000,000)을 유지한다.
+ */
+export async function createRcReachPredictor(page: Page, slotId: string, name: string, index = 1): Promise<void> {
+  const [rpStart, rpEnd] = pickDeterministic(DAY_RANGES, 'rcrp.period', index)
+  const rpBudget = pickDeterministic(RC_BUDGETS, 'rcrp.budget', index)
   await gotoStable(page, '/slots/' + slotId + '/reachcaster/scenarios/new')
   await dismissLaunchPopup(page)
   if (!page.url().includes('/scenarios/new')) {
@@ -653,7 +755,7 @@ export async function createRcReachPredictor(page: Page, slotId: string, name: s
   await page.waitForTimeout(500)
   await page.locator('.dropdown-item, .dropdown button').first().click()
   await page.waitForTimeout(500)
-  await pickDateRange(page, /시작일/)
+  await pickDateRange(page, /시작일/, rpStart, rpEnd)
   await page.getByRole('button', { name: '다음' }).click()
   await page.waitForTimeout(1500)
 
@@ -664,10 +766,12 @@ export async function createRcReachPredictor(page: Page, slotId: string, name: s
   await page.waitForTimeout(600)
   await page.getByRole('button', { name: /확인 \(\d+개 선택\)/ }).click()
   await page.waitForTimeout(1000)
+  // 매체별 예산: RC_BUDGETS에서 결정적으로 고른 값을 모든 매체에 동일 적용(다양화 차원).
+  const perMediaBudget = String(Math.round(rpBudget / 10))
   const budgets = page.locator('input[placeholder="0"]:visible')
   const bn = await budgets.count()
   for (let i = 0; i < bn; i++) {
-    await budgets.nth(i).fill('10000000')
+    await budgets.nth(i).fill(perMediaBudget)
     await page.waitForTimeout(120)
   }
   await page.locator('input[placeholder="최소값"]').fill('10000000')
