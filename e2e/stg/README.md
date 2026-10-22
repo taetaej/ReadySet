@@ -10,6 +10,36 @@
 
 ---
 
+## 0. Quick Start (처음이라면 이것만)
+
+**처음 1회**: 디버그 Chrome 띄우고(§1) → 그 창에서 STG 로그인 → 고정 픽스처 슬롯 셋업 1회(§2.5).
+**매 배포 때**: 디버그 Chrome이 STG 로그인된 상태인지 확인 → 전수 실행(아래) → 리포트 생성 → 대시보드 확인.
+
+```bash
+# 0) (최초 1회) 디버그 Chrome 실행 → 열린 창에서 https://stg.readyset.adly.co.kr/slotboard 로그인
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=9222 --user-data-dir=/tmp/readyset-qa-chrome
+
+# 1) CDP 연결 확인 (Chrome/... 나오면 OK)
+curl -s http://localhost:9222/json/version
+
+# 2) (최초 1회) 고정 픽스처 슬롯 셋업 — 목록/결과/비교/SpinX 테스트가 재사용할 데이터 채우기
+QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config=playwright.stg.config.ts --workers=1
+
+# 3) 전수 sanity 실행 (배포 때마다)
+QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
+
+# 4) 리포트(대시보드) 생성 + 열기
+QA_VERSION=v1.2.0 QA_FEATURE="STG Sanity QA" node e2e/report.mjs
+open e2e/results/dashboard.html
+```
+
+- **반드시 지킬 전제**: ① 디버그 Chrome(§1)이 떠서 STG에 로그인돼 있어야 한다(테스트는 로그인하지 않음). ② 공유 Chrome이라 `--workers=1`. ③ `QA_VERSION`은 그날 배포 버전으로 준다(생성물 이름 prefix + 리포트 버전 태그).
+- **PRD에서 돌릴 때**: 같은 Chrome을 PRD(`https://readyset.adly.co.kr`)에 로그인해 두고, 위 명령 앞에 `QA_TARGET=prd`를 붙인다. BudgetOpt 2.0은 PRD 미배포라 자동 제외된다(§6).
+- 더 자세히: 부분 실행 레시피 §2.2 · 고정 슬롯 셋업 §2.5 · 다양화 규칙 §2.6 · 환경변수 §3 · 안전 규칙 §4 · 리포트 §5 · PRD §6.
+
+---
+
 ## 1. 디버그 Chrome 실행 + STG 로그인
 
 테스트는 **스스로 로그인하지 않는다.** 아래로 디버그 포트가 열린 Chrome을 띄우고,
@@ -147,8 +177,11 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
   - 근거: 세 리스트 모두 **페이지당 10개 고정**(`DatasetList`/`SlotDetail`/`BOScenarioList`의
     `itemsPerPage=10`). 2페이지 성립 최소 = 11개. 13개면 2페이지에 3개가 남아 페이징·페이지
     이동 테스트가 안정적으로 성립한다(생성 1건 실패해도 12 ≥ 11 > 10).
-  - 기존 PRD 슬롯 1142에는 이미 dataset 25개가 있으므로 `25 ≥ 13` → dataset은 추가 생성 0
-    (기존 유지). RC 2종은 0개라 13개까지 다양하게 신규 생성.
+  - 기존 PRD 슬롯 1142에는 이미 dataset이 있으므로 목표 충족 시 추가 생성 0(기존 유지).
+    RC 2종은 다양화 값으로 신규 생성. 실제 PRD 1142 누적 결과(2026-10-22 기준):
+    dataset 13 · rcrf 27(= 이전 비다양화 14 + 다양화 13) · rcrp 13 · bo 0(PRD 제외).
+    rcrp는 다양화 13건이 생성된 뒤 "PRD rcrp 상한 2" 지시가 도착해, 이미 만든 13건은
+    삭제금지 정책상 유지하고 코드에 `PRD_RCRP_CAP=2`를 반영했다(이후 재실행 시 rcrp 추가 생성 0).
 - **다양화 차원(1차) = 기간 · 예산만.** 폼 분기가 없는 안전 차원이라 유효 생성이 깨지지 않는다.
   - DataShot 조회기간: `DS_PERIODS`(2025년 월 범위 4종, 모두 `validateDateRange` 만족).
   - BO/RC 캠페인 기간: `DAY_RANGES`(당월 내 일 범위 4종, BO 90일 제한 이내).
