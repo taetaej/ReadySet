@@ -308,3 +308,23 @@ QA_TARGET=prd QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.
 # 3) prd 리포트 생성(대시보드 누적). 'PRD Sanity QA' 라벨로 표기.
 QA_TARGET=prd QA_VERSION=v1.2.0 QA_FEATURE="PRD Sanity QA" node e2e/report.mjs
 ```
+
+#### ⚠️ TODO — BudgetOpt 2.0 PRD 배포일에 할 숙제
+
+PRD에 BudgetOpt 2.0이 배포되는 날, 아래를 해야 BO 관련 TC가 PRD에서도 자동 제외 대신
+**실제로 돌기** 시작한다. (지금은 전부 `IS_PRD`로 excluded 상태.)
+
+- [ ] **BO 자동 제외 해제**: `fixtures.ts`의 `IS_PRD` 기반 BO 제외를 푼다. BO가 배포됐으니
+      `budgetopt.spec.ts`·`create-flow.spec.ts(CREATE-FLOW-003)`·`spinx.spec.ts(SPINX B/O 계열)`·
+      `setup-fixture-slot.spec.ts(SETUP-003)`가 PRD에서 다시 실행되게 한다.
+      (가장 깔끔한 건 BO 제외 조건을 "미배포" 전용 플래그로 분리해, 배포일에 그 플래그만 끄는 것.)
+- [ ] **PRD 고정 픽스처 슬롯에 BO 시나리오 채우기**: PRD 고정 슬롯(`fixture-ids.prd.json`의 slotId)
+      안에 BudgetOpt 2.0 시나리오를 셋업으로 생성한다 — `setup-fixture-slot.spec.ts`의 SETUP-003(BO)이
+      PRD에서 돌게 되므로, STG처럼 BO 시나리오가 목표 개수만큼 생성 요청된다.
+      (상용 부하가 걱정되면 BO도 rcrp처럼 소량 상한을 둘지 결정 — 결과/SpinX 검증엔 완료 1~2건이면 충분.)
+- [ ] **완료 대기 → 결과/SpinX(B/O) 검증**: BO 시나리오 완료(Completed)는 15분+ 걸린다. 완료 후
+      완료 id를 `fixture-ids.prd.json`의 `completed.bo`에 수집하면, PRD에서도 BO 결과/최적화 원리 SpinX가
+      blocked 해제되어 실제 pass로 전환된다.
+- [ ] **SLOT-HOME-002 BO 단언 복구 검토**: BO가 배포되면 FinalSet 레이어에 BudgetOpt 2.0이 노출되므로,
+      `slothome.spec.ts`의 `IS_PRD` BO 단언 skip을 풀어 PRD에서도 BO 노출을 단언하게 한다.
+- [ ] 위 반영 후 PRD 전수 재확인 + 리포트 재생성. BO가 excluded에서 빠져 통과율 분모에 다시 포함되는지 확인.
