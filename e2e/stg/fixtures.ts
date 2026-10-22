@@ -65,6 +65,23 @@ export const BASE_URL =
     ? 'https://readyset.adly.co.kr'
     : 'https://stg.readyset.adly.co.kr')
 
+// ── PRD 파생: BudgetOpt 2.0 자동 제외 ─────────────────────────────────────────
+// PRD에는 아직 BudgetOpt 2.0이 배포되지 않았다. QA_TARGET=prd면 BO 의존 TC를
+// 런타임 annotation(excluded)으로 분모에서 빼고 test.skip으로 건너뛴다.
+// 나중에 PRD에 BO가 배포되면 이 플래그만으로 자동 포함된다(코드/환경 토글).
+/** QA_TARGET=prd 여부. PRD 라운드에서 BO 의존 TC 자동 제외에 사용. */
+export const IS_PRD = process.env.QA_TARGET === 'prd'
+/** PRD에서 BO 의존 TC 제외 사유(리포트·skip 메시지 공용). */
+export const PRD_BO_EXCLUDED_REASON = 'BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외'
+/**
+ * test 2번째 인자(annotation)용 헬퍼. PRD면 excluded annotation을, STG면 빈 객체 {}를 반환한다.
+ * Playwright test()의 details 인자는 undefined를 거부하므로(파싱 에러), STG에선 빈 annotation 객체 {}
+ * 를 넘겨 기존 거동(annotation 없음)을 유지한다. annotation이 없던 TC(001/002/005·SETUP-003)에 사용.
+ */
+export function excludedIfPrd() {
+  return IS_PRD ? excluded(PRD_BO_EXCLUDED_REASON) : {}
+}
+
 // ── 이름 헬퍼 ────────────────────────────────────────────────────────────────
 /**
  * 실행(회차) 타임스탬프. 한 전수 실행(한 Node 프로세스) 동안 1회만 계산해 공유한다
@@ -266,27 +283,41 @@ export type FixtureIds = {
   note?: string
 }
 
-const FIXTURE_IDS_PATH = path.join(FIXTURE_DIR, 'fixture-ids.json')
+/**
+ * 환경별 fixture-ids 파일 경로. STG/PRD는 서로 다른 슬롯을 쓰므로 파일을 분리한다
+ * (단일 파일 공유 시 PRD 셋업이 STG 148을 덮어쓰는 회귀 위험 → 파일 분리로 차단).
+ *  - STG(기본): fixture-ids.stg.json (슬롯 148 + completed 블록)
+ *  - PRD: fixture-ids.prd.json (PRD 라이브 셋업이 채우는 스텁)
+ */
+function fixtureIdsPath(): string {
+  return path.join(FIXTURE_DIR, IS_PRD ? 'fixture-ids.prd.json' : 'fixture-ids.stg.json')
+}
 
-/** fixture-ids.json을 읽는다. 파일이 없거나 JSON이 깨졌으면 null(→ 생성으로 폴백). */
+/** fixture-ids(환경별)를 읽는다. 파일이 없거나 JSON이 깨졌으면 null(→ 생성으로 폴백). */
 export function readFixtureIds(): FixtureIds | null {
   try {
-    const raw = fs.readFileSync(FIXTURE_IDS_PATH, 'utf8')
+    const raw = fs.readFileSync(fixtureIdsPath(), 'utf8')
     return JSON.parse(raw) as FixtureIds
   } catch {
     return null
   }
 }
 
-/** fixture-ids.json을 2-space 들여쓰기 + 끝 개행으로 저장한다. */
+/** fixture-ids(환경별)를 2-space 들여쓰기 + 끝 개행으로 저장한다. */
 export function writeFixtureIds(data: FixtureIds): void {
-  fs.writeFileSync(FIXTURE_IDS_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8')
+  fs.writeFileSync(fixtureIdsPath(), JSON.stringify(data, null, 2) + '\n', 'utf8')
 }
 
 // ── 완료(Completed) fixture 소비 ──────────────────────────────────────────────
-/** 고정 픽스처 슬롯 id. fixture-ids.json에서 읽고, 없으면 확정값 148로 폴백. */
+/**
+ * 고정 픽스처 슬롯 id. fixture-ids(환경별)에서 읽는다.
+ * STG면 없을 때 확정값 148로 폴백하지만, PRD엔 148 슬롯이 없으므로 폴백 금지 —
+ * PRD는 readFixtureIds()?.slotId를 그대로 반환(없으면 '' → 결과 TC가 completed 가드로 skip).
+ */
 export function fixtureSlotId(): string {
-  return readFixtureIds()?.slotId || '148'
+  const id = readFixtureIds()?.slotId
+  if (IS_PRD) return id || ''
+  return id || '148'
 }
 
 /** 라이브 STG에서 상태 '완료'로 표기되는 라벨(DOM 확정). RC/BO는 셀에 완료일시가 붙어 'Completed{일시}'로 보임. */

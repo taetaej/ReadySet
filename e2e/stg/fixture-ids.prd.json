@@ -1,0 +1,12 @@
+{
+  "slotId": "",
+  "slotName": "test_fixture_slot",
+  "createdAt": "",
+  "qaVersion": "v1.2.0",
+  "counts": {
+    "dataset": 0,
+    "bo": 0,
+    "rcrf": 0,
+    "rcrp": 0
+  }
+}

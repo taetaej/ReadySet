@@ -187,3 +187,32 @@ QA_VERSION=v1.2.0 QA_TARGET=prd npx playwright test e2e/stg --config=playwright.
 ```
 
 로 재확인한다. 셀렉터가 어긋나면 dom-evidence를 prd 기준으로 보강한 뒤 수정한다.
+
+### prd 파생(BudgetOpt 2.0 미배포) — 자동 제외 레시피
+
+prd에는 아직 BudgetOpt 2.0이 배포되지 않았다. `QA_TARGET=prd`면 `fixtures.ts`의 `IS_PRD`
+플래그로 BO 의존 TC가 **자동 제외**된다(코드/환경만으로 토글 — prd에 BO가 배포되면 이 플래그만으로
+자동 포함). 구체적으로:
+
+- **자동 제외 대상**: `budgetopt.spec.ts` 전체(BUDGET-OPT-001~012), `create-flow.spec.ts`의
+  CREATE-FLOW-003, `spinx.spec.ts`의 SPINX-COMMON-001~004·006~010(BO 결과 의존), `setup-fixture-slot.spec.ts`의
+  SETUP-003. 각 TC는 본문에서 `test.skip(IS_PRD, …)`로 건너뛰고, 선언형 `excluded` annotation을 달아
+  리포트 분모에서 빠진다(사유: "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외").
+- **유지(prd에서도 수행)**: SPINX-COMMON-005(Reach Caster 결과 의존), CREATE-FLOW-001/002/004/005,
+  DataShot·Reach Caster 결과/비교 TC.
+- **fixture-ids 파일 분리**: STG는 `fixture-ids.stg.json`(슬롯 148 + completed), prd는
+  `fixture-ids.prd.json`(prd 라이브 셋업이 채우는 스텁)을 쓴다. `QA_TARGET`에 따라 자동으로 갈린다
+  (서로 덮어쓰지 않음). prd엔 148 슬롯이 없으므로 `fixtureSlotId()`는 prd에서 148로 폴백하지 않는다.
+
+prd 라운드 명령(순서대로):
+
+```bash
+# 1) prd 고정 픽스처 슬롯 셋업(멱등). SETUP-003(BO)은 IS_PRD로 skip.
+QA_TARGET=prd QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config=playwright.stg.config.ts --workers=1
+
+# 2) prd 전수 검증(셋업 제외). BO 계열은 excluded로 분모 밖.
+QA_TARGET=prd QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
+
+# 3) prd 리포트 생성(대시보드 누적). 'PRD Sanity QA' 라벨로 표기.
+QA_TARGET=prd QA_VERSION=v1.2.0 QA_FEATURE="PRD Sanity QA" node e2e/report.mjs
+```
