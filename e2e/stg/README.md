@@ -17,8 +17,9 @@
 
 ```bash
 # 0) (최초 1회) 디버그 Chrome 실행 → 열린 창에서 https://stg.readyset.adly.co.kr/slotboard 로그인
+#    (평소 쓰는 Chrome과 분리된 전용 프로필로 띄운다 — 자세한 주의는 §1)
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --remote-debugging-port=9222 --user-data-dir=/tmp/readyset-qa-chrome
+  --remote-debugging-port=9222 --user-data-dir=/tmp/qa-chrome
 
 # 1) CDP 연결 확인 (Chrome/... 나오면 OK)
 curl -s http://localhost:9222/json/version
@@ -46,9 +47,10 @@ open e2e/results/dashboard.html
 그 창에서 직접 STG에 로그인해 둔다.
 
 ```bash
+# macOS. --user-data-dir 는 "평소 쓰는 Chrome과 분리된 전용 프로필" 경로다(아무 경로나 OK, 일관되게 쓰면 됨).
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --remote-debugging-port=9222 \
-  --user-data-dir=/tmp/readyset-qa-chrome
+  --user-data-dir=/tmp/qa-chrome
 ```
 
 그 창에서 `https://stg.readyset.adly.co.kr/slotboard`로 이동해 로그인한다.
@@ -57,6 +59,21 @@ CDP가 열렸는지 확인:
 ```bash
 curl -s http://localhost:9222/json/version   # Chrome/... 가 나오면 OK
 ```
+
+**처음 쓰는 사람이 자주 막히는 2가지:**
+
+1. **평소 쓰던 Chrome이 떠 있으면 디버그 포트가 안 열린다.** 이미 실행 중인 Chrome이 있으면
+   위 명령이 그 기존 창에 붙어버려 `--remote-debugging-port`가 무시된다. 그래서 **전용
+   `--user-data-dir`(위 `/tmp/qa-chrome`)로 별도 프로필을 띄운다** — 이러면 평소 Chrome과
+   독립된 새 창이 떠서 디버그 포트가 확실히 열린다. (평소 Chrome은 켜둔 채여도 된다.)
+2. **전용 프로필은 로그인이 안 돼 있다.** `/tmp/qa-chrome`은 깨끗한 프로필이라 처음 띄우면
+   로그인 안 된 상태다. 그 창에서 **직접 STG(또는 PRD) 로그인을 한 번 해줘야** 테스트가
+   그 세션을 재사용한다. (같은 프로필을 계속 쓰면 보통 로그인이 유지되지만, 세션이 만료되면
+   그 창에서 다시 로그인하면 된다.)
+
+> 트러블슈팅: `curl .../json/version`이 응답 없으면 → 디버그 Chrome이 안 떴거나 포트가 다른 것.
+> 위 1번(기존 Chrome 충돌)을 의심하고, 전용 프로필로 다시 띄운다. 포트를 바꿨다면 `QA_CDP_PORT`도 맞춘다(§3).
+> 테스트가 로그인 화면으로 튕기면 → 세션 만료. 그 Chrome 창에서 다시 로그인하면 이어서 된다.
 
 ---
 
