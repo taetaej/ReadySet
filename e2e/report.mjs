@@ -121,7 +121,6 @@ const STATIC_BLOCKED = {
   'BUDGET-OPT-007': '완료 BO fixture id 미확보 시 skip. fixture 확보 시 BO가 대표로 실제 복제 submit(목록 +1 검증, 솔루션당 복제 1건)',
   'BUDGET-OPT-008': '완료 BO fixture id 미확보 시 skip — fixture 확보 시 이동 메뉴 열림까지 자동화 대상(이동 확정 금지)',
   'DATA-SHOT-006': 'DataShot 이동 미지원 — 결과 헤더·리스트 카드 메뉴에 이동 항목 없음(라이브 DOM 확인). 셀렉터를 지어내지 않고 보류',
-  'DATA-SHOT-008': 'DataShot 다운로드 계약 없음 — 결과 화면에 Export/다운로드 트리거 미노출(라이브 DOM 확인). 지어내지 않고 보류',
   'SLOT-HOME-007': '파일이 이미 업로드된 슬롯에서만 노출 — 파일 보유 fixture 미확보(자동화 대상)',
 }
 

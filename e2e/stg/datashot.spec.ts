@@ -6,6 +6,7 @@ import {
   closeDeleteModal,
   completedIds,
   enterResult,
+  openHeaderMenu,
   fixtureSlotId,
   blocked,
   skipReason,
@@ -99,9 +100,24 @@ test.fixme('DATA-SHOT-006 @major 이동', blocked('DataShot 이동 미지원 —
   // 라이브 DOM 확인: 데이터셋 결과 화면 헤더(업종/조회조건/지표 상세 보기 버튼)·리스트 카드 메뉴(수정/삭제)에
   // '이동' 항목이 존재하지 않음 → DataShot은 이동 미지원. 지어내지 않고 사유와 함께 fixme 유지.
 })
-test.fixme('DATA-SHOT-008 @major 다운로드', blocked('DataShot 다운로드 계약 없음 — 결과 화면에 Export/다운로드 트리거 미노출(라이브 DOM 확인). 지어내지 않고 보류'), async () => {
-  // 라이브 DOM 확인: 데이터셋 결과 화면에 Export/다운로드 트리거(Copy Link/Excel/PDF 등) 미노출.
-  // DataShot 결과는 다운로드 계약 없음 → 지어내지 않고 사유와 함께 fixme 유지.
+// 다운로드: BO-010/RC-013과 동일 패턴. 라이브 DOM 확인 결과 데이터셋 결과 화면 헤더의
+// 공유(share-2) 아이콘 메뉴에 'Copy Link'+'Export to CSV'가 노출된다(BO/RC와 동일 위치).
+// DataShot 익스포트는 CSV(라벨 'Export to CSV', 파일 .csv) — BO/RC의 'Export to Excel'(.xlsx)과
+// 항목명·확장자만 다르다. 실제 download 이벤트 수신 + .csv 파일명 검증.
+test('DATA-SHOT-008 @major 다운로드 — Export to CSV 다운로드 이벤트 수신', skipReason('완료 데이터셋 fixture id 미확보 시 skip — fixture 확보 시 실제 download 이벤트 수신 + .csv 검증'), async ({ page }) => {
+  const id = await enterResult(page, 'dataset')
+  test.skip(!id, '완료 데이터셋 fixture id 미확보(completed.dataset 비어있음)')
+  const opened = await openHeaderMenu(page, /Copy Link|Export to CSV/)
+  test.skip(!opened, '결과 헤더에서 Export 메뉴를 열지 못함')
+  const csv = page.getByText('Export to CSV').first()
+  await expect(csv).toBeVisible()
+  // 실제 다운로드 이벤트 수신(수신만, 생성물 삭제 안 함). 내용 심층검증은 보류.
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 15_000 }),
+    csv.click(),
+  ])
+  // 파일명/확장자 확인(.csv)
+  expect(download.suggestedFilename()).toMatch(/\.csv$/)
 })
 
 // DataShot 정렬: 개선 대기 건 → TC 제외(미작성).
