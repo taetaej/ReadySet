@@ -9,6 +9,10 @@
 // 환경변수:
 //   QA_VERSION  이번 회차의 대상 버전 (기본 'unversioned')
 //   QA_FEATURE  이번 회차의 테스트 범위 라벨 (기본 'BudgetOpt 2.0 결과 화면')
+//   QA_TARGET   이번 회차의 환경 stg|prd (없으면 feature로 유추)
+//
+// 대시보드 그룹핑: '환경 + 버전'(예: STG · v1.1.1 / PRD · v1.1.1). 같은 버전이라도 STG/PRD는
+// 별도 섹션으로 나뉜다(run-sanity.mjs가 라이브 푸터·URL에서 버전·환경을 자동 수집해 기록).
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'fs'
 import { dirname, resolve, join } from 'path'
@@ -22,6 +26,27 @@ const OUT_PATH = join(RESULTS_DIR, 'dashboard.html')
 
 const VERSION = process.env.QA_VERSION || 'unversioned'
 const FEATURE = process.env.QA_FEATURE || 'BudgetOpt 2.0 결과 화면'
+
+// ── 환경(target) 판정 ────────────────────────────────────────
+// 신규 회차는 run JSON에 target을 정식 기록한다. 과거 회차(target 필드 없음)는 feature로 유추한다.
+//   'STG Sanity QA' → stg · 'PRD Sanity QA' → prd · 'BudgetOpt 2.0 결과 화면'(로컬 파일럿) → stg
+//   그 외/미매칭 → unknown
+function targetFromFeature(feature) {
+  const f = feature || ''
+  if (/^PRD\b/i.test(f)) return 'prd'
+  if (/^STG\b/i.test(f)) return 'stg'
+  if (/BudgetOpt 2\.0 결과 화면/.test(f)) return 'stg'
+  return 'unknown'
+}
+/** run의 환경을 결정한다. 정식 target 필드 우선, 없으면 feature 폴백. */
+function resolveTarget(run) {
+  if (run.target === 'stg' || run.target === 'prd' || run.target === 'unknown') return run.target
+  return targetFromFeature(run.feature)
+}
+// 이번 회차에 기록할 target: QA_TARGET 우선, 없으면 FEATURE로 유추.
+const TARGET = (process.env.QA_TARGET === 'stg' || process.env.QA_TARGET === 'prd')
+  ? process.env.QA_TARGET
+  : targetFromFeature(FEATURE)
 
 mkdirSync(RUNS_DIR, { recursive: true })
 
@@ -54,29 +79,34 @@ if (existsSync(LAST_RUN)) {
   const stamp = startedAt.replace(/[:.]/g, '-').slice(0, 19)
   const run = {
     version: VERSION,
+    target: TARGET,
     feature: FEATURE,
     startedAt,
     durationMs: json.stats?.duration ?? specs.reduce((a, s) => a + s.duration, 0),
     specs
   }
-  writeFileSync(join(RUNS_DIR, `${VERSION}__${stamp}.json`), JSON.stringify(run, null, 2))
-  console.log(`회차 보관: ${VERSION}__${stamp}.json (${specs.length}건)`)
+  // 신규 파일명에 환경을 포함: v<ver>__<target>__<timestamp>.json (과거 v<ver>__<timestamp>.json도 계속 읽힘).
+  const fileName = `${VERSION}__${TARGET}__${stamp}.json`
+  writeFileSync(join(RUNS_DIR, fileName), JSON.stringify(run, null, 2))
+  console.log(`회차 보관: ${fileName} (${specs.length}건)`)
 }
 
 // ── 2) runs/ 전체 로드 ────────────────────────────────────────
 const runFiles = readdirSync(RUNS_DIR).filter(f => f.endsWith('.json')).sort()
 const runs = runFiles.map(f => JSON.parse(readFileSync(join(RUNS_DIR, f), 'utf-8')))
 
-// 버전별 그룹: 각 버전의 '최신 회차'를 대표로, 이력도 함께 보관
-const byVersion = new Map()
+// 환경+버전별 그룹: 키 = `${target}::${version}`. 같은 버전도 STG/PRD는 별도 섹션.
+// 각 그룹의 '최신 회차'를 대표로, 이력도 함께 보관.
+const byGroup = new Map()
 for (const run of runs) {
-  if (!byVersion.has(run.version)) byVersion.set(run.version, [])
-  byVersion.get(run.version).push(run)
+  const key = `${resolveTarget(run)}::${run.version}`
+  if (!byGroup.has(key)) byGroup.set(key, [])
+  byGroup.get(key).push(run)
 }
-for (const [, list] of byVersion) list.sort((a, b) => a.startedAt.localeCompare(b.startedAt))
+for (const [, list] of byGroup) list.sort((a, b) => a.startedAt.localeCompare(b.startedAt))
 
-// 버전 정렬: 최신 회차가 늦은 순 → 위로
-const versions = [...byVersion.entries()].sort((a, b) => {
+// 그룹 정렬: 최신 회차가 늦은 순 → 위로
+const groups = [...byGroup.entries()].sort((a, b) => {
   const la = a[1][a[1].length - 1].startedAt
   const lb = b[1][b[1].length - 1].startedAt
   return lb.localeCompare(la)
@@ -255,8 +285,14 @@ function renderRunBody(run) {
     </table>`
 }
 
-// ── 버전 섹션 렌더 ───────────────────────────────────────────
-function renderVersion([version, list], verIdx) {
+// ── 환경+버전 섹션 렌더 ──────────────────────────────────────
+const TARGET_LABEL = { stg: 'STG', prd: 'PRD', unknown: '환경 미상' }
+function renderVersion([groupKey, list], verIdx) {
+  // groupKey = `${target}::${version}`
+  const sep = groupKey.indexOf('::')
+  const target = groupKey.slice(0, sep)
+  const version = groupKey.slice(sep + 2)
+  const envLabel = TARGET_LABEL[target] || target
   // list는 오래된→최신 순. 회차 선택은 최신이 기본.
   const lastIdx = list.length - 1
   const latest = list[lastIdx]
@@ -265,7 +301,7 @@ function renderVersion([version, list], verIdx) {
   const roundSelect = list.length > 1
     ? `<label class="round-pick">
         <span class="round-label">회차</span>
-        <select class="round-select" data-ver="${verIdx}" aria-label="${esc(version)} 회차 선택">
+        <select class="round-select" data-ver="${verIdx}" aria-label="${esc(envLabel)} ${esc(version)} 회차 선택">
           ${list.map((r, i) => {
             const su = summarize(r.specs)
             const isLatest = i === lastIdx
@@ -287,6 +323,7 @@ function renderVersion([version, list], verIdx) {
   return `<section class="ver">
     <div class="ver-head">
       <div class="ver-left">
+        <span class="env-tag env-${esc(target)}">${esc(envLabel)}</span>
         <span class="ver-tag">${esc(version)}</span>
         <span class="ver-feature">${esc(latest.feature)}</span>
       </div>
@@ -327,6 +364,10 @@ const html = `<!doctype html>
   .ver-left{display:flex;align-items:center;gap:12px;min-width:0}
   .ver-tag{font-weight:700;font-size:15px;color:var(--bg);background:var(--green);
     border-radius:999px;padding:3px 14px;letter-spacing:0.01em}
+  /* 환경 배지: 무채색 1px 아웃라인(강조색 아님). 시그니처 그린은 버전태그·통과율100%에만. */
+  .env-tag{font-weight:600;font-size:12px;color:var(--muted-fg);
+    border:1px solid var(--border);border-radius:999px;padding:3px 11px;letter-spacing:0.04em}
+  .env-tag.env-unknown{opacity:0.7}
   .ver-feature{color:var(--fg);font-size:14px}
   .ver-meta{color:var(--muted-fg);font-size:12px;white-space:nowrap}
   /* 회차 선택: 무채색 베이스, 강조 없음(1px 구분선만). 시그니처 그린은 버전태그·통과율100%에만. */
@@ -390,13 +431,13 @@ const html = `<!doctype html>
   <div class="top">
     <h1>ReadySet <span class="green-dot">·</span> QA 자동 채점 대시보드</h1>
   </div>
-  <div class="lead">마지막 실행 <b>${esc(fmtDate(latestOverall))}</b> · 버전 ${versions.length}개 · 자동화 범위: ${esc(FEATURE)}</div>
+  <div class="lead">마지막 실행 <b>${esc(fmtDate(latestOverall))}</b> · 환경·버전 그룹 ${groups.length}개 · 자동화 범위: ${esc(FEATURE)}</div>
 
-  ${versions.map((v, i) => renderVersion(v, i)).join('')}
+  ${groups.map((v, i) => renderVersion(v, i)).join('')}
 
   <div class="foot">
     원본 TC: <code>e2e/tc/ReadySet_BO_Result_TC_Playwright.md</code> · 자동/수동 분류: <code>e2e/tc/자동화_분류.md</code><br>
-    실행: <code>npx playwright test</code> · 리포트 생성: <code>QA_VERSION=v1.2.0 node e2e/report.mjs</code> · 상세 로그: <code>npx playwright show-report</code>
+    실행: <code>node e2e/run-sanity.mjs</code> (버전·환경 자동 수집) · 리포트 생성: <code>node e2e/report.mjs</code> · 상세 로그: <code>npx playwright show-report</code>
   </div>
 </div>
 <script>
@@ -415,4 +456,4 @@ const html = `<!doctype html>
 
 writeFileSync(OUT_PATH, html, 'utf-8')
 console.log('대시보드 생성:', OUT_PATH)
-console.log(`버전 ${versions.length}개 / 총 회차 ${runs.length}건`)
+console.log(`환경·버전 그룹 ${groups.length}개 / 총 회차 ${runs.length}건`)

@@ -13,7 +13,7 @@
 ## 0. Quick Start (처음이라면 이것만)
 
 **처음 1회**: 디버그 Chrome 띄우고(§1) → 그 창에서 STG 로그인 → 고정 픽스처 슬롯 셋업 1회(§2.5).
-**매 배포 때**: 디버그 Chrome이 STG 로그인된 상태인지 확인 → 전수 실행(아래) → 리포트 생성 → 대시보드 확인.
+**매 배포 때**: 디버그 Chrome이 로그인된 상태인지 확인 → **`node e2e/run-sanity.mjs` 한 줄** → 대시보드 확인.
 
 ```bash
 # 0) (최초 1회) 디버그 Chrome 실행 → 열린 창에서 https://stg.readyset.adly.co.kr/slotboard 로그인
@@ -27,16 +27,17 @@ curl -s http://localhost:9222/json/version
 # 2) (최초 1회) 고정 픽스처 슬롯 셋업 — 목록/결과/비교/SpinX 테스트가 재사용할 데이터 채우기
 QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config=playwright.stg.config.ts --workers=1
 
-# 3) 전수 sanity 실행 (배포 때마다)
-QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
+# 3) 전수 sanity 실행 (배포 때마다) — 버전은 푸터에서, 환경은 URL에서 자동 수집·기록된다
+node e2e/run-sanity.mjs
 
-# 4) 리포트(대시보드) 생성 + 열기
-QA_VERSION=v1.2.0 QA_FEATURE="STG Sanity QA" node e2e/report.mjs
+# 4) 대시보드 열기 (run-sanity.mjs가 리포트까지 자동 생성)
 open e2e/results/dashboard.html
 ```
 
-- **반드시 지킬 전제**: ① 디버그 Chrome(§1)이 떠서 STG에 로그인돼 있어야 한다(테스트는 로그인하지 않음). ② 공유 Chrome이라 `--workers=1`. ③ `QA_VERSION`은 그날 배포 버전으로 준다(생성물 이름 prefix + 리포트 버전 태그).
-- **PRD에서 돌릴 때**: 같은 Chrome을 PRD(`https://readyset.adly.co.kr`)에 로그인해 두고, 위 명령 앞에 `QA_TARGET=prd`를 붙인다. BudgetOpt 2.0은 PRD 미배포라 자동 제외된다(§6).
+- **`node e2e/run-sanity.mjs` 하나면 끝.** 래퍼가 디버그 Chrome(§1)의 기존 page에 CDP로 붙어 **버전은 라이브 푸터**(`ReadySet Platform vX.Y.Z`)에서, **환경은 현재 URL 호스트**(`stg.` 유무)에서 자동 수집한 뒤, 그 값으로 전수 실행(@setup 제외, `--workers=1`)하고 끝나면 `report.mjs`까지 자동 호출한다. **사람이 버전·환경을 손입력하지 않는다** → 깜빡/오입력·실제 배포 버전 불일치가 사라진다(예전엔 `QA_VERSION=v1.2.0`을 손으로 넣다 라이브 푸터와 어긋남).
+- **반드시 지킬 전제**: ① 디버그 Chrome(§1)이 떠서 STG(또는 PRD)에 로그인돼 있어야 한다(테스트는 로그인하지 않음). ② 공유 Chrome이라 `--workers=1`(래퍼가 고정). ③ 자동 감지 실패(푸터 미검출·환경 미판정) 시 조용히 넘어가지 않고 명확히 에러로 멈춘다 — 그때만 아래 override를 쓴다.
+- **override(자동 감지 생략)**: `node e2e/run-sanity.mjs --version v1.2.0 --target prd` (또는 `QA_VERSION`/`QA_TARGET`/`QA_BASE_URL` 환경변수). 인자/환경변수가 있으면 그 값이 우선한다 — 기존 수동 주입도 그대로 동작.
+- **PRD에서 돌릴 때**: 같은 Chrome을 PRD(`https://readyset.adly.co.kr`)에 로그인해 두고 `node e2e/run-sanity.mjs`만 실행하면 URL에서 `prd`가 자동 판정된다. BudgetOpt 2.0은 PRD 미배포라 자동 제외된다(§6).
 - 더 자세히: 부분 실행 레시피 §2.2 · 고정 슬롯 셋업 §2.5 · 다양화 규칙 §2.6 · 환경변수 §3 · 안전 규칙 §4 · 리포트 §5 · PRD §6.
 
 ---
@@ -60,6 +61,10 @@ CDP가 열렸는지 확인:
 curl -s http://localhost:9222/json/version   # Chrome/... 가 나오면 OK
 ```
 
+> `node e2e/run-sanity.mjs`(§0/§2)도 테스트와 **같은** 이 디버그 Chrome(CDP :9222)에 붙어 기존
+> 로그인 page를 재사용한다 — 버전·환경 자동 수집도, 전수 실행도 모두 이 창 하나로 이뤄진다
+> (새 컨텍스트·새 로그인 없음). 포트를 바꿨다면 `QA_CDP_PORT`도 맞춘다(§3).
+
 **처음 쓰는 사람이 자주 막히는 2가지:**
 
 1. **평소 쓰던 Chrome이 떠 있으면 디버그 포트가 안 열린다.** 이미 실행 중인 Chrome이 있으면
@@ -78,6 +83,19 @@ curl -s http://localhost:9222/json/version   # Chrome/... 가 나오면 OK
 ---
 
 ## 2. 실행
+
+**권장(전수 sanity): 래퍼 한 줄.** 버전·환경을 라이브에서 자동 수집·기록하고 리포트까지 생성한다.
+
+```bash
+# 전수 sanity (배포 때마다) — 푸터→버전, URL→환경 자동 수집, 리포트 자동 생성
+node e2e/run-sanity.mjs
+
+# override가 필요하면 (자동 감지 생략)
+node e2e/run-sanity.mjs --version v1.2.0 --target prd
+```
+
+아래는 래퍼가 내부적으로 묶는 **수동/하위 레벨 경로**다(부분 실행·override·디버깅용). 수동으로 돌릴 땐
+`QA_VERSION`/`QA_TARGET`을 직접 주고, 끝나면 `node e2e/report.mjs`로 리포트를 생성한다.
 
 ```bash
 # 전체 (공유 Chrome이라 --workers=1 권장)
@@ -226,6 +244,12 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 | `QA_CDP_PORT` | 디버그 Chrome 포트 | `9222` |
 | `QA_SEED` | 생성물 다양화(기간·예산) 결정적 랜덤 시드. 같은 시드 → 같은 조합 재현(2.6) | `readyset` |
 
+> **자동 수집 — `node e2e/run-sanity.mjs`로 돌리면 `QA_VERSION`/`QA_TARGET`을 생략해도 된다.** 래퍼가
+> 라이브 **푸터**(`ReadySet Platform vX.Y.Z` — `<footer>` 스코프 + 접두 한정이라 본문의 다른 `v*.*.*`는
+> 잡지 않는다)에서 버전을, **현재 URL 호스트**(`stg.readyset.adly.co.kr`→stg, `readyset.adly.co.kr`→prd)에서
+> 환경을 산출해 자식 프로세스에 주입한다. `--version`/`--target` 인자나 위 환경변수를 직접 주면 그 값이
+> 우선하고(자동 감지 생략), 둘 다 없고 감지도 실패하면 조용히 `vLOCAL`로 떨어지지 않고 명확히 에러로 멈춘다.
+
 ---
 
 ## 4. HARD RULES (안전 규칙 — 코드로 강제)
@@ -241,20 +265,29 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 
 ---
 
-## 5. 리포트 (버전별 누적 대시보드)
+## 5. 리포트 (환경+버전별 누적 대시보드)
 
 ```bash
-QA_VERSION=v1.2.0 QA_FEATURE="STG Sanity QA" node e2e/report.mjs
+# 보통은 run-sanity.mjs가 자동 호출하므로 따로 돌릴 필요 없다. 수동/부분 실행 후 재생성만:
+QA_VERSION=v1.2.0 QA_TARGET=stg QA_FEATURE="STG Sanity QA" node e2e/report.mjs
 open e2e/results/dashboard.html
 ```
 
-`report.mjs`는 `e2e/results/last-run.json`을 읽어 버전 섹션으로 누적한다. 제목 형식
+`report.mjs`는 `e2e/results/last-run.json`을 읽어 섹션으로 누적한다. 제목 형식
 `AREA-NNN @priority 한글설명`을 지켜야 영역별로 묶인다.
 
-**회차 선택:** 같은 버전을 여러 번 돌리면 각 회차가 `e2e/results/runs/`에 타임스탬프로 쌓인다.
-대시보드의 버전 헤더 우측 **회차 드롭다운**(최신 회차 기본 선택)에서 과거 회차를 고르면 그 회차의
+**환경+버전 그룹핑.** 대시보드는 **환경 + 버전**을 묶음 키로 쓴다 — 같은 버전이라도 STG와 PRD는
+**별도 섹션**으로 나뉘고, 섹션 제목에 환경 배지(`STG` / `PRD`) + 버전 태그(`v1.2.0`)가 함께 붙는다
+(예: `STG · v1.2.0`, `PRD · v1.2.0`). STG 테스트가 PRD 섹션에 섞이지 않는다.
+신규 회차 run JSON에는 환경이 `target`(stg|prd) 정식 필드로 기록되고, 파일명도
+`v<ver>__<target>__<timestamp>.json`으로 저장된다. 과거 회차(target 필드 없음·구 파일명)는
+삭제·수정 없이 그대로 두고 `feature` 라벨로 환경을 유추해 올바른 섹션에 분류한다
+(`STG Sanity QA`→stg, `PRD Sanity QA`→prd, `BudgetOpt 2.0 결과 화면`→stg).
+
+**회차 선택:** 같은 환경·버전을 여러 번 돌리면 각 회차가 `e2e/results/runs/`에 타임스탬프로 쌓인다.
+섹션 헤더 우측 **회차 드롭다운**(최신 회차 기본 선택)에서 과거 회차를 고르면 그 회차의
 카드·영역별·상세 테이블이 바로 바뀐다. 각 회차 본문은 서버가 미리 구워 숨겨두고 인라인 바닐라 JS로
-토글하므로 외부 의존(스크립트/CSS CDN)이 없다. 동일 버전·시점 구분이 필요할 때 사용한다.
+토글하므로 외부 의존(스크립트/CSS CDN)이 없다. 동일 환경·버전·시점 구분이 필요할 때 사용한다.
 
 ---
 
@@ -299,14 +332,15 @@ prd에는 아직 BudgetOpt 2.0이 배포되지 않았다. `QA_TARGET=prd`면 `fi
 prd 라운드 명령(순서대로):
 
 ```bash
-# 1) prd 고정 픽스처 슬롯 셋업(멱등). SETUP-003(BO)은 IS_PRD로 skip.
+# 1) prd 고정 픽스처 슬롯 셋업(멱등, 최초 1회). SETUP-003(BO)은 IS_PRD로 skip.
+#    (@setup이라 전수 래퍼에서 제외되므로 셋업만 따로 돌린다.)
 QA_TARGET=prd QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --config=playwright.stg.config.ts --workers=1
 
-# 2) prd 전수 검증(셋업 제외). BO 계열은 excluded로 분모 밖.
-QA_TARGET=prd QA_VERSION=v1.2.0 npx playwright test e2e/stg --config=playwright.stg.config.ts --workers=1 --grep-invert @setup
+# 2) prd 전수 검증 + 리포트 — 디버그 Chrome을 PRD에 로그인해 두면 래퍼가 URL에서 prd를,
+#    푸터에서 버전을 자동 수집해 'PRD Sanity QA'로 기록한다. BO 계열은 excluded로 분모 밖.
+node e2e/run-sanity.mjs
 
-# 3) prd 리포트 생성(대시보드 누적). 'PRD Sanity QA' 라벨로 표기.
-QA_TARGET=prd QA_VERSION=v1.2.0 QA_FEATURE="PRD Sanity QA" node e2e/report.mjs
+#    (자동 감지 대신 명시하려면: node e2e/run-sanity.mjs --version v1.2.0 --target prd)
 ```
 
 #### ⚠️ TODO — BudgetOpt 2.0 PRD 배포일에 할 숙제
