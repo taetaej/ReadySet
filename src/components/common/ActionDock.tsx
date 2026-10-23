@@ -2,16 +2,27 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Plus, ArrowUp } from 'lucide-react'
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
 
-// 입력 바는 라이트/다크 양쪽에서 항상 어두운 고대비 표면이어야 한다.
-// globals.css에는 "항상 어두운" 토큰이 없다 (--card/--popover/--sidebar/--foreground
-// 모두 .dark에서 반전됨). 따라서 이 표면만 SpinX 플로팅 버튼(SpinXButton.tsx)의
-// 고정 다크 배경 #09090b 를 의도적으로 그대로 미러링한다. 그 외 색은 전부 토큰 사용.
-const DARK_SURFACE = '#09090b'
-// 다크 표면 위 hover 피드백 (hsl(var(--muted))는 다크 배경과 충돌하므로 살짝 밝은 다크로)
-const DARK_SURFACE_HOVER = '#1c1c1f'
-const DARK_BORDER = 'rgba(255, 255, 255, 0.15)'
-const DARK_TEXT = 'rgba(255, 255, 255, 0.95)'
-const DARK_PLACEHOLDER = 'rgba(255, 255, 255, 0.5)'
+// 독 표면은 페이지 배경과 반대 명도로 띄워 고대비를 유지한다.
+// globals.css의 --card/--popover 등은 .dark에서 반전되므로 "항상 대비"를 보장하지 못한다.
+// 따라서 표면 색을 직접 고정하되, 라이트/다크에서 서로 반전시킨다:
+//  - 라이트 모드: 어두운 표면(#09090b, SpinXButton 미러링) → 흰 배경 위에서 떠 보임.
+//  - 다크 모드: 밝은 표면 → 어두운 배경 위에서 떠 보임.
+// 라이트 모드 표면 (어두움)
+const LIGHT_MODE = {
+  surface: '#09090b',
+  surfaceHover: '#1c1c1f',
+  border: 'rgba(255, 255, 255, 0.15)',
+  text: 'rgba(255, 255, 255, 0.95)',
+  placeholder: 'rgba(255, 255, 255, 0.5)',
+}
+// 다크 모드 표면 (밝음 — 라이트의 반전)
+const DARK_MODE = {
+  surface: '#fafafa',
+  surfaceHover: '#e8e8ea',
+  border: 'rgba(0, 0, 0, 0.15)',
+  text: 'rgba(9, 9, 11, 0.95)',
+  placeholder: 'rgba(9, 9, 11, 0.5)',
+}
 
 export interface DockAction {
   id: string
@@ -41,7 +52,11 @@ export interface ActionDockProps {
   isDarkMode?: boolean
 }
 
-export function ActionDock({ actions, spinx }: ActionDockProps) {
+export function ActionDock({ actions, spinx, isDarkMode = false }: ActionDockProps) {
+  // 다크 모드면 밝은 표면, 아니면 어두운 표면 (페이지 배경과 반대 명도)
+  const { surface, surfaceHover, border, text, placeholder: surfacePlaceholder } =
+    isDarkMode ? DARK_MODE : LIGHT_MODE
+
   const [inputFocused, setInputFocused] = useState(false)
   const [launcherOpen, setLauncherOpen] = useState(false)
   const [value, setValue] = useState('')
@@ -131,6 +146,8 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
         alignItems: 'flex-end',
         gap: '12px',
         fontFamily: 'Paperlogy, -apple-system, sans-serif',
+        // input ::placeholder 색을 표면에 맞춰 반전 (CSS 의사요소라 변수로 전달)
+        ['--action-dock-placeholder' as string]: surfacePlaceholder,
       }}
     >
       {/* 추천 질문 (입력 포커스 시에만, 바 위로 펼침) */}
@@ -157,13 +174,14 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                 textAlign: 'left',
                 padding: '8px 14px',
                 borderRadius: '18px',
-                border: '1px solid hsl(var(--border))',
-                backgroundColor: 'hsl(var(--card))',
-                color: 'hsl(var(--foreground))',
+                border: `1px solid ${border}`,
+                backgroundColor: surface,
+                color: text,
                 fontSize: '13px',
                 lineHeight: 1.4,
                 cursor: 'pointer',
                 whiteSpace: 'normal',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                 transition: 'background-color 0.2s',
                 opacity: 0,
                 transform: 'translateY(6px)',
@@ -171,10 +189,10 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                 animationDelay: `${i * 40}ms`,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                e.currentTarget.style.backgroundColor = surfaceHover
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--card))'
+                e.currentTarget.style.backgroundColor = surface
               }}
             >
               {q}
@@ -210,14 +228,15 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                   minWidth: '160px',
                   padding: '10px 16px',
                   borderRadius: '22px',
-                  border: '1px solid hsl(var(--border))',
-                  backgroundColor: 'hsl(var(--card))',
-                  color: 'hsl(var(--foreground))',
+                  border: `1px solid ${border}`,
+                  backgroundColor: surface,
+                  color: text,
                   fontSize: '13px',
                   fontWeight: 500,
                   fontFamily: 'inherit',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                   transition: 'background-color 0.2s',
                   opacity: 0,
                   transform: 'translateY(6px)',
@@ -225,10 +244,10 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                   animationDelay: `${i * 40}ms`,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted))'
+                  e.currentTarget.style.backgroundColor = surfaceHover
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--card))'
+                  e.currentTarget.style.backgroundColor = surface
                 }}
               >
                 <span>{action.label}</span>
@@ -236,7 +255,7 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    color: 'hsl(var(--muted-foreground))',
+                    color: surfacePlaceholder,
                     flexShrink: 0,
                   }}
                 >
@@ -258,9 +277,9 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
             width: '44px',
             height: '44px',
             borderRadius: '50%',
-            border: `1px solid ${DARK_BORDER}`,
-            backgroundColor: DARK_SURFACE,
-            color: DARK_TEXT,
+            border: `1px solid ${border}`,
+            backgroundColor: surface,
+            color: text,
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -271,10 +290,10 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
             transform: launcherOpen ? 'rotate(45deg)' : 'rotate(0deg)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = DARK_SURFACE_HOVER
+            e.currentTarget.style.backgroundColor = surfaceHover
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = DARK_SURFACE
+            e.currentTarget.style.backgroundColor = surface
           }}
         >
           <Plus size={20} />
@@ -293,8 +312,8 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
           height: '56px',
           padding: '0 10px 0 18px',
           borderRadius: '28px',
-          border: `1px solid ${DARK_BORDER}`,
-          backgroundColor: DARK_SURFACE,
+          border: `1px solid ${border}`,
+          backgroundColor: surface,
           boxShadow: inputFocused
             ? '0 0 0 2px hsl(var(--primary) / 0.5)'
             : '0 8px 24px rgba(0, 0, 0, 0.18)',
@@ -345,7 +364,7 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                color: DARK_PLACEHOLDER,
+                color: surfacePlaceholder,
                 fontSize: '14px',
                 pointerEvents: 'none',
                 animation: 'action-dock-hint-fade 0.2s ease',
@@ -375,8 +394,8 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
               border: 'none',
               outline: 'none',
               background: 'none',
-              color: DARK_TEXT,
-              caretColor: DARK_TEXT,
+              color: text,
+              caretColor: text,
               fontSize: '14px',
               fontFamily: 'inherit',
             }}
@@ -420,7 +439,7 @@ export function ActionDock({ actions, spinx }: ActionDockProps) {
           to { opacity: 1; transform: translateY(0); }
         }
         .action-dock-input::placeholder {
-          color: ${DARK_PLACEHOLDER};
+          color: var(--action-dock-placeholder);
           opacity: 1;
         }
         /* 롤링 힌트 오버레이 교체 시 미세한 페이드 (~0.2s) */
