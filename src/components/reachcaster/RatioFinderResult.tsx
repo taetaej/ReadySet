@@ -8,7 +8,7 @@ import { DetailedDataTable } from './RatioFinderDetailTable'
 import { targetGrpOptions } from '../scenario/constants'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
-import { SpinXButton } from '../spinx/SpinXButton'
+import { ActionDock, type DockAction } from '../common/ActionDock'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 import { DataShotCreateModal } from '../datashot/DataShotCreateModal'
 
@@ -461,6 +461,11 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
 
   // 차트 옵션 메모이제이션 - selectedBarIndex만 의존성에 포함
   const chartOption = useMemo(() => getChartOption(), [isDarkMode, selectedBarIndex, simulationData])
+
+  // 우하단 액션 독에 주입하는 컨텍스트 액션
+  const dockActions: DockAction[] = [
+    { id: 'datashot', label: '업종 데이터 뽑기', icon: <Database size={16} />, onSelect: () => setDataShotModalOpen(true) }
+  ]
 
   return (
     <AppLayout
@@ -1379,13 +1384,23 @@ export function RatioFinderResult({ scenarioData: propScenarioData }: RatioFinde
       )}
       </div>
 
-      {/* SpinX 플로팅 버튼 */}
-      <SpinXButton 
-        onClick={() => setSpinxOpen(!spinxOpen)}
-        hasNewMessage={false}
-        isDarkMode={isDarkMode}
-        isOpen={spinxOpen}
-      />
+      {/* 우하단 액션 독 (SpinX 입력 바 + ＋ 액션 런처) — SpinX 패널 열림 시 겹침 회피 */}
+      {!spinxOpen && (
+        <ActionDock
+          actions={dockActions}
+          spinx={{
+            placeholder: 'SpinX에게 물어보세요…',
+            suggestedQuestions: [
+              'TVC와 Digital 중 어느 비중이 가장 효율적인가요?',
+              '이 매체 비중에서 도달을 더 끌어올릴 방법이 있나요?',
+              '최적 비중을 고른 근거가 뭔가요?'
+            ],
+            onSubmitQuestion: (q) => { setSpinxInitialMessage(q); setSpinxOpen(true) },
+            onOpenPanel: () => setSpinxOpen(true)
+          }}
+          isDarkMode={isDarkMode}
+        />
+      )}
 
       {/* SpinX 채팅 패널 */}
       <SpinXPanel
