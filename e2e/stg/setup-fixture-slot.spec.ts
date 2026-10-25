@@ -10,9 +10,7 @@ import {
   createRcReachPredictor,
   readFixtureIds,
   writeFixtureIds,
-  boExcludedIfPrdFixture,
   IS_PRD,
-  PRD_BO_NO_FIXTURE_REASON,
   type FixtureIds,
 } from './fixtures'
 
@@ -47,9 +45,15 @@ const MIN = 11
 // (비교 테스트는 완료 2건이면 충분). STG는 기존대로 TARGET(13)까지. IS_PRD && suffix==='rcrp'일 때만 2.
 const PRD_RCRP_CAP = 2
 
-/** 솔루션별 생성 목표치. PRD의 rcrp만 PRD_RCRP_CAP(2)로 낮추고, 나머지는 TARGET. */
+// PRD 전용 BO 상한: '완벽한 전수'를 위해 BO 목록/검색/필터/정렬/페이징이 성립하려면 2페이지(11+)가
+// 필요하다. 상용 부하는 "완료 대기 없음(생성 요청까지만)"으로 이미 최소화되므로, 페이징이 성립하는
+// 최소선 MIN(11)으로 BO를 채운다(TARGET 13 대신 11 — 과도한 대량 회피 + 페이징 보장 양립).
+const PRD_BO_CAP = MIN
+
+/** 솔루션별 생성 목표치. PRD의 rcrp는 PRD_RCRP_CAP(2), PRD의 bo는 PRD_BO_CAP(11)로 낮추고, 나머지는 TARGET. */
 function targetFor(suffix: 'dataset' | 'bo' | 'rcrf' | 'rcrp'): number {
   if (IS_PRD && suffix === 'rcrp') return PRD_RCRP_CAP
+  if (IS_PRD && suffix === 'bo') return PRD_BO_CAP
   return TARGET
 }
 
@@ -76,6 +80,8 @@ function persistCounts(slotId: string, patch: Partial<FixtureIds['counts']>): vo
           counts: { dataset: 0, bo: 0, rcrf: 0, rcrp: 0 },
           note: 'completed ids collected 15min+ later',
         }
+  // completed 블록(수집해 둔 완료 id)·note는 보존해 덮어쓰지 않는다. counts만 patch로 갱신.
+  // (counts만 갱신하다 completed/RC 완료 id를 날리면 결과·비교 TC가 PRD에서 깨진다.)
   writeFixtureIds({
     ...base,
     slotId,
@@ -127,19 +133,19 @@ test.describe.serial('FIXTURE-SETUP', () => {
     slotId = r.slotId
     expect(slotId).toBeTruthy()
 
-    // slotId/메타 저장(counts는 기존 값 유지 — 이후 스텝이 갱신).
+    // slotId/메타 저장(counts·completed·note는 기존 값 유지 — 이후 스텝이 counts만 갱신).
+    // completed(수집해 둔 완료 id)를 반드시 보존한다 — 여기서 날리면 RC 결과/비교 TC가 PRD에서 깨진다.
     const prev = readFixtureIds()
-    const counts =
-      prev && prev.slotId === slotId
-        ? prev.counts
-        : { dataset: 0, bo: 0, rcrf: 0, rcrp: 0 }
+    const sameSlot = prev && prev.slotId === slotId
+    const counts = sameSlot ? prev!.counts : { dataset: 0, bo: 0, rcrf: 0, rcrp: 0 }
     writeFixtureIds({
       slotId,
       slotName: 'test_fixture_slot',
       createdAt: prev?.createdAt || new Date().toISOString(),
       qaVersion: QA_VERSION,
       counts,
-      note: 'completed ids collected 15min+ later',
+      ...(sameSlot && prev!.completed ? { completed: prev!.completed } : {}),
+      note: sameSlot && prev!.note ? prev!.note : 'completed ids collected 15min+ later',
     })
   })
 
@@ -152,16 +158,16 @@ test.describe.serial('FIXTURE-SETUP', () => {
     expect(r.total, `DataShot 데이터셋 ${r.total}개(최소 ${MIN})`).toBeGreaterThanOrEqual(MIN)
   })
 
-  test('SETUP-003 @setup BudgetOpt 2.0 시나리오 13개 요청', boExcludedIfPrdFixture(), async ({ page }) => {
-    // PRD 고정 슬롯에 BO 대량 생성 안 함(fixture 방침) → SETUP-003 PRD skip 유지(fixture-ids.prd.json의 bo=0 유지).
-    test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
+  test('SETUP-003 @setup BudgetOpt 2.0 시나리오 요청(PRD는 최대 11개 — 페이징 성립 최소선)', async ({ page }) => {
+    // BudgetOpt 2.0은 PRD 배포됨(v1.2.0) → PRD 고정 슬롯에도 BO 시나리오를 채운다(완벽한 전수 셋업).
+    // STG는 TARGET(13), PRD는 PRD_BO_CAP(11)까지 멱등 top-up. 완료(15분+) 절대 대기 안 함(생성 요청까지만).
     test.skip(!slotId, 'SETUP-001에서 slotId 미확보 — 선행 의존')
     test.setTimeout(SETUP_TIMEOUT_MS)
-    // 요청만. 완료(15분+) 절대 대기 안 함.
     const r = await fillSolution(page, slotId, 'budgetopt', 'bo', createBoScenario)
     persistCounts(slotId, { bo: r.total })
     if (r.failures.length) console.warn('[SETUP-003] 실패:', r.failures)
-    expect(r.total, `BO 시나리오 ${r.total}개(최소 ${MIN})`).toBeGreaterThanOrEqual(MIN)
+    const boMin = IS_PRD ? PRD_BO_CAP : MIN
+    expect(r.total, `BO 시나리오 ${r.total}개(최소 ${boMin})`).toBeGreaterThanOrEqual(boMin)
   })
 
   test('SETUP-004 @setup Reach Caster Ratio Finder 13개 요청', async ({ page }) => {

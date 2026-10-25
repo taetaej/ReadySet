@@ -77,12 +77,51 @@ export const IS_PRD = process.env.QA_TARGET === 'prd'
 export const PRD_BO_NO_FIXTURE_REASON =
   'PRD 고정 픽스처 슬롯에 BudgetOpt 시나리오 없음 — 조회계열 PRD 제외'
 /**
+ * PRD BO '결과계열'(결과/복제/이동/다운로드/CTA·SpinX B/O) 제외 사유.
+ * 목록계열과 달리 결과계열은 '완료(Completed)' BO 시나리오(completed.bo)가 있어야 돈다.
+ * BO 생성은 돼도 완료(15분+)가 아직이면 completed.bo가 비어 결과계열은 제외 유지.
+ */
+export const PRD_BO_NO_COMPLETED_REASON =
+  'PRD 고정 픽스처 슬롯에 완료(Completed) BudgetOpt 시나리오 없음(completed.bo 비어있음) — 결과/SpinX 계열 PRD 제외'
+
+/** 고정 슬롯에 BO 시나리오가 '생성되어 존재'하는가(완료 불필요). counts.bo≥1이면 true. */
+export function hasBoFixture(): boolean {
+  return (readFixtureIds()?.counts?.bo ?? 0) >= 1
+}
+/** 고정 슬롯에 '완료(Completed)' BO 시나리오 id가 수집돼 있는가(결과계열 선행조건). */
+export function hasCompletedBoFixture(): boolean {
+  return (readFixtureIds()?.completed?.bo?.length ?? 0) >= 1
+}
+
+/**
  * test 2번째 인자(annotation)용 헬퍼. PRD면 excluded annotation을, STG면 빈 객체 {}를 반환한다.
  * Playwright test()의 details 인자는 undefined를 거부하므로(파싱 에러), STG에선 빈 annotation 객체 {}
  * 를 넘겨 기존 거동(annotation 없음)을 유지한다. BO 조회계열 TC(목록/결과/SpinX 등)에 사용.
  */
 export function boExcludedIfPrdFixture() {
   return IS_PRD ? excluded(PRD_BO_NO_FIXTURE_REASON) : {}
+}
+
+/**
+ * BO '목록계열'(목록/검색/필터/정렬/페이징/삭제모달) annotation 헬퍼.
+ * 목록계열은 완료가 아니라 '생성된 BO 행 존재'만 필요하다 →
+ *  - PRD이고 고정 슬롯에 BO가 없으면(counts.bo=0) excluded(분모 제외).
+ *  - PRD이고 BO가 11+ 생성돼 있으면(counts.bo≥1) STG와 동일하게 포함({}).
+ *  - STG면 항상 포함({}).
+ */
+export function boListExcludedInPrd() {
+  return IS_PRD && !hasBoFixture() ? excluded(PRD_BO_NO_FIXTURE_REASON) : {}
+}
+
+/**
+ * BO '결과계열'(결과/복제/이동/다운로드/CTA·SpinX B/O) annotation 헬퍼.
+ * 결과계열은 '완료(Completed)' BO 시나리오(completed.bo)가 있어야 돈다 →
+ *  - PRD이고 완료 BO가 없으면 excluded(분모 제외, 사유=완료 미확보).
+ *  - PRD이고 완료 BO가 수집돼 있으면 포함({}) — 완료 id 수집 후 자동 해제.
+ *  - STG면 항상 포함({}).
+ */
+export function boResultExcludedInPrd() {
+  return IS_PRD && !hasCompletedBoFixture() ? excluded(PRD_BO_NO_COMPLETED_REASON) : {}
 }
 
 // ── 이름 헬퍼 ────────────────────────────────────────────────────────────────

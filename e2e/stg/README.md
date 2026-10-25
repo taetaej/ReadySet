@@ -37,7 +37,7 @@ open e2e/results/dashboard.html
 - **`node e2e/run-sanity.mjs` 하나면 끝.** 래퍼가 디버그 Chrome(§1)의 기존 page에 CDP로 붙어 **버전은 라이브 푸터**(`ReadySet Platform vX.Y.Z`)에서, **환경은 현재 URL 호스트**(`stg.` 유무)에서 자동 수집한 뒤, 그 값으로 전수 실행(@setup 제외, `--workers=1`)하고 끝나면 `report.mjs`까지 자동 호출한다. **사람이 버전·환경을 손입력하지 않는다** → 깜빡/오입력·실제 배포 버전 불일치가 사라진다(예전엔 `QA_VERSION=v1.2.0`을 손으로 넣다 라이브 푸터와 어긋남).
 - **반드시 지킬 전제**: ① 디버그 Chrome(§1)이 떠서 STG(또는 PRD)에 로그인돼 있어야 한다(테스트는 로그인하지 않음). ② 공유 Chrome이라 `--workers=1`(래퍼가 고정). ③ 자동 감지 실패(푸터 미검출·환경 미판정) 시 조용히 넘어가지 않고 명확히 에러로 멈춘다 — 그때만 아래 override를 쓴다.
 - **override(자동 감지 생략)**: `node e2e/run-sanity.mjs --version v1.2.0 --target prd` (또는 `QA_VERSION`/`QA_TARGET`/`QA_BASE_URL` 환경변수). 인자/환경변수가 있으면 그 값이 우선한다 — 기존 수동 주입도 그대로 동작.
-- **PRD에서 돌릴 때**: 같은 Chrome을 PRD(`https://readyset.adly.co.kr`)에 로그인해 두고 `node e2e/run-sanity.mjs`만 실행하면 URL에서 `prd`가 자동 판정된다. BudgetOpt 2.0은 PRD 배포됨(v1.2.0) — BO 생성은 PRD 포함, BO 조회계열(목록/결과/SpinX)만 고정 픽스처 슬롯에 BO 없어 제외된다(§6).
+- **PRD에서 돌릴 때**: 같은 Chrome을 PRD(`https://readyset.adly.co.kr`)에 로그인해 두고 `node e2e/run-sanity.mjs`만 실행하면 URL에서 `prd`가 자동 판정된다. BudgetOpt 2.0은 PRD 배포됨(v1.2.0) — BO 생성·**BO 목록계열(목록/검색/필터/정렬/페이징)은 PRD 포함**(고정 슬롯에 BO 11건 채움), BO **결과/SpinX 계열만 완료(Completed) BO 미확보로 제외**된다(§6).
 - 더 자세히: 부분 실행 레시피 §2.2 · 고정 슬롯 셋업 §2.5 · 다양화 규칙 §2.6 · 환경변수 §3 · 안전 규칙 §4 · 리포트 §5 · PRD §6.
 
 ---
@@ -305,19 +305,30 @@ QA_VERSION=v1.2.0 QA_TARGET=prd npx playwright test e2e/stg --config=playwright.
 ### prd 파생(BudgetOpt 2.0 배포됨 v1.2.0) — 생성 포함 / 조회계열 제외 레시피
 
 BudgetOpt 2.0은 PRD에 배포됐다(라이브 푸터 `v1.2.0`). 따라서 BO **'생성'은 PRD에서도 확인**한다.
-다만 BO **'조회계열'**(목록/검색/필터/정렬/페이징·결과/복제/다운로드/CTA·SpinX)은 PRD 고정 픽스처
-슬롯(1142)에 BudgetOpt 시나리오가 없어(`fixture-ids.prd.json`의 `counts.bo: 0`) 계속 PRD에서 제외한다.
-제외 사유는 더 이상 "미배포"가 아니라 **"고정 픽스처 슬롯에 BO 데이터 없음"** 한 종류뿐이다
-(`fixtures.ts`의 `PRD_BO_NO_FIXTURE_REASON`, 헬퍼 `boExcludedIfPrdFixture()`). 나중에 PRD 고정 슬롯에
-BO 시나리오를 채우면 조회계열도 포함할 수 있다.
+그리고 **PRD 고정 픽스처 슬롯(1142)에 BO 시나리오를 11건 채웠다**(`fixture-ids.prd.json`의 `counts.bo: 11`,
+2026-10-26 셋업 — `PRD_BO_CAP=11`, 페이징 성립 최소선, 완료 대기 없이 생성 요청까지만). 이에 따라 BO 조회계열을
+**2단계로 나눠** 다룬다(RC에서 한 완료 id 수집 패턴과 동일).
+
+- **1단계 — BO 목록계열(지금 PRD 포함)**: 목록/검색/필터/정렬/페이징·삭제 모달은 "완료"가 아니라
+  **BO 행이 생성돼 존재(`counts.bo≥1`)**하면 성립한다. BO 11건이 고정 슬롯에 있으니(2페이지) 이 계열은
+  **지금 바로 PRD에서 돈다.** 헬퍼 `boListExcludedInPrd()`/`hasBoFixture()`가 `counts.bo`로 포함 여부를 판정한다.
+- **2단계 — BO 결과계열(완료 id 수집 후 해제)**: 결과/복제/이동/다운로드/CTA·SpinX(B/O)는
+  **완료(Completed) BO 시나리오**(`completed.bo`)가 있어야 돈다. BO 완료는 15분+ 걸려 이번 셋업은 생성까지만 →
+  `completed.bo`가 빌 동안 이 계열은 PRD 제외 유지(사유=완료 미확보 `PRD_BO_NO_COMPLETED_REASON`).
+  헬퍼 `boResultExcludedInPrd()`/`hasCompletedBoFixture()`가 `completed.bo`로 판정한다.
+
+> 제외 사유가 두 종류로 분리됐다: 목록계열=**고정 슬롯 BO 부재**(`PRD_BO_NO_FIXTURE_REASON`, 이제 BO 11건 있어 해제),
+> 결과계열=**완료 BO 부재**(`PRD_BO_NO_COMPLETED_REASON`, `completed.bo` 수집 전까지 유지). STG는 둘 다 가드가
+> 항상 false라 기존 거동 그대로(회귀 없음).
 
 - **PRD 포함(실제 실행)**: `create-flow.spec.ts`의 **CREATE-FLOW-003**(BO 시나리오 실제 생성),
-  `budgetopt.spec.ts`의 **BUDGET-OPT-005**(생성 화면 진입 — 기존 BO 데이터 불필요, 모듈 배포만 필요),
+  `budgetopt.spec.ts`의 **BUDGET-OPT-005**(생성 화면 진입), **BUDGET-OPT-001~004·006·012**(목록계열 — BO 11건 있어 PRD 포함),
+  `setup-fixture-slot.spec.ts`의 **SETUP-003**(PRD에서 BO 11건 top-up — 완료 대기 없음),
   `slothome.spec.ts`의 **SLOT-HOME-002**(FinalSet 레이어 BudgetOpt 2.0 노출 단언 — PRD slot 1142 라이브 관측됨).
-- **PRD 조회계열 제외**: `budgetopt.spec.ts`의 BUDGET-OPT-001~004·006~012,
-  `spinx.spec.ts`의 SPINX-COMMON-001~004·006~010(BO 결과 의존), `setup-fixture-slot.spec.ts`의 SETUP-003.
-  각 TC는 본문에서 `test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)`로 건너뛰고, 선언형 `excluded` annotation으로
-  리포트 분모에서 빠진다(사유: "PRD 고정 픽스처 슬롯에 BudgetOpt 시나리오 없음 — 조회계열 PRD 제외").
+- **PRD 결과계열 제외(완료 id 대기)**: `budgetopt.spec.ts`의 BUDGET-OPT-007~011,
+  `spinx.spec.ts`의 SPINX-COMMON-001~004·006~010(BO 결과 의존).
+  각 TC는 본문에서 `test.skip(IS_PRD && !hasCompletedBoFixture(), PRD_BO_NO_COMPLETED_REASON)`로 건너뛰고,
+  선언형 `excluded` annotation으로 리포트 분모에서 빠진다(사유: "완료(Completed) BudgetOpt 시나리오 없음 — 결과/SpinX 계열 PRD 제외").
 - **유지(prd에서도 수행)**: SPINX-COMMON-005(Reach Caster 결과 의존), CREATE-FLOW-001/002/004/005,
   DataShot·Reach Caster 결과/비교 TC.
 - **fixture-ids 파일 분리**: STG는 `fixture-ids.stg.json`(슬롯 148 + completed), prd는
@@ -328,9 +339,12 @@ BO 시나리오를 채우면 조회계열도 포함할 수 있다.
 
 - **rcrp 상한 2 (`PRD_RCRP_CAP`)**: prd는 상용이라 대량 생성이 부담이다. `setup-fixture-slot.spec.ts`의
   `targetFor()`가 `IS_PRD && suffix==='rcrp'`일 때 목표치를 **2**로 낮춘다(STG는 그대로 13). 비교
-  테스트는 완료 2건이면 충분하므로 Reach Predictor만 2개로 제한한다. 나머지(dataset·rcrf)는 13 목표 유지,
-  bo 대량 생성(SETUP-003)은 PRD 고정 슬롯 방침상 제외. **이 상한은 "이후 재실행 시 추가 생성 0"을
-  보장하는 재발 방지 장치** — 이미 존재하는 객체는 삭제하지 않는다(삭제확정 0).
+  테스트는 완료 2건이면 충분하므로 Reach Predictor만 2개로 제한한다. 나머지(dataset·rcrf)는 13 목표 유지.
+  **이 상한은 "이후 재실행 시 추가 생성 0"을 보장하는 재발 방지 장치** — 이미 존재하는 객체는 삭제하지 않는다(삭제확정 0).
+- **bo 상한 11 (`PRD_BO_CAP=MIN`)**: BO는 '완벽한 전수'를 위해 목록/검색/필터/정렬/페이징이 성립해야 하고,
+  그러려면 2페이지(11+)가 필요하다. 상용 부하는 "완료 대기 없음(생성 요청까지만)"으로 이미 최소화되므로,
+  페이징이 성립하는 **최소선 11**로 채운다(TARGET 13 대신 11 — 과도한 대량 회피 + 페이징 보장 양립).
+  `targetFor()`가 `IS_PRD && suffix==='bo'`일 때 11로 낮춘다. SETUP-003은 이제 PRD에서도 실행된다(멱등 top-up).
 - **SLOT-HOME-002 BO 단언 복구(PRD 포함)**: `slothome.spec.ts`의 FinalSet 설정 레이어 검증은
   `BudgetOpt 2.0` 노출을 단언한다. BO가 PRD 배포됨에 따라 PRD slot 1142의 FinalSet '관리' 레이어에
   BudgetOpt 2.0이 노출됨을 라이브 관측했으므로(슬롯에 BO 시나리오가 없어도 '선택 가능한 솔루션'이라
@@ -357,21 +371,23 @@ PRD에 BudgetOpt 2.0이 배포됨(v1.2.0)에 따라 아래를 반영했다.
 완료:
 
 - [x] **BO 미배포 제외 해제 → 생성 포함**: `fixtures.ts`의 "미배포" 사유 상수를 제거하고,
-      조회계열 전용 사유 `PRD_BO_NO_FIXTURE_REASON`(고정 슬롯 BO 부재)으로 대체. 헬퍼도
-      `excludedIfPrd()` → `boExcludedIfPrdFixture()`로 개명. CREATE-FLOW-003(BO 생성)과
+      조회계열 전용 사유 `PRD_BO_NO_FIXTURE_REASON`(고정 슬롯 BO 부재)으로 대체. CREATE-FLOW-003(BO 생성)과
       BUDGET-OPT-005(생성 진입)는 PRD 포함으로 전환(라이브 PRD에서 CREATE-FLOW-003 실제 pass 확인).
 - [x] **SLOT-HOME-002 BO 단언 복구**: PRD slot 1142 FinalSet '관리' 레이어에 BudgetOpt 2.0 노출을
       라이브 관측 후 `IS_PRD` 단언 skip 제거(STG/PRD 공통 단언).
-- [x] **조회계열 제외 사유 재분류**: BUDGET-OPT 조회계열·SPINX B/O 계열·SETUP-003의 제외 사유를
-      "미배포"에서 "고정 픽스처 슬롯에 BO 없음"으로 교체(제외 자체는 유지).
+- [x] **PRD 고정 픽스처 슬롯에 BO 시나리오 채우기(2026-10-26)**: SETUP-003의 `IS_PRD` skip을 제거하고
+      `PRD_BO_CAP=11`로 PRD 고정 슬롯(1142)에 BO 11건을 생성(완료 대기 없음·생성 요청까지만).
+      `fixture-ids.prd.json`의 `counts.bo: 11`로 실측 갱신. 라이브 PRD에서 SETUP-001+003 pass 확인.
+- [x] **BO 조회계열 2단계 분리(목록계열 PRD 해제)**: 제외를 '목록계열'(완료 불필요, `counts.bo≥1`이면 포함)과
+      '결과계열'(완료 `completed.bo` 필요)로 세분화. 헬퍼 `boListExcludedInPrd()`/`boResultExcludedInPrd()` +
+      `hasBoFixture()`/`hasCompletedBoFixture()` 추가. BUDGET-OPT-001~004·006·012는 PRD 포함으로 전환
+      (라이브 PRD에서 001/002/012 pass 확인 — BO 11건·2페이지 성립). SPINX B/O와 BUDGET-OPT-007~011은
+      결과계열이라 `completed.bo` 수집 전까지 사유 `PRD_BO_NO_COMPLETED_REASON`으로 제외 유지.
 
-다음 단계(조회계열까지 PRD에서 실제로 돌리려면):
+다음 단계(BO 결과계열까지 PRD에서 실제로 돌리려면):
 
-- [ ] **PRD 고정 픽스처 슬롯에 BO 시나리오 채우기**: PRD 고정 슬롯(`fixture-ids.prd.json`의 slotId)
-      안에 BudgetOpt 2.0 시나리오를 셋업으로 생성한다. 지금은 고정 슬롯에 BO를 넣지 않는 방침이라
-      SETUP-003(BO)은 PRD skip을 유지한다. 방침을 바꿔 채우기로 하면 SETUP-003을 PRD에서 돌리거나
-      수동으로 BO 시나리오를 생성한다(상용 부하 걱정 시 rcrp처럼 소량 상한 검토 — 결과/SpinX 검증엔 완료 1~2건이면 충분).
-- [ ] **완료 대기 → 결과/SpinX(B/O) 검증**: BO 시나리오 완료(Completed)는 15분+ 걸린다. 완료 후
-      완료 id를 `fixture-ids.prd.json`의 `completed.bo`에 수집하면, PRD에서도 BO 결과/최적화 원리 SpinX가
-      조회계열 제외에서 풀려 실제 pass로 전환된다(각 TC의 `test.skip(IS_PRD, …)` 가드도 함께 해제).
-- [ ] 위 반영 후 PRD 전수 재확인 + 리포트 재생성. BO 조회계열이 excluded에서 빠져 통과율 분모에 다시 포함되는지 확인.
+- [ ] **완료 대기 → 완료 id 수집 → 결과/SpinX(B/O) 해제**: BO 시나리오 완료(Completed)는 15분+ 걸린다.
+      완료 후 PRD slot 1142 BO 목록에서 완료 id를 수집해 `fixture-ids.prd.json`의 `completed.bo`에 넣으면,
+      PRD에서도 BO 결과/복제/이동/다운로드/CTA·최적화 원리 SpinX(B/O)가 결과계열 제외에서 풀려 실제 pass로
+      전환된다(각 TC의 `test.skip(IS_PRD && !hasCompletedBoFixture(), …)` 가드와 `excluded` annotation이 함께 해제).
+- [ ] 위 반영 후 PRD 전수 재확인 + 리포트 재생성. BO 결과계열이 excluded에서 빠져 통과율 분모에 다시 포함되는지 확인.
