@@ -10,7 +10,7 @@ import {
   skipReason,
   excluded,
   IS_PRD,
-  PRD_BO_EXCLUDED_REASON,
+  PRD_BO_NO_FIXTURE_REASON,
 } from './fixtures'
 
 // SpinX TC는 모두 완료 BO/RC 결과 화면 fixture + 패널 트리거에 의존한다.
@@ -20,8 +20,9 @@ const SPINX_SKIP_REASON = skipReason(
 )
 
 // BO 결과에 의존하는 SpinX TC(001~004·006~010)는 PRD에서 excluded로 분모 제외.
+// 사유: PRD 고정 슬롯에 완료 BO 시나리오 없음(조회계열 제외). BO 모듈 자체는 PRD 배포됨.
 // SPINX-COMMON-005만 RC(Reach Predictor) 결과 의존이라 PRD에서도 유지한다.
-const SPINX_BO_ANNO = IS_PRD ? excluded(PRD_BO_EXCLUDED_REASON) : SPINX_SKIP_REASON
+const SPINX_BO_ANNO = IS_PRD ? excluded(PRD_BO_NO_FIXTURE_REASON) : SPINX_SKIP_REASON
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SpinX — AREA=SPINX-COMMON
@@ -41,7 +42,7 @@ async function gotoBoResult(page: import('@playwright/test').Page): Promise<stri
 }
 
 test('SPINX-COMMON-001 @major FAB/진입점 — 결과 화면에 SpinX 진입점 노출, 리스트엔 없음', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   // 결과 화면: 닫힘 상태 'Ask SpinX' 말풍선(SpinX 진입점) 노출.
@@ -53,7 +54,7 @@ test('SPINX-COMMON-001 @major FAB/진입점 — 결과 화면에 SpinX 진입점
 })
 
 test('SPINX-COMMON-002 @major 요약·질문 — 패널이 열리고 입력/요약 UI가 뜬다', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -64,7 +65,7 @@ test('SPINX-COMMON-002 @major 요약·질문 — 패널이 열리고 입력/요�
 })
 
 test('SPINX-COMMON-003 @major 질문답변 — 질문 전송 후 응답 영역 등장', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -79,7 +80,7 @@ test('SPINX-COMMON-003 @major 질문답변 — 질문 전송 후 응답 영역 �
 })
 
 test('SPINX-COMMON-004 @minor 모델 변경 — 모델 메뉴로 다른 모델 전환', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -118,7 +119,7 @@ test('SPINX-COMMON-005 @major R/C Effective Impression — RC 결과 SpinX 인�
 })
 
 test('SPINX-COMMON-006 @major B/O 최적화 원리 — 원리 트리거로 패널 열림', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const trigger = page.getByText('최적화 원리 알아보기').first()
@@ -130,7 +131,7 @@ test('SPINX-COMMON-006 @major B/O 최적화 원리 — 원리 트리거로 패�
 })
 
 test('SPINX-COMMON-007 @minor B/O 세션 — 세션 잔여시간 표시', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -140,7 +141,7 @@ test('SPINX-COMMON-007 @minor B/O 세션 — 세션 잔여시간 표시', SPINX_
 })
 
 test('SPINX-COMMON-008 @minor B/O 초기화 — 초기화 확인 다이얼로그', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -158,7 +159,7 @@ test('SPINX-COMMON-008 @minor B/O 초기화 — 초기화 확인 다이얼로그
 })
 
 test('SPINX-COMMON-009 @minor B/O 사이징 — 넓게/기본 보기 토글', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)
@@ -174,7 +175,7 @@ test('SPINX-COMMON-009 @minor B/O 사이징 — 넓게/기본 보기 토글', SP
 })
 
 test('SPINX-COMMON-010 @minor B/O usage — 사용량 표시', SPINX_BO_ANNO, async ({ page }) => {
-  test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
   const opened = await openSpinXPanel(page)

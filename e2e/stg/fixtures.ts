@@ -65,21 +65,24 @@ export const BASE_URL =
     ? 'https://readyset.adly.co.kr'
     : 'https://stg.readyset.adly.co.kr')
 
-// ── PRD 파생: BudgetOpt 2.0 자동 제외 ─────────────────────────────────────────
-// PRD에는 아직 BudgetOpt 2.0이 배포되지 않았다. QA_TARGET=prd면 BO 의존 TC를
-// 런타임 annotation(excluded)으로 분모에서 빼고 test.skip으로 건너뛴다.
-// 나중에 PRD에 BO가 배포되면 이 플래그만으로 자동 포함된다(코드/환경 토글).
-/** QA_TARGET=prd 여부. PRD 라운드에서 BO 의존 TC 자동 제외에 사용. */
+// ── PRD 파생: BudgetOpt 2.0 조회계열 제외 ─────────────────────────────────────
+// BudgetOpt 2.0은 PRD에 배포됐다(v1.2.0). 따라서 BO '생성'은 PRD에서도 확인한다.
+// 다만 BO '조회계열'(목록/검색/필터/정렬/페이징/결과/복제/다운로드/CTA/SpinX)은
+// PRD 고정 픽스처 슬롯(1142)에 BudgetOpt 시나리오가 없어(bo=0) 계속 PRD에서 제외한다.
+// → 제외 사유는 "미배포"가 아니라 "고정 픽스처 슬롯에 BO 데이터 없음" 한 종류뿐이다.
+// 나중에 PRD 고정 슬롯에 BO 시나리오를 채우면 조회계열도 포함할 수 있다.
+/** QA_TARGET=prd 여부. PRD 라운드에서 BO 조회계열 TC 자동 제외에 사용. */
 export const IS_PRD = process.env.QA_TARGET === 'prd'
-/** PRD에서 BO 의존 TC 제외 사유(리포트·skip 메시지 공용). */
-export const PRD_BO_EXCLUDED_REASON = 'BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외'
+/** PRD에서 BO 조회계열 TC 제외 사유(리포트·skip 메시지 공용). */
+export const PRD_BO_NO_FIXTURE_REASON =
+  'PRD 고정 픽스처 슬롯에 BudgetOpt 시나리오 없음 — 조회계열 PRD 제외'
 /**
  * test 2번째 인자(annotation)용 헬퍼. PRD면 excluded annotation을, STG면 빈 객체 {}를 반환한다.
  * Playwright test()의 details 인자는 undefined를 거부하므로(파싱 에러), STG에선 빈 annotation 객체 {}
- * 를 넘겨 기존 거동(annotation 없음)을 유지한다. annotation이 없던 TC(001/002/005·SETUP-003)에 사용.
+ * 를 넘겨 기존 거동(annotation 없음)을 유지한다. BO 조회계열 TC(목록/결과/SpinX 등)에 사용.
  */
-export function excludedIfPrd() {
-  return IS_PRD ? excluded(PRD_BO_EXCLUDED_REASON) : {}
+export function boExcludedIfPrdFixture() {
+  return IS_PRD ? excluded(PRD_BO_NO_FIXTURE_REASON) : {}
 }
 
 // ── 이름 헬퍼 ────────────────────────────────────────────────────────────────

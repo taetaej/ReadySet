@@ -10,9 +10,9 @@ import {
   createRcReachPredictor,
   readFixtureIds,
   writeFixtureIds,
-  excludedIfPrd,
+  boExcludedIfPrdFixture,
   IS_PRD,
-  PRD_BO_EXCLUDED_REASON,
+  PRD_BO_NO_FIXTURE_REASON,
   type FixtureIds,
 } from './fixtures'
 
@@ -152,9 +152,9 @@ test.describe.serial('FIXTURE-SETUP', () => {
     expect(r.total, `DataShot 데이터셋 ${r.total}개(최소 ${MIN})`).toBeGreaterThanOrEqual(MIN)
   })
 
-  test('SETUP-003 @setup BudgetOpt 2.0 시나리오 13개 요청', excludedIfPrd(), async ({ page }) => {
-    // PRD에는 BudgetOpt 2.0 미배포 → BO 대량 생성 skip(fixture-ids.prd.json의 bo=0 유지).
-    test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test('SETUP-003 @setup BudgetOpt 2.0 시나리오 13개 요청', boExcludedIfPrdFixture(), async ({ page }) => {
+    // PRD 고정 슬롯에 BO 대량 생성 안 함(fixture 방침) → SETUP-003 PRD skip 유지(fixture-ids.prd.json의 bo=0 유지).
+    test.skip(IS_PRD, PRD_BO_NO_FIXTURE_REASON)
     test.skip(!slotId, 'SETUP-001에서 slotId 미확보 — 선행 의존')
     test.setTimeout(SETUP_TIMEOUT_MS)
     // 요청만. 완료(15분+) 절대 대기 안 함.

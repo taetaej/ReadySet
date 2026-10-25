@@ -9,9 +9,6 @@ import {
   createRcReachPredictor,
   testName,
   skipReason,
-  excluded,
-  IS_PRD,
-  PRD_BO_EXCLUDED_REASON,
 } from './fixtures'
 
 // CREATE-FLOW-002~005는 선행 CREATE-FLOW-001의 slotId 캡처에 의존한다.
@@ -62,9 +59,8 @@ test.describe.serial('CREATE-FLOW', () => {
     await createDataset(page, slotId!, testName('dataset'))
   })
 
-  test('CREATE-FLOW-003 @critical BudgetOpt 2.0 시나리오 실제 생성 (슬롯 내부)', IS_PRD ? excluded(PRD_BO_EXCLUDED_REASON) : CF_DEP, async ({ page }) => {
-    // PRD에는 BudgetOpt 2.0 미배포 → 생성 skip. serial 체인은 001 slotId만 공유하므로 003 skip은 004/005에 무해.
-    test.skip(IS_PRD, PRD_BO_EXCLUDED_REASON)
+  test('CREATE-FLOW-003 @critical BudgetOpt 2.0 시나리오 실제 생성 (슬롯 내부)', CF_DEP, async ({ page }) => {
+    // BudgetOpt 2.0은 PRD 배포됨(v1.2.0) → 생성 확인은 PRD 포함. serial 체인은 001 slotId만 공유.
     test.skip(!slotId, 'slotId 미캡처 — 모듈 진입 불가')
     await createBoScenario(page, slotId!, testName('bo'))
   })

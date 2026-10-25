@@ -1,4 +1,4 @@
-import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, blocked, skipReason, IS_PRD } from './fixtures'
+import { test, expect, gotoStable, dismissLaunchPopup, fixtureSlotId, blocked, skipReason } from './fixtures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SlotHome — AREA=SLOT-HOME
@@ -28,10 +28,9 @@ test('SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다', skipReason('
   await manageBtn.click()
   // 솔루션명은 레이어/보드에 중복 등장할 수 있어 first()로 한정.
   await expect(page.getByText('DataShot').first()).toBeVisible()
-  // BudgetOpt 2.0 PRD 미배포 — 해당 단언만 제외(PRD). STG에선 계속 실행(회귀 금지).
-  if (!IS_PRD) {
-    await expect(page.getByText('BudgetOpt 2.0').first()).toBeVisible()
-  }
+  // BudgetOpt 2.0은 PRD 배포됨(v1.2.0) → FinalSet 레이어에 노출 확인됨(PRD slot 1142 라이브 관측).
+  // 슬롯에 BO 시나리오가 없어도 '선택 가능한 솔루션' 목록이라 노출됨. STG/PRD 공통 단언 복구.
+  await expect(page.getByText('BudgetOpt 2.0').first()).toBeVisible()
   await expect(page.getByText('Reach Caster').first()).toBeVisible()
   await expect(page.getByRole('button', { name: '적용' })).toBeVisible()
 })
