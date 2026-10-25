@@ -293,32 +293,27 @@ function renderVersion([groupKey, list], verIdx) {
   const target = groupKey.slice(0, sep)
   const version = groupKey.slice(sep + 2)
   const envLabel = TARGET_LABEL[target] || target
-  // list는 오래된→최신 순. 회차 선택은 최신이 기본.
+  // list는 오래된→최신 순. 대시보드에는 '최신 회차만 상세'로 렌더한다.
   const lastIdx = list.length - 1
   const latest = list[lastIdx]
+  const durSec = (latest.durationMs / 1000).toFixed(1)
 
-  // 회차 선택 UI (회차 2건 이상일 때만). 라벨 = 날짜 + passed/total + 통과율.
-  const roundSelect = list.length > 1
-    ? `<label class="round-pick">
-        <span class="round-label">회차</span>
-        <select class="round-select" data-ver="${verIdx}" aria-label="${esc(envLabel)} ${esc(version)} 회차 선택">
-          ${list.map((r, i) => {
-            const su = summarize(r.specs)
-            const isLatest = i === lastIdx
-            return `<option value="${i}"${isLatest ? ' selected' : ''}>${esc(fmtDate(r.startedAt))} · ${su.passed}/${su.total} (${su.rate}%)${isLatest ? ' · 최신' : ''}</option>`
-          }).reverse().join('')}
-        </select>
-      </label>`
+  // 과거 회차는 상세를 굽지 않고 '요약 한 줄' 이력만 표시한다.
+  // (회차 수와 무관하게 dashboard.html 크기를 작게 유지 — 상세는 runs/*.json에 보존.)
+  const historyRows = list.length > 1
+    ? `<h3 class="sub-h">회차 이력 <span class="sub-note">최신만 상세 · 과거는 요약(상세는 e2e/results/runs/*.json)</span></h3>
+      <table class="history-tbl">
+        <thead><tr><th>실행 시각</th><th class="num">통과/전체</th><th class="num">자동화 대상 통과율</th></tr></thead>
+        <tbody>${list.slice(0, -1).reverse().map(r => {
+          const su = summarize(r.specs)
+          return `<tr>
+            <td class="dim small">${esc(fmtDate(r.startedAt))}</td>
+            <td class="num small">${su.passed}/${su.total}</td>
+            <td class="num small pct">${su.rate}%</td>
+          </tr>`
+        }).join('')}</tbody>
+      </table>`
     : ''
-
-  // 각 회차의 본문 조각을 모두 구워 숨겨두고, 선택된 회차만 표시한다.
-  const bodies = list.map((r, i) => {
-    const durSec = (r.durationMs / 1000).toFixed(1)
-    return `<div class="run-body" data-ver="${verIdx}" data-run="${i}"${i === lastIdx ? '' : ' hidden'}>
-      <div class="run-meta">${esc(fmtDate(r.startedAt))} · ${durSec}초</div>
-      ${renderRunBody(r)}
-    </div>`
-  }).join('')
 
   return `<section class="ver">
     <div class="ver-head">
@@ -327,9 +322,12 @@ function renderVersion([groupKey, list], verIdx) {
         <span class="ver-tag">${esc(version)}</span>
         <span class="ver-feature">${esc(latest.feature)}</span>
       </div>
-      ${roundSelect}
+      <div class="ver-meta">${esc(fmtDate(latest.startedAt))} · ${durSec}초 · 최신</div>
     </div>
-    ${bodies}
+    <div class="run-body">
+      ${renderRunBody(latest)}
+    </div>
+    ${historyRows}
   </section>`
 }
 
@@ -370,15 +368,6 @@ const html = `<!doctype html>
   .env-tag.env-unknown{opacity:0.7}
   .ver-feature{color:var(--fg);font-size:14px}
   .ver-meta{color:var(--muted-fg);font-size:12px;white-space:nowrap}
-  /* 회차 선택: 무채색 베이스, 강조 없음(1px 구분선만). 시그니처 그린은 버전태그·통과율100%에만. */
-  .round-pick{display:flex;align-items:center;gap:8px;white-space:nowrap}
-  .round-label{font-size:11px;color:var(--muted-fg)}
-  .round-select{appearance:none;background:var(--panel-2);color:var(--fg);
-    border:1px solid var(--border);border-radius:8px;padding:6px 28px 6px 12px;font-size:12px;
-    font-family:inherit;cursor:pointer;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%239a9a9f' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
-    background-repeat:no-repeat;background-position:right 10px center}
-  .round-select:hover{border-color:var(--muted-fg)}
   .run-meta{color:var(--muted-fg);font-size:12px;margin:-4px 0 14px}
 
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
@@ -423,6 +412,9 @@ const html = `<!doctype html>
   /* 수동 QA 대상 블록(요청1): 1px 구분선 + muted. 강조색 없음. */
   .manualqa-tbl td{padding:7px 10px;border-bottom:1px solid var(--panel-2)}
   .manualqa-tbl tr:last-child td{border-bottom:none}
+  /* 회차 이력 테이블: 과거 회차 요약 한 줄(상세 안 구움 — 파일 비대 방지). muted. */
+  .history-tbl td{padding:7px 10px;border-bottom:1px solid var(--panel-2)}
+  .history-tbl tr:last-child td{border-bottom:none}
 
   .foot{color:var(--muted-fg);font-size:12px;margin-top:28px;line-height:1.8}
   .foot code{background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px}
@@ -440,18 +432,6 @@ const html = `<!doctype html>
     실행: <code>node e2e/run-sanity.mjs</code> (버전·환경 자동 수집) · 리포트 생성: <code>node e2e/report.mjs</code> · 상세 로그: <code>npx playwright show-report</code>
   </div>
 </div>
-<script>
-  // 회차 선택 → 해당 회차 본문 조각만 표시(서버가 구운 조각 토글). 외부 의존 0.
-  document.querySelectorAll('.round-select').forEach(function (sel) {
-    sel.addEventListener('change', function () {
-      var ver = sel.getAttribute('data-ver')
-      var run = sel.value
-      document.querySelectorAll('.run-body[data-ver="' + ver + '"]').forEach(function (body) {
-        body.hidden = body.getAttribute('data-run') !== run
-      })
-    })
-  })
-</script>
 </body></html>`
 
 writeFileSync(OUT_PATH, html, 'utf-8')
