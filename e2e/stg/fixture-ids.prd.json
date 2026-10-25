@@ -9,5 +9,11 @@
     "rcrf": 27,
     "rcrp": 13
   },
-  "note": "counts = 라이브 보드 실측(2026-10-22). rcrf 27 = 비다양화 14(이전 세션) + 다양화 13(QA_SEED=readyset). rcrp 13 = 다양화 13(QA_SEED=readyset). PRD rcrp 상한 2 지시는 생성 완료 후 도착 → 이미 생성된 13건은 삭제금지 정책상 유지, 코드엔 IS_PRD rcrp cap=2 적용(이후 재실행 시 추가 생성 0). dataset 13 = 멱등 카운트(stamp 체계상 과거 생성분 미매칭)로 이번 회차 신규 13건 기준. completed ids collected 15min+ later."
+  "completed": {
+    "bo": [],
+    "rcRatioFinder": ["2835", "2834", "2833", "2832", "2831"],
+    "rcReachPredictor": ["2848", "2847", "2846", "2845", "2844"],
+    "dataset": []
+  },
+  "note": "counts = 라이브 보드 실측(2026-10-22). rcrf 27 = 비다양화 14(이전 세션) + 다양화 13(QA_SEED=readyset). rcrp 13 = 다양화 13(QA_SEED=readyset). PRD rcrp 상한 2 지시는 생성 완료 후 도착 → 이미 생성된 13건은 삭제금지 정책상 유지, 코드엔 IS_PRD rcrp cap=2 적용(이후 재실행 시 추가 생성 0). dataset 13 = 멱등 카운트(stamp 체계상 과거 생성분 미매칭)로 이번 회차 신규 13건 기준. completed = 라이브 PRD slot 1142에서 실측 수집(2026-10-25, 전부 Completed). rcRatioFinder 완료 27건 중 대표 5, rcReachPredictor 완료 13건 중 대표 5(비교는 2건+ 사용). bo=[] (고정 슬롯에 BO 시나리오 없음 — 조회계열 PRD 제외). dataset=[] (완료 데이터셋 id 미수집 — 필요 시 추가). 결과 라우트: rcRatioFinder=/slots/1142/reachcaster/scenarios/{id}/ratio-finder/result, rcReachPredictor=/slots/1142/reachcaster/scenarios/{id}/reach-predictor/result"
 }
