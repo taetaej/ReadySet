@@ -443,7 +443,7 @@ export const kakaoMetrics: MetricGroup[] = [
       { id: 'ctr', label: '클릭률', selected: false },
       { id: 'cpv', label: '재생당 비용', selected: false },
       { id: 'vtr', label: 'VTR (3초 이상 재생률)', selected: false },
-      { id: 'video_views', label: '재생수', selected: false },
+      { id: 'video_views', label: '3초 재생수', selected: false },
       { id: 'video_play_cost', label: '재생당 비용', selected: false },
       { id: 'conversions', label: '전환수', selected: false },
     ]
