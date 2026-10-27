@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test'
 //   npx playwright show-report        (실행 후 리포트)
 export default defineConfig({
   testDir: './e2e',
+  // STG Sanity QA 스펙(e2e/stg/**)은 CDP 연결용 별도 설정(playwright.stg.config.ts)으로만 실행한다.
+  // 로컬 webServer 흐름이 원격 타깃 스펙을 끌어오지 않도록 여기서 제외한다.
+  testIgnore: ['stg/**'],
   timeout: 30_000,
   retries: 0,
   reporter: [

@@ -1,0 +1,1623 @@
+{
+  "version": "v1.2.0",
+  "feature": "PRD Sanity QA",
+  "startedAt": "2026-10-22T05:05:29.925Z",
+  "durationMs": 211687.91999999998,
+  "specs": [
+    {
+      "title": "AUTH-001 @minor admin/marketer 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 10,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "권한별 테스트 이번 라운드 skip — 단일 Admin 세션, 계정 전환/로그아웃 불가",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 11,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "AUTH-002 @minor agency 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 13,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "권한별 테스트 이번 라운드 skip — 단일 Admin 세션, 계정 전환/로그아웃 불가",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 14,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "AUTH-003 @minor client 권한",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "권한 테스트 — 단일 Admin 세션(계정 전환/로그아웃 불가)이라 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 16,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "권한별 테스트 이번 라운드 skip — 단일 Admin 세션, 계정 전환/로그아웃 불가",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/auth.spec.ts",
+            "line": 17,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-001 @major 시나리오 목록이 표시된다",
+      "status": "skipped",
+      "duration": 72,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 39,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-002 @major 검색 — 입력 시 목록이 필터링된다",
+      "status": "skipped",
+      "duration": 12,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 45,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-003 @major 필터 — 상태 필터 적용 시 목록이 변한다",
+      "status": "skipped",
+      "duration": 12,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 57,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-012 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다",
+      "status": "skipped",
+      "duration": 11,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 73,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-004 @major 정렬 — 테이블 컬럼 헤더 클릭",
+      "status": "skipped",
+      "duration": 11,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 87,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-005 @critical 생성 진입",
+      "status": "skipped",
+      "duration": 13,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 101,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-006 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "skipped",
+      "duration": 10,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 106,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-009 @critical 결과 — 핵심 섹션 렌더",
+      "status": "skipped",
+      "duration": 10,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 119,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-007 @major 복제 — 실제 복제 실행 후 목록 1건 증가",
+      "status": "skipped",
+      "duration": 12,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 129,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-008 @major 이동 — 헤더 메뉴 레이어 열림까지",
+      "status": "skipped",
+      "duration": 10,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 165,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-010 @major 다운로드 — Export to Excel 다운로드 이벤트 수신",
+      "status": "skipped",
+      "duration": 9,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 175,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "BUDGET-OPT-011 @major CTA(Reach Caster 연계) — 간편 생성 진입",
+      "status": "skipped",
+      "duration": 10,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 190,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/budgetopt.spec.ts",
+            "line": 34,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "GNB-COMMON-001 @critical 로고가 헤더에 노출된다",
+      "status": "passed",
+      "duration": 2582,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "GNB-COMMON-002 @major 라이트/다크 테마 토글 버튼이 동작한다",
+      "status": "passed",
+      "duration": 2699,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "GNB-COMMON-003 @major 유저 프로필을 열면 계정 정보가 표시된다",
+      "status": "passed",
+      "duration": 2628,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "GNB-COMMON-004 @major 프로필 드롭다운에 접속 이력이 표시된다",
+      "status": "passed",
+      "duration": 2616,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "GNB-COMMON-005 @critical 로그아웃 메뉴가 노출된다(클릭 금지)",
+      "status": "passed",
+      "duration": 2605,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "GNB-COMMON-009 @major 레이어 팝업이 표시되고 닫기로 사라진다",
+      "status": "skipped",
+      "duration": 5127,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "런치 팝업이 세션 상태상 이번 진입에서 안 뜨면 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 48,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "런치 팝업 미노출(세션 상태상 이번 진입에서 안 뜸) — 재현 시 수동 확인",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 60,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "GNB-COMMON-006 @minor GNB>FAB Client 표시",
+      "status": "skipped",
+      "duration": 2570,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "GNB>FAB(Client 표시) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 65,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "FAB 미발견: 리스트 화면에 우하단 고정 FAB 없음(결과/특정 계정 전용 추정)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 66,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "GNB-COMMON-007 @minor GNB>FAB 알림",
+      "status": "skipped",
+      "duration": 2568,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "GNB>FAB(알림) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 69,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "FAB 미발견: 동일 사유(결과/특정 계정 전용 추정)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 70,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "GNB-COMMON-008 @minor GNB>FAB 등급",
+      "status": "skipped",
+      "duration": 2563,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "GNB>FAB(등급) 미노출 — 특정 계정 전용 추정. 단일 Admin 세션에서 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 73,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "FAB 미발견: 동일 사유(결과/특정 계정 전용 추정)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-gnb.spec.ts",
+            "line": 74,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "MISC-COMMON-001 @major DOCS로 진입한다",
+      "status": "passed",
+      "duration": 4924,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "사이드바 펼침 후에도 Docs 버튼 미노출 시 skip — 슬롯 레이아웃 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 17,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "MISC-COMMON-002 @minor 생성 알림",
+      "status": "skipped",
+      "duration": 2563,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "알림 FAB 미노출(GNB>FAB와 동일) — 특정 계정 전용 추정. 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 38,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "알림 FAB 미발견(GNB>FAB 미노출과 동일 사유)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 39,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "MISC-COMMON-003 @minor 등급 알림",
+      "status": "skipped",
+      "duration": 2596,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "에이전시/클라이언트 계정 의존 — 단일 Admin 세션에서 자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 41,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "에이전시/클라이언트 계정 의존(단일 Admin 세션) — 이번 라운드 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 42,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "MISC-COMMON-004 @minor 등급 결과물 카운트",
+      "status": "skipped",
+      "duration": 2614,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 44,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "등급 UI(FAB 경로) 미탐색",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 45,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "MISC-COMMON-005 @minor 등급 사용 솔루션 체크",
+      "status": "skipped",
+      "duration": 2619,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "등급 UI(FAB 경로) 계정 의존 — 단일 Admin 세션에서 미탐색/자동화 불가. 수동 QA 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 47,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "등급 UI(FAB 경로) 미탐색",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/common-misc.spec.ts",
+            "line": 48,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "CREATE-FLOW-001 @critical 슬롯 실제 생성 — (주)세정 + Private + test_v*",
+      "status": "passed",
+      "duration": 6322,
+      "error": null,
+      "annotations": [
+        {
+          "type": "serial",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 38,
+            "column": 15
+          }
+        }
+      ]
+    },
+    {
+      "title": "CREATE-FLOW-002 @critical DataShot 데이터셋 실제 생성 (슬롯 내부)",
+      "status": "passed",
+      "duration": 17692,
+      "error": null,
+      "annotations": [
+        {
+          "type": "serial",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 38,
+            "column": 15
+          }
+        },
+        {
+          "type": "skip-reason",
+          "description": "선행 CREATE-FLOW-001 슬롯 생성/슬롯id 캡처 실패 시 skip — serial 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 56,
+            "column": 3
+          }
+        }
+      ]
+    },
+    {
+      "title": "CREATE-FLOW-003 @critical BudgetOpt 2.0 시나리오 실제 생성 (슬롯 내부)",
+      "status": "skipped",
+      "duration": 15,
+      "error": null,
+      "annotations": [
+        {
+          "type": "serial",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 38,
+            "column": 15
+          }
+        },
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 65,
+            "column": 3
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 67,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "CREATE-FLOW-004 @critical Reach Caster Ratio Finder 실제 생성 (슬롯 내부)",
+      "status": "passed",
+      "duration": 19530,
+      "error": null,
+      "annotations": [
+        {
+          "type": "serial",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 38,
+            "column": 15
+          }
+        },
+        {
+          "type": "skip-reason",
+          "description": "선행 CREATE-FLOW-001 슬롯 생성/슬롯id 캡처 실패 시 skip — serial 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 72,
+            "column": 3
+          }
+        }
+      ]
+    },
+    {
+      "title": "CREATE-FLOW-005 @critical Reach Caster Reach Predictor 실제 생성 (슬롯 내부)",
+      "status": "passed",
+      "duration": 16482,
+      "error": null,
+      "annotations": [
+        {
+          "type": "serial",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 38,
+            "column": 15
+          }
+        },
+        {
+          "type": "skip-reason",
+          "description": "선행 CREATE-FLOW-001 슬롯 생성/슬롯id 캡처 실패 시 skip — serial 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/create-flow.spec.ts",
+            "line": 77,
+            "column": 3
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-001 @major 데이터셋 목록이 표시된다",
+      "status": "passed",
+      "duration": 2647,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "DATA-SHOT-002 @major 검색 — 입력 시 목록이 필터링된다",
+      "status": "passed",
+      "duration": 4153,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "DATA-SHOT-003 @major 필터 — 상태 필터 적용 시 목록이 변한다",
+      "status": "passed",
+      "duration": 4211,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "상태 필터 컨트롤(Processing) 미노출 시 skip — 데이터 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 48,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-009 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다",
+      "status": "passed",
+      "duration": 4435,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "2페이지 버튼이 없으면(항목이 한 페이지 이내) skip — 목록 건수 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 61,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-004 @critical 생성 진입",
+      "status": "passed",
+      "duration": 2626,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "DATA-SHOT-005 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3020,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "데이터셋 카드가 없으면 skip — 고정 픽스처 슬롯에 데이터셋 존재 시 실행됨",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 81,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-007 @critical 결과 — 데이터셋 결과 화면 렌더",
+      "status": "skipped",
+      "duration": 2599,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "완료 데이터셋 fixture id(completed.dataset) 미확보 시 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 91,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 데이터셋 fixture id 미확보(completed.dataset 비어있음)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 93,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-006 @major 이동",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "DataShot 이동 미지원 — 결과 헤더·리스트 카드 메뉴에 이동 항목 없음(라이브 DOM 확인). 셀렉터를 지어내지 않고 보류",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 99,
+            "column": 6
+          }
+        },
+        {
+          "type": "fixme",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 99,
+            "column": 6
+          }
+        }
+      ]
+    },
+    {
+      "title": "DATA-SHOT-008 @major 다운로드 — Export to CSV 다운로드 이벤트 수신",
+      "status": "skipped",
+      "duration": 2596,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "완료 데이터셋 fixture id 미확보 시 skip — fixture 확보 시 실제 download 이벤트 수신 + .csv 검증",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 107,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 데이터셋 fixture id 미확보(completed.dataset 비어있음)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/datashot.spec.ts",
+            "line": 109,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-001 @major 시나리오 목록이 표시된다",
+      "status": "passed",
+      "duration": 2610,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "REACH-CASTER-002 @major 검색 — 입력 시 목록이 필터링된다",
+      "status": "passed",
+      "duration": 4150,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "REACH-CASTER-003 @major 필터 — 상태 필터 적용 시 목록이 변한다",
+      "status": "passed",
+      "duration": 4231,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "상태 필터 컨트롤(Processing)이 패널에 미노출이면 skip — 픽스처 데이터 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 49,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-014 @minor 페이징 — 2페이지 이동 시 행 집합이 바뀐다",
+      "status": "passed",
+      "duration": 4149,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "2페이지 버튼이 없으면(항목이 한 페이지 이내) skip — 목록 건수 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 62,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-004 @minor 리스트 모드 토글",
+      "status": "skipped",
+      "duration": 2608,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "리스트 모드 토글 셀렉터 미확보 — 라이브 DOM 재확인 필요. 셀렉터를 지어내지 않고 보류(자동화 대상)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 74,
+            "column": 1
+          }
+        },
+        {
+          "type": "fixme",
+          "description": "리스트 모드 토글 셀렉터 미확보(실제 DOM 재확인 필요) — 증거 확보 시 작성",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 76,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-005 @critical 생성 R/F 진입·모드 선택",
+      "status": "passed",
+      "duration": 2694,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "REACH-CASTER-006 @critical 생성 R/P 진입·모드 선택",
+      "status": "passed",
+      "duration": 2754,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "REACH-CASTER-007 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3097,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "시나리오 카드가 없으면 skip — 고정 픽스처 슬롯에 RC 시나리오 존재 시 실행됨",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 96,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-010 @critical 결과 R/F — 핵심 섹션 렌더",
+      "status": "skipped",
+      "duration": 2597,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "완료 Ratio Finder fixture id(fixture-ids.json completed.rcRatioFinder) 미확보 시 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 109,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Ratio Finder fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 111,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-011 @critical 결과 R/P — 핵심 섹션 렌더",
+      "status": "skipped",
+      "duration": 2599,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "완료 Reach Predictor fixture id(completed.rcReachPredictor) 미확보 시 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 117,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Reach Predictor fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 119,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-012 @major 시나리오 비교 — 완료 R/P 2건 비교 결과 렌더",
+      "status": "skipped",
+      "duration": 2601,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "비교용 완료 Reach Predictor fixture 2건 미확보 시 skip",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 126,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "비교용 완료 Reach Predictor fixture 2건 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 128,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-008 @major 복제 — 결과 헤더 복제 메뉴",
+      "status": "skipped",
+      "duration": 2604,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "완료 RC fixture id 미확보 시 skip. 복제 submit은 BO가 대표로 수행하므로 RC는 메뉴 열림까지만(솔루션당 복제 1건 규칙)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 141,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Reach Predictor fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 143,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-009 @major 이동 — 결과 헤더 이동 메뉴",
+      "status": "skipped",
+      "duration": 2590,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "완료 RC fixture id 미확보 시 skip — fixture 수집 시 메뉴 열림까지 자동화 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 152,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Reach Predictor fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 154,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "REACH-CASTER-013 @major 다운로드 — Export to Excel 이벤트 수신",
+      "status": "skipped",
+      "duration": 2596,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "완료 RC fixture id 미확보 또는 RC 결과에 Export to Excel 미노출 시 skip — fixture/Export 확보 시 다운로드 이벤트 검증 대상",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 161,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Reach Predictor fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/reachcaster.spec.ts",
+            "line": 163,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-BOARD-001 @critical 슬롯 생성 폼 — 필수 영역 노출(생성 submit 없음, 실생성은 CREATE-FLOW-001)",
+      "status": "passed",
+      "duration": 3317,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-BOARD-002 @major 카드 메뉴에서 수정 진입 UI가 노출된다",
+      "status": "passed",
+      "duration": 2670,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "슬롯 카드가 없으면 skip — CREATE-FLOW/기존 카드 존재 시 실행됨",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slotboard.spec.ts",
+            "line": 58,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-BOARD-003 @critical 삭제 모달만 확인(확정 금지)",
+      "status": "passed",
+      "duration": 3238,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "슬롯 카드가 없으면 skip — CREATE-FLOW/기존 카드 존재 시 실행됨",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slotboard.spec.ts",
+            "line": 67,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-BOARD-004 @major 검색 입력이 노출된다",
+      "status": "passed",
+      "duration": 2652,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-BOARD-005 @major 필터 패널이 노출된다",
+      "status": "passed",
+      "duration": 2664,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-BOARD-006 @minor 페이징 컨트롤이 노출된다",
+      "status": "passed",
+      "duration": 2600,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "항목 수가 적어 페이징 미노출 시 skip — 생성 누적 시 노출될 수 있음",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slotboard.spec.ts",
+            "line": 88,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-HOME-001 @major FinalSet 영역이 표시된다",
+      "status": "passed",
+      "duration": 2601,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-HOME-002 @major FinalSet 설정 레이어가 열린다",
+      "status": "failed",
+      "duration": 7651,
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('BudgetOpt 2.0').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('BudgetOpt 2.0').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('BudgetOpt 2.0').first()\u001b[22m\n",
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "FinalSet 관리 버튼 미노출 시 skip — 슬롯 FinalSet 설정 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slothome.spec.ts",
+            "line": 25,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-HOME-003 @major FinalSet 설정 레이어에서 적용 버튼이 노출된다",
+      "status": "passed",
+      "duration": 2763,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "FinalSet 관리 버튼 미노출 시 skip — 슬롯 FinalSet 설정 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slothome.spec.ts",
+            "line": 36,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-HOME-004 @major Activity Log 섹션이 표시된다",
+      "status": "passed",
+      "duration": 2596,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-HOME-005 @major Resource 섹션이 표시된다",
+      "status": "passed",
+      "duration": 2592,
+      "error": null,
+      "annotations": []
+    },
+    {
+      "title": "SLOT-HOME-006 @major 파일 추가 레이어가 열린다",
+      "status": "passed",
+      "duration": 2681,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "문서 관리 버튼 미노출 시 skip — 슬롯 상태 의존",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slothome.spec.ts",
+            "line": 53,
+            "column": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "SLOT-HOME-007 @minor 파일 변경",
+      "status": "skipped",
+      "duration": 2587,
+      "error": null,
+      "annotations": [
+        {
+          "type": "blocked",
+          "description": "파일이 이미 업로드된 슬롯에서만 노출 — 파일 보유 fixture 미확보(자동화 대상)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slothome.spec.ts",
+            "line": 64,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "파일이 존재하는 슬롯에서만 노출 — fixture 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/slothome.spec.ts",
+            "line": 65,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-001 @major FAB/진입점 — 결과 화면에 SpinX 진입점 노출, 리스트엔 없음",
+      "status": "skipped",
+      "duration": 19,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 43,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 44,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-002 @major 요약·질문 — 패널이 열리고 입력/요약 UI가 뜬다",
+      "status": "skipped",
+      "duration": 11,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 55,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 56,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-003 @major 질문답변 — 질문 전송 후 응답 영역 등장",
+      "status": "skipped",
+      "duration": 18,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 66,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 67,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-004 @minor 모델 변경 — 모델 메뉴로 다른 모델 전환",
+      "status": "skipped",
+      "duration": 17,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 81,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 82,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-005 @major R/C Effective Impression — RC 결과 SpinX 인사이트",
+      "status": "skipped",
+      "duration": 9,
+      "error": null,
+      "annotations": [
+        {
+          "type": "skip-reason",
+          "description": "완료 BO/RC fixture id 미확보 또는 결과 화면 SpinX 패널 트리거 미노출 시 skip — fixture 확보 시 실행됨(SpinX는 응답 완료 대기 없이 경량 검증)",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 112,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "완료 Reach Predictor fixture id 미확보",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 114,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-006 @major B/O 최적화 원리 — 원리 트리거로 패널 열림",
+      "status": "skipped",
+      "duration": 9,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 120,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 121,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-007 @minor B/O 세션 — 세션 잔여시간 표시",
+      "status": "skipped",
+      "duration": 12,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 132,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 133,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-008 @minor B/O 초기화 — 초기화 확인 다이얼로그",
+      "status": "skipped",
+      "duration": 17,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 142,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 143,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-009 @minor B/O 사이징 — 넓게/기본 보기 토글",
+      "status": "skipped",
+      "duration": 9,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 160,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 161,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "SPINX-COMMON-010 @minor B/O usage — 사용량 표시",
+      "status": "skipped",
+      "duration": 13,
+      "error": null,
+      "annotations": [
+        {
+          "type": "excluded",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 176,
+            "column": 1
+          }
+        },
+        {
+          "type": "skip",
+          "description": "BudgetOpt 2.0 PRD 미배포 — PRD 라운드 제외",
+          "location": {
+            "file": "/Users/shinjia/Project/ReadySet/e2e/stg/spinx.spec.ts",
+            "line": 177,
+            "column": 8
+          }
+        }
+      ]
+    }
+  ]
+}

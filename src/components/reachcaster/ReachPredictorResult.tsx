@@ -9,8 +9,8 @@ import { ReachPredictorScoreCards } from './ReachPredictorScoreCards'
 import { ReachPredictorDetailTable } from './ReachPredictorDetailTable'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
-import { SpinXButton } from '../spinx/SpinXButton'
 import { SpinXPanel } from '../spinx/SpinXPanel'
+import { ActionDock, type DockAction } from '../common/ActionDock'
 import { ScenarioComparisonPanel } from './ScenarioComparisonPanel'
 import { ScenarioComparisonResult } from './ScenarioComparisonResult'
 import { DataShotCreateModal } from '../datashot/DataShotCreateModal'
@@ -260,6 +260,12 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
     console.log('Export to PDF')
     setExportMenuOpen(false)
   }
+
+  // 우하단 액션 독에 주입하는 컨텍스트 액션
+  const dockActions: DockAction[] = [
+    { id: 'compare', label: '시나리오 비교', icon: <GitCompare size={16} />, onSelect: handleOpenComparisonPanel },
+    { id: 'datashot', label: '업종 데이터 뽑기', icon: <Database size={16} />, onSelect: () => setDataShotModalOpen(true) }
+  ]
 
   return (
     <AppLayout
@@ -1485,66 +1491,22 @@ export function ReachPredictorResult({ scenarioData: propScenarioData }: ReachPr
         </div>
       )}
 
-      {/* 플로팅 버튼 그룹 */}
-      {!comparisonPanelOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            zIndex: 998
+      {/* 우하단 액션 독 (SpinX 입력 바 + ＋ 액션 런처) — 비교 설정 패널/SpinX 패널 열림 시 겹침 회피 */}
+      {!comparisonPanelOpen && !spinXOpen && (
+        <ActionDock
+          actions={dockActions}
+          spinx={{
+            placeholder: 'SpinX에게 물어보세요…',
+            suggestedQuestions: [
+              '이 매체 믹스의 예상 도달률은 어떻게 되나요?',
+              '프리퀀시를 더 높이려면 어떻게 해야 하나요?',
+              '예산을 늘리면 도달이 얼마나 더 늘어나나요?'
+            ],
+            onSubmitQuestion: (q) => { setSpinXInitialMessage(q); setSpinXOpen(true) },
+            onOpenPanel: () => setSpinXOpen(true)
           }}
-        >
-          {/* 시나리오 비교 버튼 */}
-          <button
-            onClick={handleOpenComparisonPanel}
-            style={{
-              height: '56px',
-              padding: '0 24px',
-              borderRadius: '28px',
-              backgroundColor: 'hsl(var(--foreground))',
-              color: 'hsl(var(--background))',
-              border: 'none',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s',
-              fontSize: '14px',
-              fontWeight: '600',
-              fontFamily: 'Paperlogy, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
-            }}
-          >
-            <GitCompare size={20} />
-            시나리오 비교
-          </button>
-
-          {/* SpinX 버튼 */}
-          <SpinXButton 
-            onClick={() => setSpinXOpen(true)} 
-            hasNewMessage={false}
-            isOpen={spinXOpen}
-            style={{
-              position: 'relative',
-              bottom: 'auto',
-              right: 'auto',
-              width: '56px',
-              height: '56px'
-            }}
-          />
-        </div>
+          isDarkMode={isDarkMode}
+        />
       )}
 
       {/* SpinX 패널 */}

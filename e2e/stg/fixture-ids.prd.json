@@ -1,0 +1,19 @@
+{
+  "slotId": "1142",
+  "slotName": "test_fixture_slot",
+  "createdAt": "2026-10-22T01:58:59.357Z",
+  "qaVersion": "v1.2.0",
+  "counts": {
+    "dataset": 13,
+    "bo": 11,
+    "rcrf": 27,
+    "rcrp": 13
+  },
+  "completed": {
+    "bo": ["22", "21", "20", "19", "18"],
+    "rcRatioFinder": ["2835", "2834", "2833", "2832", "2831"],
+    "rcReachPredictor": ["2848", "2847", "2846", "2845", "2844"],
+    "dataset": []
+  },
+  "note": "counts = 라이브 보드 실측. rcrf 27 = 비다양화 14(이전 세션) + 다양화 13(QA_SEED=readyset). rcrp 13 = 다양화 13. PRD rcrp 상한 2(PRD_RCRP_CAP) — 이미 만든 13건은 삭제금지 정책상 유지, 이후 재실행 시 추가 0. bo 11 = PRD 고정 슬롯에 BO 시나리오 생성(2026-10-26 셋업, PRD_BO_CAP=11=MIN, 페이징 성립 최소선, 완료 대기 없음·생성 요청까지만). completed = 라이브 PRD slot 1142 실측(2026-10-25, 전부 Completed). rcRatioFinder 완료 27건 중 대표 5, rcReachPredictor 완료 13건 중 대표 5(비교는 2건+ 사용). completed.bo=[] — BO는 생성만 됨(완료 15분+ 미도달) → BO 목록계열은 지금 PRD 포함(counts.bo≥1), BO 결과/SpinX 계열은 completed.bo 수집 전까지 제외. 완료 후 완료 id를 completed.bo에 넣으면 결과계열도 자동 해제. dataset=[] (완료 데이터셋 id 미수집). 결과 라우트: bo=/slots/1142/budgetopt/scenarios/{id}/result, rcRatioFinder=/slots/1142/reachcaster/scenarios/{id}/ratio-finder/result, rcReachPredictor=/slots/1142/reachcaster/scenarios/{id}/reach-predictor/result"
+}
