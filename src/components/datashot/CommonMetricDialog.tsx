@@ -12,7 +12,7 @@ const rawMetricMapping: { common: string; byMedia: Record<string, string> }[] = 
   { common: '광고비', byMedia: { 'Google Ads': '광고비', 'Meta': '광고 소진금액', 'kakao모먼트': '비용', 'NAVER 성과형 DA': '매출(소진금액)', 'NAVER 보장형 DA': '집행금액', 'TikTok': '광고 소진금액' } },
   { common: '노출수', byMedia: { 'Google Ads': '노출수', 'Meta': '노출수', 'kakao모먼트': '노출수', 'NAVER 성과형 DA': '노출수', 'NAVER 보장형 DA': '노출수', 'TikTok': '노출수' } },
   { common: '클릭수', byMedia: { 'Google Ads': '클릭수', 'Meta': '클릭(전체)', 'kakao모먼트': '클릭수', 'NAVER 성과형 DA': '클릭수', 'NAVER 보장형 DA': '클릭수', 'TikTok': '클릭수' } },
-  { common: '조회수', byMedia: { 'Google Ads': '조회수', 'Meta': '동영상 3초 이상 재생수', 'kakao모먼트': '재생수', 'NAVER 성과형 DA': '비디오 재생 횟수', 'NAVER 보장형 DA': '동영상 조회수', 'TikTok': '재생수' } },
+  { common: '조회수', byMedia: { 'Google Ads': '조회수', 'Meta': '동영상 3초 이상 재생수', 'kakao모먼트': '3초 재생수', 'NAVER 성과형 DA': '비디오 재생 횟수', 'NAVER 보장형 DA': '동영상 조회수', 'TikTok': '재생수' } },
 ]
 
 // 계산 지표 5종: 매체 구분 없이 계산식 1개 (전체 매체 공통 공식)

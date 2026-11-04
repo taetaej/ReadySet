@@ -1,7 +1,7 @@
 import { ArrowLeft, Users, Calendar, DollarSign, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, ChevronDown, ChevronUp, RefreshCw, Share2, FileSpreadsheet, Sparkles, Info } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell, Area, CartesianGrid } from 'recharts'
-import { SpinXButton } from '../spinx/SpinXButton'
+import { ActionDock } from '../common/ActionDock'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 
 interface ComparisonScenario {
@@ -1174,10 +1174,22 @@ export function ScenarioComparisonResult({
         </div>
       )}
 
-      {/* SpinX 버튼 */}
-      <div style={{ position: 'fixed', bottom: '24px', right: spinXOpen ? '424px' : '24px', zIndex: 998, transition: 'right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-        <SpinXButton onClick={() => setSpinXOpen(true)} hasNewMessage={false} isOpen={spinXOpen} style={{ position: 'relative', bottom: 'auto', right: 'auto' }} />
-      </div>
+      {/* 우하단 액션 독 (액션 없음 → SpinX 입력 바만) — SpinX 패널 열림 시 겹침 회피 */}
+      {!spinXOpen && (
+        <ActionDock
+          actions={[]}
+          spinx={{
+            placeholder: 'SpinX에게 물어보세요…',
+            suggestedQuestions: [
+              '어떤 시나리오가 가장 효율적인가요?',
+              '이 비교 결과를 어떻게 해석하면 되나요?'
+            ],
+            onSubmitQuestion: () => setSpinXOpen(true),
+            onOpenPanel: () => setSpinXOpen(true)
+          }}
+          isDarkMode={isDarkMode}
+        />
+      )}
       </div>
 
       {/* SpinX 패널 — fixed로 뷰포트 기준 배치 */}
