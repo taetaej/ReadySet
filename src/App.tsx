@@ -14,6 +14,8 @@ import { DatasetDetailRouter } from './components/datashot/DatasetDetailRouter'
 import { BOScenarioListPage } from './components/budgetoptimizer/BOScenarioListPage'
 import { BOCreateScenario } from './components/budgetoptimizer/BOCreateScenario'
 import { BOResult } from './components/budgetoptimizer/BOResult'
+// Ground (가칭) — Slot 비종속 독립 공간
+import { GroundHome, GroundChat, GroundLibrary, LibraryDetail, GroundSoon } from './components/ground'
 // Component Library
 import { ComponentLibrary } from './components/component-library'
 // Error Page
@@ -45,6 +47,13 @@ function App() {
         <Route path="/budgetopt" element={<BOScenarioListPage />} />
         <Route path="/budgetopt/scenario/new" element={<BOCreateScenario />} />
         <Route path="/budgetopt/scenario/:id/result" element={<BOResult />} />
+        <Route path="/ground" element={<GroundHome />} />
+        <Route path="/ground/chat/:sessionId" element={<GroundChat />} />
+        <Route path="/ground/library" element={<GroundLibrary />} />
+        <Route path="/ground/library/:id" element={<LibraryDetail />} />
+        <Route path="/ground/flow" element={<GroundSoon kind="flow" />} />
+        <Route path="/ground/tools" element={<GroundSoon kind="tools" />} />
+        <Route path="/ground/*" element={<Navigate to="/ground" replace />} />
         <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />
         <Route path="/docs/:slug" element={<DocsLayout />} />
         <Route path="/component" element={<ComponentLibrary />} />

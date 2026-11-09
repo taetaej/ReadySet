@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SpinXSymbol, type SpinXMotion } from '../spinx/SpinXSymbol'
+import { SpinXOrb } from '../spinx/SpinXOrb'
 import { Section, ComponentGroup } from './Section'
 
 export function SpinXSection() {
@@ -70,6 +71,37 @@ export function SpinXSection() {
         </div>
         <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>
           화면 우하단 고정 FAB 버튼. 호버 시 scale 애니메이션 + 심볼 모션 전환.
+        </div>
+      </ComponentGroup>
+
+      <ComponentGroup label="SpinX Orb (신규 · 검토 중)">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+          <div>
+            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>상태 — 오브 위에 포인터를 올리면 interactive 데모처럼 기울어요</div>
+            <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              {(['idle', 'hover', 'active', 'settle', 'static'] as const).map(m => (
+                <div key={m} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <SpinXOrb size={72} motion={m} title="" />
+                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>{m}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>크기 — 32px 미만은 그레인·보조 소용돌이를 끕니다</div>
+            <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              {[16, 20, 24, 32, 48, 72].map(sz => (
+                <div key={sz} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <SpinXOrb size={sz} title="" />
+                  <span style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }}>{sz}px</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))', marginBottom: '12px' }}>interactive — 포인터를 따라 코어와 하이라이트가 기웁니다</div>
+            <SpinXOrb size={140} motion="idle" interactive title="SpinX" />
+          </div>
         </div>
       </ComponentGroup>
 

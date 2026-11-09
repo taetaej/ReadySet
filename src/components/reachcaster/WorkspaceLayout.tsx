@@ -10,6 +10,7 @@ import { PageHeader } from './PageHeader'
 import { SlotDetail } from './SlotDetail'
 import { AppLayout } from '../layout/AppLayout'
 import { WelcomeSectionFixed as WelcomeSection } from './WelcomeSectionFixed'
+import { GroundEdgeTab } from '../ground/GroundEdgeTab'
 import { getDarkMode, setDarkMode } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 
@@ -556,6 +557,9 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
         <>
           {/* SlotBoard 진입 공지 (BudgetOpt 2.0 오픈) — "오늘 하루 안 보기" 지원 */}
           <SlotBoardNoticeModal />
+
+          {/* Ground 진입 — 오른쪽 가장자리 탭 */}
+          <GroundEdgeTab />
 
           {/* Welcome Section */}
           <WelcomeSection userName="Jia Shin" />

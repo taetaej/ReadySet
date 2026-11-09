@@ -1,0 +1,168 @@
+/* SpinX Orb — 정확한 도형이 아니라 일렁이는 빛 덩어리.
+   · 윤곽: 비정형 형태가 천천히 일렁이고, 가장자리는 빛처럼 번진다 (칼같은 원 금지)
+   · 안쪽: 색 덩어리 3개가 서로 다른 속도로 궤도를 돈다 → 깊이
+   · 다크: 안에서 빛난다 / 라이트: 유리처럼 맑다
+   · 브랜드 색은 기존 SpinXSymbol 팔레트(시그니처 그린·시안·딥 틸)를 잇는다. 크기(--s)에 비례해 블러가 정해진다 */
+
+.sx-orb {
+  --s: 48px;
+  --mx: 0;
+  --my: 0;
+  --c1: #00ff9d;   /* 시그니처 그린 */
+  --c2: #3fd8ff;   /* 시안 */
+  --c3: #0b6b5e;   /* 딥 틸 */
+  --c4: #d6fff0;   /* 코어 하이라이트 */
+  --orbit: 14s;
+  --morph: 9s;
+  --blob-blend: screen;
+  --edge: 1;
+
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--s);
+  height: var(--s);
+  vertical-align: middle;
+  isolation: isolate;
+}
+/* 라이트 — 덩어리를 더 깊은 톤으로, 곱하듯 섞어 유리처럼 */
+:root:not(.dark) .sx-orb {
+  --c1: #00e08f;
+  --c2: #2bb8e6;
+  --c3: #2fc3a8;
+  --c4: #ffffff;
+  --blob-blend: normal;
+}
+
+/* 바깥으로 새는 빛 */
+.sx-orb__halo {
+  position: absolute; inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at calc(50% + var(--mx) * 10%) calc(50% + var(--my) * 10%),
+    color-mix(in srgb, var(--c1) 38%, transparent) 0%, color-mix(in srgb, var(--c2) 14%, transparent) 38%, transparent 66%);
+  filter: blur(calc(var(--s) * 0.12));
+  opacity: 0.7;
+  transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+:root:not(.dark) .sx-orb__halo { opacity: 0.45; }
+
+/* 몸체 — 일렁이는 비정형 + 번지는 가장자리 */
+.sx-orb__body {
+  position: absolute; inset: 4%;
+  border-radius: 48% 52% 55% 45% / 50% 46% 54% 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--c3) 45%, transparent), transparent 75%);
+  animation: sx-orb-morph var(--morph) ease-in-out infinite;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 58%, rgba(0,0,0,0.7) 66%, transparent 71%);
+          mask-image: radial-gradient(circle at 50% 50%, #000 58%, rgba(0,0,0,0.7) 66%, transparent 71%);
+  filter: blur(calc(var(--s) * 0.012));
+}
+:root:not(.dark) .sx-orb__body {
+  background: radial-gradient(circle at 45% 40%, #ffffff, #e6faf5 55%, #cdf1e8 82%);
+}
+
+/* 색 덩어리 — 각자 궤도를 돈다 */
+.sx-orb__orbit {
+  position: absolute; inset: 0;
+  animation: sx-orb-spin var(--orbit) linear infinite;
+}
+.sx-orb__orbit--2 { animation-duration: calc(var(--orbit) * 1.45); animation-direction: reverse; }
+.sx-orb__orbit--3 { animation-duration: calc(var(--orbit) * 0.8); }
+.sx-orb__blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(calc(var(--s) * 0.075));
+  mix-blend-mode: var(--blob-blend);
+}
+.sx-orb__orbit--1 .sx-orb__blob { width: 70%; height: 70%; left: -4%; top: 2%; background: radial-gradient(circle, var(--c1), transparent 68%); }
+.sx-orb__orbit--2 .sx-orb__blob { width: 64%; height: 64%; left: 40%; top: 38%; background: radial-gradient(circle, var(--c2), transparent 66%); opacity: 0.9; }
+.sx-orb__orbit--3 .sx-orb__blob { width: 56%; height: 56%; left: 34%; top: -6%; background: radial-gradient(circle, var(--c3), transparent 70%); opacity: 0.85; mix-blend-mode: normal; }
+
+/* 코어 — 포인터 쪽으로 살짝 기운다 */
+.sx-orb__core {
+  position: absolute;
+  width: 34%; height: 34%;
+  left: calc(33% + var(--mx) * 10%);
+  top: calc(33% + var(--my) * 10%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--c4) 0%, color-mix(in srgb, var(--c1) 60%, transparent) 45%, transparent 72%);
+  filter: blur(calc(var(--s) * 0.05));
+  mix-blend-mode: var(--blob-blend);
+  animation: sx-orb-breathe 5.5s ease-in-out infinite;
+  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1), top 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 유리 반사 — 라이트에서 특히 */
+.sx-orb__shine {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 40% 28% at calc(34% - var(--mx) * 6%) calc(24% - var(--my) * 6%), rgba(255,255,255,0.7), rgba(255,255,255,0) 70%);
+  mix-blend-mode: soft-light;
+}
+:root:not(.dark) .sx-orb__shine { mix-blend-mode: normal; opacity: 0.8; }
+
+/* 그레인 */
+.sx-orb__grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 140px 140px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+/* 궤도선 — 생각 중일 때만 나타난다 */
+.sx-orb__ring {
+  position: absolute; inset: -14%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--c1) 55%, transparent);
+  transform: rotateX(70deg) rotateZ(0deg);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.sx-orb__ring--2 { inset: -6%; border-color: color-mix(in srgb, var(--c2) 45%, transparent); }
+
+/* 작은 크기 — 뭉개지지 않게 단순화 */
+.sx-orb[data-small='true'] .sx-orb__grain,
+.sx-orb[data-small='true'] .sx-orb__orbit--3,
+.sx-orb[data-small='true'] .sx-orb__ring { display: none; }
+.sx-orb[data-small='true'] .sx-orb__halo { inset: -18%; opacity: 0.5; }
+.sx-orb[data-small='true'] .sx-orb__body { -webkit-mask-image: radial-gradient(circle, #000 58%, transparent 71%); mask-image: radial-gradient(circle, #000 58%, transparent 71%); }
+
+/* ───────── 상태 ───────── */
+.sx-orb[data-motion='hover'],
+.sx-orb[data-motion='engage'] { --orbit: 7s; --morph: 5s; }
+.sx-orb[data-motion='hover'] .sx-orb__body,
+.sx-orb[data-motion='engage'] .sx-orb__body { transform: scale(1.05); }
+.sx-orb[data-motion='hover'] .sx-orb__halo,
+.sx-orb[data-motion='engage'] .sx-orb__halo { opacity: 0.95; transform: scale(1.08); }
+
+.sx-orb[data-motion='active'] { --orbit: 2.6s; --morph: 2.4s; }
+.sx-orb[data-motion='active'] .sx-orb__halo { opacity: 1; animation: sx-orb-halo 1.3s ease-in-out infinite; }
+.sx-orb[data-motion='active'] .sx-orb__core { animation: sx-orb-pulse 1.3s ease-in-out infinite; }
+.sx-orb[data-motion='active'] .sx-orb__ring { opacity: 1; animation: sx-orb-ring 3.2s linear infinite; }
+.sx-orb[data-motion='active'] .sx-orb__ring--2 { animation-duration: 2.2s; animation-direction: reverse; }
+
+.sx-orb[data-motion='settle'] .sx-orb__body { animation: sx-orb-settle 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1, sx-orb-morph var(--morph) ease-in-out 0.9s infinite; }
+
+.sx-orb[data-motion='static'] .sx-orb__orbit,
+.sx-orb[data-motion='static'] .sx-orb__core,
+.sx-orb[data-motion='static'] .sx-orb__body { animation: none; }
+.sx-orb[data-motion='static'] .sx-orb__orbit--1 { transform: rotate(40deg); }
+.sx-orb[data-motion='static'] .sx-orb__orbit--2 { transform: rotate(-70deg); }
+
+@keyframes sx-orb-spin { to { transform: rotate(360deg); } }
+@keyframes sx-orb-morph {
+  0%, 100% { border-radius: 48% 52% 55% 45% / 50% 46% 54% 50%; }
+  33% { border-radius: 55% 45% 48% 52% / 44% 54% 46% 56%; }
+  66% { border-radius: 45% 55% 52% 48% / 54% 48% 52% 46%; }
+}
+@keyframes sx-orb-breathe { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+@keyframes sx-orb-pulse { 0%, 100% { transform: scale(0.82); opacity: 0.75; } 50% { transform: scale(1.25); opacity: 1; } }
+@keyframes sx-orb-halo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+@keyframes sx-orb-ring { from { transform: rotateX(70deg) rotateZ(0deg); } to { transform: rotateX(70deg) rotateZ(360deg); } }
+@keyframes sx-orb-settle { 0% { transform: scale(1.06); } 35% { transform: scale(0.9); } 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-orb, .sx-orb * { animation: none !important; transition: none !important; }
+}

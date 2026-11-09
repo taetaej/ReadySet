@@ -1,7 +1,8 @@
 import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, DollarSign, Sparkles, AlertCircle, X, History } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
+import '../ground/ground.css'
 import { GradeCard } from './GradeCard'
 
 interface GlobalNavBarProps {
@@ -11,6 +12,21 @@ interface GlobalNavBarProps {
 
 export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps) {
   const navigate = useNavigate()
+  const location = useLocation()
+  const isGround = location.pathname.startsWith('/ground')
+
+  // ⌘K / Ctrl+K — 어디서든 전역 SpinX로. 이미 그 화면이면 입력창에 포커스
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        if (location.pathname === '/ground' || location.pathname.startsWith('/ground/chat/')) window.dispatchEvent(new Event('ground:focus'))
+        else navigate('/ground')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [location.pathname, navigate])
   const [showClientLayer, setShowClientLayer] = useState(false)
   const [showNotificationLayer, setShowNotificationLayer] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -243,7 +259,8 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
       <div style={{
         position: 'absolute',
         top: '12px',
-        left: '50%',
+        // 왼쪽(로고+공간 토글)과 오른쪽(테마·프로필) 사이 빈 공간의 가운데에 둔다 — 토글과 겹치지 않게
+        left: 'calc(50% + 48px)',
         transform: 'translateX(-50%)',
         zIndex: 100,
         backgroundColor: 'hsl(var(--primary))',
@@ -639,6 +656,20 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
               }}
             />
           </a>
+
+          {/* 공간 전환 — SlotBoard(작업) | Ground(지식 · SpinX). 로고 바로 옆 토글 */}
+          <nav className="gd-space-switch" aria-label="공간 전환">
+            {[{ to: '/slotboard', label: 'SlotBoard', on: !isGround }, { to: '/ground', label: 'Ground', on: isGround }].map(t => (
+              <a
+                key={t.to}
+                href={t.to}
+                aria-current={t.on ? 'page' : undefined}
+                onClick={(e) => { e.preventDefault(); navigate(t.to) }}
+              >
+                {t.label}
+              </a>
+            ))}
+          </nav>
         </div>
 
         {/* 오른쪽 프로필 영역 */}
