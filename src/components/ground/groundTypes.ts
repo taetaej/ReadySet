@@ -133,6 +133,10 @@ export interface GroundAnswer {
   paragraphs: string[]
   citations: CitationRef[]
   followUps: string[]
+  /** 실행이 필요한 요청이면 SpinX가 거친 단계. "워크플로우로 저장"의 재료 */
+  /** proposal = SpinX가 제안만 한 단계(지금 실행 전) · done = 이미 실행한 단계(기록이 자동으로 남음) */
+  workflow?: { mode: 'proposal' | 'done'; name: string; steps: { kind: import('./flowData').FlowNodeKind; title: string; result: string }[]; templateId?: string }
+  patch?: FlowPatch
 }
 
 export interface GroundTurn {
@@ -143,6 +147,14 @@ export interface GroundTurn {
 }
 
 /** 대화 세션 (개인). 답은 질문·권한으로 결정적으로 다시 만들 수 있어 질문만 저장한다 */
+/** 대화를 시작한 자리. 같은 대상에서 다시 열면 이 대화를 이어 쓴다 */
+export interface SessionOrigin {
+  type: 'home' | 'workflow' | 'library' | 'artifact' | 'skill'
+  /** 대상 id (워크플로우 FL-xx · 리포트 WR-xxx · 'flow-new' · 'library') */
+  id: string
+  label: string
+  path: string
+}
 export interface GroundSession {
   id: string
   title: string
@@ -150,4 +162,11 @@ export interface GroundSession {
   questions: string[]
   createdAt: number
   updatedAt: number
+  origin?: SessionOrigin
+}
+/** 대화로 캔버스를 고치는 제안 — "캔버스에 적용"의 재료 */
+export interface FlowPatch {
+  flowId: string
+  changes: { nodeId: string; before: string; title: string; sub?: string; config?: { k: string; v: string }[] }[]
+  add?: { after: string; kind: import('./flowData').FlowNodeKind; title: string; sub: string }
 }

@@ -8,6 +8,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from 'lucide-react'
 import { GroundLayout } from './GroundLayout'
 import { SpinXOrb } from '../spinx/SpinXOrb'
+import { GroundDock, openDock } from './GroundDock'
+import { suggestionsFor } from './spinxContext'
 import { useViewer } from './useViewer'
 import type { Report, Finding, MediaNews, FindingMetric } from './groundTypes'
 import {
@@ -30,7 +32,7 @@ export function LibraryDetail() {
     return (
       <GroundLayout title="Ground - ReadySet">
         <div className="gd-container gd-page">
-          <button type="button" className="gd-back" onClick={back}><ArrowLeft size={14} />라이브러리</button>
+          <button type="button" className="gd-back" onClick={back}><ArrowLeft size={14} />Library</button>
           <h1 className="gd-d-title" style={{ marginTop: 28, fontSize: 24 }}>열람할 수 없는 자료예요</h1>
           <p className="gd-d-take">삭제되었거나 현재 권한으로 볼 수 없는 항목이에요.</p>
         </div>
@@ -43,6 +45,7 @@ export function LibraryDetail() {
       <div className="gd-container">
         {report ? <ReportView report={report} onBack={back} /> : <NewsView news={news!} onBack={back} />}
       </div>
+      <GroundDock origin={{ type: 'library', id: item.id, label: report ? `${report.issue} ${report.title}` : news!.title, path: `/ground/library/${item.id}` }} />
     </GroundLayout>
   )
 }
@@ -63,7 +66,7 @@ function ReportView({ report, onBack }: { report: Report; onBack: () => void }) 
   return (
     <div className="gd-detail">
       <article>
-        <button type="button" className="gd-back" onClick={onBack}><ArrowLeft size={14} />라이브러리</button>
+        <button type="button" className="gd-back" onClick={onBack}><ArrowLeft size={14} />Library</button>
         <div className="gd-d-meta">
           <span>분석 리포트</span><span>·</span><span>{themeOf(report.theme).name}</span><span>·</span><span>{report.series} {report.issue}{report.code && ` · ${report.code}`}</span><span>·</span><span>{fmtYMD(report.publishedAt)}</span>
           {report.sample && <span className="gd-sample">예시 데이터</span>}
@@ -246,6 +249,8 @@ function ReportAside({ report }: { report: Report }) {
         </AnimatePresence>
       </div>
 
+      <AskThis id={report.id} label={`${report.issue} ${report.title}`} />
+
       <div className="gd-panel">
         <p className="gd-panel-title">연휴 캘린더 · 리포트 기준</p>
         <dl className="gd-kv gd-kv-wide">
@@ -272,7 +277,7 @@ function NewsView({ news, onBack }: { news: MediaNews; onBack: () => void }) {
   return (
     <div className="gd-detail">
       <article>
-        <button type="button" className="gd-back" onClick={onBack}><ArrowLeft size={14} />라이브러리</button>
+        <button type="button" className="gd-back" onClick={onBack}><ArrowLeft size={14} />Library</button>
         <div className="gd-d-meta">
           <span>매체 소식</span><span>·</span><span>{news.media}</span><span>·</span><span>{fmtYMD(news.publishedAt)}</span>
           {news.audienceLevel === 'internal' && <span className="gd-flag"><Lock size={9} aria-hidden />임직원 전용</span>}
@@ -303,6 +308,27 @@ function NewsView({ news, onBack }: { news: MediaNews; onBack: () => void }) {
         </section>
       </article>
       <aside className="gd-aside" />
+    </div>
+  )
+}
+
+/** 이 리포트에 대해 묻기 — 오른쪽 SpinX 패널로 이어진다 */
+function AskThis({ id, label }: { id: string; label: string }) {
+  const [q, setQ] = useState('')
+  const tips = suggestionsFor({ type: 'library', id, label, path: '' })
+  const go = (text: string) => { if (text.trim()) { openDock(text.trim()); setQ('') } }
+  return (
+    <div className="gd-panel gd-askthis">
+      <div className="gd-pill gd-askthis-pill">
+        <SpinXOrb size={18} motion="idle" title="" />
+        <label htmlFor="gd-askthis" className="gd-sr">이 리포트에 대해 묻기</label>
+        <textarea id="gd-askthis" className="gd-pill-input" rows={1} value={q} placeholder="이 리포트에 대해 묻기"
+          onChange={e => setQ(e.target.value)}
+          onKeyDown={e => { if (e.nativeEvent.isComposing) return; if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); go(q) } }} />
+      </div>
+      <div className="gd-askthis-tips">
+        {tips.map(t => <button key={t} type="button" onClick={() => go(t)}><ArrowRight size={12} className="gd-arrow" aria-hidden />{t}</button>)}
+      </div>
     </div>
   )
 }

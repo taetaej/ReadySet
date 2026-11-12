@@ -2,11 +2,12 @@
 // 오른쪽에 "이 대화가 쓴 근거"를 모아 보여준다 (홈 인사이트 맵을 대화 단위로 잘라낸 것).
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Lock, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Lock, Trash2 } from 'lucide-react'
 import { GroundLayout } from './GroundLayout'
 import { ChatThread } from './GroundSpinX'
 import { useSessions, deleteSession } from './groundSessions'
-import { answerQuestion, findFinding, findNews, findScenario, reportOf, fmtMD } from './groundData'
+import { answerFor } from './spinxContext'
+import { findFinding, findNews, findScenario, reportOf, fmtMD } from './groundData'
 
 export function GroundChat() {
   const { sessionId = '' } = useParams()
@@ -19,7 +20,7 @@ export function GroundChat() {
     return (
       <GroundLayout title="대화 - Ground">
         <div className="gd-container gd-page">
-          <button type="button" className="gd-back" onClick={() => navigate('/ground')}><ArrowLeft size={14} />홈</button>
+          <button type="button" className="gd-back" onClick={() => navigate('/ground')}><ArrowLeft size={14} />Home</button>
           <h1 className="gd-d-title" style={{ marginTop: 24, fontSize: 24 }}>대화를 찾을 수 없어요</h1>
           <p className="gd-d-take">삭제되었거나 다른 브라우저에서 만든 대화예요.</p>
         </div>
@@ -28,7 +29,7 @@ export function GroundChat() {
   }
 
   // 이 대화가 인용한 근거 — 중복 제거, 종류별
-  const cites = session.questions.flatMap(q => answerQuestion(q, session.viewer).citations)
+  const cites = session.questions.flatMap(q => answerFor(q, session).citations)
   const uniq = <T,>(xs: T[]) => Array.from(new Set(xs))
   const findings = uniq(cites.filter(c => c.type === 'finding').map(c => c.id))
   const news = uniq(cites.filter(c => c.type === 'news').map(c => c.id))
@@ -40,6 +41,9 @@ export function GroundChat() {
         <div className="gd-chat-main">
           <div className="gd-chat-head">
             <span className="gd-chat-title">{session.title}</span>
+            {session.origin && session.origin.type !== 'home' && (
+              <button type="button" className="gd-origin" onClick={() => navigate(session.origin!.path)}>{session.origin.label}에서 시작<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
+            )}
             <button type="button" className="gd-chat-del" aria-label="대화 삭제" title="대화 삭제" onClick={() => { deleteSession(session.id); navigate('/ground') }}><Trash2 size={14} /></button>
           </div>
           <ChatThread key={session.id} session={session} fresh={!!state?.fresh} />

@@ -3,13 +3,16 @@
 //  · ChatThread: 대화 세션 안. 이어서 묻고, 근거를 각주로 인용해 답한다
 
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { ArrowUp, ArrowRight, Lock } from 'lucide-react'
+import { ArrowUp, ArrowRight, Lock, Check, Play, Sparkles } from 'lucide-react'
 import { SpinXOrb } from '../spinx/SpinXOrb'
-import type { GroundTurn, GroundSession, Viewer, CitationRef } from './groundTypes'
+import { DRAFTS, NODE_META, recordChatRun, fmtRunAt, draftFrom, flowFromSteps, notifyFlows } from './flowData'
+import { answerFor, templateFlow } from './spinxContext'
+import { skillFromAnswer } from './skillData'
+import type { GroundTurn, GroundSession, Viewer, CitationRef, FlowPatch, GroundAnswer } from './groundTypes'
 import {
-  SUGGESTED_QUESTIONS, answerQuestion, scope, findFinding, findNews, findScenario, findSlot, reportOf, fmtMD, fmtYMD,
+  SUGGESTED_QUESTIONS, scope, findFinding, findNews, findScenario, findSlot, reportOf, fmtMD, fmtYMD,
 } from './groundData'
 import { createSession, appendQuestion } from './groundSessions'
 
@@ -127,7 +130,7 @@ export function QuestionOrb({ viewer, size = 300 }: { viewer: Viewer; size?: num
 // ─────────────────────────────────────────────
 // 대화 세션
 // ─────────────────────────────────────────────
-export function ChatThread({ session, fresh }: { session: GroundSession; fresh: boolean }) {
+export function ChatThread({ session, fresh, compact = false }: { session: GroundSession; fresh: boolean; compact?: boolean }) {
   const reduce = useReducedMotion()
   const [input, setInput] = useState('')
   // 새로 들어온 질문 인덱스 — 이 턴만 생각 단계를 보여준다
@@ -138,7 +141,7 @@ export function ChatThread({ session, fresh }: { session: GroundSession; fresh: 
   const sc = scope(session.viewer)
   const busy = pendingIdx !== null
 
-  const turns: GroundTurn[] = session.questions.map((q, i) => ({ id: `${session.id}-${i}`, question: q, viewer: session.viewer, answer: answerQuestion(q, session.viewer) }))
+  const turns: GroundTurn[] = session.questions.map((q, i) => ({ id: `${session.id}-${i}`, question: q, viewer: session.viewer, answer: answerFor(q, session) }))
 
   useEffect(() => {
     if (pendingIdx === null) return
@@ -156,6 +159,13 @@ export function ChatThread({ session, fresh }: { session: GroundSession; fresh: 
     window.addEventListener('ground:focus', focus)
     return () => window.removeEventListener('ground:focus', focus)
   }, [])
+  // 오른쪽 패널에서 같은 대상의 대화에 이어 묻기
+  useEffect(() => {
+    if (!compact) return
+    const on = (e: Event) => ask((e as CustomEvent<string>).detail)
+    window.addEventListener('ground:dock-ask', on)
+    return () => window.removeEventListener('ground:dock-ask', on)
+  })
 
   const ask = (text?: string) => {
     const q = (text ?? input).trim()
@@ -167,7 +177,7 @@ export function ChatThread({ session, fresh }: { session: GroundSession; fresh: 
   }
 
   return (
-    <div className="gd-ask has-thread">
+    <div className={`gd-ask has-thread ${compact ? 'is-compact' : ''}`}>
       <div className="gd-thread" aria-live="polite">
         {turns.map((turn, i) => (
           <div key={turn.id} ref={i === turns.length - 1 ? lastRef : undefined} style={{ scrollMarginTop: 24 }}>
@@ -178,10 +188,10 @@ export function ChatThread({ session, fresh }: { session: GroundSession; fresh: 
       <div className="gd-composer">
         <Pill value={input} onChange={setInput} onSubmit={() => ask()} busy={busy} placeholder="이어서 물어보세요" inputRef={ref}
           leading={<SpinXOrb size={24} motion={busy ? 'active' : 'idle'} title="" />} />
-        <div className="gd-scope">
+        {!compact && <div className="gd-scope">
           리포트 {sc.reports} · 발견 {sc.findings} · 매체 소식 {sc.news} · 진행 중 시나리오 {sc.scenarios}를 보고 답해요
           {session.viewer === 'external' && <span className="gd-scope-note">임직원 전용 소식 제외</span>}
-        </div>
+        </div>}
       </div>
     </div>
   )
@@ -220,6 +230,8 @@ function Turn({ turn, pending, step, onAsk }: { turn: GroundTurn; pending: boole
                   <Footnoted text={p} turnId={turn.id} active={active} onActive={setActive} />
                 </motion.p>
               ))}
+              {answer.workflow && <WorkflowBlock wf={answer.workflow} turnId={turn.id} question={turn.question} answer={answer} />}
+              {answer.patch && <PatchBlock patch={answer.patch} />}
               {answer.citations.length > 0 && (
                 <motion.div {...reveal(answer.paragraphs.length + 1)}>
                   <div className="gd-sources-label">근거</div>
@@ -230,6 +242,7 @@ function Turn({ turn, pending, step, onAsk }: { turn: GroundTurn; pending: boole
                   </div>
                 </motion.div>
               )}
+              {!answer.patch && answer.paragraphs.length > 0 && <SaveSkill question={turn.question} answer={answer} />}
               {answer.followUps.length > 0 && (
                 <motion.div className="gd-follow" {...reveal(answer.paragraphs.length + 2)}>
                   {answer.followUps.map(f => (
@@ -243,6 +256,129 @@ function Turn({ turn, pending, step, onAsk }: { turn: GroundTurn; pending: boole
         </AnimatePresence>
       </div>
     </article>
+  )
+}
+
+/** SpinX가 짠 단계 — 제안이면 "지금 실행", 이미 실행했으면 기록이 자동으로 남는다
+ *  실행 = 저장. 다음 행동은 "자동 실행 켜기(반복)" 또는 "실행 결과 보기" */
+function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<GroundAnswer['workflow']>; turnId: string; question: string; answer: GroundAnswer }) {
+  const verdict = answer.verdict
+  // Artifacts 본문 — 답 문단(각주 표기 · 저장 안내 제외)과 근거
+  const extra = {
+    body: answer.paragraphs.filter(p => !/워크플로우/.test(p)).map(p => p.replace(/\s?\[\d+\]/g, '')),
+    cites: answer.citations.map(c => {
+      if (c.type === 'finding') { const r = reportOf(c.id); return { id: r.id, label: `${r.issue} ${findFinding(c.id)?.title ?? r.title}` } }
+      if (c.type === 'news') return { id: c.id, label: findNews(c.id)?.title ?? c.id }
+      return { id: c.id, label: findScenario(c.id)?.name ?? c.id }
+    }).filter(c => !c.id.startsWith('S-')),
+    next: wf.steps.some(st => /BudgetOpt/.test(st.title)) ? { label: 'BudgetOpt 2.0에서 열기', to: '/budgetopt' } : undefined,
+  }
+  const navigate = useNavigate()
+  const reduce = useReducedMotion()
+  const fid = `FL-${turnId}`
+  const [, bump] = useState(0)
+  const [step, setStep] = useState<number | null>(null)
+  const flow = DRAFTS.get(fid)
+  const ran = !!flow?.runs.length
+  const record = () => { recordChatRun(fid, wf.name, question, wf.steps, templateFlow(wf.templateId), verdict, extra); bump(x => x + 1) }
+
+  // 이미 실행한 답은 기록부터 남긴다
+  useEffect(() => { if (wf.mode === 'done' && !DRAFTS.has(fid)) record() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // 지금 실행 — 단계가 차례로 돈다
+  useEffect(() => {
+    if (step === null) return
+    if (step >= wf.steps.length) { record(); setStep(null); return }
+    const t = setTimeout(() => setStep(x => (x ?? 0) + 1), reduce ? 0 : 420)
+    return () => clearTimeout(t)
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const running = step !== null
+  const stateOf = (i: number) => (ran ? 'done' : running ? (i < step! ? 'done' : i === step ? 'running' : 'idle') : 'idle')
+  const manual = wf.steps[0]?.kind === 'manual'
+  const auto = flow?.status === 'on'
+
+  return (
+    <section className="gd-wf" aria-label={ran ? '실행한 단계' : '제안한 단계'}>
+      <div className="gd-sources-label">{ran || running ? '실행한 단계' : '제안한 단계'}</div>
+      <ol className="gd-wf-steps">
+        {wf.steps.map((st, i) => {
+          const s = stateOf(i)
+          return (
+            <li key={i} className={`st-${s}`}>
+              <span className="gd-wf-no">{s === 'done' ? <Check size={12} aria-label="완료" /> : s === 'running' ? <span className="gf-spin" aria-label="실행 중" /> : i + 1}</span>
+              <span className="gd-wf-t">{st.title}<span className="gd-muted"> · {NODE_META[st.kind].label}</span></span>
+              <span className="gd-wf-r">{s === 'done' ? st.result : ''}</span>
+            </li>
+          )
+        })}
+      </ol>
+
+      {ran && flow ? (
+        <>
+          <div className="gd-wf-done" role="status">
+            <span className="gd-muted">{fmtRunAt(flow.runs[0].at)} 실행 · {flow.runs[0].duration} · Workflows와 Artifacts에 남았어요</span>
+            {flow.output?.conclusion && wf.mode === 'proposal' && <p className="gd-wf-c">{flow.output.conclusion}</p>}
+          </div>
+          <div className="gd-wf-acts">
+            {manual
+              ? <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" onClick={() => navigate(`/ground/flow/${fid}`, { state: { fromChat: true } })}>반복 실행 설정</button>
+              : <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" disabled={auto} onClick={() => { DRAFTS.set(fid, { ...flow, status: 'on' }); notifyFlows(); bump(x => x + 1) }}>{auto ? `자동 실행 켜짐 · ${flow.trigger}` : '자동 실행 켜기'}</button>}
+            <button type="button" className="gd-wf-save" onClick={() => navigate(`/ground/artifacts/AR-${fid}`)}>Artifacts에서 보기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
+          </div>
+        </>
+      ) : (
+        <div className="gd-wf-acts">
+          <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" disabled={running} onClick={() => setStep(0)}>
+            <Play size={14} aria-hidden />{running ? '실행 중…' : '지금 실행'}
+          </button>
+          <button type="button" className="gd-wf-save" disabled={running} onClick={() => {
+            const tpl = templateFlow(wf.templateId)
+            const f = tpl ? draftFrom(tpl, wf.name, question) : flowFromSteps(wf.name, question, wf.steps)
+            DRAFTS.set(f.id, f)
+            navigate(`/ground/flow/${f.id}`, { state: { fresh: true, fromChat: true } })
+          }}>캔버스에서 고치기</button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** 이 답의 방식(결론 → 근거 → 할 일)을 Skill로 — 만드는 건 대화에서, 관리는 Skills 메뉴에서 */
+function SaveSkill({ question, answer }: { question: string; answer: GroundAnswer }) {
+  const navigate = useNavigate()
+  const [saved, setSaved] = useState<string | null>(null)
+  return (
+    <div className="gd-skillsave">
+      {saved
+        ? <button type="button" className="gd-skillsave-btn is-done" onClick={() => navigate(`/ground/skills/${saved}`)}><Sparkles size={12} aria-hidden />Skill로 저장했어요 · 열기<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
+        : <button type="button" className="gd-skillsave-btn" onClick={() => setSaved(skillFromAnswer(question, answer.verdict, answer.paragraphs).id)}><Sparkles size={12} aria-hidden />이 방식 Skill로 저장</button>}
+    </div>
+  )
+}
+
+/** 대화로 캔버스 고치기 — 바뀌는 노드를 보여주고 "캔버스에 적용" */
+function PatchBlock({ patch }: { patch: FlowPatch }) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  // 이미 적용된 제안이면(답은 매번 다시 계산된다) 적용됨 상태로
+  const already = patch.changes.length > 0 && patch.changes.every(c => c.before === c.title)
+  const [done, setDone] = useState(already)
+  const apply = () => {
+    if (pathname === `/ground/flow/${patch.flowId}`) window.dispatchEvent(new CustomEvent('ground:apply-patch', { detail: patch }))
+    else navigate(`/ground/flow/${patch.flowId}`, { state: { patch } })
+    setDone(true)
+  }
+  return (
+    <section className="gd-wf" aria-label="바뀌는 노드">
+      <div className="gd-sources-label">바뀌는 노드</div>
+      <ol className="gd-wf-steps">
+        {patch.changes.map(c => (
+          <li key={c.nodeId}><span className="gd-wf-no">~</span><span className="gd-wf-t">{c.before !== c.title && <><s className="gd-muted">{c.before}</s> → </>}{c.title}</span>{c.sub && <span className="gd-wf-r">{c.sub}</span>}</li>
+        ))}
+        {patch.add && <li><span className="gd-wf-no">+</span><span className="gd-wf-t">{patch.add.title}<span className="gd-muted"> · {NODE_META[patch.add.kind].label}</span></span><span className="gd-wf-r">{patch.add.sub}</span></li>}
+      </ol>
+      <button type="button" className="gd-wf-save" disabled={done} onClick={apply}>{done ? '적용했어요' : '캔버스에 적용'}{!done && <ArrowRight size={13} className="gd-arrow" aria-hidden />}</button>
+    </section>
   )
 }
 

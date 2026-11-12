@@ -2,7 +2,7 @@
 // 답은 질문·권한으로 다시 만들 수 있으므로 질문만 저장한다.
 
 import { useSyncExternalStore } from 'react'
-import type { GroundSession, Viewer } from './groundTypes'
+import type { GroundSession, SessionOrigin, Viewer } from './groundTypes'
 
 const KEY = 'ground-sessions-v1'
 const listeners = new Set<() => void>()
@@ -21,10 +21,10 @@ function write(next: GroundSession[]) {
 
 const titleOf = (q: string) => (q.length > 28 ? `${q.slice(0, 28)}…` : q)
 
-export function createSession(question: string, viewer: Viewer): string {
+export function createSession(question: string, viewer: Viewer, origin?: SessionOrigin): string {
   const id = `c${Date.now().toString(36)}`
   const now = Date.now()
-  write([{ id, title: titleOf(question), viewer, questions: [question], createdAt: now, updatedAt: now }, ...cache])
+  write([{ id, title: titleOf(question), viewer, questions: [question], createdAt: now, updatedAt: now, origin }, ...cache])
   return id
 }
 
@@ -50,3 +50,7 @@ export function relDay(ts: number) {
   const d = Math.floor((Date.now() - ts) / 86_400_000)
   return d <= 0 ? '오늘' : d === 1 ? '어제' : `${d}일 전`
 }
+
+/** 같은 대상에서 시작한 가장 최근 대화 (오늘 것만 이어 쓴다) */
+export const latestFor = (originId: string) =>
+  cache.find(s => s.origin?.id === originId && Date.now() - s.updatedAt < 86_400_000)

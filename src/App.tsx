@@ -15,7 +15,7 @@ import { BOScenarioListPage } from './components/budgetoptimizer/BOScenarioListP
 import { BOCreateScenario } from './components/budgetoptimizer/BOCreateScenario'
 import { BOResult } from './components/budgetoptimizer/BOResult'
 // Ground (가칭) — Slot 비종속 독립 공간
-import { GroundHome, GroundChat, GroundLibrary, LibraryDetail, GroundSoon } from './components/ground'
+import { GroundHome, GroundChat, GroundLibrary, LibraryDetail, GroundSoon, GroundFlowList, GroundFlowEditor, GroundArtifacts, ArtifactDetail, GroundSkills, SkillDetail } from './components/ground'
 // Component Library
 import { ComponentLibrary } from './components/component-library'
 // Error Page
@@ -51,7 +51,12 @@ function App() {
         <Route path="/ground/chat/:sessionId" element={<GroundChat />} />
         <Route path="/ground/library" element={<GroundLibrary />} />
         <Route path="/ground/library/:id" element={<LibraryDetail />} />
-        <Route path="/ground/flow" element={<GroundSoon kind="flow" />} />
+        <Route path="/ground/artifacts" element={<GroundArtifacts />} />
+        <Route path="/ground/artifacts/:id" element={<ArtifactDetail />} />
+        <Route path="/ground/skills" element={<GroundSkills />} />
+        <Route path="/ground/skills/:id" element={<SkillDetail />} />
+        <Route path="/ground/flow" element={<GroundFlowList />} />
+        <Route path="/ground/flow/:flowId" element={<GroundFlowEditor />} />
         <Route path="/ground/tools" element={<GroundSoon kind="tools" />} />
         <Route path="/ground/*" element={<Navigate to="/ground" replace />} />
         <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />

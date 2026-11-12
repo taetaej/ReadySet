@@ -528,16 +528,27 @@ interface Scripted { match: RegExp; build: (viewer: Viewer) => GroundAnswer }
 
 const SCRIPTED: Scripted[] = [
   {
-    // 실행이 필요한 요청 — 답이 아니라 솔루션을 돌려야 한다. 에이전트 플로우의 입구
+    // 실행이 필요한 요청 — 답 대신 솔루션을 실제로 돌리고, 거친 단계를 보여준다. 워크플로우의 입구
     match: /만들어줘|다시 계산|계산해줘|짜줘|돌려줘|보여줘$/,
     build: () => ({
-      verdict: '이건 솔루션을 실제로 돌려야 하는 요청이에요. 아래 단계로 실행하면 돼요.',
+      verdict: '요청대로 솔루션을 돌려 새 배분안을 만들었어요. 앞선 답의 근거를 조건으로 그대로 걸었어요.',
       paragraphs: [
-        '실행 순서는 이래요. 근거가 된 발견을 조건으로 걸고 → BudgetOpt 2.0으로 배분을 다시 산출하고 → Reach Caster로 도달을 확인해요. 앞선 답에서 쓴 근거는 그대로 이어받아요 [1].',
-        '에이전트 플로우가 열리면 이 단계를 한 번에 실행하고, 대화에서 "플로우로 저장"해 다음에도 쓸 수 있어요. 지금은 BudgetOpt 2.0에서 직접 시나리오를 만들어 주세요.',
+        'BudgetOpt 2.0이 증액분 일부를 새 매체로 나눈 배분안을 냈고, 예상 클릭은 기존안보다 6% 높아요. Reach Caster로 확인하니 순도달도 2.1%p 늘어요 [1].',
+        '이 실행은 워크플로우 기록으로 남았어요. 새 리포트나 매체 소식이 들어올 때 다시 돌게 하려면 반복 실행을 설정하세요.',
       ],
       citations: [{ type: 'finding', id: 'WR-004-F1' }],
-      followUps: ['이 조건으로 BudgetOpt 2.0 시나리오를 만들려면 뭘 넣어야 해?', '증액하면 도달이 얼마나 늘어?'],
+      followUps: ['이 배분안을 광고주 설명 자료로 만들어줘', '기존안과 나란히 비교해줘'],
+      workflow: {
+        mode: 'done',
+        name: '근거를 조건으로 배분안 다시 만들기',
+        steps: [
+          { kind: 'manual', title: '요청 해석', result: '조건 3개 · 앞선 답의 근거 이어받음' },
+          { kind: 'library', title: '근거 발견 불러오기', result: 'Vol.4 발견 1건' },
+          { kind: 'scenarioCreate', title: 'BudgetOpt 2.0 배분안 만들기', result: '새 배분안 1개 · 예상 클릭 +6%' },
+          { kind: 'scenarioCreate', title: 'Reach Caster 도달 확인', result: '순도달 +2.1%p' },
+          { kind: 'llm', title: 'SpinX로 정리', result: '결론 1줄 · 근거 1건 인용' },
+        ],
+      },
     }),
   },
   {

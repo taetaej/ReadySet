@@ -1,8 +1,10 @@
 // GroundLibrary.tsx — /ground/library. 라이브러리 (독립 메뉴).
 // 분석 리포트는 주제별로, 매체 소식은 따로. 매체 소식은 인사이트 맵에 넣지 않는다.
 
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Lock } from 'lucide-react'
+import { ArrowRight, ArrowUp, Lock, Search } from 'lucide-react'
+import { GroundDock, openDock } from './GroundDock'
 import { GroundLayout } from './GroundLayout'
 import { useViewer } from './useViewer'
 import { THEMES, visibleReports, visibleNews, linksForSource, fmtYMD, fmtMD } from './groundData'
@@ -10,16 +12,29 @@ import { THEMES, visibleReports, visibleNews, linksForSource, fmtYMD, fmtMD } fr
 export function GroundLibrary() {
   const navigate = useNavigate()
   const [viewer] = useViewer()
-  const reports = visibleReports(viewer)
-  const news = [...visibleNews(viewer)].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  // 찾기와 묻기를 한 칸에서 — 치는 동안 목록이 걸러지고, Enter면 SpinX에게
+  const [q, setQ] = useState('')
+  const has = (...xs: (string | undefined)[]) => !q.trim() || xs.some(x => x?.toLowerCase().includes(q.trim().toLowerCase()))
+  const reports = visibleReports(viewer).filter(r => has(r.title, r.subtitle, r.issue, ...r.findings.map(f => f.title)))
+  const news = [...visibleNews(viewer)].filter(n => has(n.title, n.summary, n.media)).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  const ask = () => { if (q.trim()) { openDock(q.trim()); setQ('') } }
 
   return (
-    <GroundLayout title="라이브러리 - Ground">
+    <GroundLayout title="Library - Ground">
       <div className="gd-container gd-page">
         <header className="gd-page-head">
-          <h1 className="gd-page-title">라이브러리</h1>
+          <h1 className="gd-page-title">Library</h1>
           <p className="gd-page-sub">SpinX가 답할 때 근거로 쓰는 자료예요. 분석 리포트는 발견 단위로 시나리오와 연결돼요.</p>
         </header>
+        <div className="gd-pill gd-libq">
+          <Search size={16} aria-hidden className="gd-libq-ic" />
+          <label htmlFor="gd-libq" className="gd-sr">라이브러리에서 찾거나 SpinX에게 묻기</label>
+          <textarea id="gd-libq" className="gd-pill-input" rows={1} value={q} placeholder="찾거나 물어보세요 · Enter로 SpinX에게"
+            onChange={e => setQ(e.target.value)}
+            onKeyDown={e => { if (e.nativeEvent.isComposing) return; if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask() } }} />
+          {q.trim() && <span className="gd-libq-n">리포트 {reports.length} · 소식 {news.length}</span>}
+          <button type="button" className="gd-send" aria-label="SpinX에게 묻기" disabled={!q.trim()} onClick={ask}><ArrowUp size={16} strokeWidth={2.2} /></button>
+        </div>
 
         <div className="gd-lib-grid">
           <div>
@@ -68,6 +83,7 @@ export function GroundLibrary() {
           </div>
         </div>
       </div>
+      <GroundDock origin={{ type: 'library', id: 'library', label: 'Library', path: '/ground/library' }} />
     </GroundLayout>
   )
 }
