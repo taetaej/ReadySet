@@ -31,6 +31,10 @@ export interface Dataset {
   // SpinX 분석 "생성 실패" 케이스 데모 플래그. true면 두 차트 하단 SpinX가 생성 실패 대체 텍스트를 표시.
   // (생성 API 연동 전 실패 상태 UI 재현/QA 확인용 — Spec §C.3.1)
   spinxFailDemo?: boolean
+  // 광고상품 기준 Step2 "상세 조건"(협력 광고 파트너사 / 타겟팅 옵션) 선택값.
+  // category는 '협력 광고 파트너사' 또는 타겟팅 카테고리명(예: Meta '기기유형')만 가능. (Meta는 둘 상호 배제)
+  // 상세 조건 N개 = 모든 options 합. 미사용(undefined/빈 배열)이면 상단 메타의 "상세 조건" 미노출.
+  detailConditions?: { category: string; options: string[] }[]
 }
 
 // 샘플 데이터
@@ -55,6 +59,8 @@ export const sampleDatasets: Dataset[] = [
   { id: 17, name: '[엣지] 차트 케이스 모음 (업종별 전환)', extractMode: 'product', media: 'Google Ads',        mediaCount: 3, mediaList: ['Google Ads', 'Meta', 'TikTok'], industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-07', endDate: '2024-08', periodType: 'month',   status: 'Completed',  created: '2026-02-05 15:40', creator: '서지안', creatorId: 'seojian@gmail.com', chartEdgeDemo: true },
   // SpinX 분석 생성 실패 엣지 데모: 두 차트 하단 SpinX가 생성 실패 대체 텍스트 표시(spinxFailDemo).
   { id: 18, name: '[엣지] SpinX 분석 생성 실패', extractMode: 'product', media: 'Google Ads',        mediaCount: 3, mediaList: ['Google Ads', 'Meta', 'TikTok'], industry: '5개 업종', industryLevel: 'major', industryCount: 5,         startDate: '2024-07', endDate: '2024-08', periodType: 'month',   status: 'Completed',  created: '2026-02-06 10:00', creator: '서지안', creatorId: 'seojian@gmail.com', spinxFailDemo: true },
+  // 상세 조건 사용 데모: 매체 1개(Meta) + 타겟팅(기기유형) 2 → 상단 메타에 "상세 조건 2개" 노출
+  { id: 19, name: 'Meta 상세 조건 적용 광고상품 데이터', extractMode: 'product', media: 'Meta', mediaCount: 1, mediaList: ['Meta'], industry: '5개 업종', industryLevel: 'major', industryCount: 5, startDate: '2024-07', endDate: '2024-08', periodType: 'month', status: 'Completed', created: '2026-02-07 10:00', creator: '서지안', creatorId: 'seojian@gmail.com', detailConditions: [{ category: '기기유형', options: ['모바일 웹', '앱 내'] }] },
 ]
 
 // 업종 분류 데이터
