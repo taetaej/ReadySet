@@ -8,8 +8,25 @@ export const releaseNotesSection: DocSection = {
       id: 'release-notes-latest',
       title: '최신 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-10-26',
+      updatedAt: '2026-11-12',
       content: `# Release Notes
+
+## v1.3.0 (2026-11-30)
+
+ReadySet 플랫폼 DataShot 광고상품 기준 추출 지원 및 솔루션 간 연계 강화
+
+---
+
+### Reach Caster
+
+- \`NEW\` DataShot 연계 — 시나리오 결과에서 업종·매체·광고상품을 그대로 가져가 DataShot 데이터셋 생성을 바로 시작
+
+### DataShot
+
+- \`NEW\` 추출 기준 추가 — 광고상품 기준으로 여러 매체의 성과를 한 번에 비교하며 추출 (기존 방식은 조건 조합으로 유지)
+- \`NEW\` Benchmark Analytics — 광고상품 기준 결과에서 업종의 광고비 배분과 매체·상품별 효율을 차트로 확인
+
+
 
 ## v1.2.0 (2026-10-26)
 

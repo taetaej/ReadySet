@@ -10,7 +10,7 @@ import { AppLayout } from '../layout/AppLayout'
 import { getDarkMode, setDarkMode as setDarkModeUtil } from '../../utils/theme'
 import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
-import { IndustryModal, MetricsModal, ProductListModal } from './DatasetDetailModals'
+import { IndustryModal, MetricsModal, ProductListModal, DetailConditionsModal } from './DatasetDetailModals'
 import { ResultCharts } from './ResultCharts'
 import { ExtractedTable } from './ExtractedTable'
 import { type FormData, initialFormData } from './createDatasetTypes'
@@ -54,6 +54,7 @@ export function DatasetResult() {
   const [industryModalOpen, setIndustryModalOpen] = useState(false)
   const [adProductsModalOpen, setAdProductsModalOpen] = useState(false)
   const [metricsModalOpen, setMetricsModalOpen] = useState(false)
+  const [detailConditionsModalOpen, setDetailConditionsModalOpen] = useState(false)
 
   const datasetName = datasetData?.name || '다매체 통합 데이터'
   const periodValue = datasetData?.startDate ? `${datasetData.startDate} → ${datasetData.endDate}` : '—'
@@ -68,6 +69,9 @@ export function DatasetResult() {
   const industryValue = datasetData?.industryCount ? `${datasetData.industryCount}개` : `${industriesSample.length}개`
   const productCount = headerMediaProducts.reduce((s, m) => s + m.products.length, 0)
   const totalMetricsCount = headerMetrics.reduce((s, g) => s + g.metrics.length, 0)
+  // 상세 조건 = Step2 "상세 조건" 선택값 수. 미사용(0개)이면 메타에서 숨김.
+  const detailConditionCount = (datasetData?.detailConditions ?? []).reduce(
+    (s: number, c: { options: string[] }) => s + c.options.length, 0)
 
   const handleToggleDarkMode = () => {
     const next = !isDarkMode
@@ -158,6 +162,12 @@ export function DatasetResult() {
             <SummaryItem label="조회기간" value={periodValue} />
             <span>•</span>
             <SummaryItem label="업종" value={industryValue} onSearch={() => setIndustryModalOpen(true)} />
+            {detailConditionCount > 0 && (
+              <>
+                <span>•</span>
+                <SummaryItem label="상세 조건" value={`${detailConditionCount}개`} onSearch={() => setDetailConditionsModalOpen(true)} />
+              </>
+            )}
             <span>•</span>
             <SummaryItem label="지표" value={`${totalMetricsCount}개`} onSearch={() => setMetricsModalOpen(true)} />
           </div>
@@ -257,6 +267,7 @@ export function DatasetResult() {
       {/* 상세 모달 (돋보기) */}
       <IndustryModal isOpen={industryModalOpen} onClose={() => setIndustryModalOpen(false)} industries={headerIndustries} />
       <ProductListModal isOpen={adProductsModalOpen} onClose={() => setAdProductsModalOpen(false)} mediaProducts={headerMediaProducts} />
+      <DetailConditionsModal isOpen={detailConditionsModalOpen} onClose={() => setDetailConditionsModalOpen(false)} conditions={datasetData?.detailConditions ?? []} />
       <MetricsModal isOpen={metricsModalOpen} onClose={() => setMetricsModalOpen(false)} metricGroups={headerMetrics} />
 
       {/* 삭제 확인 다이얼로그 */}
