@@ -421,3 +421,58 @@ export function ProductListModal({ isOpen, onClose, mediaProducts }: ProductList
     </div>
   )
 }
+
+// ── 상세 조건 모달 (광고상품 조회 전용) ──────────────────────────────
+// 생성 Step2 "상세 조건"(협력 광고 파트너사 / 타겟팅 옵션)을 카테고리별로 읽기전용 표시.
+interface DetailConditionsModalProps {
+  isOpen: boolean
+  onClose: () => void
+  conditions: { category: string; options: string[] }[]
+}
+
+export function DetailConditionsModal({ isOpen, onClose, conditions }: DetailConditionsModalProps) {
+  if (!isOpen) return null
+
+  return (
+    <div className="dialog-overlay" onClick={onClose}>
+      <div
+        className="dialog-content dialog-lg"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="dialog-header">
+          <h3 className="dialog-title">선택한 상세 조건</h3>
+          <p className="dialog-description">이 데이터샷에 적용된 상세 조건입니다.</p>
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute', right: '24px', top: '24px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '4px', color: 'hsl(var(--muted-foreground))'
+            }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
+          {conditions.map(c =>
+            c.category === '협력 광고 파트너사' ? (
+              // 파트너사: 그룹 헤더 + 체크박스 목록
+              <ReadOnlyMetricGroupRow key={c.category} group={c.category} metrics={c.options} />
+            ) : (
+              // 타겟팅: 조건 조합 모달과 동일 — "타겟팅 옵션" 헤더 + 카테고리 박스 + 옵션 체크박스
+              <div key={c.category} style={{ marginBottom: '8px' }}>
+                <ReadOnlyTargetingSection category={c.category} options={c.options} />
+              </div>
+            )
+          )}
+        </div>
+
+        <div className="dialog-footer">
+          <button onClick={onClose} className="btn btn-primary btn-md">확인</button>
+        </div>
+      </div>
+    </div>
+  )
+}
