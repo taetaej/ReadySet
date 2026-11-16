@@ -20,7 +20,7 @@ export function GroundFlowList() {
 
 
   return (
-    <GroundLayout title="Workflows - Ground">
+    <GroundLayout title="Workflows - WithSet">
       <div className="gf-page">
         <header className="gf-head">
           <div>
@@ -33,15 +33,15 @@ export function GroundFlowList() {
           <header className="gd-sec gd-wl-head">
             <div className="gd-sec-row"><h2 id="gf-list-h" className="gd-sec-t">내 워크플로우</h2><span className="gd-count" style={{ marginLeft: 8 }}>{flows.length}</span></div>
           </header>
-          <div className="gf-table" role="table" aria-label="내 워크플로우">
+          <div className="gf-table wf-table" role="table" aria-label="내 워크플로우">
             <div className="gf-tr gf-th" role="row">
-              <span role="columnheader">이름</span><span role="columnheader">시작</span><span role="columnheader">노드</span><span role="columnheader">마지막 실행</span><span role="columnheader">상태</span><span />
+              <span role="columnheader">이름</span><span role="columnheader">시작</span><span role="columnheader">노드</span><span role="columnheader">마지막 실행</span><span />
             </div>
             {flows.map(f => {
               const last = f.runs[0]
               return (
-                <button key={f.id} type="button" role="row" className="gf-tr gf-row" onClick={() => navigate(`/ground/flow/${f.id}${last ? '?tab=runs' : ''}`)}>
-                  <span className="gf-name" role="cell"><b>{f.name}</b><span>{f.desc || '설명 없음'}</span></span>
+                <button key={f.id} type="button" role="row" className="gf-tr gf-row" onClick={() => navigate(`/withset/flow/${f.id}${last ? '?tab=runs' : ''}`)}>
+                  <span className="gf-name" role="cell"><b>{f.name}{f.status === 'on' && <span className="wf-auto">자동</span>}</b><span>{f.desc || '설명 없음'}</span></span>
                   <span role="cell" className="gf-muted">{f.trigger}</span>
                   <span role="cell" className="gf-start-chain gf-chain-ic" aria-label={f.nodes.map(n => NODE_META[n.kind].label).join(' → ')}>
                     {[...f.nodes].sort((x, y) => x.y - y.y || x.x - y.x).map(n => <span key={n.id} className="gf-start-n" title={NODE_META[n.kind].label}><FlowIcon kind={n.kind} size={11} /></span>)}
@@ -49,7 +49,6 @@ export function GroundFlowList() {
                   <span role="cell" className="gf-muted">
                     {last ? <><span className={`gf-dot s-${last.status}`} aria-hidden />{fmtRunAt(last.at)} · {STATUS_LABEL[last.status]}<span className="gf-last">{last.summary}</span></> : '아직 없음'}
                   </span>
-                  <span role="cell"><span className={`gf-on ${f.status === 'on' ? 'is-on' : ''}`}>{f.status === 'on' ? '켜짐' : '꺼짐'}</span></span>
                   <ArrowRight size={13} className="gd-arrow" aria-hidden />
                 </button>
               )

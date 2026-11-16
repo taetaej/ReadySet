@@ -1,4 +1,4 @@
-// groundData.ts — Ground 프로토타입 데이터 + 연결 엔진 + 전역 SpinX 응답 시뮬레이션
+// groundData.ts — WithSet 프로토타입 데이터 + 연결 엔진 + 전역 SpinX 응답 시뮬레이션
 // Vol.1은 Winning Report 원문(AX팀, 2026.11) 수치. Vol.2~15는 AX팀 분석 예정 가설에 붙인 "화면 검토용 가상 결과"(sample: true).
 // 시나리오·매체 소식도 예시 데이터.
 
@@ -517,8 +517,8 @@ export function interpretReport(report: Report, scenarioId: string) {
 // 전역 SpinX
 // ─────────────────────────────────────────────
 export const SUGGESTED_QUESTIONS = [
-  '추석 연휴에 광고비를 줄여야 할까?',
   '갤럭시 2027 추석 프로모션, 연휴에 증액해도 괜찮을까?',
+  '추석 연휴에 광고비를 줄여야 할까?',
   '연말 앱 설치 캠페인, 예산을 더 늘려도 될까?',
   '설 시즌 캠페인도 연휴 예산을 따로 짜야 해?',
   '이번 달 매체 소식 중 챙겨야 할 거 있어?',
@@ -527,6 +527,54 @@ export const SUGGESTED_QUESTIONS = [
 interface Scripted { match: RegExp; build: (viewer: Viewer) => GroundAnswer }
 
 const SCRIPTED: Scripted[] = [
+  // ── 대표 장면 3 · 실측 비교 (Phase 3) ──
+  {
+    match: /실측|실제 성과|집행 성과|성과랑|성과와/,
+    build: () => ({
+      verdict: '작년 추석 실측 클릭은 예측보다 8% 적었어요. 다만 시장 요인을 빼면 운영 성과는 예측과 거의 같아요.',
+      paragraphs: [
+        '매체별로 보면 메타가 예측보다 14% 낮았고, 구글(+3%)과 네이버 GFA(+2%)는 예측 범위 안이었어요. 메타는 집행 2주 차에 알고리즘 변경 주가 겹쳐 CPM이 잠시 올랐던 구간이에요 [1].',
+        '같은 기간 컴퓨터·IT 업종 전체 클릭이 6% 줄었어요. 성과 변동의 58%가 시장 흐름에서 왔다는 분석을 적용하면, 운영으로 생긴 차이는 2% 안쪽이에요 [2].',
+        '이 비교 결과는 다음 예측의 보정값으로 쌓여요. 2027 추석 배분안의 메타 예상치를 낮춰 다시 계산해 볼 만해요 [3]. 실측 수치는 예시 데이터예요.',
+      ],
+      citations: [{ type: 'finding', id: 'WR-006-F1' }, { type: 'finding', id: 'WR-010-F1' }, { type: 'scenario', id: 'S-201' }],
+      followUps: ['이 차이를 반영해서 2027 추석 배분안 다시 짜줘'],
+      workflow: {
+        mode: 'done', name: '갤럭시 추석 예측 vs 실측 비교', artifactKind: '성과 비교',
+        steps: [
+          { kind: 'scenarioRun', title: '갤럭시 추석 배분안 예측값 불러오기', result: '예상 클릭 52만 · CPC 1,540원' },
+          { kind: 'mcp', title: '메타 · 구글 · 네이버 GFA 실측 가져오기', result: '2026 추석 집행분 · 4주 · 3개 매체' },
+          { kind: 'library', title: '성과 해석 리포트 찾기', result: 'Vol.6 · Vol.10 — 실측이 연결돼 처음 이어짐' },
+          { kind: 'llm', title: '예측 vs 실측 정리', result: '차이 3곳 · 시장 / 운영 요인 분리' },
+        ],
+      },
+    }),
+  },
+  // ── 대표 장면 2 · 제안셋 (Phase 2) ──
+  {
+    match: /제안셋/,
+    build: () => ({
+      verdict: '갤럭시 2027 추석 제안셋을 만들었어요. 증액은 하되, 클릭 단가 상한을 두고 연휴 2주 전부터 단계적으로 늘리는 안이에요.',
+      paragraphs: [
+        'Ad Curator가 출시 첫 2주 집행에 맞는 상품 7개를 골랐고, BudgetOpt 2.0이 CPC 상한 1,600원 조건으로 배분했어요. 예상 클릭은 기존안과 같은 52만, 클릭 단가는 9% 낮아요 [1].',
+        'Reach Caster로 확인하니 타겟의 44.6%에게 평균 3.2회 닿아요. 출시 직후 먼저 집행한 브랜드가 3개월 뒤 검색량이 높았다는 분석을 근거로 붙였어요 [2]. 수치는 예시 데이터예요.',
+      ],
+      citations: [{ type: 'finding', id: 'WR-001-F3' }, { type: 'finding', id: 'WR-015-F1' }],
+      followUps: ['작년 추석 갤럭시 집행 성과랑 이 시나리오 비교해줘'],
+      workflow: {
+        mode: 'done', name: '갤럭시 2027 추석 제안셋 만들기', artifactKind: '제안셋', skill: 'Reach Caster 결과 광고주 대상 설명 자료',
+        steps: [
+          { kind: 'manual', title: '요청 해석', result: '갤럭시 2027 추석 · 클릭 · 8억 증액 · 앞선 근거 이어받음' },
+          { kind: 'library', title: '근거 불러오기', result: 'Vol.1 · Vol.15 발견 2건' },
+          { kind: 'scenarioCreate', title: 'Ad Curator 상품 고르기', result: '상품 7개' },
+          { kind: 'scenarioCreate', title: 'BudgetOpt 2.0 배분안 만들기', result: 'CPC 상한 1,600원 · 단계 증액' },
+          { kind: 'scenarioCreate', title: 'Reach Caster 도달 확인', result: '순도달 44.6% · 평균 3.2회' },
+          { kind: 'llm', title: '광고주 설명 자료로 정리', result: '6쪽 · 근거 2건 인용', skill: 'Reach Caster 결과 광고주 대상 설명 자료' },
+          { kind: 'output', title: '제안셋 저장', result: '삼성 갤럭시 S24 캠페인 슬롯 · PDF' },
+        ],
+      },
+    }),
+  },
   {
     // 실행이 필요한 요청 — 답 대신 솔루션을 실제로 돌리고, 거친 단계를 보여준다. 워크플로우의 입구
     match: /만들어줘|다시 계산|계산해줘|짜줘|돌려줘|보여줘$/,
@@ -574,7 +622,7 @@ const SCRIPTED: Scripted[] = [
         '신상품 출시 캠페인이기도 해서, 출시 첫 2주에 먼저 집행하면 3개월 뒤 검색량이 1.9배였다는 분석도 함께 볼 만해요 [3].',
       ],
       citations: [{ type: 'finding', id: 'WR-001-F3' }, { type: 'scenario', id: 'S-201' }, { type: 'finding', id: 'WR-015-F1' }],
-      followUps: ['CPC 상한을 두고 단계 증액한 배분안 만들어줘', '컴퓨터및정보통신 업종 CPC 벤치마크 보여줘'],
+      followUps: ['이 근거로 갤럭시 추석 광고주 제안셋 만들어줘'],
     }),
   },
   {

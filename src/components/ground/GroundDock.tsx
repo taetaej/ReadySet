@@ -1,7 +1,7 @@
 // GroundDock.tsx — 어느 화면에서든 오른쪽에서 여는 SpinX
 //  · 보던 화면은 그대로. 지금 보는 대상(origin)이 맥락으로 붙는다
 //  · 같은 대상에서 오늘 시작한 대화가 있으면 이어 쓴다
-//  · 대화는 모두 Ground "최근 대화"에 쌓이고, "크게 보기"로 대화 화면에 간다
+//  · 대화는 모두 WithSet "최근 대화"에 쌓이고, "크게 보기"로 대화 화면에 간다
 // 열기: window 이벤트 'ground:dock' (detail: { question?: string }) 또는 open prop
 
 import { useEffect, useRef, useState } from 'react'
@@ -77,7 +77,7 @@ export function GroundDock({ origin }: { origin: SessionOrigin }) {
         <span className="gd-dock-ctx" title={origin.label}>{origin.label}</span>
         <span className="gd-dock-acts">
           {session && <button type="button" aria-label="새 대화" title="새 대화" onClick={() => { setSid(null); setFresh(false); setTimeout(() => ref.current?.focus(), 30) }}><Plus size={15} /></button>}
-          {session && <button type="button" aria-label="크게 보기" title="크게 보기" onClick={() => navigate(`/ground/chat/${session.id}`)}><Maximize2 size={14} /></button>}
+          {session && <button type="button" aria-label="크게 보기" title="크게 보기" onClick={() => navigate(`/withset/chat/${session.id}`)}><Maximize2 size={14} /></button>}
           <button type="button" aria-label="닫기" title="닫기 (Esc)" onClick={() => setOpen(false)}><X size={15} /></button>
         </span>
       </header>

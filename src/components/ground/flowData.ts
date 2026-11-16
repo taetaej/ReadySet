@@ -3,7 +3,8 @@
 // 노드 종류: 시작(스케줄·이벤트·수동) → 솔루션(시나리오 생성·호출) · 지식(라이브러리 검색) → LLM(SpinX) → 출력
 // 실행 결과는 그럴싸한 예시 값이다.
 
-export type FlowNodeKind = 'schedule' | 'event' | 'manual' | 'scenarioCreate' | 'scenarioRun' | 'library' | 'llm' | 'output'
+export type FlowNodeKind = 'schedule' | 'event' | 'manual' | 'scenarioCreate' | 'scenarioRun' | 'library' | 'mcp' | 'llm' | 'output'
+export interface FlowStep { kind: FlowNodeKind; title: string; result: string; skill?: string }
 
 export interface FlowNode {
   id: string
@@ -39,6 +40,9 @@ export interface Flow {
   edges: FlowEdge[]
   runs: FlowRun[]
   output?: FlowOutput
+  /** 대화에서 실행해 생긴 Artifact의 종류 · 사용한 Skill */
+  artifactKind?: string
+  skill?: string
 }
 
 export const NODE_META: Record<FlowNodeKind, { label: string; group: string }> = {
@@ -49,11 +53,12 @@ export const NODE_META: Record<FlowNodeKind, { label: string; group: string }> =
   scenarioRun: { label: '시나리오 호출', group: '솔루션' },
   library: { label: '라이브러리 검색', group: '지식' },
   llm: { label: 'LLM', group: 'AI' },
+  mcp: { label: '매체 MCP', group: '데이터' },
   output: { label: '출력', group: '끝' },
 }
 
 /** 팔레트 순서 */
-export const PALETTE: FlowNodeKind[] = ['schedule', 'event', 'manual', 'scenarioCreate', 'scenarioRun', 'library', 'llm', 'output']
+export const PALETTE: FlowNodeKind[] = ['schedule', 'event', 'manual', 'scenarioCreate', 'scenarioRun', 'library', 'mcp', 'llm', 'output']
 
 export const NODE_DEFAULT: Record<FlowNodeKind, Pick<FlowNode, 'title' | 'sub' | 'config'>> = {
   schedule: { title: '매주 월요일 09:00', sub: '정해진 시간에 시작', config: [{ k: '반복', v: '매주 월요일' }, { k: '시간', v: '09:00' }] },
@@ -63,7 +68,8 @@ export const NODE_DEFAULT: Record<FlowNodeKind, Pick<FlowNode, 'title' | 'sub' |
   scenarioRun: { title: '시나리오 다시 계산', sub: '저장된 시나리오를 최신 데이터로', config: [{ k: '시나리오', v: '선택하세요' }] },
   library: { title: '관련 리포트 · 소식 찾기', sub: '시나리오 기간 · 업종 기준', config: [{ k: '찾는 것', v: '분석 리포트 · 매체 소식' }, { k: '기준', v: '앞 노드의 시나리오 조건' }] },
   llm: { title: 'SpinX로 정리', sub: '지시문 또는 Skill', config: [{ k: '지시문', v: '앞 결과를 요약해줘' }, { k: 'Skill', v: '없음' }] },
-  output: { title: '알림 보내기', sub: '결과를 전달', config: [{ k: '받는 곳', v: '나 · Ground 알림' }] },
+  mcp: { title: '매체 실측 가져오기', sub: '연결된 매체 MCP', config: [{ k: '매체', v: '연결된 매체 전체' }, { k: '기간', v: '시나리오 집행 기간' }] },
+  output: { title: '알림 보내기', sub: '결과를 전달', config: [{ k: '받는 곳', v: '나 · WithSet 알림' }] },
 }
 
 export const FLOWS: Flow[] = [
@@ -80,7 +86,7 @@ export const FLOWS: Flow[] = [
       { id: 'c', kind: 'scenarioRun', title: '현재 배분안 불러오기', sub: 'BudgetOpt 2.0 · 다시 계산하지 않음', x: 40, y: 290, config: [{ k: '솔루션', v: 'BudgetOpt 2.0' }, { k: '시나리오', v: '앞 노드에서 받기' }, { k: '방식', v: '저장된 결과 읽기' }], result: '메타 비중 50% · 45% · 17%', ms: 900 },
       { id: 'd', kind: 'library', title: '관련 분석 리포트', sub: '매체 · KPI 기준', x: 360, y: 290, config: [{ k: '찾는 것', v: '분석 리포트' }, { k: '기준', v: '해당 매체 · 시나리오 KPI' }], result: 'Vol.2 발견 1건', ms: 500 },
       { id: 'e', kind: 'llm', title: '영향 정리 · 다시 계산할 곳', sub: 'SpinX · Skill: 매체 변경 영향 메모', x: 200, y: 420, config: [{ k: '지시문', v: '시나리오별 영향과 우선순위를 정리해줘' }, { k: 'Skill', v: '매체 변경 영향 메모' }, { k: '근거', v: '앞 노드 결과만 인용' }], result: '결론 1줄 · 근거 3건 인용', ms: 3100 },
-      { id: 'f', kind: 'output', title: 'Ground 알림 + 대화로 저장', sub: '나 · 시나리오 담당자', x: 200, y: 550, config: [{ k: '받는 곳', v: '나, 시나리오 담당자' }, { k: '저장', v: '대화 세션으로 남기기' }], result: '3명에게 보냄', ms: 200 },
+      { id: 'f', kind: 'output', title: 'WithSet 알림 + 대화로 저장', sub: '나 · 시나리오 담당자', x: 200, y: 550, config: [{ k: '받는 곳', v: '나, 시나리오 담당자' }, { k: '저장', v: '대화 세션으로 남기기' }], result: '3명에게 보냄', ms: 200 },
     ],
     edges: [{ from: 'a', to: 'b' }, { from: 'b', to: 'c' }, { from: 'b', to: 'd' }, { from: 'c', to: 'e' }, { from: 'd', to: 'e' }, { from: 'e', to: 'f' }],
     runs: [
@@ -141,7 +147,7 @@ export const FLOWS: Flow[] = [
       { id: 'a', kind: 'event', title: '새 분석 리포트가 들어오면', sub: '라이브러리 이벤트', x: 200, y: 40, config: [{ k: '이벤트', v: '분석 리포트 등록' }, { k: '범위', v: '임직원 공개 이상' }], result: 'Vol.1 등록 (11.2)', ms: 0 },
       { id: 'b', kind: 'library', title: '내 시나리오와 맞춰보기', sub: '인사이트 맵 연결 규칙', x: 200, y: 170, config: [{ k: '대상', v: '진행 중인 내 시나리오' }, { k: '기준', v: '발견 조건 전부 충족' }], result: '6개 시나리오 · 바로 해당 3', ms: 900 },
       { id: 'c', kind: 'llm', title: '시나리오별 한 줄', sub: 'SpinX', x: 200, y: 300, config: [{ k: '지시문', v: '시나리오마다 왜 걸리는지 한 줄' }], result: '6줄', ms: 2600 },
-      { id: 'd', kind: 'output', title: 'Ground 알림', sub: '나', x: 200, y: 430, config: [{ k: '받는 곳', v: '나' }], result: '보냄', ms: 100 },
+      { id: 'd', kind: 'output', title: 'WithSet 알림', sub: '나', x: 200, y: 430, config: [{ k: '받는 곳', v: '나' }], result: '보냄', ms: 100 },
     ],
     edges: [{ from: 'a', to: 'b' }, { from: 'b', to: 'c' }, { from: 'c', to: 'd' }],
     runs: [
@@ -200,10 +206,10 @@ export function blankFlow(): Flow {
 export const DRAFTS = new Map<string, Flow>()
 
 /** 대화에서 SpinX가 거친 단계를 그대로 워크플로우로 */
-export function flowFromSteps(name: string, desc: string, steps: { kind: FlowNodeKind; title: string; result: string }[]): Flow {
+export function flowFromSteps(name: string, desc: string, steps: FlowStep[]): Flow {
   const nodes: FlowNode[] = steps.map((st, i) => ({
     id: `s${i}`, kind: st.kind, title: st.title, sub: NODE_DEFAULT[st.kind].sub, x: 200, y: 40 + i * 120,
-    config: structuredClone(NODE_DEFAULT[st.kind].config), result: st.result, ms: st.kind === 'manual' ? 0 : 900 + i * 700,
+    config: st.skill ? [{ k: 'Skill', v: st.skill }, { k: '근거', v: '앞 노드 결과만 인용' }] : structuredClone(NODE_DEFAULT[st.kind].config), result: st.result, ms: st.kind === 'manual' ? 0 : 900 + i * 700,
   }))
   return {
     id: `FL-${Date.now().toString(36)}`, name, desc, trigger: '직접 실행', owner: '신지아', status: 'off', runs: [],
@@ -213,12 +219,12 @@ export function flowFromSteps(name: string, desc: string, steps: { kind: FlowNod
 
 const pad = (n: number) => String(n).padStart(2, '0')
 /** 대화에서 실행 — 실행하면 곧 워크플로우가 되고 기록이 남는다 (따로 저장하지 않음) */
-export function recordChatRun(id: string, name: string, desc: string, steps: { kind: FlowNodeKind; title: string; result: string }[], tpl?: Flow, conclusion?: string, extra?: Pick<FlowOutput, 'body' | 'cites' | 'next'>): Flow {
+export function recordChatRun(id: string, name: string, desc: string, steps: FlowStep[], tpl?: Flow, conclusion?: string, extra?: Pick<FlowOutput, 'body' | 'cites' | 'next'> & { artifactKind?: string; skill?: string }): Flow {
   const base: Flow = tpl ? { ...structuredClone(tpl), name, desc } : flowFromSteps(name, desc, steps)
   const now = new Date()
   const at = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
   const run: FlowRun = { id: `r${Date.now()}`, at, status: 'success', duration: `${(base.nodes.length * 1.9).toFixed(1)}초`, summary: tpl?.runs[0]?.summary ?? '대화에서 실행' }
-  const flow: Flow = { ...base, id, status: 'off', runs: [run], output: tpl?.output ?? { title: name, conclusion: conclusion ?? '', body: extra?.body ?? [], cites: extra?.cites ?? [], next: extra?.next } }
+  const flow: Flow = { ...base, id, status: 'off', artifactKind: extra?.artifactKind, skill: extra?.skill, runs: [run], output: tpl?.output ?? { title: name, conclusion: conclusion ?? '', body: extra?.body ?? [], cites: extra?.cites ?? [], next: extra?.next } }
   DRAFTS.set(id, flow)
   notifyFlows()
   return flow

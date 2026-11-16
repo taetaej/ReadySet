@@ -82,7 +82,7 @@ export function QuestionOrb({ viewer, size = 300 }: { viewer: Viewer; size?: num
     const question = q.trim()
     if (!question) return
     const id = createSession(question, viewer)
-    navigate(`/ground/chat/${id}`, { state: { fresh: true } })
+    navigate(`/withset/chat/${id}`, { state: { fresh: true } })
   }
 
   return (
@@ -140,6 +140,11 @@ export function ChatThread({ session, fresh, compact = false }: { session: Groun
   const lastRef = useRef<HTMLDivElement>(null)
   const sc = scope(session.viewer)
   const busy = pendingIdx !== null
+  // GNB 로고 오브에 알린다
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('spinx:busy', { detail: busy }))
+    return () => { if (busy) window.dispatchEvent(new CustomEvent('spinx:busy', { detail: false })) }
+  }, [busy])
 
   const turns: GroundTurn[] = session.questions.map((q, i) => ({ id: `${session.id}-${i}`, question: q, viewer: session.viewer, answer: answerFor(q, session) }))
 
@@ -272,6 +277,7 @@ function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<Groun
       return { id: c.id, label: findScenario(c.id)?.name ?? c.id }
     }).filter(c => !c.id.startsWith('S-')),
     next: wf.steps.some(st => /BudgetOpt/.test(st.title)) ? { label: 'BudgetOpt 2.0에서 열기', to: '/budgetopt' } : undefined,
+    artifactKind: wf.artifactKind, skill: wf.skill,
   }
   const navigate = useNavigate()
   const reduce = useReducedMotion()
@@ -294,7 +300,8 @@ function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<Groun
 
   const running = step !== null
   const stateOf = (i: number) => (ran ? 'done' : running ? (i < step! ? 'done' : i === step ? 'running' : 'idle') : 'idle')
-  const manual = wf.steps[0]?.kind === 'manual'
+  // 시작이 이벤트 · 스케줄이 아니면 바로 켤 수 없고, 시작 조건부터 정해야 한다
+  const manual = !['event', 'schedule'].includes(wf.steps[0]?.kind ?? '')
   const auto = flow?.status === 'on'
 
   return (
@@ -306,7 +313,7 @@ function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<Groun
           return (
             <li key={i} className={`st-${s}`}>
               <span className="gd-wf-no">{s === 'done' ? <Check size={12} aria-label="완료" /> : s === 'running' ? <span className="gf-spin" aria-label="실행 중" /> : i + 1}</span>
-              <span className="gd-wf-t">{st.title}<span className="gd-muted"> · {NODE_META[st.kind].label}</span></span>
+              <span className="gd-wf-t">{st.title}<span className="gd-muted"> · {NODE_META[st.kind].label}</span>{st.skill && <span className="gd-wf-skill"><Sparkles size={10} aria-hidden />Skill · {st.skill}</span>}</span>
               <span className="gd-wf-r">{s === 'done' ? st.result : ''}</span>
             </li>
           )
@@ -321,9 +328,9 @@ function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<Groun
           </div>
           <div className="gd-wf-acts">
             {manual
-              ? <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" onClick={() => navigate(`/ground/flow/${fid}`, { state: { fromChat: true } })}>반복 실행 설정</button>
+              ? <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" onClick={() => navigate(`/withset/flow/${fid}`, { state: { fromChat: true } })}>반복 실행 설정</button>
               : <button type="button" className="gd-btn-pill gd-btn-inline gd-wf-cta" disabled={auto} onClick={() => { DRAFTS.set(fid, { ...flow, status: 'on' }); notifyFlows(); bump(x => x + 1) }}>{auto ? `자동 실행 켜짐 · ${flow.trigger}` : '자동 실행 켜기'}</button>}
-            <button type="button" className="gd-wf-save" onClick={() => navigate(`/ground/artifacts/AR-${fid}`)}>Artifacts에서 보기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
+            <button type="button" className="gd-wf-save" onClick={() => navigate(`/withset/artifacts/AR-${fid}`)}>Artifacts에서 보기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
           </div>
         </>
       ) : (
@@ -335,7 +342,7 @@ function WorkflowBlock({ wf, turnId, question, answer }: { wf: NonNullable<Groun
             const tpl = templateFlow(wf.templateId)
             const f = tpl ? draftFrom(tpl, wf.name, question) : flowFromSteps(wf.name, question, wf.steps)
             DRAFTS.set(f.id, f)
-            navigate(`/ground/flow/${f.id}`, { state: { fresh: true, fromChat: true } })
+            navigate(`/withset/flow/${f.id}`, { state: { fresh: true, fromChat: true } })
           }}>캔버스에서 고치기</button>
         </div>
       )}
@@ -350,7 +357,7 @@ function SaveSkill({ question, answer }: { question: string; answer: GroundAnswe
   return (
     <div className="gd-skillsave">
       {saved
-        ? <button type="button" className="gd-skillsave-btn is-done" onClick={() => navigate(`/ground/skills/${saved}`)}><Sparkles size={12} aria-hidden />Skill로 저장했어요 · 열기<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
+        ? <button type="button" className="gd-skillsave-btn is-done" onClick={() => navigate(`/withset/skills/${saved}`)}><Sparkles size={12} aria-hidden />Skill로 저장했어요 · 열기<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
         : <button type="button" className="gd-skillsave-btn" onClick={() => setSaved(skillFromAnswer(question, answer.verdict, answer.paragraphs).id)}><Sparkles size={12} aria-hidden />이 방식 Skill로 저장</button>}
     </div>
   )
@@ -364,8 +371,8 @@ function PatchBlock({ patch }: { patch: FlowPatch }) {
   const already = patch.changes.length > 0 && patch.changes.every(c => c.before === c.title)
   const [done, setDone] = useState(already)
   const apply = () => {
-    if (pathname === `/ground/flow/${patch.flowId}`) window.dispatchEvent(new CustomEvent('ground:apply-patch', { detail: patch }))
-    else navigate(`/ground/flow/${patch.flowId}`, { state: { patch } })
+    if (pathname === `/withset/flow/${patch.flowId}`) window.dispatchEvent(new CustomEvent('ground:apply-patch', { detail: patch }))
+    else navigate(`/withset/flow/${patch.flowId}`, { state: { patch } })
     setDone(true)
   }
   return (
@@ -431,7 +438,7 @@ function SourceCard({ turnId, no, cite, active, onActive }: { turnId: string; no
     if (!f) return null
     const r = reportOf(f.id)
     return (
-      <button type="button" {...common} onClick={() => navigate(`/ground/library/${r.id}#${f.id}`)}>
+      <button type="button" {...common} onClick={() => navigate(`/withset/library/${r.id}#${f.id}`)}>
         <span className="gd-source-no">{no}</span>
         <span className="gd-source-kind">분석 리포트 · {r.series} {r.issue}</span>
         <span className="gd-source-title">{f.title}</span>
@@ -443,7 +450,7 @@ function SourceCard({ turnId, no, cite, active, onActive }: { turnId: string; no
     const n = findNews(cite.id)
     if (!n) return null
     return (
-      <button type="button" {...common} onClick={() => navigate(`/ground/library/${n.id}`)}>
+      <button type="button" {...common} onClick={() => navigate(`/withset/library/${n.id}`)}>
         <span className="gd-source-no">{no}</span>
         <span className="gd-source-kind">매체 소식{n.audienceLevel === 'internal' && <span className="gd-flag"><Lock size={9} aria-hidden />임직원 전용</span>}</span>
         <span className="gd-source-title">{n.title}</span>

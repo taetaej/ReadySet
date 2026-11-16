@@ -439,8 +439,8 @@ export function InsightMap({ viewer, highlight }: { viewer: Viewer; highlight?: 
         onLocal={() => { set({ local: filter.local?.id === panelNode.id ? null : { id: panelNode.id, depth: panelNode.kind === 'report' && filter.findings ? 2 : 1 } }); setPinned(panelNode.id) }}
         onClose={() => { setPinned(null); setHover(null) }}
         onGo={() => {
-          if (panelNode.kind === 'report') navigate(`/ground/library/${panelNode.id}`)
-          else if (panelNode.kind === 'finding') navigate(`/ground/library/${reportOf(panelNode.id).id}#${panelNode.id}`)
+          if (panelNode.kind === 'report') navigate(`/withset/library/${panelNode.id}`)
+          else if (panelNode.kind === 'finding') navigate(`/withset/library/${reportOf(panelNode.id).id}#${panelNode.id}`)
           else navigate(findScenario(panelNode.id)?.solution === 'BudgetOpt 2.0' ? '/budgetopt' : '/reachcaster')
         }} />}
     </div>

@@ -113,7 +113,7 @@ function patchFor(q: string, f: Flow): GroundAnswer {
   const out = [...f.nodes].sort((a, b) => b.y - a.y)[0]
   return {
     verdict: '마지막에 담당자 메일 보내기를 하나 더 붙였어요. 캔버스에 적용할까요?',
-    paragraphs: ['Ground 알림은 그대로 두고, 같은 결과를 시나리오 담당자에게 메일로도 보내요.'],
+    paragraphs: ['WithSet 알림은 그대로 두고, 같은 결과를 시나리오 담당자에게 메일로도 보내요.'],
     citations: [],
     followUps: [],
     patch: { flowId: f.id, changes: [], add: { after: out.id, kind: 'output', title: '담당자 메일 보내기', sub: '시나리오 담당자 · 요약본' } },

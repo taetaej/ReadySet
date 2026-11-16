@@ -4,7 +4,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Clock, Play, PlusSquare, RefreshCw, Send, Trash2, X, Zap, Hand } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Clock, Play, PlusSquare, RefreshCw, Send, Trash2, X, Zap, Hand, Plug } from 'lucide-react'
 import { GroundLayout } from './GroundLayout'
 import { SpinXOrb } from '../spinx/SpinXOrb'
 import { DRAFTS, FLOWS, NODE_DEFAULT, NODE_META, PALETTE, findFlow, fmtRunAt, type Flow, type FlowEdge, type FlowNode, type FlowNodeKind, type FlowRun } from './flowData'
@@ -25,6 +25,7 @@ export function FlowIcon({ kind, size = 15 }: { kind: FlowNodeKind; size?: numbe
     case 'scenarioRun': return <RefreshCw {...p} />
     case 'library': return <BookOpen {...p} />
     case 'llm': return <SpinXOrb size={size + 3} motion="static" title="" />
+    case 'mcp': return <Plug {...p} />
     case 'output': return <Send {...p} />
   }
 }
@@ -80,10 +81,10 @@ export function GroundFlowEditor() {
 
   // 수정은 세션 동안 유지 (목업)
   useEffect(() => { if (flow) { const i = FLOWS.findIndex(f => f.id === flow.id); if (i >= 0) FLOWS[i] = flow; else DRAFTS.set(flow.id, flow) } }, [flow])
-  useEffect(() => { document.title = `${flow?.name ?? '워크플로우'} - Ground` }, [flow?.name])
+  useEffect(() => { document.title = `${flow?.name ?? '워크플로우'} - WithSet` }, [flow?.name])
 
   if (!flow) {
-    return <GroundLayout title="Workflows - Ground"><div className="gf-page"><p className="gd-page-sub">워크플로우를 찾을 수 없어요.</p></div></GroundLayout>
+    return <GroundLayout title="Workflows - WithSet"><div className="gf-page"><p className="gd-page-sub">워크플로우를 찾을 수 없어요.</p></div></GroundLayout>
   }
 
   const update = (p: Partial<Flow>) => setFlow(f => (f ? { ...f, ...p } : f))
@@ -148,10 +149,10 @@ export function GroundFlowEditor() {
   }
 
   return (
-    <GroundLayout title={`${flow.name} - Ground`}>
+    <GroundLayout title={`${flow.name} - WithSet`}>
       <div className="gf-editor">
         <header className="gf-bar">
-          <button type="button" className="gf-back" onClick={() => navigate('/ground/flow')} aria-label="Workflows"><ArrowLeft size={15} /></button>
+          <button type="button" className="gf-back" onClick={() => navigate('/withset/flow')} aria-label="Workflows"><ArrowLeft size={15} /></button>
           <div className="gf-bar-name">
             <label htmlFor="gf-name" className="gd-sr">워크플로우 이름</label>
             <input id="gf-name" value={flow.name} onChange={e => update({ name: e.target.value })} />
@@ -330,7 +331,7 @@ function Inspector({ flow, node, setNode, remove, close, update }: {
           <input value={c.v} onChange={e => setNode(node.id, { config: node.config.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)) })} />
         </label>
       ))}
-      {(() => { const k = node.config.find(c => c.k === 'Skill')?.v; const sk = k && findSkillByName(k); return sk ? <button type="button" className="gf-sklink" onClick={() => navigate(`/ground/skills/${sk.id}`)}>Skill 열기 · {sk.name}<ArrowRight size={11} className="gd-arrow" aria-hidden /></button> : null })()}
+      {(() => { const k = node.config.find(c => c.k === 'Skill')?.v; const sk = k && findSkillByName(k); return sk ? <button type="button" className="gf-sklink" onClick={() => navigate(`/withset/skills/${sk.id}`)}>Skill 열기 · {sk.name}<ArrowRight size={11} className="gd-arrow" aria-hidden /></button> : null })()}
       {node.result && (
         <div className="gf-insp-res">
           <span className="gf-insp-k">마지막 결과</span>
@@ -387,12 +388,12 @@ function Runs({ flow, idx, setIdx, onCanvas }: { flow: Flow; idx: number; setIdx
             <div className="gf-doc-cites">
               <span className="gf-insp-k">근거</span>
               {flow.output.cites.map(c => (
-                <button key={c.id} type="button" onClick={() => navigate(`/ground/library/${c.id}`)}>{c.label}<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
+                <button key={c.id} type="button" onClick={() => navigate(`/withset/library/${c.id}`)}>{c.label}<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
               ))}
             </div>
             <div className="gf-doc-acts">
               {flow.output.next && <button type="button" className="gd-btn-pill gd-btn-inline gf-doc-next" onClick={() => navigate(flow.output!.next!.to)}>{flow.output.next.label}</button>}
-              <button type="button" className="gd-wf-save" onClick={() => navigate(`/ground/artifacts/AR-${flow.id}`)}>Artifacts에서 보기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
+              <button type="button" className="gd-wf-save" onClick={() => navigate(`/withset/artifacts/AR-${flow.id}`)}>Artifacts에서 보기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
             </div>
           </>
         ) : (

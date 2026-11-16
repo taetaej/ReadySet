@@ -1,4 +1,4 @@
-// GroundLayout.tsx — Ground 공통 셸. GNB + 왼쪽 레일(Home · Library · Artifacts · Workflows · Skills · Tools · Recent) + 작업 영역.
+// GroundLayout.tsx — WithSet 공통 셸. GNB + 왼쪽 레일(Home · Library · Artifacts · Workflows · Skills · Tools · Recent) + 작업 영역.
 
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
@@ -10,12 +10,12 @@ import { useSessions, relDay } from './groundSessions'
 import './ground.css'
 
 const NAV = [
-  { to: '/ground', label: 'Home', icon: Home, end: true },
-  { to: '/ground/library', label: 'Library', icon: Library, end: false },
-  { to: '/ground/artifacts', label: 'Artifacts', icon: FileText, end: false },
-  { to: '/ground/flow', label: 'Workflows', icon: Workflow, end: false },
-  { to: '/ground/skills', label: 'Skills', icon: Sparkles, end: false },
-  { to: '/ground/tools', label: 'Tools', icon: Plug, end: false, soon: true },
+  { to: '/withset', label: 'Home', icon: Home, end: true },
+  { to: '/withset/library', label: 'Library', icon: Library, end: false },
+  { to: '/withset/artifacts', label: 'Artifacts', icon: FileText, end: false },
+  { to: '/withset/flow', label: 'Workflows', icon: Workflow, end: false },
+  { to: '/withset/skills', label: 'Skills', icon: Sparkles, end: false },
+  { to: '/withset/tools', label: 'Tools', icon: Plug, end: false },
 ]
 
 export function GroundLayout({ children, title, bleed = false }: { children: React.ReactNode; title: string; bleed?: boolean }) {
@@ -32,8 +32,8 @@ export function GroundLayout({ children, title, bleed = false }: { children: Rea
     <div className="workspace">
       <GlobalNavBar isDarkMode={isDarkMode} onToggleDarkMode={() => setIsDarkMode(toggleDarkMode())} />
       <div className="gd-shell">
-        <aside className="gd-rail" aria-label="Ground 메뉴">
-          <button type="button" className="gd-rail-ask" onClick={() => { navigate('/ground'); setTimeout(() => window.dispatchEvent(new Event('ground:focus')), 60) }}>
+        <aside className="gd-rail" aria-label="WithSet 메뉴">
+          <button type="button" className="gd-rail-ask" onClick={() => { navigate('/withset'); setTimeout(() => window.dispatchEvent(new Event('ground:focus')), 60) }}>
             <Plus size={15} aria-hidden /><span>New chat</span><kbd>⌘K</kbd>
           </button>
           <nav className="gd-rail-nav">
@@ -43,7 +43,7 @@ export function GroundLayout({ children, title, bleed = false }: { children: Rea
               {sessions.length === 0 && <li className="gd-rail-empty">질문하면 여기에 쌓여요</li>}
               {sessions.slice(0, 20).map(s => (
                 <li key={s.id}>
-                  <NavLink to={`/ground/chat/${s.id}`} className={() => `gd-rail-session ${sessionId === s.id ? 'is-active' : ''}`} title={s.title}>
+                  <NavLink to={`/withset/chat/${s.id}`} className={() => `gd-rail-session ${sessionId === s.id ? 'is-active' : ''}`} title={s.title}>
                     {(() => { const I = s.origin?.type === 'workflow' ? Workflow : s.origin?.type === 'library' ? Library : s.origin?.type === 'artifact' ? FileText : s.origin?.type === 'skill' ? Sparkles : MessageSquare; return <I size={12} aria-hidden className="gd-rail-session-ic" /> })()}
                     <span className="gd-rail-session-t">{s.title}</span>
                     <span className="gd-rail-session-d">{relDay(s.updatedAt)}</span>

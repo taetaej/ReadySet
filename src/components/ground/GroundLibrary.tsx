@@ -20,7 +20,7 @@ export function GroundLibrary() {
   const ask = () => { if (q.trim()) { openDock(q.trim()); setQ('') } }
 
   return (
-    <GroundLayout title="Library - Ground">
+    <GroundLayout title="Library - WithSet">
       <div className="gd-container gd-page">
         <header className="gd-page-head">
           <h1 className="gd-page-title">Library</h1>
@@ -47,7 +47,7 @@ export function GroundLibrary() {
                   {rs.map(r => {
                     const linked = new Set(r.findings.flatMap(f => linksForSource(f.id, viewer).map(l => l.scenarioId)))
                     return (
-                      <button key={r.id} type="button" className="gd-lib-row" onClick={() => navigate(`/ground/library/${r.id}`)}>
+                      <button key={r.id} type="button" className="gd-lib-row" onClick={() => navigate(`/withset/library/${r.id}`)}>
                         <span className="gd-lib-issue">{r.issue}</span>
                         <span className="gd-lib-body">
                           <span className="gd-lib-title">{r.title}{r.sample && <span className="gd-sample">예시</span>}</span>
@@ -69,7 +69,7 @@ export function GroundLibrary() {
             <ul className="gd-news-list">
               {news.map(n => (
                 <li key={n.id}>
-                  <button type="button" onClick={() => navigate(`/ground/library/${n.id}`)}>
+                  <button type="button" onClick={() => navigate(`/withset/library/${n.id}`)}>
                     <span className="gd-news-media">{n.media}</span>
                     <span className="gd-news-body">
                       <span className="gd-news-title">{n.title}{n.audienceLevel === 'internal' && <span className="gd-flag"><Lock size={9} aria-hidden />임직원 전용</span>}</span>
@@ -83,7 +83,7 @@ export function GroundLibrary() {
           </div>
         </div>
       </div>
-      <GroundDock origin={{ type: 'library', id: 'library', label: 'Library', path: '/ground/library' }} />
+      <GroundDock origin={{ type: 'library', id: 'library', label: 'Library', path: '/withset/library' }} />
     </GroundLayout>
   )
 }

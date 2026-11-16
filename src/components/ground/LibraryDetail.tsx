@@ -26,11 +26,11 @@ export function LibraryDetail() {
   const report = findReport(id)
   const news = findNews(id)
   const item = report ?? news
-  const back = () => navigate('/ground/library')
+  const back = () => navigate('/withset/library')
 
   if (!item || !canView(item.audienceLevel, viewer)) {
     return (
-      <GroundLayout title="Ground - ReadySet">
+      <GroundLayout title="WithSet - ReadySet">
         <div className="gd-container gd-page">
           <button type="button" className="gd-back" onClick={back}><ArrowLeft size={14} />Library</button>
           <h1 className="gd-d-title" style={{ marginTop: 28, fontSize: 24 }}>열람할 수 없는 자료예요</h1>
@@ -41,11 +41,11 @@ export function LibraryDetail() {
   }
 
   return (
-    <GroundLayout title={`${item.title} - Ground`}>
+    <GroundLayout title={`${item.title} - WithSet`}>
       <div className="gd-container">
         {report ? <ReportView report={report} onBack={back} /> : <NewsView news={news!} onBack={back} />}
       </div>
-      <GroundDock origin={{ type: 'library', id: item.id, label: report ? `${report.issue} ${report.title}` : news!.title, path: `/ground/library/${item.id}` }} />
+      <GroundDock origin={{ type: 'library', id: item.id, label: report ? `${report.issue} ${report.title}` : news!.title, path: `/withset/library/${item.id}` }} />
     </GroundLayout>
   )
 }

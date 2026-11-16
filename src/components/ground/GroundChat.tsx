@@ -18,9 +18,9 @@ export function GroundChat() {
 
   if (!session) {
     return (
-      <GroundLayout title="대화 - Ground">
+      <GroundLayout title="대화 - WithSet">
         <div className="gd-container gd-page">
-          <button type="button" className="gd-back" onClick={() => navigate('/ground')}><ArrowLeft size={14} />Home</button>
+          <button type="button" className="gd-back" onClick={() => navigate('/withset')}><ArrowLeft size={14} />Home</button>
           <h1 className="gd-d-title" style={{ marginTop: 24, fontSize: 24 }}>대화를 찾을 수 없어요</h1>
           <p className="gd-d-take">삭제되었거나 다른 브라우저에서 만든 대화예요.</p>
         </div>
@@ -36,7 +36,7 @@ export function GroundChat() {
   const scenarios = uniq(cites.filter(c => c.type === 'scenario').map(c => c.id))
 
   return (
-    <GroundLayout title={`${session.title} - Ground`}>
+    <GroundLayout title={`${session.title} - WithSet`}>
       <div className="gd-chat">
         <div className="gd-chat-main">
           <div className="gd-chat-head">
@@ -44,7 +44,7 @@ export function GroundChat() {
             {session.origin && session.origin.type !== 'home' && (
               <button type="button" className="gd-origin" onClick={() => navigate(session.origin!.path)}>{session.origin.label}에서 시작<ArrowRight size={12} className="gd-arrow" aria-hidden /></button>
             )}
-            <button type="button" className="gd-chat-del" aria-label="대화 삭제" title="대화 삭제" onClick={() => { deleteSession(session.id); navigate('/ground') }}><Trash2 size={14} /></button>
+            <button type="button" className="gd-chat-del" aria-label="대화 삭제" title="대화 삭제" onClick={() => { deleteSession(session.id); navigate('/withset') }}><Trash2 size={14} /></button>
           </div>
           <ChatThread key={session.id} session={session} fresh={!!state?.fresh} />
         </div>
@@ -55,7 +55,7 @@ export function GroundChat() {
           {findings.map(id => {
             const f = findFinding(id)!, r = reportOf(id)
             return (
-              <button key={id} type="button" className="gd-drawer-row" onClick={() => navigate(`/ground/library/${r.id}#${id}`)}>
+              <button key={id} type="button" className="gd-drawer-row" onClick={() => navigate(`/withset/library/${r.id}#${id}`)}>
                 <span className="gd-drawer-row-k">{r.issue}{r.sample && <span className="gd-sample">예시</span>}</span>
                 <span className="gd-drawer-row-t">{f.title}</span>
               </button>
@@ -75,7 +75,7 @@ export function GroundChat() {
           {news.map(id => {
             const n = findNews(id)!
             return (
-              <button key={id} type="button" className="gd-drawer-row" onClick={() => navigate(`/ground/library/${id}`)}>
+              <button key={id} type="button" className="gd-drawer-row" onClick={() => navigate(`/withset/library/${id}`)}>
                 <span className="gd-drawer-row-k">{n.media} · {fmtMD(n.effectiveFrom)} 적용{n.audienceLevel === 'internal' && <Lock size={9} aria-label="임직원 전용" style={{ marginLeft: 4 }} />}</span>
                 <span className="gd-drawer-row-t">{n.title}</span>
               </button>

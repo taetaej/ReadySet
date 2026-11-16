@@ -50,13 +50,13 @@ const SKILLS: Skill[] = [
       '배분안 숫자는 공지만으로 바뀌지 않는다는 점을 명시하고, 비교할 대안을 하나 제시',
       '근거는 매체 소식 원문 + 관련 분석 리포트 1건까지',
     ],
-    output: 'Ground 알림 · 메모 1장',
+    output: 'WithSet 알림 · 메모 1장',
     owner: '신지아', share: 'team',
     versions: [
       { v: 2, at: '2026-11-02 18:20', note: '"숫자는 그대로" 문장 필수로', by: '신지아' },
       { v: 1, at: '2026-10-30 16:00', note: '대화에서 저장', by: '신지아' },
     ],
-    source: { label: '메타 릴스 단가 바뀌면 내 시나리오 영향 정리해줘', path: '/ground' },
+    source: { label: '메타 릴스 단가 바뀌면 내 시나리오 영향 정리해줘', path: '/withset' },
   },
   {
     id: 'SK-03', name: '시나리오별 한 줄 요약',
@@ -66,7 +66,7 @@ const SKILLS: Skill[] = [
       '바로 해당 먼저, 참고는 뒤에',
       '연휴 일정처럼 확정 전 값은 "가정"으로 표시',
     ],
-    output: 'Ground 알림',
+    output: 'WithSet 알림',
     owner: '신지아', share: 'private',
     versions: [{ v: 1, at: '2026-11-02 10:30', note: '처음 작성', by: '신지아' }],
   },
@@ -115,7 +115,7 @@ export function skillFromAnswer(question: string, verdict: string, paragraphs: s
     output: '대화 답 · 메모',
     owner: '신지아', share: 'private',
     versions: [{ v: 1, at: new Date().toISOString().slice(0, 16).replace('T', ' '), note: '대화에서 저장', by: '신지아' }],
-    source: { label: question, path: '/ground' },
+    source: { label: question, path: '/withset' },
   }
   SKILL_DRAFTS.set(id, s)
   return s

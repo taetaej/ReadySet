@@ -1,4 +1,4 @@
-// GroundEdgeTab.tsx — SlotBoard 오른쪽 가장자리의 Ground 탭.
+// GroundEdgeTab.tsx — SlotBoard 오른쪽 가장자리의 WithSet 탭.
 // 평소엔 얇은 탭으로 붙어 있고, 누르면 옆에서 패널이 밀려 나온다. 세로 중앙에 둬 우하단 SpinX FAB과 겹치지 않는다.
 
 import { useEffect, useRef, useState } from 'react'
@@ -38,7 +38,7 @@ export function GroundEdgeTab() {
   const ask = (text: string) => {
     if (!text.trim()) return
     const id = createSession(text.trim(), viewer)
-    navigate(`/ground/chat/${id}`, { state: { fresh: true } })
+    navigate(`/withset/chat/${id}`, { state: { fresh: true } })
   }
 
   return (
@@ -47,12 +47,12 @@ export function GroundEdgeTab() {
         ref={tabRef}
         type="button"
         className={`gd-edge ${open ? 'is-hidden' : ''}`}
-        aria-label="Ground 열기"
+        aria-label="WithSet 열기"
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
         <span className="gd-edge-dot" aria-hidden />
-        <span className="gd-edge-text">Ground</span>
+        <span className="gd-edge-text">WithSet</span>
       </button>
 
       <AnimatePresence>
@@ -63,13 +63,13 @@ export function GroundEdgeTab() {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
             />
             <motion.aside
-              key="drawer" className="gd-drawer" role="dialog" aria-label="Ground"
+              key="drawer" className="gd-drawer" role="dialog" aria-label="WithSet"
               initial={reduce ? { opacity: 0 } : { x: '100%' }} animate={reduce ? { opacity: 1 } : { x: 0 }} exit={reduce ? { opacity: 0 } : { x: '100%' }}
               transition={{ duration: 0.5, ease: EASE }}
             >
               <div className="gd-drawer-head">
-                <span className="gd-drawer-brand">Ground</span>
-                <button type="button" className="gd-drawer-open" onClick={() => navigate('/ground')}>전체 열기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
+                <span className="gd-drawer-brand">WithSet</span>
+                <button type="button" className="gd-drawer-open" onClick={() => navigate('/withset')}>전체 열기<ArrowRight size={13} className="gd-arrow" aria-hidden /></button>
                 <button type="button" className="gd-drawer-x" aria-label="닫기" onClick={close}><X size={16} /></button>
               </div>
 
@@ -87,7 +87,7 @@ export function GroundEdgeTab() {
                 {report && (
                   <section className="gd-drawer-sec">
                     <div className="gd-drawer-sec-h">새로 들어온 리포트</div>
-                    <button type="button" className="gd-drawer-report" onClick={() => navigate(`/ground/library/${report.id}`)}>
+                    <button type="button" className="gd-drawer-report" onClick={() => navigate(`/withset/library/${report.id}`)}>
                       <span className="gd-report-meta">{report.series} {report.issue} · {fmtYMD(report.publishedAt)}</span>
                       <span className="gd-drawer-report-t">{report.title}</span>
                       <span className="gd-report-sub">발견 {report.findings.length}건 · {report.publisher}</span>
@@ -102,7 +102,7 @@ export function GroundEdgeTab() {
                       const f = findFinding(l.sourceId)!
                       const s = findScenario(l.scenarioId)!
                       return (
-                        <button key={`${l.sourceId}-${l.scenarioId}`} type="button" className="gd-drawer-row" onClick={() => navigate(`/ground/library/${reportOf(f.id).id}#${f.id}`)}>
+                        <button key={`${l.sourceId}-${l.scenarioId}`} type="button" className="gd-drawer-row" onClick={() => navigate(`/withset/library/${reportOf(f.id).id}#${f.id}`)}>
                           <span className="gd-drawer-row-k">{s.name}</span>
                           <span className="gd-drawer-row-t">{f.title}</span>
                         </button>
@@ -114,7 +114,7 @@ export function GroundEdgeTab() {
                 <section className="gd-drawer-sec">
                   <div className="gd-drawer-sec-h">매체 소식</div>
                   {news.map(n => (
-                    <button key={n.id} type="button" className="gd-drawer-row" onClick={() => navigate(`/ground/library/${n.id}`)}>
+                    <button key={n.id} type="button" className="gd-drawer-row" onClick={() => navigate(`/withset/library/${n.id}`)}>
                       <span className="gd-drawer-row-k">{n.media} · {fmtMD(n.effectiveFrom)} 적용</span>
                       <span className="gd-drawer-row-t">{n.title}</span>
                     </button>

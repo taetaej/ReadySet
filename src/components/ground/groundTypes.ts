@@ -1,4 +1,4 @@
-// groundTypes.ts — Ground(가칭) 라이브러리 · 인사이트 맵 · 대화 세션 타입
+// groundTypes.ts — WithSet(가칭) 라이브러리 · 인사이트 맵 · 대화 세션 타입
 
 export type AudienceLevel = 'public' | 'internal'
 export type Viewer = 'internal' | 'external'
@@ -135,7 +135,7 @@ export interface GroundAnswer {
   followUps: string[]
   /** 실행이 필요한 요청이면 SpinX가 거친 단계. "워크플로우로 저장"의 재료 */
   /** proposal = SpinX가 제안만 한 단계(지금 실행 전) · done = 이미 실행한 단계(기록이 자동으로 남음) */
-  workflow?: { mode: 'proposal' | 'done'; name: string; steps: { kind: import('./flowData').FlowNodeKind; title: string; result: string }[]; templateId?: string }
+  workflow?: { mode: 'proposal' | 'done'; name: string; steps: import('./flowData').FlowStep[]; templateId?: string; artifactKind?: string; skill?: string }
   patch?: FlowPatch
 }
 

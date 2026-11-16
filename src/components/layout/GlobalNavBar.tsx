@@ -2,6 +2,7 @@ import { Bell, ChevronDown, Sun, Moon, LogOut, Info, TrendingUp, Database, Dolla
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Avatar } from '../common/Avatar'
+import { SpinXOrb } from '../spinx/SpinXOrb'
 import '../ground/ground.css'
 import { GradeCard } from './GradeCard'
 
@@ -13,15 +14,49 @@ interface GlobalNavBarProps {
 export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const isGround = location.pathname.startsWith('/ground')
+  const isGround = location.pathname.startsWith('/withset')
+  const [brandHover, setBrandHover] = useState(false)
+  // 모드 전환 — 페이지가 바뀌면 GNB가 새로 그려지므로, 직전 모드를 기억해 두었다가 새 화면에서 굴러가게 한다
+  const actualMode = isGround ? 'with' : 'ready'
+  const [shownMode, setShownMode] = useState<'with' | 'ready'>(() => {
+    const from = sessionStorage.getItem('brand-from')
+    return (from === 'with' || from === 'ready') && from !== actualMode ? from : actualMode
+  })
+  useEffect(() => {
+    sessionStorage.removeItem('brand-from')
+    if (shownMode === actualMode) return
+    let id = requestAnimationFrame(() => { id = requestAnimationFrame(() => setShownMode(actualMode)) })
+    return () => cancelAnimationFrame(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actualMode])
+  // WithSet 모드 표시 — 오브와 강조색을 WithSet 컬러로 (바탕은 그대로)
+  useEffect(() => { document.body.classList.toggle('ws-with', actualMode === 'with') }, [actualMode])
+  const switchMode = () => {
+    sessionStorage.setItem('brand-from', actualMode)
+    setBrandHover(false)
+    navigate(isGround ? '/slotboard' : '/withset')
+  }
+  // SpinX가 답하는 중이면 로고 옆 오브도 active
+  const [spinxBusy, setSpinxBusy] = useState(false)
+  useEffect(() => {
+    const on = (e: Event) => setSpinxBusy(!!(e as CustomEvent<boolean>).detail)
+    window.addEventListener('spinx:busy', on)
+    return () => window.removeEventListener('spinx:busy', on)
+  }, [])
 
   // ⌘K / Ctrl+K — 어디서든 전역 SpinX로. 이미 그 화면이면 입력창에 포커스
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '.') {
+        e.preventDefault()
+        sessionStorage.setItem('brand-from', location.pathname.startsWith('/withset') ? 'with' : 'ready')
+        navigate(location.pathname.startsWith('/withset') ? '/slotboard' : '/withset')
+        return
+      }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        if (location.pathname === '/ground' || location.pathname.startsWith('/ground/chat/')) window.dispatchEvent(new Event('ground:focus'))
-        else navigate('/ground')
+        if (location.pathname === '/withset' || location.pathname.startsWith('/withset/chat/')) window.dispatchEvent(new Event('ground:focus'))
+        else navigate('/withset')
       }
     }
     window.addEventListener('keydown', onKey)
@@ -629,47 +664,34 @@ export function GlobalNavBar({ isDarkMode, onToggleDarkMode }: GlobalNavBarProps
         padding: '0 24px',
         position: 'relative'
       }}>
-        {/* 왼쪽 로고 영역 */}
+        {/* 왼쪽 — 로고가 곧 모드 스위치: ReadySet(직접 다루는 곳) ⇄ WithSet(SpinX와 함께 일하는 곳).
+            "Set"은 고정, 앞 단어만 굴러서 바뀐다. hover하면 다른 단어가 아래에서 살짝 비친다. ⌘. 로도 전환 */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <a 
-            href="/slotboard"
-            style={{
-              textDecoration: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center'
-            }}
+          <a
+            href={isGround ? '/slotboard' : '/withset'}
+            className="gd-brand"
+            onMouseEnter={() => setBrandHover(true)}
+            onMouseLeave={() => setBrandHover(false)}
+            onFocus={() => setBrandHover(true)}
+            onBlur={() => setBrandHover(false)}
+            aria-label={isGround ? 'ReadySet으로 전환' : 'WithSet으로 전환'}
+            onClick={(e) => { e.preventDefault(); switchMode() }}
           >
-            <img 
-              src={isDarkMode ? '/readyset_logo_dark_white.svg' : '/readyset_logo_light_black.svg'}
-              alt="ReadySet"
-              style={{
-                height: '36px',
-                width: 'auto',
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.7'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1'
-              }}
-            />
+            <span className="gd-brand-stack" data-mode={shownMode}>
+              {/* 앞 단어 창 — Ready / With가 위아래로 구른다 */}
+              <span className="gd-brand-pre" aria-hidden>
+                <img className="gd-brand-logo gd-brand-ready" src={isDarkMode ? '/readyset_logo_tight_dark_white.svg' : '/readyset_logo_tight_light_black.svg'} alt="" />
+                <img className="gd-brand-logo gd-brand-with" src={isDarkMode ? '/withset_logo_dark_white.svg' : '/withset_logo_light_black.svg'} alt="" />
+              </span>
+              {/* "Set" — 두 로고에서 같은 자리라 하나만 그대로 둔다 */}
+              <img className="gd-brand-logo gd-brand-set" src={isDarkMode ? '/readyset_logo_tight_dark_white.svg' : '/readyset_logo_tight_light_black.svg'} alt="" aria-hidden />
+              <span className="gd-brand-orb" aria-hidden>
+                <SpinXOrb size={19} motion={spinxBusy ? 'active' : brandHover ? 'hover' : 'idle'} title="" />
+              </span>
+              <span className="gd-sr">{isGround ? 'WithSet' : 'ReadySet'}</span>
+            </span>
+            <span className="gd-brand-tip" role="tooltip">{isGround ? 'ReadySet' : 'WithSet'}으로 전환<kbd>⌘.</kbd></span>
           </a>
-
-          {/* 공간 전환 — SlotBoard(작업) | Ground(지식 · SpinX). 로고 바로 옆 토글 */}
-          <nav className="gd-space-switch" aria-label="공간 전환">
-            {[{ to: '/slotboard', label: 'SlotBoard', on: !isGround }, { to: '/ground', label: 'Ground', on: isGround }].map(t => (
-              <a
-                key={t.to}
-                href={t.to}
-                aria-current={t.on ? 'page' : undefined}
-                onClick={(e) => { e.preventDefault(); navigate(t.to) }}
-              >
-                {t.label}
-              </a>
-            ))}
-          </nav>
         </div>
 
         {/* 오른쪽 프로필 영역 */}

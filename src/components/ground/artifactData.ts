@@ -4,7 +4,7 @@
 
 import { DRAFTS, FLOWS, fmtRunAt, type Flow } from './flowData'
 
-export type ArtifactKind = '점검 메모' | '제안셋' | '알림 요약' | '배분안 요약' | '광고주 설명 자료'
+export type ArtifactKind = '점검 메모' | '제안셋' | '알림 요약' | '배분안 요약' | '광고주 설명 자료' | '성과 비교'
 export type ShareLevel = 'private' | 'team' | 'client'
 export const SHARE_LABEL: Record<ShareLevel, string> = { private: '나만 보기', team: '팀 공유', client: '광고주 공유' }
 
@@ -27,7 +27,7 @@ export interface Artifact {
 const fromFlow = (f: Flow, p: Partial<Artifact> & Pick<Artifact, 'kind' | 'share'>): Artifact => ({
   id: `AR-${f.id}`,
   title: f.output!.title,
-  source: { type: 'workflow', label: f.name, path: `/ground/flow/${f.id}?tab=runs` },
+  source: { type: 'workflow', label: f.name, path: `/withset/flow/${f.id}?tab=runs` },
   scenarios: [],
   versions: f.runs.filter(r => r.status === 'success').map((r, i, a) => ({ v: a.length - i, at: r.at, note: r.summary })),
   conclusion: f.output!.conclusion,
@@ -44,7 +44,7 @@ const STATIC: Artifact[] = [
   fromFlow(flow('FL-02'), { kind: '제안셋', share: 'client', slot: '하이트진로 2030 캠페인', scenarios: ['S-207'], skill: 'Reach Caster 결과 광고주 대상 설명 자료' }),
   {
     id: 'AR-05', title: '아이오닉 6 4분기 도달 예측 — 광고주 설명 자료', kind: '광고주 설명 자료',
-    source: { type: 'chat', label: '아이오닉 6 도달 예측 설명 자료 만들어줘', path: '/ground' },
+    source: { type: 'chat', label: '아이오닉 6 도달 예측 설명 자료 만들어줘', path: '/withset' },
     slot: '현대 아이오닉 6 마케팅', scenarios: ['S-208'], share: 'client', skill: 'Reach Caster 결과 광고주 대상 설명 자료',
     versions: [
       { v: 2, at: '2026-11-03 11:20', note: '기간 효과 강조로 다시 작성' },
@@ -61,7 +61,7 @@ const STATIC: Artifact[] = [
   fromFlow(flow('FL-03'), { kind: '알림 요약', share: 'private', scenarios: ['S-201', 'S-202', 'S-203'] }),
   {
     id: 'AR-06', title: '설 시즌 연휴 예산 검토 메모', kind: '점검 메모',
-    source: { type: 'chat', label: '설 시즌 캠페인도 연휴 예산을 따로 짜야 해?', path: '/ground' },
+    source: { type: 'chat', label: '설 시즌 캠페인도 연휴 예산을 따로 짜야 해?', path: '/withset' },
     slot: 'LG 올레드 TV 런칭 캠페인', scenarios: ['S-204', 'S-205'], share: 'team', skill: '연휴 예산 검토',
     versions: [{ v: 1, at: '2026-11-02 17:45', note: '처음 작성' }],
     conclusion: '2027 설은 단기 연휴라 평시 계획을 그대로 써도 돼요.',
@@ -76,7 +76,7 @@ const STATIC: Artifact[] = [
 /** 대화에서 실행한 워크플로우도 Artifacts로 (최신이 위) */
 export function listArtifacts(): Artifact[] {
   const drafts = [...DRAFTS.values()].filter(f => f.runs.length && f.output?.conclusion).reverse()
-    .map(f => fromFlow({ ...f, output: { ...f.output!, title: f.name } }, { kind: f.nodes.some(n => n.kind === 'scenarioCreate') ? '배분안 요약' : '점검 메모', share: 'private' }))
+    .map(f => fromFlow({ ...f, output: { ...f.output!, title: f.name } }, { kind: (f.artifactKind as ArtifactKind | undefined) ?? (f.nodes.some(n => n.kind === 'scenarioCreate') ? '배분안 요약' : '점검 메모'), share: 'private', skill: f.skill }))
   return [...drafts, ...STATIC].sort((a, b) => b.versions[0].at.localeCompare(a.versions[0].at))
 }
 export const findArtifact = (id: string) => listArtifacts().find(a => a.id === id)

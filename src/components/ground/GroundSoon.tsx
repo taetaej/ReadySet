@@ -26,7 +26,7 @@ const COPY = {
 export function GroundSoon({ kind }: { kind: 'flow' | 'tools' }) {
   const c = COPY[kind]
   return (
-    <GroundLayout title={`${c.title} - Ground`}>
+    <GroundLayout title={`${c.title} - WithSet`}>
       <div className="gd-container gd-page gd-soon">
         <h1 className="gd-page-title">{c.title}<span className="gd-rail-soon">Soon</span></h1>
         <p className="gd-page-sub">{c.lede}</p>
