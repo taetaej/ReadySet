@@ -376,7 +376,7 @@ export function DocsLayout({ isDarkMode: propDarkMode, onToggleDarkMode: propTog
         const colors: Record<string, string> = {
           'NEW': 'background:hsl(var(--primary));color:hsl(var(--primary-foreground))',
           'IMPROVED': 'background:hsl(var(--foreground)/0.1);color:hsl(var(--foreground))',
-          'FIXED': 'background:hsl(142 76% 36%/0.15);color:hsl(142 76% 36%)',
+          'FIXED': 'background:transparent;color:hsl(var(--muted-foreground));box-shadow:inset 0 0 0 1px hsl(var(--muted-foreground)/0.5)',
           'DEPRECATED': 'background:hsl(var(--muted));color:hsl(var(--muted-foreground))'
         }
         return `<span class="docs-chip" style="${colors[tag]}">${tag}</span>`
