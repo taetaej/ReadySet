@@ -8,6 +8,7 @@ import { maskEmail } from '../../utils/maskEmail'
 import { SpinXPanel } from '../spinx/SpinXPanel'
 import { SpinXSymbol } from '../spinx/SpinXSymbol'
 import { ActionDock, type DockAction } from '../common/ActionDock'
+import { AnalysisBasisBar } from '../common/AnalysisBasisBar'
 import { KPI_LABELS } from './types'
 import { getBOResult, KPI_META } from './resultSampleData'
 import { BOResultTable } from './BOResultTable'
@@ -369,10 +370,32 @@ export function BOResult() {
             <h3 className="text-[20px] font-medium font-[Paperlogy,sans-serif] m-0 mb-2 text-[hsl(var(--foreground))]">
               Budget Allocation Detail
             </h3>
-            <p className="text-[13px] text-[hsl(var(--muted-foreground))] mb-5">
-              매체·상품별 예산 배분과 예상 성과를 상세하게 확인할 수 있습니다.
-              {result.allocations.some(a => a.isFixed) && ' 순수 최적화 결과 보기에서는 값 아래에 사용자가 잠근 설정값 대비 증감(↑ 증가 · ↓ 감소)을 함께 표시합니다.'}
-            </p>
+            <div className="flex items-end justify-between gap-6 mb-3">
+              <p className="text-[13px] text-[hsl(var(--muted-foreground))] m-0 min-w-0">
+                매체·상품별 예산 배분과 예상 성과를 상세하게 확인할 수 있습니다.
+                {result.allocations.some(a => a.isFixed) && ' 순수 최적화 결과 보기에서는 값 아래에 사용자가 잠근 설정값 대비 증감(↑ 증가 · ↓ 감소)을 함께 표시합니다.'}
+              </p>
+              <AnalysisBasisBar
+                model="budgetopt"
+                dataSource={
+                  <div className="font-[Paperlogy,sans-serif] text-[12px] leading-[1.6]">
+                    <div className="text-[13px] font-semibold mb-2">데이터 출처</div>
+                    <div className="mb-[10px]">
+                      <div className="font-semibold mb-1">학습 데이터</div>
+                      <div className="text-[hsl(var(--muted-foreground))]">
+                        업종별로 CJ 메조미디어가 실제 집행한 캠페인 성과 데이터를 학습합니다. 매체 배분은 Google Meridian 미디어믹스 모델이, 상품 배분은 GBRT 예측 모델이 맡으며, 이 데이터에서 매체별 반응 곡선(효율 체감·포화)을 추정합니다.
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-semibold mb-1">외생변수</div>
+                      <div className="text-[hsl(var(--muted-foreground))]">
+                        매체 효과가 아닌 외부 요인은 학습 단계에서 변수로 분리해, 성과 변동이 매체 효과로 섞이지 않게 합니다. 현재 법정 공휴일 전체를 반영하며, 날짜는 공공데이터포털 특일정보 API(한국천문연구원) 기준입니다.
+                      </div>
+                    </div>
+                  </div>
+                }
+              />
+            </div>
             <BOResultTable
               allocations={resultView === 'locked' ? result.allocations : (result.pureAllocations || result.allocations)}
               lockedAllocations={result.allocations}
