@@ -1,4 +1,15 @@
 import type { DocSection } from '../docsData'
+import { MODEL_VERSIONS as M } from '../../common/modelVersion'
+// TODO(배포 전 교체): 모델 업데이트 페이지의 성능 수치는 구조 확인용 샘플입니다. 실제 검증 값으로 교체하세요.
+const SAMPLE_METRICS = {
+  budgetoptMape: '8.4%',
+  budgetoptKpiGain: '12%',
+  budgetoptIndustries: '24개',
+  reachcastMape: '6.1%',
+  reachcastInventories: '180개',
+  axiomMatchRate: '99.2%'
+}
+const S = SAMPLE_METRICS
 
 export const releaseNotesSection: DocSection = {
   id: 'release-notes',
@@ -6,9 +17,9 @@ export const releaseNotesSection: DocSection = {
   pages: [
     {
       id: 'release-notes-latest',
-      title: '최신 업데이트',
+      title: '플랫폼 업데이트',
       slug: 'release-notes-latest',
-      updatedAt: '2026-11-12',
+      updatedAt: '2026-11-30',
       content: `# Release Notes
 
 ## v1.3.0 (2026-11-30)
@@ -175,6 +186,27 @@ ReadySet 플랫폼 정식 오픈
 - \`NEW\` Floating Alert Bar (광고주 + 알림 + 등급)
 - \`NEW\` 다크모드 지원
 - \`NEW\` Gitbook 스타일 사용자 가이드 (/docs)`
+    },
+    {
+      id: 'release-notes-models',
+      title: '모델 업데이트',
+      slug: 'release-notes-models',
+      updatedAt: '2026-11-30',
+      content: `# Model Updates
+| 모델 | 역할 | 사용되는 솔루션 | 버전 | 정기 재학습 |
+|---|---|---|---|---|
+| ${M.axiom.name} | SpinX 답변의 정확성 검증 | SpinX | ${M.axiom.version} | 매월 15일 |
+| ${M.budgetopt.name} | 매체·상품별 최적 예산 배분 | BudgetOpt 2.0 | ${M.budgetopt.version} | 매월 15일 |
+| ${M.reachcaster.name} | 노출 조건별 도달·빈도 예측 | Reach Caster | ${M.reachcaster.version} | 매월 15일 |
+## ${M.axiom.name} ${M.axiom.version} (2026-10-26)
+SpinX 답변 정확성 검증 모델 최초 공개
+SpinX가 내놓는 답변의 수치와 주장을 결과 데이터와 하나하나 대조해, 근거가 없거나 어긋나는 내용은 답변에서 걸러냅니다. 검증 테스트에서 답변 속 수치의 ${S.axiomMatchRate}가 원본 데이터와 일치했습니다.
+## ${M.budgetopt.name} ${M.budgetopt.version} (2026-10-26)
+업종별 특화 예산 배분 최적화 모델 최초 공개
+수만 개의 예산 조합을 시뮬레이션해 매체 우선 배분과 효율 포화 회피 원리로 KPI 성과가 가장 큰 배분안을 찾습니다. ${S.budgetoptIndustries} 업종의 집행 데이터로 학습해 업종마다 다른 반응 곡선을 반영하며, 예측 대비 실적 오차(MAPE)는 ${S.budgetoptMape}, 업종 평균 대비 KPI는 평균 ${S.budgetoptKpiGain} 개선되었습니다.
+## ${M.reachcaster.name} ${M.reachcaster.version} (2026-06-29)
+도달·빈도 예측 모델 최초 공개
+노출 조건에 따라 도달과 빈도가 어떻게 달라지는지 예측합니다. 매체 간 중복을 제거한 통합 순도달과 리치 커브를 산출하며, ${S.reachcastInventories} 지면을 대상으로 한 검증에서 도달률 예측 오차(MAPE)는 ${S.reachcastMape}였습니다.`
     }
   ]
 }
