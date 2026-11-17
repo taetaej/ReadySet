@@ -24,13 +24,9 @@ export const releaseNotesSection: DocSection = {
 
 ## v1.3.0 (2026-11-30)
 
-ReadySet 플랫폼 DataShot 광고상품 기준 추출 지원 및 솔루션 간 연계 강화
+ReadySet 플랫폼 DataShot 광고상품 기준 추출 지원, 결과 화면 모델 정보 표시 및 솔루션 간 연계 강화
 
 ---
-
-### Reach Caster
-
-- \`NEW\` DataShot 연계 — 시나리오 결과에서 업종·매체·광고상품을 그대로 가져가 DataShot 데이터셋 생성을 바로 시작
 
 ### DataShot
 
@@ -38,7 +34,19 @@ ReadySet 플랫폼 DataShot 광고상품 기준 추출 지원 및 솔루션 간 
 - \`NEW\` Benchmark Analytics — 광고상품 기준 결과에서 업종의 광고비 배분과 매체·상품별 효율을 차트로 확인
 - \`FIXED\` NAVER 보장형 DA 지표 데이터 오류 수정 — 광고비와 집행금액 데이터가 서로 바뀌어 표시되던 문제 해결
 
+### BudgetOpt 2.0
 
+- \`NEW\` 모델 정보 표시 — 결과 페이지에서 이 결과를 산출한 모델의 버전·학습 시점과 데이터 출처 확인
+
+### Reach Caster
+
+- \`NEW\` DataShot 연계 — 시나리오 결과에서 업종·매체·광고상품을 그대로 가져가 DataShot 데이터셋 생성을 바로 시작
+- \`NEW\` 모델 정보 표시 — 결과 페이지에서 이 결과를 산출한 모델의 버전·학습 시점 확인
+- \`IMPROVED\` 결과 테이블 안내 정리 — 모델·데이터 출처·모집단을 한 줄로 모아 표시
+
+### SpinX
+
+- \`IMPROVED\` 진입점 개선 — 결과 화면 하단 독(Dock)에서 SpinX 질문과 시나리오 비교·업종 데이터 뽑기 같은 연계 기능을 한곳에서 이용
 
 ## v1.2.0 (2026-10-26)
 
