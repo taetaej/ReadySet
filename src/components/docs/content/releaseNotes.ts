@@ -201,20 +201,24 @@ ReadySet 플랫폼 정식 오픈
       slug: 'release-notes-models',
       updatedAt: '2026-11-30',
       content: `# Model Updates
-| 모델 | 역할 | 사용되는 솔루션 | 버전 | 정기 재학습 |
+| 모델 | 모델 버전 | 역할 | 사용되는 솔루션 | 정기 재학습 |
 |---|---|---|---|---|
-| ${M.axiom.name} | SpinX 답변의 정확성 검증 | SpinX | ${M.axiom.version} | 매월 15일 |
-| ${M.budgetopt.name} | 매체·상품별 최적 예산 배분 | BudgetOpt 2.0 | ${M.budgetopt.version} | 매월 15일 |
-| ${M.reachcaster.name} | 노출 조건별 도달·빈도 예측 | Reach Caster | ${M.reachcaster.version} | 매월 15일 |
+| ${M.axiom.name} | ${M.axiom.version} | SpinX 답변의 정확성 검증 | SpinX | - |
+| ${M.budgetopt.name} | ${M.budgetopt.version} | 매체·상품별 최적 예산 배분 | BudgetOpt 2.0 | 매월 15일 |
+| ${M.reachcaster.name} | ${M.reachcaster.version} | 노출 조건별 도달·빈도 예측 | Reach Caster | 매월 15일 |
 ## ${M.axiom.name} ${M.axiom.version} (2026-10-26)
 SpinX 답변 정확성 검증 모델 최초 공개
 SpinX가 내놓는 답변의 수치와 주장을 결과 데이터와 하나하나 대조해, 근거가 없거나 어긋나는 내용은 답변에서 걸러냅니다. 검증 테스트에서 답변 속 수치의 ${S.axiomMatchRate}가 원본 데이터와 일치했습니다.
 ## ${M.budgetopt.name} ${M.budgetopt.version} (2026-10-26)
 업종별 특화 예산 배분 최적화 모델 최초 공개
-수만 개의 예산 조합을 시뮬레이션해 매체 우선 배분과 효율 포화 회피 원리로 KPI 성과가 가장 큰 배분안을 찾습니다. ${S.budgetoptIndustries} 업종의 집행 데이터로 학습해 업종마다 다른 반응 곡선을 반영하며, 예측 대비 실적 오차(MAPE)는 ${S.budgetoptMape}, 업종 평균 대비 KPI는 평균 ${S.budgetoptKpiGain} 개선되었습니다.
+${M.budgetopt.name}는 BudgetOpt 2.0의 예산 배분 최적화 모델입니다. 선택한 KPI 목표와 총 예산을 기준으로 수만 개의 예산 조합을 시뮬레이션해, 매체·상품별로 성과가 가장 큰 배분안과 예상 성과를 산출합니다.
+업종별로 CJ 메조미디어가 실제 집행한 캠페인 성과 데이터를 학습해 업종마다 다른 매체 반응 곡선(효율 체감·포화)을 반영합니다. 매체 배분은 Google Meridian 미디어믹스 모델이, 상품 배분은 GBRT 예측 모델이 맡아 매체에서 상품 순서의 2단계로 최적화합니다. 매체 우선 배분과 효율 포화 회피 원리에 따라, 포화 지점을 넘지 않는 선에서 증액 효율이 높은 매체로 예산을 모읍니다.
+법정 공휴일처럼 매체 효과가 아닌 요인은 학습 단계에서 변수로 분리해 연휴 성과 변동이 매체 효과로 섞이지 않게 합니다. 매월 15일에 전월 데이터를 추가 학습하며, 검증에서 예측 대비 실적 오차(MAPE)는 ${S.budgetoptMape}였고 ${S.budgetoptIndustries} 업종 기준 업종 평균 대비 KPI가 평균 ${S.budgetoptKpiGain} 개선되었습니다.
 ## ${M.reachcaster.name} ${M.reachcaster.version} (2026-06-29)
 도달·빈도 예측 모델 최초 공개
-노출 조건에 따라 도달과 빈도가 어떻게 달라지는지 예측합니다. 매체 간 중복을 제거한 통합 순도달과 리치 커브를 산출하며, ${S.reachcastInventories} 지면을 대상으로 한 검증에서 도달률 예측 오차(MAPE)는 ${S.reachcastMape}였습니다.`
+${M.reachcaster.name}는 Reach Caster의 도달·빈도 예측 모델입니다. 노출 조건을 입력하면 타겟별 도달(Reach), 평균 빈도, 리치 커브를 예측하고, 노출을 늘려도 도달이 더 늘지 않는 상한(Ceiling)까지 반영합니다.
+CJ 메조미디어가 실제 집행한 캠페인 데이터를 기반으로, Digital은 매체 간 중복 이용률과 매체 리텐션 데이터를 적용한 GBRT 기반 모델이 도달률을 예측합니다(모바일 앱 환경 한정). TVC는 방송통계포털의 시청점유율, 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 타겟별 도달률을 산출합니다.
+Digital과 TVC 간 중복 시청자는 자체 확률 모델로 보정해 순 도달(Net Reach)로 통합하며, 봇 트래픽·비뷰어블 노출 같은 허수는 유효 노출 보정으로 걷어냅니다. 매월 15일에 전월 데이터를 추가 학습하며, ${S.reachcastInventories} 지면을 대상으로 한 검증에서 도달률 예측 오차(MAPE)는 ${S.reachcastMape}였습니다.`
     }
   ]
 }
