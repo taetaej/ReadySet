@@ -11,8 +11,8 @@ export interface ModelVersionInfo {
 }
 
 export const MODEL_VERSIONS = {
-  budgetopt: { name: 'Opti', version: 'v2.0', dataBasis: '2026.10' },
-  reachcaster: { name: 'Predi', version: 'v2.0', dataBasis: '2026.10' },
+  budgetopt: { name: 'Optis', version: 'v2.0', dataBasis: '2026.10' },
+  reachcaster: { name: 'Priori', version: 'v2.0', dataBasis: '2026.10' },
   axiom: { name: 'AXiom', version: 'v1.0', dataBasis: '2026.10' }
 } as const satisfies Record<string, ModelVersionInfo>
 

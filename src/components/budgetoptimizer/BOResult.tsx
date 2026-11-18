@@ -383,7 +383,7 @@ export function BOResult() {
                     <div className="mb-[10px]">
                       <div className="font-semibold mb-1">학습 데이터</div>
                       <div className="text-[hsl(var(--muted-foreground))]">
-                        업종별로 CJ 메조미디어가 실제 집행한 캠페인 성과 데이터를 학습합니다. 매체 배분은 Google Meridian 미디어믹스 모델이, 상품 배분은 GBRT 예측 모델이 맡으며, 이 데이터에서 매체별 반응 곡선(효율 체감·포화)을 추정합니다.
+                        업종별로 CJ 메조미디어가 실제 집행한 캠페인 성과 데이터를 학습합니다. 이 데이터에서 Google Meridian 기반 미디어믹스 방식으로 매체별 반응 곡선(효율 체감·포화)을, GBRT 예측으로 상품별 반응을 추정합니다.
                       </div>
                     </div>
                     <div>
