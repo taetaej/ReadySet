@@ -1,15 +1,5 @@
 import type { DocSection } from '../docsData'
 import { MODEL_VERSIONS as M } from '../../common/modelVersion'
-// TODO(배포 전 교체): 모델 업데이트 페이지의 성능 수치는 구조 확인용 샘플입니다. 실제 검증 값으로 교체하세요.
-const SAMPLE_METRICS = {
-  budgetoptMape: '8.4%',
-  budgetoptKpiGain: '12%',
-  budgetoptIndustries: '24개',
-  reachcastMape: '6.1%',
-  reachcastInventories: '180개',
-  axiomMatchRate: '99.2%'
-}
-const S = SAMPLE_METRICS
 
 export const releaseNotesSection: DocSection = {
   id: 'release-notes',
@@ -201,20 +191,26 @@ ReadySet 플랫폼 정식 오픈
       slug: 'release-notes-models',
       updatedAt: '2026-11-30',
       content: `# Model Updates
-| 모델 | 역할 | 사용되는 솔루션 | 버전 | 정기 재학습 |
+| 모델 | 모델 버전 | 역할 | 사용되는 솔루션 | 정기 재학습 |
 |---|---|---|---|---|
-| ${M.axiom.name} | SpinX 답변의 정확성 검증 | SpinX | ${M.axiom.version} | 매월 15일 |
-| ${M.budgetopt.name} | 매체·상품별 최적 예산 배분 | BudgetOpt 2.0 | ${M.budgetopt.version} | 매월 15일 |
-| ${M.reachcaster.name} | 노출 조건별 도달·빈도 예측 | Reach Caster | ${M.reachcaster.version} | 매월 15일 |
+| ${M.axiom.name} | ${M.axiom.version} | SpinX 답변의 정확성 검증 | SpinX | - |
+| ${M.budgetopt.name} | ${M.budgetopt.version} | 매체·상품별 최적 예산 배분 | BudgetOpt 2.0 | 매월 15일 |
+| ${M.reachcaster.name} | ${M.reachcaster.version} | 노출·클릭·조회·도달 예측 | Reach Caster, BudgetOpt 2.0 | 매월 15일 |
 ## ${M.axiom.name} ${M.axiom.version} (2026-10-26)
 SpinX 답변 정확성 검증 모델 최초 공개
-SpinX가 내놓는 답변의 수치와 주장을 결과 데이터와 하나하나 대조해, 근거가 없거나 어긋나는 내용은 답변에서 걸러냅니다. 검증 테스트에서 답변 속 수치의 ${S.axiomMatchRate}가 원본 데이터와 일치했습니다.
+${M.axiom.name}은 SpinX 답변의 정확성을 검증하는 모델입니다. 답변을 근거 데이터와 사용자의 요청에 대조해 수치와 주장이 데이터와 일치하는지, 요청한 형식과 관점을 지켰는지 판정하며, 현재 DataShot의 차트 해석, BudgetOpt 2.0의 차트 해석과 시나리오 요약에 적용되어 있습니다.
+답변을 만드는 모델과는 별도의 판정 모델이 기준별로 채점합니다. 수치와 주장이 근거 데이터에 있거나 합계·비율·증감률·순위처럼 데이터에서 직접 계산되는지, 요청한 과업과 관점을 따르는지가 핵심 기준이며, 외부 정보를 사실처럼 끌어오거나 데이터가 보장하지 않는 단정·인과 주장도 함께 확인합니다. 불합격 판정은 재검토 모델이 근거 데이터와 다시 대조해 오판을 줄입니다.
+화면에 보여 주기 전에 검증하는 답변은 불합격 사유를 반영해 다시 생성한 뒤 전달하고, 실시간 대화처럼 이미 전달된 답변은 사후에 판정해 품질을 점검합니다. 검증 테스트에서 ${M.axiom.name}의 판정은 정답 판정과 99.2% 일치했고, 차트 해석 2,752건에 적용했을 때 SpinX 1차 답변의 오류율은 2.0%에서 0.22%로 줄어 최종 품질 통과율 99.78%를 기록했습니다. 불합격 답변의 89.1%는 사유를 반영해 다시 생성하면 통과했습니다.
 ## ${M.budgetopt.name} ${M.budgetopt.version} (2026-10-26)
-업종별 특화 예산 배분 최적화 모델 최초 공개
-수만 개의 예산 조합을 시뮬레이션해 매체 우선 배분과 효율 포화 회피 원리로 KPI 성과가 가장 큰 배분안을 찾습니다. ${S.budgetoptIndustries} 업종의 집행 데이터로 학습해 업종마다 다른 반응 곡선을 반영하며, 예측 대비 실적 오차(MAPE)는 ${S.budgetoptMape}, 업종 평균 대비 KPI는 평균 ${S.budgetoptKpiGain} 개선되었습니다.
+예산 최적화 모델 최초 공개
+${M.budgetopt.name}는 Google Meridian을 기반으로 한 BudgetOpt 2.0의 예산 최적화 모델입니다. 총 예산과 KPI 목표(노출·클릭·조회·도달)를 정하면 어느 매체와 상품에 얼마를 넣어야 성과가 가장 커지는지, 그때의 예상 성과가 얼마인지를 제시합니다. 예산을 더 넣어도 성과가 늘지 않는 지점까지 계산하고, 금액을 미리 정해 둔 상품은 그대로 지킨 채 남은 예산만 최적화합니다.
+CJ 메조미디어가 실제로 집행한 캠페인의 주 단위 성과로 학습했고, 22개 업종과 전체 업종을 따로 학습해 같은 매체도 업종마다 다르게 반응하는 점까지 반영합니다. 공휴일을 비롯한 외생변수도 함께 반영해 연휴처럼 매체와 무관한 성과 변동을 걷어내고, 매체가 만든 순수한 성과만으로 예산을 판단합니다.
+검증 테스트에서 ${M.budgetopt.name}의 학습 모델 92개는 모두 독립적으로 여러 번 학습해도 같은 결과에 도달하는 안정성 검사를 통과했고, 추가 예산을 넣었을 때 성과가 가장 많이 오를 매체는 수천 가지 경우의 96%에서 같은 매체로 나왔습니다. 매월 전월 데이터를 더해 다시 학습하며, 검증을 통과한 모델만 매월 15일에 반영합니다.
 ## ${M.reachcaster.name} ${M.reachcaster.version} (2026-06-29)
-도달·빈도 예측 모델 최초 공개
-노출 조건에 따라 도달과 빈도가 어떻게 달라지는지 예측합니다. 매체 간 중복을 제거한 통합 순도달과 리치 커브를 산출하며, ${S.reachcastInventories} 지면을 대상으로 한 검증에서 도달률 예측 오차(MAPE)는 ${S.reachcastMape}였습니다.`
+광고 성과(노출·클릭·조회·도달) 예측 모델 최초 공개
+${M.reachcaster.name}는 Reach Caster에서 도달을, BudgetOpt 2.0에서 캠페인의 주요 KPI(노출·클릭·조회·도달)를 예측하는 모델입니다. 집행 전에 이 조건이면 얼마나 성과가 나올지를 미리 보여 줍니다.
+CJ 메조미디어가 실제로 집행한 캠페인 데이터로 학습했고, 업종별 특성을 반영한 22개 모델로 구성되어 같은 조건도 업종마다 다르게 예측합니다. 학습 엔진으로는 GBRT(Gradient Boosting Regression Tree) 알고리즘을 활용해 매체·상품별 비선형적 상호작용을 정교하게 분석하며, 노출·클릭·조회는 이 1차 예측값을 최종 성과로 그대로 씁니다. 도달은 매체 특성에 맞춰 따로 산출해, Digital은 매체 간 중복 이용률과 매체 리텐션 데이터를 적용하고(모바일 앱 환경 한정), TVC는 방송통계포털의 시청점유율, 방송매체 이용행태조사, 통계청 인구총조사를 기반으로 합니다. 두 매체 간 중복 도달은 자체 확률 모델로 보정해 하나의 순 도달(Net Reach)로 통합합니다.
+실제 집행 데이터를 정밀하게 학습한 ${M.reachcaster.name}의 과거 데이터 기준 학습 정확도(100-SMAPE)는 75%입니다(2026년 10월 학습 모델 기준). 매월 15일에 전월 데이터를 추가 학습합니다.`
     }
   ]
 }
