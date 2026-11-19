@@ -376,7 +376,7 @@ export function BOResult() {
                 {result.allocations.some(a => a.isFixed) && ' 순수 최적화 결과 보기에서는 값 아래에 사용자가 잠근 설정값 대비 증감(↑ 증가 · ↓ 감소)을 함께 표시합니다.'}
               </p>
               <AnalysisBasisBar
-                model="budgetopt"
+                model={['budgetopt', 'reachcaster']}
                 dataSource={
                   <div className="font-[Paperlogy,sans-serif] text-[12px] leading-[1.6]">
                     <div className="text-[13px] font-semibold mb-2">데이터 출처</div>
