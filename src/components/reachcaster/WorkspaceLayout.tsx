@@ -1039,36 +1039,7 @@ export function SlotBoardLayout({ initialView = 'workspace' }: { initialView?: '
                   
                   <div>가시성</div>
                   
-                  {/* 결과 수 - Sortable */}
-                  <div 
-                    onClick={() => {
-                      if (sortField === 'results') {
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortField('results')
-                        setSortOrder('desc')
-                      }
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      gap: '4px',
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    결과 수
-                    {sortField === 'results' && (
-                      <ChevronDown 
-                        size={14} 
-                        style={{ 
-                          transform: sortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s'
-                        }} 
-                      />
-                    )}
-                  </div>
+                  <div style={{ textAlign: 'center' }}>결과 수</div>
                   
                   {/* 수정일 - Sortable */}
                   <div 
