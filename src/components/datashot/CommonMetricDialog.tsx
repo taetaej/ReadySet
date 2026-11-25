@@ -17,6 +17,7 @@ const rawMetricMapping: { common: string; byMedia: Record<string, string> }[] = 
 
 // 계산 지표 5종: 매체 구분 없이 계산식 1개 (전체 매체 공통 공식)
 const calcMetricMapping: { common: string; formula: string }[] = [
+  { common: '1,000회 노출당 비용(CPM)', formula: '광고비 / 노출수 * 1,000' },
   { common: '클릭당 비용(CPC)', formula: '광고비 / 클릭수' },
   { common: '조회당 비용(CPV)', formula: '광고비 / 조회수' },
   { common: '클릭률(CTR)', formula: '클릭수 / 노출수 * 100' },

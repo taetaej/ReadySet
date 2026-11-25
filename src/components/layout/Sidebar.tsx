@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Archive, ChevronRight, ChevronLeft, Hexagon, LayoutGrid, BookOpen } from 'lucide-react'
+import { sampleACCurations } from '../adcurator/sampleData'
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -219,6 +220,119 @@ export function Sidebar({
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                     >
                       최근 {Math.min(datasets.length, maxVisible)}개 · 목록 보기
+                      <ChevronRight size={12} />
+                    </button>
+                  </div>
+                  )
+                })()}
+
+                {/* Ad Curator 솔루션 (BudgetOpt 2.0과 같은 구성) */}
+                <div 
+                  className="tree-node"
+                  style={{ marginBottom: '4px' }}
+                >
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleFolder('samsung-adcurator')
+                    }}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      marginRight: '4px'
+                    }}
+                  >
+                    <ChevronRight 
+                      size={12} 
+                      style={{ 
+                        transform: expandedFolders.includes('samsung-adcurator') ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  </div>
+                  <Hexagon size={16} style={{ 
+                    fill: 'hsl(var(--primary))', 
+                    color: 'hsl(var(--primary-foreground))' 
+                  }} />
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate('/adcurator')
+                    }}
+                    style={{ 
+                      fontSize: '14px', 
+                      flex: 1,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Ad Curator
+                  </span>
+                </div>
+
+                {/* Ad Curator 결과물들: 큐레이션 목록 샘플 최근 10개. 완료 건은 결과 화면으로 이동 */}
+                {expandedFolders.includes('samsung-adcurator') && (() => {
+                  const maxVisible = 10
+                  const visibleCurations = sampleACCurations.slice(0, maxVisible)
+
+                  return (
+                  <div style={{ marginLeft: '16px', borderLeft: '1px solid hsl(var(--border))', paddingLeft: '8px' }}>
+                    {visibleCurations.map((curation) => {
+                      const isCompleted = curation.status === 'Completed'
+                      return (
+                      <div
+                        key={curation.id}
+                        onClick={isCompleted ? () => navigate(`/adcurator/curation/${curation.id}/result`) : undefined}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '8px', 
+                          padding: '6px 8px',
+                          borderRadius: '4px',
+                          marginBottom: '2px',
+                          fontSize: '13px',
+                          cursor: isCompleted ? 'pointer' : 'default',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={isCompleted ? (e) => { e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' } : undefined}
+                        onMouseLeave={isCompleted ? (e) => { e.currentTarget.style.backgroundColor = 'transparent' } : undefined}
+                      >
+                        <span 
+                          style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} 
+                          className={curation.status === 'Pending' || curation.status === 'Error' ? 'text-muted-foreground' : curation.status === 'Processing' ? 'animate-pulse-custom' : ''}
+                        >
+                          {curation.name}
+                        </span>
+                        {curation.status === 'Pending' && (
+                          <div style={{ width: '14px', height: '14px', flexShrink: 0 }}>
+                            <svg width="14" height="14">
+                              <circle cx="7" cy="7" r="6" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      )
+                    })}
+                    <button
+                      onClick={() => navigate('/adcurator')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '6px 8px',
+                        fontSize: '11px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        width: '100%',
+                        transition: 'all 0.2s'
+                      }}
+                      className="text-muted-foreground"
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'hsl(var(--muted) / 0.5)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                    >
+                      최근 {Math.min(sampleACCurations.length, maxVisible)}개 · 목록 보기
                       <ChevronRight size={12} />
                     </button>
                   </div>
@@ -481,19 +595,6 @@ export function Sidebar({
                   )
                 })()}
 
-                {/* Ad Curator 솔루션 */}
-                <div className="tree-node" style={{ marginBottom: '4px', opacity: 0.6 }}>
-                  <ChevronRight size={12} style={{ opacity: 0.5 }} />
-                  <Hexagon size={16} style={{ opacity: 0.5 }} />
-                  <span style={{ fontSize: '14px', flex: 1 }}>Ad Curator</span>
-                  <span style={{ 
-                    fontSize: '11px',
-                    padding: '2px 6px',
-                    borderRadius: '8px'
-                  }} className="bg-muted text-muted-foreground">
-                    준비중
-                  </span>
-                </div>
 
               </div>
             )}

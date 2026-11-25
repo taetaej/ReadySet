@@ -23,6 +23,12 @@ export const budgetOptimizerSuggestedQuestions = [
   '이 예산 배분안을 요약해 주세요'
 ]
 
+export const adCuratorSuggestedQuestions = [
+  '매체·상품이 많이 걸러진 이유가 뭔가요?',
+  'Best Fit 1위와 2위를 비교해 주세요',
+  'Best Match는 왜 이 상품인가요?'
+]
+
 export const answerExamples: Record<string, MessageContent> = {
   // 추천 질문 답변
   '이 예측 결과를 어떻게 해석해야 하나요?': '현재 분석 결과는 TVC 50%, Digital 50% 비율이 최적임을 보여줍니다.\n\n주요 해석 포인트:\n\n1. 예상 Reach 1+가 73.2%로, 타겟 오디언스의 약 73%에게 최소 1회 이상 광고가 노출됩니다.\n\n2. 이 비율은 비용 대비 효율성이 가장 높은 지점으로, 예산을 더 투입해도 도달률 증가폭이 감소하는 체감 수익 구간에 진입합니다.\n\n3. 25-34세 여성 타겟의 미디어 소비 패턴이 TV와 디지털을 균형있게 사용하기 때문에 이러한 결과가 도출되었습니다.',

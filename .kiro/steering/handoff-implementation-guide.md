@@ -1,6 +1,7 @@
 ---
 inclusion: fileMatch
 fileMatchPattern: 'src/components/budgetoptimizer/**'
+fileMatchPattern: 'src/components/adcurator/**'
 ---
 
 # Handoff Implementation Guide — 프로덕트 수준 전달 규범
@@ -13,7 +14,7 @@ fileMatchPattern: 'src/components/budgetoptimizer/**'
 
 ## 0. 한 줄 원칙
 
-> **Budget Optimizer(`BO*`) 화면의 고유 스타일은 Tailwind 유틸리티 클래스로 작성한다.**
+> **Budget Optimizer(`BO*`) 및 Ad Curator 화면의 고유 스타일은 Tailwind 유틸리티 클래스로 작성한다.**
 > Tailwind로 표현하기 복잡한 경우(애니메이션·차트 등)에만 CSS Module로 분리한다.
 > 공통 클래스와 디자인 토큰은 그대로 쓰고, 동적 값만 인라인에 남긴다.
 
@@ -25,14 +26,14 @@ fileMatchPattern: 'src/components/budgetoptimizer/**'
 
 | 모듈 | 스타일 형식 | 규칙 |
 |---|---|---|
-| **Budget Optimizer (`src/components/budgetoptimizer/`)** | Tailwind 우선 + 공통 클래스 | 고유 레이아웃은 Tailwind 유틸. 복잡 스타일만 CSS Module. 이 가이드 적용 대상 |
+| **Budget Optimizer (`src/components/budgetoptimizer/`)** / **Ad Curator (`src/components/adcurator/`)**  | Tailwind 우선 + 공통 클래스 | 고유 레이아웃은 Tailwind 유틸. 복잡 스타일만 CSS Module. 이 가이드 적용 대상 |
 | slot / reachcaster / datashot | 인라인 유지 | **변경 금지.** 프로덕트도 인라인으로 받는다 |
 
-> 이 가이드는 `budgetoptimizer` 경로에만 적용된다. 다른 모듈 파일에는 적용하지 않는다.
+> 이 가이드는 `budgetoptimizer`와 `adcurator`경로에만 적용된다. 다른 모듈 파일에는 적용하지 않는다.
 
 ---
 
-## 2. Budget Optimizer 작성 규칙
+## 2. Budget Optimizer 및 Ad Curator 작성 규칙
 
 ### 2.1 우선순위 — Tailwind → CSS Module → 인라인
 

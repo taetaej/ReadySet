@@ -19,6 +19,7 @@ inclusion: manual
 | 모듈 | 현재 방식 | 비고 |
 |---|---|---|
 | **Budget Optimizer (`budgetoptimizer/`)** | **Tailwind 우선** | 전환 완료. 프로젝트 최종 목표 형태 |
+| **Ad Curator (`adcurator/`)** | **Tailwind 우선** | 적용중 |
 | slot / reachcaster / datashot | Inline Styles 우선 | Tailwind 전환 예정 (미착수) |
 
 - **최종 목표**: 모든 모듈을 Budget Optimizer 형태(Tailwind 우선)로 정렬한다.

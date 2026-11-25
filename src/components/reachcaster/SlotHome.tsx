@@ -456,7 +456,9 @@ export function SlotHome({ slotData: propSlotData }: SlotHomeProps) {
                               setHoveredOutput(null)
                             }}                            onClick={e => {
                               e.stopPropagation()
-                              if (output.module) {
+                              if (slot.key === 'adCurator') {
+                                navigate(`/adcurator/curation/${output.id}/result`)
+                              } else if (output.module) {
                                 const resultPath = output.module === 'Ratio Finder'
                                   ? '/reachcaster/scenario/ratio-finder/result'
                                   : '/reachcaster/scenario/reach-predictor/result'

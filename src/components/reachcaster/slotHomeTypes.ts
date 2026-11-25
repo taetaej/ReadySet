@@ -97,11 +97,19 @@ export const AVAILABLE_OUTPUTS: Record<string, SelectedOutput[]> = {
     { id: 'BO004', title: '식품 브랜드 인지도 확산', media: '노출 KPI' },
     { id: 'BO005', title: '여행 성수기 도달 시뮬레이션', media: '도달 KPI' },
   ],
+  /** Ad Curator 완료 큐레이션 (id = 큐레이션 id → /adcurator/curation/:id/result) */
+  adCurator: [
+    { id: '1', title: '11월 신제품 런칭 매체 큐레이션', media: '화장품' },
+    { id: '2', title: '연말 프로모션 전환 큐레이션', media: '패션' },
+    { id: '3', title: '브랜드 인지도 확대 큐레이션', media: '화장품' },
+    { id: '9', title: '(복제) 11월 신제품 런칭 매체 큐레이션', media: '화장품' },
+    { id: '12', title: '가전 겨울 세일 큐레이션', media: '가전' },
+  ],
 }
 
 export const INITIAL_FLOW: SolutionSlot[] = [
   { key: 'datashot', name: 'DataShot', desc: '업종별 벤치마크 기반 광고 효율 분석', path: '/datashot', status: 'empty' },
-  { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/ad-curator', status: 'coming-soon' },
+  { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/adcurator', status: 'empty' },
   { key: 'budgetOptimizer', name: 'BudgetOpt 2.0', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budgetopt', status: 'empty' },
   { key: 'reachCaster', name: 'Reach Caster', desc: '크로스미디어 통합 도달 예측 시뮬레이션', path: '/reachcaster', status: 'empty' },
 ]

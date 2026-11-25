@@ -31,6 +31,8 @@ export interface DockAction {
   onSelect: () => void
   /** 핵심 액션 여부 (그린 적용 후보) — 그린 홀딩이라 당장은 미사용 */
   emphasis?: boolean
+  /** 라벨 옆 개수 배지 (예: 담은 매체·상품 수). 0 이하·미지정이면 숨김 */
+  badge?: number
 }
 
 export interface ActionDockSpinX {
@@ -250,7 +252,30 @@ export function ActionDock({ actions, spinx, isDarkMode = false }: ActionDockPro
                   e.currentTarget.style.backgroundColor = surface
                 }}
               >
-                <span>{action.label}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {action.label}
+                  {!!action.badge && action.badge > 0 && (
+                    <span
+                      aria-label={`${action.badge}개`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '20px',
+                        height: '20px',
+                        padding: '0 6px',
+                        borderRadius: '10px',
+                        backgroundColor: text,
+                        color: surface,
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {action.badge}
+                    </span>
+                  )}
+                </span>
                 <span
                   style={{
                     display: 'inline-flex',
