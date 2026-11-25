@@ -626,6 +626,9 @@ export async function createDataset(page: Page, slotId: string, name: string, in
   await page.getByRole('button', { name: endMonth, exact: true }).first().click()
   await page.waitForTimeout(400)
   // 업종: 커스텀 div → IndustryDialog → 대분류 → '식품' → 선택 완료. 최소 선택.
+  // v1.3.0+: Step1에 '추출 기준'(광고상품 | 조건 조합) 섹션이 생김(기본값 광고상품). v1.2.0(PRD)엔 없음.
+  // 신 UI면 기본값(광고상품)을 그대로 쓰고 Step2도 신 경로로 분기한다. (광고상품 기준은 업종 대분류만 가능 — 아래에서 대분류 선택하므로 충족)
+  const hasExtractBasis = (await page.getByText('추출 기준', { exact: true }).count()) > 0
   await page.getByText('업종을 선택하세요.').click()
   await page.waitForTimeout(800)
   await page.getByRole('button', { name: '대분류', exact: true }).click()
@@ -638,12 +641,30 @@ export async function createDataset(page: Page, slotId: string, name: string, in
   await page.waitForTimeout(1500)
 
   // ── Step2: 상세 설정(매체 · 상품 · 지표) ──
-  await page.getByRole('button', { name: 'Google Ads', exact: true }).click()
-  await page.waitForTimeout(800)
-  await page.getByText('실적 최대화', { exact: true }).click()
-  await page.waitForTimeout(300)
-  await page.getByText(/클릭당 비용\(CPC\)/).click()
-  await page.waitForTimeout(400)
+  if (hasExtractBasis) {
+    // 신 UI(v1.3.0+, 광고상품 기준): 매체는 체크박스 행(버튼 아님) → '광고상품 추가' 모달에서 상품 1개 선택·확인 → 지표 선택.
+    // 매체 1·상품 1·지표 1(CPC)이 최소 통과 조건('다음'은 상품 선택 전까지 disabled).
+    await page.getByText('Google Ads', { exact: true }).first().waitFor({ state: 'visible', timeout: 8000 })
+    await page.locator('input[type="checkbox"]').first().check() // 매체 목록 첫 행 = Google Ads
+    await page.waitForTimeout(800)
+    await page.getByRole('button', { name: '광고상품 추가' }).click()
+    await page.waitForTimeout(1200)
+    // 모달 목록: 앞 6개 체크박스는 매체 행(Google Ads~TikTok), 7번째(index 6)부터 상품. 첫 상품 1개만 선택.
+    await page.locator('input[type="checkbox"]').nth(6).check()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /^확인 \(1개 선택\)/ }).click()
+    await page.waitForTimeout(800)
+    await page.getByText(/클릭당 비용\(CPC\)/).click()
+    await page.waitForTimeout(400)
+  } else {
+    // 구 UI(v1.2.0): 매체 버튼 → 상품 '실적 최대화' → 지표.
+    await page.getByRole('button', { name: 'Google Ads', exact: true }).click()
+    await page.waitForTimeout(800)
+    await page.getByText('실적 최대화', { exact: true }).click()
+    await page.waitForTimeout(300)
+    await page.getByText(/클릭당 비용\(CPC\)/).click()
+    await page.waitForTimeout(400)
+  }
   await page.getByRole('button', { name: '다음' }).click()
   await page.waitForTimeout(1500)
 
