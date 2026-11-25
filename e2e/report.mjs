@@ -11,7 +11,13 @@
 //   QA_FEATURE  이번 회차의 테스트 범위 라벨 (기본 'BudgetOpt 2.0 결과 화면')
 //   QA_TARGET   이번 회차의 환경 stg|prd (없으면 feature로 유추)
 //
-// 대시보드 그룹핑: '환경 + 버전'(예: STG · v1.1.1 / PRD · v1.1.1). 같은 버전이라도 STG/PRD는
+// 옵션:
+//   --regen (또는 QA_REGEN_ONLY=1)  last-run.json을 읽지 않고 기존 runs/*.json만으로 재생성(회차 중복 방지)
+//
+// 산출물: 회차 1건 = HTML 1개(e2e/results/reports/<target>__<version>__<timestamp>.html),
+//         dashboard.html = 회차 목록(인덱스)만. 둘 다 runs/*.json에서 언제든 재생성 가능.
+//
+// (구) 대시보드 그룹핑: '환경 + 버전'(예: STG · v1.1.1 / PRD · v1.1.1). 같은 버전이라도 STG/PRD는
 // 별도 섹션으로 나뉜다(run-sanity.mjs가 라이브 푸터·URL에서 버전·환경을 자동 수집해 기록).
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'fs'
@@ -23,6 +29,8 @@ const RESULTS_DIR = resolve(__dirname, 'results')
 const RUNS_DIR = join(RESULTS_DIR, 'runs')
 const LAST_RUN = join(RESULTS_DIR, 'last-run.json')
 const OUT_PATH = join(RESULTS_DIR, 'dashboard.html')
+const REPORTS_DIR = join(RESULTS_DIR, 'reports')
+const REGEN = process.argv.includes('--regen') || process.env.QA_REGEN_ONLY === '1'
 
 const VERSION = process.env.QA_VERSION || 'unversioned'
 const FEATURE = process.env.QA_FEATURE || 'BudgetOpt 2.0 결과 화면'
@@ -49,6 +57,7 @@ const TARGET = (process.env.QA_TARGET === 'stg' || process.env.QA_TARGET === 'pr
   : targetFromFeature(FEATURE)
 
 mkdirSync(RUNS_DIR, { recursive: true })
+mkdirSync(REPORTS_DIR, { recursive: true })
 
 // ── 1) 이번 실행 결과를 runs/ 에 보관 ──────────────────────────
 function flatten(json) {
@@ -72,7 +81,8 @@ function flatten(json) {
   return specs
 }
 
-if (existsSync(LAST_RUN)) {
+let currentRun = null // 이번에 보관한 회차(없으면 null)
+if (!REGEN && existsSync(LAST_RUN)) {
   const json = JSON.parse(readFileSync(LAST_RUN, 'utf-8'))
   const specs = flatten(json)
   const startedAt = json.stats?.startTime || new Date().toISOString()
@@ -88,6 +98,7 @@ if (existsSync(LAST_RUN)) {
   // 신규 파일명에 환경을 포함: v<ver>__<target>__<timestamp>.json (과거 v<ver>__<timestamp>.json도 계속 읽힘).
   const fileName = `${VERSION}__${TARGET}__${stamp}.json`
   writeFileSync(join(RUNS_DIR, fileName), JSON.stringify(run, null, 2))
+  currentRun = run
   console.log(`회차 보관: ${fileName} (${specs.length}건)`)
 }
 
@@ -95,22 +106,19 @@ if (existsSync(LAST_RUN)) {
 const runFiles = readdirSync(RUNS_DIR).filter(f => f.endsWith('.json')).sort()
 const runs = runFiles.map(f => JSON.parse(readFileSync(join(RUNS_DIR, f), 'utf-8')))
 
-// 환경+버전별 그룹: 키 = `${target}::${version}`. 같은 버전도 STG/PRD는 별도 섹션.
-// 각 그룹의 '최신 회차'를 대표로, 이력도 함께 보관.
+// 회차 페이지 파일명: <target>__<version>__<timestamp>.html (timestamp = startedAt 기반, run JSON 파일명과 동일 규칙)
+const runStamp = (run) => run.startedAt.replace(/[:.]/g, '-').slice(0, 19)
+const pageName = (run) => `${resolveTarget(run)}__${run.version}__${runStamp(run)}.html`.replace(/[^\w.\-]/g, '_')
+
+// 환경+버전별 그룹: 키 = `${target}::${version}`. 목록은 최신 회차가 위.
 const byGroup = new Map()
 for (const run of runs) {
   const key = `${resolveTarget(run)}::${run.version}`
   if (!byGroup.has(key)) byGroup.set(key, [])
   byGroup.get(key).push(run)
 }
-for (const [, list] of byGroup) list.sort((a, b) => a.startedAt.localeCompare(b.startedAt))
-
-// 그룹 정렬: 최신 회차가 늦은 순 → 위로
-const groups = [...byGroup.entries()].sort((a, b) => {
-  const la = a[1][a[1].length - 1].startedAt
-  const lb = b[1][b[1].length - 1].startedAt
-  return lb.localeCompare(la)
-})
+for (const [, list] of byGroup) list.sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+const groups = [...byGroup.entries()].sort((a, b) => b[1][0].startedAt.localeCompare(a[1][0].startedAt))
 
 // ── 파서/헬퍼 ────────────────────────────────────────────────
 function parse(title) {
@@ -285,59 +293,9 @@ function renderRunBody(run) {
     </table>`
 }
 
-// ── 환경+버전 섹션 렌더 ──────────────────────────────────────
+// ── 공통 CSS / 페이지 셸 ────────────────────────────────────
 const TARGET_LABEL = { stg: 'STG', prd: 'PRD', unknown: '환경 미상' }
-function renderVersion([groupKey, list], verIdx) {
-  // groupKey = `${target}::${version}`
-  const sep = groupKey.indexOf('::')
-  const target = groupKey.slice(0, sep)
-  const version = groupKey.slice(sep + 2)
-  const envLabel = TARGET_LABEL[target] || target
-  // list는 오래된→최신 순. 대시보드에는 '최신 회차만 상세'로 렌더한다.
-  const lastIdx = list.length - 1
-  const latest = list[lastIdx]
-  const durSec = (latest.durationMs / 1000).toFixed(1)
-
-  // 과거 회차는 상세를 굽지 않고 '요약 한 줄' 이력만 표시한다.
-  // (회차 수와 무관하게 dashboard.html 크기를 작게 유지 — 상세는 runs/*.json에 보존.)
-  const historyRows = list.length > 1
-    ? `<h3 class="sub-h">회차 이력 <span class="sub-note">최신만 상세 · 과거는 요약(상세는 e2e/results/runs/*.json)</span></h3>
-      <table class="history-tbl">
-        <thead><tr><th>실행 시각</th><th class="num">통과/전체</th><th class="num">자동화 대상 통과율</th></tr></thead>
-        <tbody>${list.slice(0, -1).reverse().map(r => {
-          const su = summarize(r.specs)
-          return `<tr>
-            <td class="dim small">${esc(fmtDate(r.startedAt))}</td>
-            <td class="num small">${su.passed}/${su.total}</td>
-            <td class="num small pct">${su.rate}%</td>
-          </tr>`
-        }).join('')}</tbody>
-      </table>`
-    : ''
-
-  return `<section class="ver">
-    <div class="ver-head">
-      <div class="ver-left">
-        <span class="env-tag env-${esc(target)}">${esc(envLabel)}</span>
-        <span class="ver-tag">${esc(version)}</span>
-        <span class="ver-feature">${esc(latest.feature)}</span>
-      </div>
-      <div class="ver-meta">${esc(fmtDate(latest.startedAt))} · ${durSec}초 · 최신</div>
-    </div>
-    <div class="run-body">
-      ${renderRunBody(latest)}
-    </div>
-    ${historyRows}
-  </section>`
-}
-
-const latestOverall = runs.length ? runs.map(r => r.startedAt).sort().slice(-1)[0] : new Date().toISOString()
-
-const html = `<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ReadySet · QA 자동 채점 대시보드</title>
-<style>
-  :root{
+const CSS = `  :root{
     --bg:#0b0b0c; --panel:#141416; --panel-2:#1b1b1e; --fg:#fafafa; --muted-fg:#9a9a9f;
     --border:#2a2a2e;
     /* ReadySet 시그니처 강조 그린(Optimal Point) = "시스템이 짚은 정답" 신호. 핵심 수치에만. */
@@ -418,22 +376,89 @@ const html = `<!doctype html>
 
   .foot{color:var(--muted-fg);font-size:12px;margin-top:28px;line-height:1.8}
   .foot code{background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px}
-</style></head>
+
+  a{color:inherit;text-decoration:none}
+  .back{display:inline-block;color:var(--muted-fg);font-size:12px;margin-bottom:18px}
+  .back:hover{color:var(--fg)}
+  .run-head{margin-bottom:22px}
+  .run-head .ver-left{margin-bottom:10px}
+  .run-head .ver-tag{font-size:20px;padding:4px 18px}
+  .run-head .env-tag{font-size:15px;padding:4px 16px}
+  .run-title{font-size:15px;color:var(--fg)}
+  .run-meta{margin:6px 0 0}
+  .grp-h{display:flex;align-items:center;gap:10px;margin:28px 0 6px}
+  .grp-h .ver-tag{font-size:13px;padding:2px 12px}
+  .grp-h .env-tag{font-size:11px}
+  .runlist a.runrow{display:grid;grid-template-columns:1fr 110px 150px 80px;gap:12px;align-items:center;
+    padding:11px 10px;border-bottom:1px solid var(--panel-2);transition:background-color .2s}
+  .runlist a.runrow:hover{background:var(--panel)}
+  .runlist .hd{display:grid;grid-template-columns:1fr 110px 150px 80px;gap:12px;padding:7px 10px;
+    font-size:11px;color:var(--muted-fg);border-bottom:1px solid var(--border)}
+`
+const shell = (title, body) => `<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title>
+<style>${CSS}</style></head>
 <body><div class="wrap">
-  <div class="top">
-    <h1>ReadySet <span class="green-dot">·</span> QA 자동 채점 대시보드</h1>
-  </div>
-  <div class="lead">마지막 실행 <b>${esc(fmtDate(latestOverall))}</b> · 환경·버전 그룹 ${groups.length}개 · 자동화 범위: ${esc(FEATURE)}</div>
-
-  ${groups.map((v, i) => renderVersion(v, i)).join('')}
-
-  <div class="foot">
-    원본 TC: <code>e2e/tc/ReadySet_BO_Result_TC_Playwright.md</code> · 자동/수동 분류: <code>e2e/tc/자동화_분류.md</code><br>
-    실행: <code>node e2e/run-sanity.mjs</code> (버전·환경 자동 수집) · 리포트 생성: <code>node e2e/report.mjs</code> · 상세 로그: <code>npx playwright show-report</code>
-  </div>
+${body}
 </div>
 </body></html>`
 
-writeFileSync(OUT_PATH, html, 'utf-8')
-console.log('대시보드 생성:', OUT_PATH)
-console.log(`환경·버전 그룹 ${groups.length}개 / 총 회차 ${runs.length}건`)
+// ── 회차 페이지(1회차 = HTML 1개): 그 회차 내용만 ─────────────────────────
+function renderRunPage(run) {
+  const target = resolveTarget(run)
+  const envLabel = TARGET_LABEL[target] || target
+  const durSec = (run.durationMs / 1000).toFixed(1)
+  const body = `<a class="back" href="../dashboard.html">← 회차 목록</a>
+  <div class="run-head">
+    <div class="ver-left">
+      <span class="env-tag env-${esc(target)}">${esc(envLabel)}</span>
+      <span class="ver-tag">${esc(run.version)}</span>
+      <span class="run-title">${esc(run.feature)}</span>
+    </div>
+    <div class="run-meta">${esc(fmtDate(run.startedAt))} 실행 · 소요 ${durSec}초</div>
+  </div>
+  <section class="ver">
+    <div class="run-body">${renderRunBody(run)}</div>
+  </section>`
+  return shell(`ReadySet QA · ${envLabel} ${run.version} · ${fmtDate(run.startedAt)}`, body)
+}
+
+// ── 인덱스: 회차 목록만(상세 없음 → 회차가 늘어도 파일이 작다) ─────────────────
+function renderIndex() {
+  const latestOverall = runs.length ? runs.map(r => r.startedAt).sort().slice(-1)[0] : new Date().toISOString()
+  const list = groups.map(([key, list]) => {
+    const sep = key.indexOf('::')
+    const target = key.slice(0, sep)
+    const version = key.slice(sep + 2)
+    const rows = list.map(r => {
+      const su = summarize(r.specs)
+      return `<a class="runrow" href="reports/${esc(pageName(r))}">
+        <span class="small">${esc(fmtDate(r.startedAt))} <span class="dim">· ${esc(r.feature)}</span></span>
+        <span class="num small">${su.passed}/${su.total}</span>
+        <span class="num small pct">${su.rate}%</span>
+        <span class="num small ${su.failed ? 'bad b' : 'dim'}">${su.failed ? `실패 ${su.failed}` : '실패 0'}</span>
+      </a>`
+    }).join('')
+    return `<div class="grp-h"><span class="env-tag env-${esc(target)}">${esc(TARGET_LABEL[target] || target)}</span><span class="ver-tag">${esc(version)}</span></div>
+    <div class="runlist">
+      <div class="hd"><span>실행 시각</span><span class="num">통과/전체</span><span class="num">자동화 대상 통과율</span><span class="num">실패</span></div>
+      ${rows}
+    </div>`
+  }).join('')
+  const body = `<div class="top"><h1>ReadySet <span class="green-dot">·</span> QA 회차 목록</h1></div>
+  <div class="lead">마지막 실행 <b>${esc(fmtDate(latestOverall))}</b> · 총 ${runs.length}회차 · 회차를 누르면 그 회차만 한 화면에 보여요</div>
+  ${list}
+  <div class="foot">
+    실행: <code>node e2e/run-sanity.mjs</code> · 재생성: <code>node e2e/report.mjs --regen</code> · 회차 페이지: <code>e2e/results/reports/</code>
+  </div>`
+  return shell('ReadySet · QA 회차 목록', body)
+}
+
+// 회차 페이지 전부 재생성(stale 제거는 하지 않음 — 파일명이 결정적이라 덮어쓰기)
+for (const run of runs) writeFileSync(join(REPORTS_DIR, pageName(run)), renderRunPage(run), 'utf-8')
+writeFileSync(OUT_PATH, renderIndex(), 'utf-8')
+
+if (currentRun) console.log(`이번 회차 페이지: e2e/results/reports/${pageName(currentRun)}`)
+console.log('대시보드(회차 목록) 생성:', OUT_PATH)
+console.log(`환경·버전 그룹 ${groups.length}개 / 총 회차 ${runs.length}건 / 회차 페이지 ${runs.length}개`)

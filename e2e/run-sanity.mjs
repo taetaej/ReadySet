@@ -207,14 +207,19 @@ async function main() {
   const report = spawnSync('node', ['e2e/report.mjs'], {
     cwd: ROOT,
     env: childEnv,
-    stdio: 'inherit',
+    stdio: ['inherit', 'pipe', 'inherit'],
+    encoding: 'utf-8',
   })
+  // report.mjs stdout을 그대로 전달하면서 '이번 회차 페이지' 경로를 뽑는다.
+  if (report.stdout) process.stdout.write(report.stdout)
+  const runPage = (report.stdout || '').match(/^이번 회차 페이지: (.+)$/m)?.[1]
   if (report.error) {
     console.error('[run-sanity] report.mjs 실행 오류:', report.error.message)
     process.exit(1)
   }
 
-  console.log(`\n[run-sanity] 완료 — ${target.toUpperCase()} · ${version}. 대시보드: e2e/results/dashboard.html`)
+  console.log(`\n[run-sanity] 완료 — ${target.toUpperCase()} · ${version}. 회차 목록: e2e/results/dashboard.html`)
+  if (runPage) console.log(`[run-sanity] 이번 회차: ${runPage}`)
   // 테스트 종료코드를 그대로 전파(CI에서 실패 감지 가능).
   process.exit(test.status ?? 0)
 }
