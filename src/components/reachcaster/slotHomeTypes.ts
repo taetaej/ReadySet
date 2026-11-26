@@ -38,7 +38,7 @@ export interface ActivityItem {
   user: string
   solution: string  // 어떤 솔루션
   action: string    // 어떤 작업
-  type?: 'scenario' | 'dataset' | 'file'  // 항목 타입
+  type?: 'scenario' | 'dataset' | 'curation' | 'file'  // 항목 타입
   detail?: string   // 시나리오명 / 데이터셋명 / 파일명
   timestamp: string
 }
@@ -97,11 +97,19 @@ export const AVAILABLE_OUTPUTS: Record<string, SelectedOutput[]> = {
     { id: 'BO004', title: '식품 브랜드 인지도 확산', media: '노출 KPI' },
     { id: 'BO005', title: '여행 성수기 도달 시뮬레이션', media: '도달 KPI' },
   ],
+  /** Ad Curator 완료 큐레이션 (id = 큐레이션 id → /adcurator/curation/:id/result) */
+  adCurator: [
+    { id: '1', title: '11월 신제품 런칭 매체 큐레이션', media: '화장품' },
+    { id: '2', title: '연말 프로모션 전환 큐레이션', media: '패션' },
+    { id: '3', title: '브랜드 인지도 확대 큐레이션', media: '화장품' },
+    { id: '9', title: '(복제) 11월 신제품 런칭 매체 큐레이션', media: '화장품' },
+    { id: '12', title: '가전 겨울 세일 큐레이션', media: '가전' },
+  ],
 }
 
 export const INITIAL_FLOW: SolutionSlot[] = [
   { key: 'datashot', name: 'DataShot', desc: '업종별 벤치마크 기반 광고 효율 분석', path: '/datashot', status: 'empty' },
-  { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/ad-curator', status: 'coming-soon' },
+  { key: 'adCurator', name: 'Ad Curator', desc: '캠페인 성과 기반 맞춤형 상품 큐레이션', path: '/adcurator', status: 'empty' },
   { key: 'budgetOptimizer', name: 'BudgetOpt 2.0', desc: 'KPI 목표 기반 미디어믹스 예산 최적화', path: '/budgetopt', status: 'empty' },
   { key: 'reachCaster', name: 'Reach Caster', desc: '크로스미디어 통합 도달 예측 시뮬레이션', path: '/reachcaster', status: 'empty' },
 ]
@@ -118,9 +126,9 @@ export const MOCK_ACTIVITY: ActivityItem[] = [
   { id: 'A3', user: '박서연', solution: 'Reach Caster', action: '시나리오 이동', type: 'scenario', detail: '갤럭시 S24 런칭 캠페인', timestamp: '3시간 전' },
   { id: 'A4', user: '김민수', solution: 'DataShot', action: '데이터셋 이동', type: 'dataset', detail: '경쟁사 미디어 믹스 분석', timestamp: '4시간 전' },
   { id: 'A5', user: '김민수', solution: 'Resources', action: '파일 업로드', type: 'file', detail: '캠페인 기획서_v2.pdf', timestamp: '1일 전' },
-  { id: 'A6', user: '이지은', solution: 'DataShot', action: '데이터셋 생성', type: 'dataset', detail: '25-39세 남성 미디어 소비 패턴', timestamp: '2일 전' },
+  { id: 'A6', user: '이지은', solution: 'Ad Curator', action: '큐레이션 생성', type: 'curation', detail: '11월 신제품 런칭 매체 큐레이션', timestamp: '2일 전' },
   { id: 'A7', user: '박서연', solution: 'Reach Caster', action: '시나리오 생성', type: 'scenario', detail: '갤럭시 S24 런칭 캠페인', timestamp: '3일 전' },
   { id: 'A8', user: '김민수', solution: 'Reach Caster', action: '시나리오 이동', type: 'scenario', detail: '8주 기간 / 12억 예산', timestamp: '4일 전' },
   { id: 'A9', user: '이지은', solution: 'Resources', action: '파일 업로드', type: 'file', detail: '타겟 분석 리포트.xlsx', timestamp: '5일 전' },
-  { id: 'A10', user: '김민수', solution: 'DataShot', action: '데이터셋 이동', type: 'dataset', detail: '경쟁사 미디어 믹스 분석', timestamp: '6일 전' },
+  { id: 'A10', user: '김민수', solution: 'Ad Curator', action: '큐레이션 이동', type: 'curation', detail: '연말 프로모션 전환 큐레이션', timestamp: '6일 전' },
 ]

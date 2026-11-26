@@ -7,13 +7,14 @@ interface SpinXHeaderProps {
   onClose: () => void
   expanded?: boolean
   onToggleExpand?: () => void
-  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
+  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer' | 'adCurator'
 }
 
 const SOLUTION_NAME: Record<string, string> = {
   ratioFinder: 'Reach Caster',
   reachPredictor: 'Reach Caster',
-  budgetOptimizer: 'BudgetOpt 2.0'
+  budgetOptimizer: 'BudgetOpt 2.0',
+  adCurator: 'Ad Curator'
 }
 
 export function SpinXHeader({ onReset, onClose, expanded, onToggleExpand, analysisType = 'reachPredictor' }: SpinXHeaderProps) {

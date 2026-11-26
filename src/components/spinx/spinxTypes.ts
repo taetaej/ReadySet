@@ -12,7 +12,7 @@ export interface SpinXPanelProps {
   onClose: () => void
   isDarkMode?: boolean
   scenarioName?: string
-  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
+  analysisType?: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer' | 'adCurator'
   positioning?: 'fixed' | 'absolute'
   initialMessage?: string
   /** 열릴 때 입력창에 미리 채울 텍스트 (자동 전송하지 않음) */

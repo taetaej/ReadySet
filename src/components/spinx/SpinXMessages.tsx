@@ -2,7 +2,7 @@
 
 import { Copy, Check } from 'lucide-react'
 import type { Message, RagSource } from './spinxTypes'
-import { suggestedQuestions, budgetOptimizerSuggestedQuestions } from './spinxData'
+import { suggestedQuestions, budgetOptimizerSuggestedQuestions, adCuratorSuggestedQuestions } from './spinxData'
 import { SpinXSourceAccordion } from './SpinXSourceAccordion'
 import { SpinXChartBubble } from './SpinXChartBubble'
 import { SpinXErrorBubble } from './SpinXErrorBubble'
@@ -11,7 +11,7 @@ import { SpinXSymbol } from './SpinXSymbol'
 interface SpinXMessagesProps {
   isDarkMode: boolean
   scenarioName: string
-  analysisType: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer'
+  analysisType: 'ratioFinder' | 'reachPredictor' | 'budgetOptimizer' | 'adCurator'
   messages: Message[]
   isLoading: boolean
   loadingMessage: string
@@ -192,7 +192,11 @@ export function SpinXMessages({
                 paddingRight: '32px'
               }}
             >
-              {analysisType === 'budgetOptimizer' ? (
+              {analysisType === 'adCurator' ? (
+                <>
+                  캠페인 설명을 반영한 평가 축으로 매체·상품을 평가해 <strong>Best Fit</strong>과 <strong>Good Fit</strong>으로 나눴습니다. 결과에 반영된 조건, 매체·상품의 선정 근거, 후보 간 차이를 물어볼 수 있습니다.
+                </>
+              ) : analysisType === 'budgetOptimizer' ? (
                 <>
                   총 예산 <strong>4억원</strong>을 5개 매체에 배분한 결과, 보장 노출은 <strong>약 8,440만 회</strong>로 균등 배분 대비 <strong>+18%</strong> 늘었습니다. 예산은 <strong>Google Ads(46.8%)</strong>와 <strong>Meta(34.9%)</strong>에 집중 배분됐고, 두 매체가 노출 창출을 주도했습니다. Targetpick·NAVER 성과형 DA는 효율이 낮아 예산이 축소됐습니다. 잠금을 해제한 순수 최적화안은 보장 노출 <strong>약 9,200만 회</strong>로, 잠금 반영안과 비교해 내 개입의 영향을 확인해 볼 수 있습니다.
                 </>
@@ -218,7 +222,7 @@ export function SpinXMessages({
               추천 질문
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(analysisType === 'budgetOptimizer' ? budgetOptimizerSuggestedQuestions : suggestedQuestions).map((question, qIdx) => (
+              {(analysisType === 'adCurator' ? adCuratorSuggestedQuestions : analysisType === 'budgetOptimizer' ? budgetOptimizerSuggestedQuestions : suggestedQuestions).map((question, qIdx) => (
                 <button
                   key={qIdx}
                   onClick={() => onQuestionClick(question)}

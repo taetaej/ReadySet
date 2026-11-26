@@ -30,6 +30,7 @@ inclusion: always
 | DataShot | `src/components/datashot/` | 데이터셋 생성·상세·목록 |
 | Scenario | `src/components/scenario/` | 시나리오 스텝(RatioFinder / ReachPredictor) |
 | Budget Optimizer | `src/components/budgetoptimizer/` | `BO*` 프리픽스 컴포넌트 |
+| Ad Curator | `src/components/adcurator/` | `AC*` 프리픽스 컴포넌트. 큐레이션 목록(현재), 생성·결과(예정) |
 | SpinX | `src/components/spinx/` | SpinX 챗/심볼/패널 |
 | Layout | `src/components/layout/` | GNB, Sidebar, Breadcrumb, Footer 등 공통 레이아웃 |
 | Docs | `src/components/docs/` | 문서 페이지·레이아웃 |
@@ -65,6 +66,10 @@ inclusion: always
 | `src/components/budgetoptimizer/BOScenarioList.tsx` | `BOScenarioList` 컴포넌트 |
 | `src/components/budgetoptimizer/constants.ts` | 상수 전체 (파일 작음, 전체 읽기 허용) |
 | `src/components/budgetoptimizer/types.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/adcurator/ACCurationList.tsx` | `ACCurationList` 컴포넌트 (큐레이션 목록 본체, 큰 파일: 심볼 단위로 조회) |
+| `src/components/adcurator/ACCurationListPage.tsx` | `ACCurationListPage` 컴포넌트 (라우트 래퍼 + AppLayout) |
+| `src/components/adcurator/types.ts` | 타입·상수 전체 (파일 작음, 전체 읽기 허용) |
+| `src/components/adcurator/sampleData.ts` | 샘플 데이터 (필요한 구간만 조회) |
 | `src/components/spinx/SpinXPanel.tsx` | `SpinXPanel` 컴포넌트 |
 | `src/components/spinx/useSpinXChat.ts` | `useSpinXChat` 훅 |
 | `src/components/spinx/spinxTypes.ts` | 타입 전체 (파일 작음, 전체 읽기 허용) |

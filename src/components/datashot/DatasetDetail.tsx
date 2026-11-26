@@ -7,6 +7,22 @@ import { useSidebarState } from '../../hooks/useSidebarState'
 import { maskEmail } from '../../utils/maskEmail'
 import { IndustryModal, AdProductsModal, MetricsModal } from './DatasetDetailModals'
 import { generateSampleData } from './sampleData'
+import { DatasetCurationCta } from './DatasetCurationCta'
+
+// 데이터셋 업종 샘플 (대 > 중 > 소)
+const SAMPLE_DATASET_INDUSTRIES = [
+          '가정용전기전자 > 가사용전기전자 > 가사용전기전자기타',
+          '가정용전기전자 > 가사용전기전자 > 가습기',
+          '가정용전기전자 > 가사용전기전자 > 다리미',
+          '가정용전기전자 > 가사용전기전자 > 세탁기',
+          '가정용전기전자 > 가사용전기전자 > 청소기',
+          '패션 > 패션의류 > 남성의류',
+          '패션 > 패션의류 > 여성의류',
+          '패션 > 잡화및액세서리 > 가방',
+          '화장품및보건용품 > 기초화장품 > 스킨케어',
+          '화장품및보건용품 > 색조화장품 > 립메이크업',
+          '화장품및보건용품 > 헤어및바디 > 헤어케어'
+]
 
 interface DatasetDetailProps {
   datasetData?: any
@@ -28,6 +44,10 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
     advertiser: '삼성전자'
   }
   
+  const datasetIndustries: string[] = Array.isArray(datasetData?.industries) && datasetData.industries.length > 0
+    ? datasetData.industries
+    : SAMPLE_DATASET_INDUSTRIES
+
   const [isDarkMode, setIsDarkMode] = useState(() => getDarkMode())
   const { isSidebarCollapsed, expandedFolders, toggleSidebar, toggleFolder } = useSidebarState()
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -1474,8 +1494,16 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
           </div>
 
           {renderPagination()}
+
+          {/* Ad Curator 연계 CTA 존 (Admin·Marketer만) */}
+          <DatasetCurationCta
+            datasetName={datasetData?.name || '2024 Q1 Meta 캠페인 데이터'}
+            industries={datasetIndustries}
+            slotData={slotData}
+          />
         </div>
       </div>
+
 
       {showToast && (
         <div className={`toast toast--${showToast.type}`}>
@@ -1495,19 +1523,7 @@ export function DatasetDetail({ datasetData: propDatasetData }: DatasetDetailPro
       <IndustryModal
         isOpen={industryModalOpen}
         onClose={() => setIndustryModalOpen(false)}
-        industries={[
-          '가정용전기전자 > 가사용전기전자 > 가사용전기전자기타',
-          '가정용전기전자 > 가사용전기전자 > 가습기',
-          '가정용전기전자 > 가사용전기전자 > 다리미',
-          '가정용전기전자 > 가사용전기전자 > 세탁기',
-          '가정용전기전자 > 가사용전기전자 > 청소기',
-          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타PR',
-          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기업공고',
-          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자기타',
-          '가정용전기전자 > 가정용전기전자기타 > 가정용전기전자제품종합',
-          '가정용전기전자 > 냉난방기 > 냉난방기기타',
-          '가정용전기전자 > 냉난방기 > 에어컨'
-        ]}
+        industries={datasetIndustries}
       />
 
       <AdProductsModal

@@ -14,6 +14,11 @@ import { DatasetDetailRouter } from './components/datashot/DatasetDetailRouter'
 import { BOScenarioListPage } from './components/budgetoptimizer/BOScenarioListPage'
 import { BOCreateScenario } from './components/budgetoptimizer/BOCreateScenario'
 import { BOResult } from './components/budgetoptimizer/BOResult'
+
+// Ad Curator 컴포넌트
+import { ACCurationListPage } from './components/adcurator/ACCurationListPage'
+import { ACCreateCuration } from './components/adcurator/ACCreateCuration'
+import { ACCurationResultPage } from './components/adcurator/ACCurationResultPage'
 // Component Library
 import { ComponentLibrary } from './components/component-library'
 // Error Page
@@ -45,6 +50,9 @@ function App() {
         <Route path="/budgetopt" element={<BOScenarioListPage />} />
         <Route path="/budgetopt/scenario/new" element={<BOCreateScenario />} />
         <Route path="/budgetopt/scenario/:id/result" element={<BOResult />} />
+        <Route path="/adcurator" element={<ACCurationListPage />} />
+        <Route path="/adcurator/curation/new" element={<ACCreateCuration />} />
+        <Route path="/adcurator/curation/:id/result" element={<ACCurationResultPage />} />
         <Route path="/docs" element={<Navigate to="/docs/intro" replace />} />
         <Route path="/docs/:slug" element={<DocsLayout />} />
         <Route path="/component" element={<ComponentLibrary />} />

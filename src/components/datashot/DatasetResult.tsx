@@ -13,6 +13,7 @@ import { maskEmail } from '../../utils/maskEmail'
 import { IndustryModal, MetricsModal, ProductListModal, DetailConditionsModal } from './DatasetDetailModals'
 import { ResultCharts } from './ResultCharts'
 import { ExtractedTable } from './ExtractedTable'
+import { DatasetCurationCta } from './DatasetCurationCta'
 import { type FormData, initialFormData } from './createDatasetTypes'
 
 // 지표 데이터(모달 + 개수 공용). 광고상품 공통 지표 성격의 샘플.
@@ -262,6 +263,9 @@ export function DatasetResult() {
 
         {/* 하단: Extracted Data 테이블 */}
         <ExtractedTable />
+
+        {/* Ad Curator 연계 CTA 존 (Admin·Marketer만) */}
+        <DatasetCurationCta datasetName={datasetName} industries={headerIndustries} slotData={slotData} />
       </div>
 
       {/* 상세 모달 (돋보기) */}
