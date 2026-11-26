@@ -13,7 +13,7 @@
 ## 0. Quick Start (처음이라면 이것만)
 
 **처음 1회**: 디버그 Chrome 띄우고(§1) → 그 창에서 STG 로그인 → 고정 픽스처 슬롯 셋업 1회(§2.5).
-**매 배포 때**: 디버그 Chrome이 로그인된 상태인지 확인 → **`node e2e/run-sanity.mjs` 한 줄** → 대시보드 확인.
+**매 배포 때**: 디버그 Chrome이 로그인된 상태인지 확인 → **`node e2e/run-sanity.mjs` 한 줄** → 끝에 출력되는 '이번 회차' 페이지 확인(캡처용).
 
 ```bash
 # 0) (최초 1회) 디버그 Chrome 실행 → 열린 창에서 https://stg.readyset.adly.co.kr/slotboard 로그인
@@ -30,8 +30,10 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 # 3) 전수 sanity 실행 (배포 때마다) — 버전은 푸터에서, 환경은 URL에서 자동 수집·기록된다
 node e2e/run-sanity.mjs
 
-# 4) 대시보드 열기 (run-sanity.mjs가 리포트까지 자동 생성)
-open e2e/results/dashboard.html
+# 4) 리포트 열기 (run-sanity.mjs가 자동 생성) — 목록 + 회차별 독립 페이지(캡처용)
+open e2e/results/dashboard.html        # 회차 목록(누르면 그 회차 페이지)
+open e2e/results/reports/<이번 회차>.html  # run-sanity 완료 로그의 '이번 회차' 경로
+node e2e/report.mjs --regen            # (선택) runs/*.json만으로 목록+전 회차 페이지 재생성
 ```
 
 - **`node e2e/run-sanity.mjs` 하나면 끝.** 래퍼가 디버그 Chrome(§1)의 기존 page에 CDP로 붙어 **버전은 라이브 푸터**(`ReadySet Platform vX.Y.Z`)에서, **환경은 현재 URL 호스트**(`stg.` 유무)에서 자동 수집한 뒤, 그 값으로 전수 실행(@setup 제외, `--workers=1`)하고 끝나면 `report.mjs`까지 자동 호출한다. **사람이 버전·환경을 손입력하지 않는다** → 깜빡/오입력·실제 배포 버전 불일치가 사라진다(예전엔 `QA_VERSION=v1.2.0`을 손으로 넣다 라이브 푸터와 어긋남).
@@ -265,29 +267,36 @@ QA_VERSION=v1.2.0 npx playwright test e2e/stg/setup-fixture-slot.spec.ts --confi
 
 ---
 
-## 5. 리포트 (환경+버전별 누적 대시보드)
+## 5. 리포트 (회차별 독립 페이지 + 회차 목록)
 
 ```bash
-# 보통은 run-sanity.mjs가 자동 호출하므로 따로 돌릴 필요 없다. 수동/부분 실행 후 재생성만:
+# 보통은 run-sanity.mjs가 자동 호출한다. 수동/부분 실행 후 보관+재생성:
 QA_VERSION=v1.2.0 QA_TARGET=stg QA_FEATURE="STG Sanity QA" node e2e/report.mjs
+# 새 회차를 쌓지 않고 기존 runs/*.json만으로 목록+전 회차 페이지 재생성(검증·디자인 수정 후):
+node e2e/report.mjs --regen        # 또는 QA_REGEN_ONLY=1 node e2e/report.mjs
 open e2e/results/dashboard.html
 ```
 
-`report.mjs`는 `e2e/results/last-run.json`을 읽어 섹션으로 누적한다. 제목 형식
+**구조.** 한 화면에 한 회차만 보이도록 회차마다 HTML을 따로 만든다.
+
+| 파일 | 내용 |
+|---|---|
+| `e2e/results/dashboard.html` | **회차 목록만**(상세 없음). 환경+버전 그룹별로 실행 시각 · 통과/전체 · 자동화 대상 통과율 · 실패 수를 최신순 나열, 각 행이 회차 페이지로 링크 |
+| `e2e/results/reports/<target>__<version>__<timestamp>.html` | **회차 1건 = 1페이지**(캡처용). 상단에 환경 배지·버전·feature·실행 시각·소요, 본문에 수치 카드/영역별/수동 QA 대상/테스트 상세(실패 행·사유 포함). 환경·버전이 섞이지 않는다 |
+| `e2e/results/runs/*.json` | 회차 원본(커밋 대상). 위 HTML은 전부 여기서 재생성 가능 |
+
+`reports/`와 `dashboard.html`은 재생성 가능한 산출물이라 `.gitignore` 대상이다.
+`run-sanity.mjs` 완료 로그에 `[run-sanity] 이번 회차: e2e/results/reports/....html` 경로가 출력된다.
+
+`report.mjs`는 기본적으로 `e2e/results/last-run.json`을 새 회차로 `runs/`에 보관한 뒤 재생성한다.
+`--regen`은 `last-run.json`을 읽지 않으므로 회차가 중복 보관되지 않는다. 제목 형식
 `AREA-NNN @priority 한글설명`을 지켜야 영역별로 묶인다.
 
-**환경+버전 그룹핑.** 대시보드는 **환경 + 버전**을 묶음 키로 쓴다 — 같은 버전이라도 STG와 PRD는
-**별도 섹션**으로 나뉘고, 섹션 제목에 환경 배지(`STG` / `PRD`) + 버전 태그(`v1.2.0`)가 함께 붙는다
-(예: `STG · v1.2.0`, `PRD · v1.2.0`). STG 테스트가 PRD 섹션에 섞이지 않는다.
-신규 회차 run JSON에는 환경이 `target`(stg|prd) 정식 필드로 기록되고, 파일명도
-`v<ver>__<target>__<timestamp>.json`으로 저장된다. 과거 회차(target 필드 없음·구 파일명)는
-삭제·수정 없이 그대로 두고 `feature` 라벨로 환경을 유추해 올바른 섹션에 분류한다
+**환경+버전 그룹핑.** 목록은 **환경 + 버전**으로 묶는다 — 같은 버전이라도 STG와 PRD는 별도 그룹이다.
+신규 회차 run JSON에는 환경이 `target`(stg|prd) 필드로 기록되고 파일명도
+`v<ver>__<target>__<timestamp>.json`이다. 과거 회차(target 필드 없음·구 파일명)는
+삭제·수정 없이 `feature` 라벨로 환경을 유추한다
 (`STG Sanity QA`→stg, `PRD Sanity QA`→prd, `BudgetOpt 2.0 결과 화면`→stg).
-
-**회차 선택:** 같은 환경·버전을 여러 번 돌리면 각 회차가 `e2e/results/runs/`에 타임스탬프로 쌓인다.
-섹션 헤더 우측 **회차 드롭다운**(최신 회차 기본 선택)에서 과거 회차를 고르면 그 회차의
-카드·영역별·상세 테이블이 바로 바뀐다. 각 회차 본문은 서버가 미리 구워 숨겨두고 인라인 바닐라 JS로
-토글하므로 외부 의존(스크립트/CSS CDN)이 없다. 동일 환경·버전·시점 구분이 필요할 때 사용한다.
 
 ---
 

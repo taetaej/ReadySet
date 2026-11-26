@@ -46,12 +46,15 @@ test('SPINX-COMMON-001 @major FAB/진입점 — 결과 화면에 SpinX 진입점
   test.skip(IS_PRD && !hasCompletedBoFixture(), PRD_BO_NO_COMPLETED_REASON)
   const id = await gotoBoResult(page)
   test.skip(!id, '완료 BO fixture id 미확보')
-  // 결과 화면: 닫힘 상태 'Ask SpinX' 말풍선(SpinX 진입점) 노출.
-  await expect(page.getByText('Ask SpinX').first()).toBeVisible()
+  // 진입점 — 구 UI(v1.2.0): 닫힘 상태 'Ask SpinX' 말풍선 / 신 UI(v1.3.0+): 결과 화면 하단 독의 SpinX 심볼 버튼(aria-label="SpinX 열기").
+  // 어느 쪽이든 보이면 통과(PRD 1.2.0 ↔ STG 1.3.0 겸용).
+  const entry = page.getByText('Ask SpinX').or(page.getByRole('button', { name: 'SpinX 열기' })).first()
+  await expect(entry).toBeVisible()
   // 리스트 화면엔 SpinX 진입점 미노출(dom-evidence §8).
   await gotoStable(page, '/slots/' + fixtureSlotId() + '/budgetopt')
   await dismissLaunchPopup(page)
-  await expect(page.getByText('Ask SpinX')).toHaveCount(0)
+  // v1.3.0 라이브 확인: 리스트엔 'SpinX 열기' 독 버튼도 없음(count 0). 구/신 진입점 모두 0이어야 한다.
+  await expect(page.getByText('Ask SpinX').or(page.getByRole('button', { name: 'SpinX 열기' }))).toHaveCount(0)
 })
 
 test('SPINX-COMMON-002 @major 요약·질문 — 패널이 열리고 입력/요약 UI가 뜬다', SPINX_BO_ANNO, async ({ page }) => {
