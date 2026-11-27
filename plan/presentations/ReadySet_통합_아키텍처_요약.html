@@ -7,7 +7,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap">
 <style>
-/* Layout: 간소화 버전. 이름 위주, 설명 최소. 좌 의미 축 · 중앙 4계층 · 우 SpinX 축. 모노톤 + 단일 액센트. */
+/* Layout: 간소화 버전. 이름 위주, 설명 최소. 좌 Ontology 축 · 중앙 4계층 · 우 SpinX 축. 모노톤 + 단일 액센트. */
 :root{
   color-scheme:light;
   --bg:#ffffff; --ink:#14213d; --ink-2:#3a4a66; --muted:#6b7685; --hair:#d9dee6; --panel:#f5f7fa;
@@ -35,14 +35,14 @@ svg.dia{display:block;width:100%;min-width:980px;height:auto}
 
 <div class="wrap">
 <h1>ReadySet 통합 아키텍처</h1>
-<p class="lede">4계층 적층 구조 · 의미 축과 SpinX의 이중 축</p>
+<p class="lede">4계층 적층 구조 · Ontology와 SpinX의 이중 축</p>
 <div class="legend">
   <span><i style="background:var(--ink)"></i>기 구축</span>
   <span><i style="background:var(--accent)"></i>2027 신규 구축</span>
 </div>
 
 <div class="scroller" role="region" aria-label="ReadySet 아키텍처 요약 구조도" tabindex="0">
-<svg class="dia" viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L1 BRIDGE, L2 모델·로직, L3 플랫폼 기반, L4 WithSet과 좌측 의미 축, 우측 SpinX 축">
+<svg class="dia" viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L1 BRIDGE, L2 모델·로직, L3 플랫폼 기반, L4 WithSet과 좌측 Ontology 축, 우측 SpinX 축">
 
   <!-- reference line -->
   <path d="M196 40 V14 H1004 V40" fill="none" stroke="#3a4a66" stroke-dasharray="4 4"/>
@@ -64,9 +64,9 @@ svg.dia{display:block;width:100%;min-width:980px;height:auto}
   <!-- semantic axis -->
   <rect x="116" y="40" width="160" height="620" rx="5" fill="#f6f5fd"/>
   <rect x="116" y="40" width="4" height="620" fill="#4b3fc4"/>
-  <text x="134" y="64" class="cap" style="fill:#4b3fc4">2027</text>
-  <text x="134" y="90" font-size="19" font-weight="600">의미 축</text>
-  <text x="134" y="110" class="mu" font-size="11.5">전 층의 공통 정의</text>
+  <text x="134" y="64" class="cap" style="fill:#4b3fc4;letter-spacing:0.06em">SEMANTIC LAYER · 2027</text>
+  <text x="134" y="92" class="num" font-size="21" font-weight="600">Ontology</text>
+  <text x="134" y="112" class="mu" font-size="11.5">AI Ready 공통 정의</text>
   <text x="134" y="146" font-size="12">에이전트 · 스킬</text>
   <text x="134" y="300" font-size="12">플랫폼 · 솔루션</text>
   <text x="134" y="514" font-size="12">모델 · 지표</text>
