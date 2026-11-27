@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReadySet 데이터·AI 아키텍처</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: 모노톤(잉크·슬레이트) + 단일 액센트(2027 / WithSet / 의미 축). 좌측 의미 축(정의) · 중앙 L1→L4 적층 · 우측 SpinX 축(실행). 헤어라인 중심, 채색 최소화. */
+:root{
+  color-scheme:light;
+  --bg:#ffffff; --ink:#14213d; --ink-2:#3a4a66; --muted:#6b7685; --hair:#d9dee6; --panel:#f5f7fa; --panel-2:#eceff4;
+  --accent:#4b3fc4; --accent-soft:#f6f5fd;
+  --font:'Noto Sans KR','Inter',system-ui,sans-serif;
+  --num:'Inter','Noto Sans KR',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.6;word-break:keep-all;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:44px 56px}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+p{margin:0}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);letter-spacing:.02em}
+h1{font-size:24px;line-height:1.5;font-weight:600;margin:0;letter-spacing:-0.02em;color:var(--ink)}
+.lede{font-size:14.5px;color:var(--muted);line-height:1.7}
+.legend{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:0}
+
+.scroller{overflow-x:auto;border-top:1px solid var(--ink);border-bottom:1px solid var(--hair);padding-block:14px 10px}
+svg.dia{display:block;width:100%;min-width:1220px;height:auto}
+.dia text{font-family:var(--font);fill:var(--ink)}
+.dia .mu{fill:var(--muted)}
+.dia .sb{font-weight:600}
+.dia .b{font-weight:700}
+.dia .num{font-family:var(--num)}
+.dia .cap{font-size:10px;letter-spacing:.12em;font-weight:600;fill:var(--muted);font-family:var(--num)}
+
+h2.sec{font-size:17px;font-weight:600;margin:10px 0 0;letter-spacing:-0.01em}
+.takeaways{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));border-bottom:1px solid var(--hair)}
+.tk{padding:4px 22px 18px 0;display:flex;flex-direction:column;gap:6px}
+.tk + .tk{padding-left:22px;border-left:1px solid var(--hair)}
+.tk .n{font-family:var(--num);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em}
+.tk b{font-size:15px;font-weight:600;line-height:1.5}
+.tk p{font-size:13px;color:var(--muted);line-height:1.65}
+.next{display:grid;grid-template-columns:minmax(200px,0.8fr) minmax(0,2fr);gap:12px 32px;background:var(--accent-soft);border-left:3px solid var(--accent);padding:22px 26px}
+.next-h{display:flex;flex-direction:column;gap:8px}
+.next-h .n{font-family:var(--num);font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.1em}
+.next-h b{font-size:16px;font-weight:600;line-height:1.5}
+.next ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--muted);line-height:1.65}
+.next li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px}
+.next li b{color:var(--ink);font-weight:600}
+.next-c{grid-column:2;font-size:14px;font-weight:600;color:var(--ink);border-top:1px solid #dcd8f3;padding-top:12px}
+.foot{font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+@media (max-width:720px){.next{grid-template-columns:1fr}.next-c{grid-column:1}.next li{grid-template-columns:1fr;gap:2px}}
+@media (max-width:640px){.tk + .tk{padding-left:0;border-left:0;border-top:1px solid var(--hair);padding-top:14px}}
+</style>
+
+<div class="wrap">
+
+<div class="meta"><span>ReadySet 데이터 · AI 아키텍처</span><span>2026.11</span></div>
+<h1>ReadySet 통합 아키텍처</h1>
+<p class="lede">실집행 데이터 기반 4계층 구조와 의미 · AI 이중 축 설계<br>데이터(BRIDGE) · 모델 · 플랫폼 · 오케스트레이션(WithSet)의 순차 적층, 전 층을 정의하는 의미 축과 전 층에서 동작하는 SpinX의 결합</p>
+
+<div class="legend">
+  <span><i style="background:var(--ink)"></i>기 구축</span>
+  <span><i style="background:var(--accent)"></i>2027 신규 구축</span>
+  <span><i style="background:#fff;border:1px dashed var(--accent)"></i>WithSet 관리 영역</span>
+</div>
+
+<div class="scroller" role="region" aria-label="ReadySet 아키텍처 구조도" tabindex="0">
+<svg class="dia" viewBox="0 0 1370 870" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L1 BRIDGE, L2 모델·로직, L3 플랫폼 기반, L4 WithSet 오케스트레이션과 이를 감싸는 의미 축, SpinX 엔진 축">
+  <defs>
+    <marker id="aI" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3a4a66"/></marker>
+    <marker id="aA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#4b3fc4"/></marker>
+  </defs>
+
+  <!-- ===== Left layer index ===== -->
+  <line x1="132" y1="70" x2="132" y2="840" stroke="#d9dee6"/>
+  <g>
+    <circle cx="132" cy="146" r="4.5" fill="#4b3fc4"/>
+    <circle cx="132" cy="426" r="4.5" fill="#14213d"/>
+    <circle cx="132" cy="670" r="4.5" fill="#14213d"/>
+    <circle cx="132" cy="794" r="4.5" fill="#14213d"/>
+  </g>
+  <g>
+    <text x="16" y="158" class="num" font-size="30" font-weight="300" style="fill:#4b3fc4">L4</text>
+    <text x="16" y="182" class="sb" font-size="13">오케스트레이션</text>
+    <text x="16" y="200" class="mu" font-size="11.5">WithSet</text>
+
+    <text x="16" y="438" class="num" font-size="30" font-weight="300">L3</text>
+    <text x="16" y="462" class="sb" font-size="13">플랫폼 기반</text>
+    <text x="16" y="480" class="mu" font-size="11.5">자산 · 기능</text>
+
+    <text x="16" y="682" class="num" font-size="30" font-weight="300">L2</text>
+    <text x="16" y="706" class="sb" font-size="13">모델 · 로직</text>
+    <text x="16" y="724" class="mu" font-size="11.5">계산 엔진</text>
+
+    <text x="16" y="806" class="num" font-size="30" font-weight="300">L1</text>
+    <text x="16" y="830" class="sb" font-size="13">데이터 원천</text>
+    <text x="16" y="848" class="mu" font-size="11.5">BRIDGE</text>
+  </g>
+
+  <!-- ===== Reference line: SpinX reads the semantic axis ===== -->
+  <path d="M240 50 V20 H1248 V50" fill="none" stroke="#3a4a66" stroke-width="1" stroke-dasharray="4 4"/>
+  <rect x="604" y="11" width="280" height="18" fill="#ffffff"/>
+  <text x="744" y="24" text-anchor="middle" class="sb" font-size="11" style="fill:#3a4a66">SpinX · AXiom은 답변 시 의미 축을 참조</text>
+
+  <!-- ===== Semantic axis (left) ===== -->
+  <rect x="148" y="50" width="182" height="794" rx="5" fill="#f6f5fd"/>
+  <rect x="148" y="50" width="4" height="794" fill="#4b3fc4"/>
+  <text x="168" y="78" class="cap" style="fill:#4b3fc4">SEMANTIC · 2027</text>
+  <text x="168" y="106" font-size="22" font-weight="600">의미 축</text>
+  <text x="168" y="130" class="sb" font-size="10.5" style="fill:#6b7685">정의</text>
+  <text x="196" y="130" font-size="11">전 층의 개념 · 관계</text>
+  <text x="196" y="146" font-size="11">공통 정의 체계</text>
+  <text x="196" y="162" class="mu" font-size="10.5">(온톨로지 · 시맨틱)</text>
+  <text x="168" y="184" class="sb" font-size="10.5" style="fill:#6b7685">역할</text>
+  <text x="196" y="184" font-size="11">AI 답변 기준 제공</text>
+  <text x="196" y="200" font-size="11">용어 · 지표 일관성 확보</text>
+
+  <line x1="168" y1="216" x2="316" y2="216" stroke="#dcd8f3"/>
+  <text x="168" y="238" class="num sb" font-size="11" style="fill:#4b3fc4">L4</text>
+  <text x="196" y="238" font-size="11.5">에이전트 · 워크플로우</text>
+  <text x="196" y="255" font-size="11.5">스킬 정의</text>
+
+  <line x1="168" y1="292" x2="316" y2="292" stroke="#dcd8f3"/>
+  <text x="168" y="316" class="num sb" font-size="11" style="fill:#4b3fc4">L3</text>
+  <text x="196" y="316" font-size="11.5">Slot · 권한 · 정책</text>
+  <text x="196" y="336" font-size="11.5">플랫폼 기능 · 용어</text>
+  <text x="196" y="356" font-size="11.5">솔루션 입출력 · 연계</text>
+  <text x="196" y="376" font-size="11.5">지식 · 연결 자산 정의</text>
+
+  <line x1="168" y1="630" x2="316" y2="630" stroke="#dcd8f3"/>
+  <text x="168" y="654" class="num sb" font-size="11" style="fill:#4b3fc4">L2</text>
+  <text x="196" y="654" font-size="11.5">모델 역할 · 적용 범위</text>
+  <text x="196" y="674" font-size="11.5">지표 산식</text>
+
+  <line x1="168" y1="760" x2="316" y2="760" stroke="#dcd8f3"/>
+  <text x="168" y="784" class="num sb" font-size="11" style="fill:#4b3fc4">L1</text>
+  <text x="196" y="784" font-size="11.5">광고주 · 브랜드 · 업종</text>
+  <text x="196" y="802" font-size="11.5">캠페인 · 매체 · 상품 · 지표</text>
+  <text x="196" y="820" class="mu" font-size="10.5">개념과 관계 정의</text>
+
+  <!-- semantic taps -->
+  <g stroke="#4b3fc4" stroke-width="1" stroke-dasharray="3 3">
+    <line x1="330" y1="146" x2="346" y2="146"/>
+    <line x1="330" y1="426" x2="346" y2="426"/>
+    <line x1="330" y1="670" x2="346" y2="670"/>
+    <line x1="330" y1="794" x2="346" y2="794"/>
+  </g>
+
+  <!-- ===== Main stack + SpinX (shifted) ===== -->
+  <g transform="translate(170 30)">
+
+  <!-- ReadySet platform frame (L3 + L4) -->
+  <rect x="176" y="20" width="770" height="540" rx="6" fill="none" stroke="#14213d" stroke-width="1.8"/>
+  <rect x="186" y="7" width="150" height="26" rx="3" fill="#14213d"/>
+  <text x="261" y="25" text-anchor="middle" class="sb" font-size="13" style="fill:#ffffff" letter-spacing=".02em">ReadySet 플랫폼</text>
+
+  <!-- WithSet managed area -->
+  <rect x="600" y="206" width="336" height="292" rx="5" fill="#f6f5fd" stroke="#4b3fc4" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="614" y="236" class="sb" font-size="11" style="fill:#4b3fc4">WithSet 관리 영역</text>
+  <text x="922" y="236" text-anchor="end" class="mu" font-size="10.5">자산은 플랫폼 공용</text>
+
+  <!-- L4 WithSet -->
+  <rect x="186" y="36" width="750" height="176" rx="5" fill="#ffffff" stroke="#4b3fc4" stroke-width="1.4"/>
+  <rect x="186" y="36" width="750" height="4" fill="#4b3fc4"/>
+  <text x="206" y="76" class="num" font-size="17" font-weight="600" style="fill:#4b3fc4">WithSet</text>
+  <text x="290" y="75" class="mu" font-size="12">SpinX와 함께 광고 전략을 수립 · 운영하는 오케스트레이션 공간</text>
+  <text x="920" y="76" text-anchor="end" class="sb" font-size="11.5" style="fill:#4b3fc4">2027 핵심 과제</text>
+  <g>
+    <line x1="206" y1="98" x2="630" y2="98" stroke="#d9dee6"/>
+    <text x="206" y="122" class="sb" font-size="13">에이전트</text>
+    <text x="206" y="144" class="mu" font-size="11">목표를 받아 스스로 수행</text>
+    <text x="206" y="162" class="mu" font-size="11">예: 인사이트 큐레이터</text>
+    <line x1="342" y1="110" x2="342" y2="196" stroke="#e6e9ee"/>
+    <text x="358" y="122" class="sb" font-size="13">워크플로우</text>
+    <text x="358" y="144" class="mu" font-size="11">노드로 엮는 반복 업무</text>
+    <text x="358" y="162" class="mu" font-size="11">스케줄 · 트리거 실행</text>
+    <line x1="490" y1="110" x2="490" y2="196" stroke="#e6e9ee"/>
+    <text x="506" y="122" class="sb" font-size="13">스킬</text>
+    <text x="506" y="144" class="mu" font-size="11">재사용 가능한 업무 단위</text>
+    <text x="506" y="162" class="mu" font-size="11">팀 노하우의 패키지화</text>
+  </g>
+  <rect x="646" y="98" width="274" height="98" rx="4" fill="#f5f7fa"/>
+  <text x="660" y="118" class="sb" font-size="12">예측 · 시장 · 실측 결합</text>
+  <g font-size="11.5">
+    <text x="660" y="142" class="sb">예측</text><text x="692" y="142" class="mu" font-size="10.5">L3-1 솔루션</text>
+    <text x="660" y="160" class="sb">시장</text><text x="692" y="160" class="mu" font-size="10.5">BRIDGE MCP</text>
+    <text x="660" y="178" class="sb">실측</text><text x="692" y="178" class="mu" font-size="10.5">매체 MCP</text>
+  </g>
+  <line x1="776" y1="160" x2="800" y2="160" stroke="#3a4a66" stroke-width="1.2" marker-end="url(#aI)"/>
+  <rect x="806" y="130" width="102" height="58" rx="3" fill="#14213d"/>
+  <text x="857" y="153" text-anchor="middle" class="sb" font-size="11.5" style="fill:#fff">편차 · 원인</text>
+  <text x="857" y="171" text-anchor="middle" class="sb" font-size="11.5" style="fill:#fff">다음 액션</text>
+
+  <line x1="398" y1="214" x2="398" y2="258" stroke="#4b3fc4" stroke-width="1.4" marker-end="url(#aA)"/>
+  <text x="408" y="241" class="sb" font-size="11" style="fill:#4b3fc4">솔루션 호출</text>
+
+  <!-- L3 platform -->
+  <rect x="186" y="262" width="404" height="232" rx="5" fill="#ffffff" stroke="#d9dee6"/>
+  <text x="200" y="285" class="cap">3-1</text>
+  <text x="226" y="285" class="sb" font-size="12.5">솔루션 4종</text>
+  <text x="576" y="285" text-anchor="end" class="mu" font-size="10.5">Slot(광고주) 단위 실행</text>
+  <g>
+    <rect x="200" y="298" width="184" height="86" rx="4" fill="#f5f7fa"/>
+    <text x="214" y="322" class="sb" font-size="13.5">DataShot</text>
+    <text x="214" y="340" class="mu" font-size="11">업종 · 매체 · 상품 벤치마크</text>
+    <text x="214" y="368" font-size="10.5" class="sb" style="fill:#3a4a66">SpinX</text><text x="252" y="368" font-size="10.5" class="mu">· AXiom 검증</text>
+    <rect x="392" y="298" width="184" height="86" rx="4" fill="#f5f7fa"/>
+    <text x="406" y="322" class="sb" font-size="13.5">Ad Curator</text>
+    <text x="406" y="340" class="mu" font-size="11">집행 매체 · 상품 후보 선별</text>
+    <text x="406" y="368" font-size="10.5" class="sb" style="fill:#3a4a66">SpinX</text>
+    <rect x="200" y="394" width="184" height="86" rx="4" fill="#f5f7fa"/>
+    <text x="214" y="418" class="sb" font-size="13.5">BudgetOpt 2.0</text>
+    <text x="214" y="436" class="mu" font-size="11">KPI별 최적 예산 배분</text>
+    <text x="214" y="464" font-size="10.5" class="sb" style="fill:#3a4a66">SpinX</text><text x="252" y="464" font-size="10.5" class="mu">· AXiom 검증</text>
+    <rect x="392" y="394" width="184" height="86" rx="4" fill="#f5f7fa"/>
+    <text x="406" y="418" class="sb" font-size="13.5">Reach Caster</text>
+    <text x="406" y="436" class="mu" font-size="11">TV · 디지털 통합 도달 예측</text>
+    <text x="406" y="464" font-size="10.5" class="sb" style="fill:#3a4a66">SpinX</text>
+  </g>
+
+  <rect x="612" y="252" width="150" height="236" rx="4" fill="#ffffff" stroke="#d9dee6"/>
+  <text x="626" y="275" class="cap" style="fill:#4b3fc4">3-2 · 2027</text>
+  <text x="626" y="297" class="sb" font-size="14">지식베이스</text>
+  <line x1="626" y1="310" x2="748" y2="310" stroke="#e6e9ee"/>
+  <text x="626" y="332" class="sb" font-size="11">분석 인사이트</text>
+  <text x="626" y="349" class="mu" font-size="10.5">실집행 데이터 분석</text>
+  <text x="626" y="364" class="mu" font-size="10.5">파이프라인 산출물</text>
+  <text x="626" y="390" class="sb" font-size="11">매체 정보</text>
+  <text x="626" y="407" class="mu" font-size="10.5">매체 공지 · 프로모션</text>
+  <line x1="626" y1="430" x2="748" y2="430" stroke="#e6e9ee"/>
+  <text x="626" y="452" class="mu" font-size="10.5">업종 · 매체 · KPI 태그</text>
+  <text x="626" y="470" class="mu" font-size="10.5">SpinX 검색(RAG) 소스</text>
+
+  <rect x="774" y="252" width="150" height="236" rx="4" fill="#ffffff" stroke="#d9dee6"/>
+  <text x="788" y="275" class="cap" style="fill:#4b3fc4">3-3 · 2027</text>
+  <text x="788" y="297" class="sb" font-size="14">MCP 연결</text>
+  <line x1="788" y1="310" x2="910" y2="310" stroke="#e6e9ee"/>
+  <text x="788" y="332" class="sb" font-size="11">BRIDGE MCP</text>
+  <text x="788" y="349" class="mu" font-size="10.5">시장 데이터 조회</text>
+  <text x="788" y="375" class="sb" font-size="11">매체 MCP</text>
+  <text x="788" y="392" class="mu" font-size="10.5">집행 실측 조회</text>
+  <text x="788" y="407" class="mu" font-size="10.5">Google · Meta · TikTok</text>
+  <text x="788" y="422" class="mu" font-size="10.5">Kakao · Naver 자체 구축</text>
+  <line x1="788" y1="430" x2="910" y2="430" stroke="#e6e9ee"/>
+  <text x="788" y="452" class="mu" font-size="10.5">광고주 단위 인증</text>
+  <text x="788" y="470" class="mu" font-size="10.5">읽기 전용 조회</text>
+
+  <rect x="186" y="506" width="750" height="40" rx="4" fill="#eceff4"/>
+  <text x="200" y="531" class="cap">3-0</text>
+  <text x="226" y="531" class="sb" font-size="12.5">거버넌스</text>
+  <text x="300" y="531" class="mu" font-size="11.5">권한 · 광고주별 데이터 격리 · 매체 연결 인증 및 토큰 관리 · 사용량 · 감사</text>
+
+  <!-- L2 -> L3 -->
+  <line x1="398" y1="598" x2="398" y2="564" stroke="#3a4a66" stroke-width="1.2" marker-end="url(#aI)"/>
+  <text x="408" y="586" class="mu" font-size="10.5">솔루션 엔진</text>
+  <text x="932" y="590" text-anchor="end" class="mu" font-size="10.5">매월 15일 재학습</text>
+
+  <!-- L2 models -->
+  <rect x="176" y="600" width="770" height="96" rx="5" fill="#f5f7fa"/>
+  <g>
+    <rect x="190" y="612" width="176" height="72" rx="3" fill="#fff" stroke="#e1e5eb"/>
+    <text x="202" y="636" class="sb" font-size="13">벤치마크 집계</text>
+    <text x="202" y="654" class="mu" font-size="10.5">24개월 실적 상품 단위 집계</text>
+    <text x="202" y="673" font-size="10.5" style="fill:#3a4a66">→ DataShot</text>
+    <rect x="378" y="612" width="176" height="72" rx="3" fill="#fff" stroke="#e1e5eb"/>
+    <text x="390" y="636" class="sb" font-size="13">큐레이션 로직</text>
+    <text x="390" y="654" class="mu" font-size="10.5">라벨 선정 · 적합도 평가 + LLM</text>
+    <text x="390" y="673" font-size="10.5" style="fill:#3a4a66">→ Ad Curator</text>
+    <rect x="566" y="612" width="176" height="72" rx="3" fill="#fff" stroke="#e1e5eb"/>
+    <text x="578" y="636" class="num b" font-size="13.5">Optima</text>
+    <text x="578" y="654" class="mu" font-size="10.5">Meridian MMM 예산 최적화</text>
+    <text x="578" y="673" font-size="10.5" style="fill:#3a4a66">→ BudgetOpt 2.0</text>
+    <rect x="754" y="612" width="176" height="72" rx="3" fill="#fff" stroke="#e1e5eb"/>
+    <text x="766" y="636" class="num b" font-size="13.5">Prognos</text>
+    <text x="766" y="654" class="mu" font-size="10.5">GBRT 성과 · 도달 예측</text>
+    <text x="766" y="673" font-size="10.5" style="fill:#3a4a66">→ BudgetOpt · Reach Caster</text>
+  </g>
+
+  <!-- L1 -> L2 -->
+  <line x1="398" y1="728" x2="398" y2="700" stroke="#3a4a66" stroke-width="1.2" marker-end="url(#aI)"/>
+  <text x="408" y="719" class="mu" font-size="10.5">원천 데이터 학습</text>
+
+  <!-- BRIDGE MCP route: BRIDGE -> 3-3 -->
+  <path d="M958 730 V372 H928" fill="none" stroke="#3a4a66" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#aI)"/>
+  <rect x="951" y="432" width="14" height="92" fill="#fff"/>
+  <text transform="translate(961.5 478) rotate(-90)" text-anchor="middle" class="sb" font-size="9.5" style="fill:#3a4a66" letter-spacing=".04em">BRIDGE MCP</text>
+
+  <!-- L1 BRIDGE -->
+  <rect x="176" y="730" width="1006" height="84" rx="5" fill="#14213d"/>
+  <text x="196" y="772" class="num" font-size="24" font-weight="600" style="fill:#fff" letter-spacing=".02em">BRIDGE</text>
+  <text x="196" y="794" font-size="10.5" style="fill:#9aa6bb">운영 중</text>
+  <text x="340" y="758" class="sb" font-size="12.5" style="fill:#fff">CJ메조미디어 매체 집행 데이터 수집 · 적재 인프라</text>
+  <text x="340" y="776" font-size="11" style="fill:#b7c1d3">다광고주 집행 이력의 축적, 모든 상위 층의 단일 원천</text>
+  <g font-size="11">
+    <text x="340" y="800" style="fill:#dfe5ee"><tspan font-weight="600" style="fill:#fff">4대 매체</tspan>  Google · Meta · Naver · Kakao</text>
+    <line x1="556" y1="790" x2="556" y2="804" stroke="#4a5a78"/>
+    <text x="572" y="800" style="fill:#dfe5ee"><tspan font-weight="600" style="fill:#fff">버티컬</tspan>  TikTok · 당근 · 토스 등</text>
+    <line x1="752" y1="790" x2="752" y2="804" stroke="#4a5a78"/>
+    <text x="768" y="800" style="fill:#dfe5ee"><tspan font-weight="600" style="fill:#fff">기타</tspan>  SMR · Targetpick 등</text>
+  </g>
+
+  <!-- SpinX axis -->
+  <rect x="974" y="20" width="208" height="676" rx="5" fill="#f5f7fa"/>
+  <rect x="974" y="20" width="4" height="676" fill="#14213d"/>
+  <text x="994" y="48" class="cap">AI ENGINE</text>
+  <text x="994" y="78" class="num" font-size="26" font-weight="600">SpinX</text>
+  <text x="994" y="102" class="sb" font-size="10.5" style="fill:#6b7685">정의</text>
+  <text x="1036" y="102" font-size="11">전 층에 탑재되는</text>
+  <text x="1036" y="118" font-size="11">ReadySet 단일 AI 엔진</text>
+  <text x="994" y="140" class="sb" font-size="10.5" style="fill:#6b7685">역할</text>
+  <text x="1036" y="140" font-size="11">분석 결과 해석 · 답변</text>
+  <text x="1036" y="156" font-size="11">솔루션 · 도구 실행</text>
+  <text x="1036" y="172" font-size="11">사용자와 협업 (WithSet)</text>
+
+  <line x1="994" y1="190" x2="1166" y2="190" stroke="#d9dee6"/>
+  <text x="994" y="212" class="cap">탑재 위치</text>
+  <g font-size="11.5">
+    <text x="994" y="236" class="num sb" font-size="11" style="fill:#4b3fc4">L4</text><text x="1036" y="236">AI 동료 · 실행 주체</text>
+    <text x="994" y="258" class="num sb" font-size="11" style="fill:#3a4a66">L3-1</text><text x="1036" y="258">솔루션 해석 · 요약</text>
+    <text x="994" y="280" class="num sb" font-size="11" style="fill:#3a4a66">L3-2</text><text x="1036" y="280">지식베이스 검색</text>
+    <text x="994" y="302" class="num sb" font-size="11" style="fill:#3a4a66">L3-3</text><text x="1036" y="302">MCP 도구 호출</text>
+    <text x="994" y="324" class="num sb" font-size="11" style="fill:#3a4a66">L2</text><text x="1036" y="324">큐레이션 LLM 결합</text>
+  </g>
+
+  <line x1="994" y1="342" x2="1166" y2="342" stroke="#d9dee6"/>
+  <text x="994" y="364" class="cap">엔진 기능</text>
+  <g font-size="11.5">
+    <text x="994" y="388" class="sb" font-size="11" style="fill:#3a4a66">기반</text><text x="1036" y="388">전사 공통 LLM Gateway</text>
+    <text x="994" y="410" class="sb" font-size="11" style="fill:#3a4a66">모델</text><text x="1036" y="410">Claude · GPT</text>
+    <text x="1036" y="426">Gemini · Bedrock</text>
+    <text x="994" y="448" class="sb" font-size="11" style="fill:#3a4a66">안전</text><text x="1036" y="448">가드레일</text>
+    <text x="994" y="470" class="sb" font-size="11" style="fill:#3a4a66">도구</text><text x="1036" y="470">Function Calling</text>
+    <text x="1036" y="486">MCP 연동</text>
+    <text x="994" y="508" class="sb" font-size="11" style="fill:#3a4a66">통제</text><text x="1036" y="508">사용량 · 권한 관리</text>
+  </g>
+
+  <line x1="994" y1="526" x2="1166" y2="526" stroke="#d9dee6"/>
+  <text x="994" y="548" class="cap">답변 검증</text>
+  <text x="994" y="574" class="num b" font-size="15">AXiom</text>
+  <text x="994" y="596" class="sb" font-size="11.5">SpinX 답변 전용 검증 모델</text>
+  <text x="994" y="614" class="mu" font-size="11">DataShot · BudgetOpt 적용</text>
+  <text x="994" y="644" class="mu" font-size="10.5">답변 시 의미 축 참조</text>
+
+  <g stroke="#14213d" stroke-width="1">
+    <line x1="946" y1="124" x2="974" y2="124"/>
+    <line x1="946" y1="300" x2="974" y2="300"/>
+    <line x1="946" y1="648" x2="974" y2="648"/>
+  </g>
+  <g fill="#14213d"><circle cx="946" cy="124" r="2.5"/><circle cx="946" cy="300" r="2.5"/><circle cx="946" cy="648" r="2.5"/></g>
+
+  </g>
+</svg>
+</div>
+
+<h2 class="sec">구조적 강점</h2>
+<div class="takeaways">
+  <div class="tk"><span class="n">01 데이터 경쟁력</span><b>다광고주 실집행 데이터 기반의 비교 기준 확보</b><p>전 층이 BRIDGE의 업종 · 매체별 집행 이력을 공통 원천으로 사용. 단일 광고주 데이터나 범용 AI로 대체 불가.</p></div>
+  <div class="tk"><span class="n">02 확장 효율</span><b>모델 · 엔진 공용화로 중복 투자 최소화</b><p>Prognos는 BudgetOpt · Reach Caster 공용, SpinX는 전 솔루션 공용. 신규 기능 추가 시 하위 층 재구축 불필요.</p></div>
+  <div class="tk"><span class="n">03 결과 신뢰도</span><b>공통 정의 기반의 AI 답변 및 검증 체계</b><p>SpinX는 의미 축의 정의와 솔루션 결과를 근거로 답변하며, AXiom이 같은 기준으로 근거 일치 여부를 검증.</p></div>
+</div>
+
+<section class="next">
+  <div class="next-h">
+    <span class="n">다음 단계</span>
+    <b>기반 자산의 성숙과<br>AI 에이전트 기술의 확산,<br>통합 오케스트레이션 전환의 적기 도래</b>
+  </div>
+  <ul>
+    <li><b>기반 성숙</b>BRIDGE 데이터, Prognos · Optima 모델, 4개 솔루션, SpinX 엔진의 운영 체계 안정화</li>
+    <li><b>기술 환경</b>AI 에이전트와 MCP 표준 확산으로 하나의 AI가 여러 도구 · 데이터를 연결해 쓰는 방식이 정착. 주요 매체의 공식 MCP 공개로 실측 데이터 연동 환경 조성</li>
+    <li><b>확장 기회</b>솔루션 단위 활용에서 플랫폼 단위 활용으로, 예측 중심 업무에서 예측 · 실측 통합 의사결정으로 확장</li>
+  </ul>
+  <p class="next-c">→ 2027년, 의미 축과 WithSet을 구축해 기존 자산을 통합 활용하는 오케스트레이션 체계 완성</p>
+</section>
+
+<div class="foot">
+  <span>주: 2027 표기 항목은 신규 구축 범위이며, WithSet 세부 구성과 의미 축의 범위는 기획 단계로 변경될 수 있음.</span></div>
+
+</div>
+
+</html>
